@@ -1,24 +1,27 @@
 #include <civic.h>
 
-bool isPrime(int primeCandidate) {
-	int divider = 2;
-	bool isPrime = true;
-
-	while (isPrime && divider*divider <= primeCandidate) {
-		if (primeCandidate % divider == 0) {
-			isPrime = false;
-		}
-		divider = divider + 1;
-	}
-	
-	return isPrime;
-}
-
 int primes(int numberOfPrimes) {
 	int primeCandidate = 1;
 	int lastPrime = 0;
+
+	bool isPrime() {
+		int divider = 2;
+		bool isPrime = true;
+
+		// No need to go past the square root of primeCandidate. Since CiviC does not have
+		// a square root method we test for the square our self
+		while (isPrime && divider*divider <= primeCandidate) {
+			if (primeCandidate % divider == 0) {
+				isPrime = false;
+			}
+			divider = divider + 1;
+		}
+		
+		return isPrime;
+	}
+
 	while (numberOfPrimes > 0) {
-		if (isPrime(primeCandidate)) {
+		if (isPrime()) {
 			printInt(primeCandidate);
 			printNewlines(1);
 			lastPrime = primeCandidate;

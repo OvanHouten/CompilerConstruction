@@ -3,15 +3,15 @@
 int gcd(int a, int b) {
 	// The GCD
 	int gcd;
-	// Temporary variable for swpping the parameters if a < b
-	int swap;
+
+	void swap() {
+		int temp = a;
+		a = b;
+		b = temp;
+	}
 
 	// Fix any input error
-	if (a < b) {
-		swap = a;
-		a = b;
-		b = swap;
-	}
+	if (a < b) swap();
 
 	// Euclid method
 	if (a % b == 0) {

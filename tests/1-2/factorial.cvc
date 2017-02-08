@@ -1,16 +1,16 @@
 #include <civic.h>
 
-int fac(int n) {
-	// For now we ignore any negative number :-)
-	if (n <= 1) {
-		n = 1;
-	} else {
-		n = n * fac(n - 1);
-	}
-	return n;
-}
 
 export int main() {
+	int fac(int n) {
+		// For now we ignore any negative number :-)
+		if (n <= 1) {
+			n = 1;
+		} else {
+			n = n * fac(n - 1);
+		}
+		return n;
+	}
 	// Print the expected factorial and the calculated factorial seprated by a space.
 
 	printInt(1);

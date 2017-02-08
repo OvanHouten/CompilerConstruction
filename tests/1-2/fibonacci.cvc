@@ -1,20 +1,20 @@
 #include <civic.h>
 
-void printFib(int fib) {
-	printInt(fib);
-	printNewlines(1);
-}
-
 int fibs(int numberOfFibsToPrint) {
 	int fib = 0;
 	int previousFib = 0;
 	int secondPreviousFib = 1;
 
+	void printFib() {
+		printInt(fib);
+		printNewlines(1);
+	}
+
 	if (numberOfFibsToPrint == 0) {
-		printFib(fib);
+		printFib();
 	} else {
 		while (numberOfFibsToPrint > 0) {
-			printFib(fib);
+			printFib();
 
 			fib = previousFib + secondPreviousFib;
 			secondPreviousFib = previousFib;
