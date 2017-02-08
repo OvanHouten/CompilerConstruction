@@ -14,7 +14,7 @@ bool isPrime(int primeCandidate) {
 	return isPrime;
 }
 
-void printPrimes(int numberOfPrimes) {
+void primes(int numberOfPrimes) {
 	int primeCandidate = 1;
 	while (numberOfPrimes > 0) {
 		if (isPrime(primeCandidate)) {
@@ -28,7 +28,7 @@ void printPrimes(int numberOfPrimes) {
 
 export int main() {
 	
-	printPrimes(scanInt());
+	primes(scanInt());
 
 	return 0;
 }

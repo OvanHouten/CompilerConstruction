@@ -1,15 +1,15 @@
 #include <civic.h>
 
-int fib(int n) {
+int fibs(int n) {
 	if (n > 1) {
-		n = fib(n - 1) + fib(n - 2);
+		n = fibs(n - 1) + fibs(n - 2);
 	}
 	return n;
 }
 
 export int main() {
 
-	printInt(fib(scanInt()));
+	printInt(fibs(scanInt()));
 	printNewlines(1);
 
 	return 0;
