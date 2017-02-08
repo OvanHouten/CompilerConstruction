@@ -24,9 +24,27 @@ int gcd(int a, int b) {
 }
 
 export int main() {
+	// Prints the expected GCD and the calculates GCD separated by a space
+	
+	printInt(6);
+	printSpaces(1);
+	printInt(gcd(54, 24));
+	printNewlines(2);
 
-	printInt(gcd(scanInt(), scanInt()));
-	printNewlines(1);
+	printInt(6);
+	printSpaces(1);
+	printInt(gcd(24, 54));
+	printNewlines(2);
+
+	printInt(1);
+	printSpaces(1);
+	printInt(gcd(13, 125));
+	printNewlines(2);
+
+	printInt(4);
+	printSpaces(1);
+	printInt(gcd(8, 12));
+	printNewlines(2);
 
 	return 0;
 }

@@ -11,9 +11,27 @@ int fac(int n) {
 }
 
 export int main() {
+	// Print the expected factorial and the calculated factorial seprated by a space.
 
-	printInt(fac(scanInt()));
-	printNewlines(1);
+	printInt(1);
+	printSpaces(1);
+	printInt(fac(0));
+	printNewlines(2);
+
+	printInt(1);
+	printSpaces(1);
+	printInt(fac(1));
+	printNewlines(2);
+
+	printInt(6);
+	printSpaces(1);
+	printInt(fac(3));
+	printNewlines(2);
+
+	printInt(120);
+	printSpaces(1);
+	printInt(fac(5));
+	printNewlines(2);
 
 	return 0;
 }
