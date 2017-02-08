@@ -1,0 +1,34 @@
+#include <civic.h>
+
+bool isPrime(int primeCandidate) {
+	int divider = 2;
+	bool isPrime = true;
+
+	while (isPrime && divider*divider <= primeCandidate) {
+		if (primeCandidate % divider == 0) {
+			isPrime = false;
+		}
+		divider = divider + 1;
+	}
+	
+	return isPrime;
+}
+
+void printPrimes(int numberOfPrimes) {
+	int primeCandidate = 1;
+	while (numberOfPrimes > 0) {
+		if (isPrime(primeCandidate)) {
+			numberOfPrimes = numberOfPrimes -1;
+			printInt(primeCandidate);
+			printNewlines(1);
+		}
+		primeCandidate = primeCandidate + 1;
+	}
+}
+
+export int main() {
+	
+	printPrimes(scanInt());
+
+	return 0;
+}
