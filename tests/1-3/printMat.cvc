@@ -1,0 +1,18 @@
+#include <civic.h>
+
+void printMat(int[m, n] ints) {
+	for (int i = 0, m) {
+		for (int j = 0, n) {
+			printInt(ints[i, j]);
+			printSpaces(1);
+		}	
+		printNewlines(1);
+	}
+}
+
+export int main() {
+	int[3, 2] ints = [ [ 2, 6 ], [13, 42 ], [ 0, 100] ];
+	printMat(ints);
+
+	return 0;
+}
