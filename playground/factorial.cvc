@@ -1,17 +1,17 @@
 #include <civic.h>
 
-int factorial(int n) {
+int fac(int n) {
 	if (n <= 1) {
 		n = 1;
 	} else {
-		n = n * factorial(n - 1);
+		n = n * fac(n - 1);
 	}
 	return n;
 }
 
 export int main() {
 
-	printInt(factorial(scanInt()));
+	printInt(fac(scanInt()));
 	printNewlines(1);
 
 	return 0;
