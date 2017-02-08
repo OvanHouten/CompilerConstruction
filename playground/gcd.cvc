@@ -1,12 +1,25 @@
 #include <civic.h>
 
 int gcd(int a, int b) {
+	// The GCD
 	int gcd;
+	// Temporary variable for swpping the parameters if a < b
+	int swap;
+
+	// Fix any input error
+	if (a < b) {
+		swap = a;
+		a = b;
+		b = swap;
+	}
+
+	// Euclid method
 	if (a % b == 0) {
 		gcd = b;
 	} else {
 		gcd = gcd(b, a % b);
 	}
+
 	return gcd;
 }
 

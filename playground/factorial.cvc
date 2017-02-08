@@ -1,6 +1,7 @@
 #include <civic.h>
 
 int fac(int n) {
+	// For now we ignore any negative number :-)
 	if (n <= 1) {
 		n = 1;
 	} else {
