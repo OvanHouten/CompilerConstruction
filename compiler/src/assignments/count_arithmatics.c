@@ -81,16 +81,16 @@ node *CAbinop(node *arg_node, info *arg_info) {
 
 	  switch (BINOP_OP( arg_node)) {
 	  case BO_add :
-		  INFO_ADD( arg_info) = INFO_ADD( arg_info) + 1;
+		  INFO_ADD( arg_info)++;
 	  	  break;
 	  case BO_sub :
-		  INFO_SUB( arg_info) = INFO_SUB( arg_info) + 1;
+		  INFO_SUB( arg_info)++;
 		  break;
 	  case BO_mul :
-		  INFO_MUL( arg_info) = INFO_MUL( arg_info) + 1;
+		  INFO_MUL( arg_info)++;
 		  break;
 	  case BO_div :
-		  INFO_DIV(arg_info) = INFO_DIV( arg_info) + 1;
+		  INFO_DIV(arg_info)++;
 		  break;
 	  default:
 		  // Ignore others :-)
