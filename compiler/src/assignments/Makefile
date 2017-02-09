@@ -6,7 +6,7 @@
 # 
 # SAC COPYRIGHT NOTICE, LICENSE, AND DISCLAIMER
 # 
-# (c) Copyright 1994 - 2011 by
+# (c) Copyright 1994 - 2010 by
 # 
 #   SAC Development Team
 #   SAC Research Foundation
@@ -25,7 +25,7 @@
 # 
 # Permission to use this software is hereby granted free of charge
 # exclusively for the duration and purpose of the course 
-#   "Compilerbouw" 
+#   "Compilers and Operating Systems" 
 # of the MSc programme Grid Computing at the University of Amsterdam.
 # Redistribution of the software or any parts thereof as well as any
 # alteration  of the software or any parts thereof other than those 
@@ -49,36 +49,78 @@
 
 ###############################################################################
 #
-# Collection of source directories
+# Makefile for sac2c source directories
 #
+# This Makefile is copied on demand into source directories.
+# Be sure not to edit these copies.
+#
+###############################################################################
 
-
-src = global scanparse print codegen demo framework assignments
-             
 
 
 ###############################################################################
 #
-# Collection of object files
+# General settings
 #
-#  Note that the variable names must coincide with the directory names above.
+
+PROJECT_ROOT = ../..
+
+include $(PROJECT_ROOT)/Makefile.Config
+
+TARGET = $(notdir $(PWD))
 
 
-framework   = memory.o str.o ctinfo.o main_args.o dbug.o globals.o \
-              free_attribs.o free.o copy.o traverse.o scanparse.o main.o \
-              phase.o phase_drivers.o phase_info.o phase_options.o \
-              check_lib.o node_basic.o free_node.o copy_node.o \
-              traverse_tables.o traverse_helper.o check.o \
-              check_node.o check_attribs.o lookup_table.o map.o
 
-global      = options.o usage.o myglobals.o
+###############################################################################
+#
+# Dummy rules
+#
 
-scanparse   = civic.tab.o civic.lex.o
+.PHONY: clean all devel prod 
 
-print       = print.o
 
-codegen     = gen_byte_code.o
 
-demo        = rename_identifiers.o opt_sub.o sum_ints.o
+###############################################################################
+#
+# Start rules
+#
 
-assignments = count_arithmatics.o
+all: devel
+
+devel:
+	@$(ECHO) ""
+	@$(ECHO) "Making current subdirectory (developer version)"
+	@$(MAKE) -C $(PROJECT_ROOT) TARGET="$(TARGET)" MODE="" CHECK_DEPS="yes" makesubdir
+
+prod:
+	@$(ECHO) ""
+	@$(ECHO) "Making current subdirectory (product version)"
+	@$(MAKE) -C $(PROJECT_ROOT) TARGET="$(TARGET)" MODE="prod" CHECK_DEPS="yes"makesubdir
+
+
+
+
+###############################################################################
+#
+# Rules for generating Makefiles
+#
+
+Makefile: $(PROJECT_ROOT)/Makefile.Source
+	@$(ECHO) "  Creating makefile: $@" 
+	@cp -f $< $@
+
+
+
+
+
+###############################################################################
+#
+# Rules for directory cleaning
+#
+
+clean:
+	@$(RM) *.o *.a *.bak *~ .*.d
+	@$(RM) $(patsubst %.xsl,%,$(wildcard *.xsl))
+	@$(RM) -r .sb SunWS_cache
+	@$(RM) *.lex.c *.tab.c *.tab.h y.output
+

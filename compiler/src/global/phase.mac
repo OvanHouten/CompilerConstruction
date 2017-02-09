@@ -46,6 +46,12 @@ SUBPHASE( si,
           ALWAYS,
           pet)   
    
+SUBPHASE( ca, 
+		"Count Arithmatic operations",
+		CAdoCountArithmatics, 
+		ALWAYS,
+		pet)   
+
 SUBPHASE( os, 
           "Optimise subtraction",
           OSdoOptSub, 
