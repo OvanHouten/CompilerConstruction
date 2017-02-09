@@ -1,3 +1,4 @@
 *.out
 compilerbouw.sublime-project
 compilerbouw.sublime-workspace
+.DS_Store
