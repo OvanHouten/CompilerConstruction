@@ -1,12 +1,19 @@
-*.out
-compilerbouw.sublime-project
-compilerbouw.sublime-workspace
+# General Mac stuff
 .DS_Store
+
+# Executables and compiler output
+bin/
+*.out
 *.o
 *.output
-\.*.d
-bin/
+
+# Generated documentation
 compiler/doc/
+
+# Framework build system specifics
+\.*.d
+
+# Generated header and C files
 compiler/src/framework/attribs.h
 compiler/src/framework/check.c
 compiler/src/framework/check.h
@@ -32,3 +39,11 @@ compiler/src/scanparse/civic.lex.c
 compiler/src/scanparse/civic.tab.c
 compiler/src/scanparse/civic.tab.h
 
+# SublimeText specifics
+*.sublime-project
+*.sublime-workspace
+
+# Eclipse specifics
+.cproject
+.project
+.settings/
