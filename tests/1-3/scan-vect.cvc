@@ -7,12 +7,11 @@ void scanVect(int[n] ints) {
 }
 
 export int main() {
-	// This is weird!!! Without the definition of n the code doesn't compile!!!
-	// int[3] = [0, 1, 2]; for example fails1?!?!?!?
-	int n = 3;
-	int[n] ints;
+	int[3] ints;
 	scanVect(ints);
-	for (int i = 0, n) {
+
+	// TODO reuse printVec method
+	for (int i = 0, 3) {
 		printInt(ints[i]);
 	}
 	return 0;
