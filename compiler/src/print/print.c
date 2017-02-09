@@ -355,6 +355,7 @@ node *PRTbinopinfo (node * arg_node, info * arg_info) {
   printf( "Number of sub operations: %d\n", BINOPINFO_SUB( arg_node));
   printf( "Number of mul operations: %d\n", BINOPINFO_MUL( arg_node));
   printf( "Number of div operations: %d\n", BINOPINFO_DIV( arg_node));
+  printf( "Number of mod operations: %d\n", BINOPINFO_MOD( arg_node));
 
   DBUG_RETURN (arg_node);
 }

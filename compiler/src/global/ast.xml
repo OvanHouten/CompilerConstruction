@@ -402,6 +402,17 @@
 					</targets>
 				</type>
 			</attribute>
+			<attribute name="mod">
+				<type name="Int">
+					<targets>
+						<target mandatory="yes">
+							<phases>
+								<all />
+							</phases>
+						</target>
+					</targets>
+				</type>
+			</attribute>
 		</attributes>
 	</node>
 

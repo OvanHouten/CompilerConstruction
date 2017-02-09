@@ -24,6 +24,7 @@ struct INFO {
   int sub;
   int mul;
   int div;
+  int mod;
 };
 
 
@@ -35,6 +36,7 @@ struct INFO {
 #define INFO_SUB(n)  ((n)->sub)
 #define INFO_MUL(n)  ((n)->mul)
 #define INFO_DIV(n)  ((n)->div)
+#define INFO_MOD(n)  ((n)->mod)
 
 /*
  * INFO functions
@@ -53,6 +55,7 @@ static info *MakeInfo(void)
   INFO_SUB( result) = 0;
   INFO_MUL( result) = 0;
   INFO_DIV( result) = 0;
+  INFO_MOD( result) = 0;
 
   DBUG_RETURN( result);
 }
@@ -92,6 +95,9 @@ node *CAbinop(node *arg_node, info *arg_info) {
 	  case BO_div :
 		  INFO_DIV(arg_info)++;
 		  break;
+	  case BO_mod :
+		  INFO_MOD(arg_info)++;
+		  break;
 	  default:
 		  // Ignore others :-)
 		  break;
@@ -115,13 +121,14 @@ node *CAdoCountArithmatics( node *syntaxtree) {
 	  TRAVpop();
 
 	  // There must be another way to accomplish this!!!!
-	  syntaxtree->attribs.N_binopinfo = TBmakeBinopinfo(0, 0 ,0, 0);
+	  syntaxtree->attribs.N_binopinfo = TBmakeBinopinfo(0, 0 ,0, 0, 0);
 
 	  // Copy the information into the syntaxtree
 	  BINOPINFO_ADD(syntaxtree) = INFO_ADD(arg_info);
 	  BINOPINFO_SUB(syntaxtree) = INFO_SUB(arg_info);
 	  BINOPINFO_MUL(syntaxtree) = INFO_MUL(arg_info);
 	  BINOPINFO_DIV(syntaxtree) = INFO_DIV(arg_info);
+	  BINOPINFO_MOD(syntaxtree) = INFO_MOD(arg_info);
 
 	  arg_info = FreeInfo( arg_info);
 
