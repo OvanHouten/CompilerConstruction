@@ -114,10 +114,13 @@ node *CAdoCountArithmatics( node *syntaxtree) {
 	  syntaxtree = TRAVdo( syntaxtree, arg_info);
 	  TRAVpop();
 
-	  CTInote( "Number of add operations: %d", INFO_ADD( arg_info));
-	  CTInote( "Number of sub operations: %d", INFO_SUB( arg_info));
-	  CTInote( "Number of mul operations: %d", INFO_MUL( arg_info));
-	  CTInote( "Number of div operations: %d", INFO_DIV( arg_info));
+	  // There must be another way to accomplish this!!!!
+	  syntaxtree->attribs.N_binopinfo = TBmakeBinopinfo(0, 0 ,0, 0);
+	  // Copy the information into the syntaxtree
+	  BINOPINFO_ADD(syntaxtree) = INFO_ADD(arg_info);
+	  BINOPINFO_SUB(syntaxtree) = INFO_SUB(arg_info);
+	  BINOPINFO_MUL(syntaxtree) = INFO_MUL(arg_info);
+	  BINOPINFO_DIV(syntaxtree) = INFO_DIV(arg_info);
 
 	  arg_info = FreeInfo( arg_info);
 

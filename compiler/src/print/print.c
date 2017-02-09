@@ -334,6 +334,31 @@ node *PRTsymboltableentry (node * arg_node, info * arg_info)
   DBUG_RETURN (arg_node);
 }
 
+
+/** <!--******************************************************************-->
+ *
+ * @fn PRTbinopinfo
+ *
+ * @brief Prints the number of time the arthimatic operations have been used.
+ *
+ * @param arg_node letrec node to process
+ * @param arg_info pointer to info structure
+ *
+ * @return processed node
+ *
+ ***************************************************************************/
+
+node *PRTbinopinfo (node * arg_node, info * arg_info) {
+  DBUG_ENTER ("PRTbinopinfo");
+
+  printf( "Number of add operations: %d\n", BINOPINFO_ADD( arg_node));
+  printf( "Number of sub operations: %d\n", BINOPINFO_SUB( arg_node));
+  printf( "Number of mul operations: %d\n", BINOPINFO_MUL( arg_node));
+  printf( "Number of div operations: %d\n", BINOPINFO_DIV( arg_node));
+
+  DBUG_RETURN (arg_node);
+}
+
 /** <!--******************************************************************-->
  *
  * @fn PRTerror

@@ -350,6 +350,61 @@
       <attributes>
       </attributes>
     </node>
+    
+    
+	<!-- Node BinOp Info: -->
+	<node name="BinOpInfo">
+		<description>represents the usage information of the artihmatic operators</description>
+		<sons>
+		</sons>
+		<attributes>
+			<attribute name="add">
+				<type name="Int">
+					<targets>
+						<target mandatory="yes">
+							<phases>
+								<all />
+							</phases>
+						</target>
+					</targets>
+				</type>
+			</attribute>
+			<attribute name="sub">
+				<type name="Int">
+					<targets>
+						<target mandatory="yes">
+							<phases>
+								<all />
+							</phases>
+						</target>
+					</targets>
+				</type>
+			</attribute>
+			<attribute name="mul">
+				<type name="Int">
+					<targets>
+						<target mandatory="yes">
+							<phases>
+								<all />
+							</phases>
+						</target>
+					</targets>
+				</type>
+			</attribute>
+			<attribute name="div">
+				<type name="Int">
+					<targets>
+						<target mandatory="yes">
+							<phases>
+								<all />
+							</phases>
+						</target>
+					</targets>
+				</type>
+			</attribute>
+		</attributes>
+	</node>
+
 <!--
  Node Error:
 -->
