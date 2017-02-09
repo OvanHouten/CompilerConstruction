@@ -116,6 +116,7 @@ node *CAdoCountArithmatics( node *syntaxtree) {
 
 	  // There must be another way to accomplish this!!!!
 	  syntaxtree->attribs.N_binopinfo = TBmakeBinopinfo(0, 0 ,0, 0);
+
 	  // Copy the information into the syntaxtree
 	  BINOPINFO_ADD(syntaxtree) = INFO_ADD(arg_info);
 	  BINOPINFO_SUB(syntaxtree) = INFO_SUB(arg_info);
