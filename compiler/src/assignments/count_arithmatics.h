@@ -1,5 +1,5 @@
-#ifndef _COUNT_ARITHMATICS_H_
-#define _COUNT_ARITHMATICS_H_
+#ifndef SRC_COUNT_ARITHMATICS_H_
+#define SRC_COUNT_ARITHMATICS_H_
 
 #include "types.h"
 
