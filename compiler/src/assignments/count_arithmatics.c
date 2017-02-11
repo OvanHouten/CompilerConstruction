@@ -121,14 +121,14 @@ node *CAdoCountArithmatics( node *syntaxtree) {
 	  TRAVpop();
 
 	  // There must be another way to accomplish this!!!!
-	  syntaxtree->attribs.N_binopinfo = TBmakeBinopinfo(0, 0 ,0, 0, 0);
+	  syntaxtree->attribs.N_module = TBmakeModule(0, 0 ,0, 0, 0, NULL);
 
 	  // Copy the information into the syntaxtree
-	  BINOPINFO_ADD(syntaxtree) = INFO_ADD(arg_info);
-	  BINOPINFO_SUB(syntaxtree) = INFO_SUB(arg_info);
-	  BINOPINFO_MUL(syntaxtree) = INFO_MUL(arg_info);
-	  BINOPINFO_DIV(syntaxtree) = INFO_DIV(arg_info);
-	  BINOPINFO_MOD(syntaxtree) = INFO_MOD(arg_info);
+	  MODULE_ADD(syntaxtree) = INFO_ADD(arg_info);
+	  MODULE_SUB(syntaxtree) = INFO_SUB(arg_info);
+	  MODULE_MUL(syntaxtree) = INFO_MUL(arg_info);
+	  MODULE_DIV(syntaxtree) = INFO_DIV(arg_info);
+	  MODULE_MOD(syntaxtree) = INFO_MOD(arg_info);
 
 	  arg_info = FreeInfo( arg_info);
 
