@@ -122,6 +122,9 @@ void printVarNameInfo(info* arg_info) {
 	lut_t* lut = INFO_LOOKUP_TABLE(arg_info);
 	struct varname_node* varNameInfo = INFO_VARNAMES(arg_info);
 
+	// A iterator or visitor pattern would have been nice, now we need to keep
+	// track of all the used names. The LUTfold methods only seem to provide the associated value
+	// and not the key. So that no use :-(
 	while (varNameInfo) {
 		int* varUsage = *LUTsearchInLutS(lut, varNameInfo->varName);
 		printf("Variable %s is referenced %d times.\n", varNameInfo->varName, *varUsage);
