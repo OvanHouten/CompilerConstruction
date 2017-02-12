@@ -120,9 +120,6 @@ node *CAdoCountArithmatics( node *syntaxtree) {
 	  syntaxtree = TRAVdo( syntaxtree, arg_info);
 	  TRAVpop();
 
-	  // There must be another way to accomplish this!!!!
-	  syntaxtree->attribs.N_module = TBmakeModule(0, 0 ,0, 0, 0, NULL);
-
 	  // Copy the information into the syntaxtree
 	  MODULE_ADD(syntaxtree) = INFO_ADD(arg_info);
 	  MODULE_SUB(syntaxtree) = INFO_SUB(arg_info);
