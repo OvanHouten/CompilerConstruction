@@ -8,6 +8,7 @@
 #include "count_arithmatics.h"
 
 #include "types.h"
+#include "node_basic.h"
 #include "tree_basic.h"
 #include "traverse.h"
 #include "dbug.h"
