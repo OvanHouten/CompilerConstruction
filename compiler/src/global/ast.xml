@@ -66,6 +66,13 @@
         </travuser>
       </traversal>
 
+      <traversal id="IC" name="Indetifier Count operations" default="sons" include="identifier_count.h">
+        <travuser>
+          <node name="Var" />
+          <node name="VarLet" />
+        </travuser>
+      </traversal>
+
     </general>
   </phases>
 

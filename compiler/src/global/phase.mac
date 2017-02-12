@@ -58,6 +58,12 @@ SUBPHASE( ca,
 		  ALWAYS,
 		  pet)   
 
+SUBPHASE( ic, 
+		  "Indenifier Count",
+		  ICdoIdentifierCount, 
+		  ALWAYS,
+		  pet)   
+
 ENDPHASE( pet) 
 
 
