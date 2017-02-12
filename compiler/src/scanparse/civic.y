@@ -47,7 +47,7 @@ static int yyerror( char *errname);
 
 program: stmts 
          {
-           parseresult = $1;
+           parseresult = TBmakeModule(0, 0, 0, 0, 0, $1);
          }
          ;
 

@@ -362,7 +362,7 @@
 	<node name="Module">
 		<description>represents the usage information of the artihmatic operators</description>
 		<sons>
-			<son name="Stmnts">
+			<son name="Stmts">
 				<description>remaining statements in sequence</description>
 				<targets>
 					<target mandatory="no">

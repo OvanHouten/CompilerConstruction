@@ -351,11 +351,18 @@ node *PRTsymboltableentry (node * arg_node, info * arg_info)
 node *PRTmodule (node * arg_node, info * arg_info) {
   DBUG_ENTER ("PRTmodule");
 
+  // First print the usual AST
+  TRAVdo(MODULE_STMTS(arg_node), arg_info);
+
+  // And then our extra info.
+  printf("\n");
   printf( "Number of add operations: %d\n", MODULE_ADD( arg_node));
   printf( "Number of sub operations: %d\n", MODULE_SUB( arg_node));
   printf( "Number of mul operations: %d\n", MODULE_MUL( arg_node));
   printf( "Number of div operations: %d\n", MODULE_DIV( arg_node));
   printf( "Number of mod operations: %d\n", MODULE_MOD( arg_node));
+
+
 
   DBUG_RETURN (arg_node);
 }
@@ -427,9 +434,6 @@ node
   DBUG_ENTER("PRTdoPrint");
 
   DBUG_ASSERT( (syntaxtree!= NULL), "PRTdoPrint called with empty syntaxtree");
-
-  // This can't be the correct way for printing the info!!
-  syntaxtree = PRTmodule(syntaxtree, NULL);
 
   printf( "\n\n------------------------------\n\n");
 
