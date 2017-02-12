@@ -2,7 +2,7 @@
  * indentifier_count.c
  *
  *  Created on: 11 Feb 2017
- *      Author: nico
+ *      Author: Nico Tromp
  */
 
 #include "identifier_count.h"

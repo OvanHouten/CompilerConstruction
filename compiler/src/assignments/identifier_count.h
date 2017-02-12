@@ -2,7 +2,7 @@
  * indentifier_count.h
  *
  *  Created on: 11 Feb 2017
- *      Author: nico
+ *      Author: Nico Tromp
  */
 
 #ifndef SRC_ASSIGNMENTS_IDENTIFIER_COUNT_H_
