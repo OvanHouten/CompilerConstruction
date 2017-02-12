@@ -17,6 +17,9 @@
 #include "lookup_table.h"
 #include "ctinfo.h"
 
+/*
+ * Node for a linkedlist holding the known variable names.
+ */
 struct varname_node {
 	char *varName;
 	struct varname_node *next;
@@ -57,43 +60,72 @@ static info *MakeInfo(void)
   DBUG_RETURN( result);
 }
 
+void cleanList(struct varname_node *node) {
+	if (node) {
+		cleanList(node->next);
+		node->varName = MEMfree(node->varName);
+		MEMfree(node);
+	}
+}
+
 static info *FreeInfo( info *info)
 {
   DBUG_ENTER ("FreeInfo");
 
   INFO_LOOKUP_TABLE(info) = LUTremoveLut(INFO_LOOKUP_TABLE(info));
-  // Free memeory of linked list with var names
+
+  cleanList(INFO_VARNAMES(info));
+
+  INFO_VARNAMES(info) = NULL;
 
   info = MEMfree( info);
 
   DBUG_RETURN( info);
 }
 
+/*
+ * Adds a new struct varname_node element to the head of the list and
+ * returns the new head.
+ */
 struct varname_node *addNewVarName(struct varname_node *list, char* varName) {
 	struct varname_node *newNode = MEMmalloc(sizeof(struct varname_node));
-	newNode->next = list;
 	newNode->varName = STRcpy(varName);
+	newNode->next = list;
 	return newNode;
 }
 
 /*
  * Registers the usage of a variable. If the variable is
  * used for the first time 1 is returned otherwise 0
- * is returned. The calling code can
+ * is returned.
  */
 int registerVarUsage(info *arg_info, char* varName) {
 	lut_t *lut = INFO_LOOKUP_TABLE(arg_info);
 	void** lutInfo;
 	if ((lutInfo = LUTsearchInLutS(lut, varName)) == NULL) {
+		// New variable, add to the lookup table
 		int* varUsage = MEMmalloc(sizeof(int));
 		*varUsage = 1;
 		LUTinsertIntoLutS(lut, varName, varUsage);
+		// And add the name to our linked list. (iterator or visitor pattern would make this list superfluous)
 		INFO_VARNAMES(arg_info) = addNewVarName(INFO_VARNAMES(arg_info), varName);
 		return 1;
 	} else {
+		// Known variable, just increase the usage count
 		int *varUsage = *lutInfo;
 		*varUsage += 1;
 		return 0;
+	}
+}
+
+void printVarNameInfo(info* arg_info) {
+	lut_t* lut = INFO_LOOKUP_TABLE(arg_info);
+	struct varname_node* varNameInfo = INFO_VARNAMES(arg_info);
+
+	while (varNameInfo) {
+		int* varUsage = *LUTsearchInLutS(lut, varNameInfo->varName);
+		printf("Variable %s is referenced %d times.\n", varNameInfo->varName, *varUsage);
+		varNameInfo = varNameInfo->next;
 	}
 }
 
@@ -124,14 +156,7 @@ node *ICdoIdentifierCount( node *syntaxtree) {
 	  syntaxtree = TRAVdo( syntaxtree, arg_info);
 	  TRAVpop();
 
-	  // Print info from LUT
-	  lut_t *lut = INFO_LOOKUP_TABLE(arg_info);
-	  struct varname_node *varNameInfo = INFO_VARNAMES(arg_info);
-	  while (varNameInfo) {
-		  int* varUsage = *LUTsearchInLutS(lut, varNameInfo->varName);
-		  printf("Variable %s is referenced %d times.\n", varNameInfo->varName, *varUsage);
-		  varNameInfo = varNameInfo->next;
-	  }
+	  printVarNameInfo(arg_info);
 
 	  arg_info = FreeInfo( arg_info);
 
