@@ -75,7 +75,6 @@ PHASE( cg,
        ALWAYS)
 
 SUBPHASE( prt, "Generating byte code", GBCdoGenByteCode, ALWAYS, cg)      
-//SUBPHASE( prt_ca, "Print Module information", PRTmodule, ALWAYS, cg)      
 SUBPHASE( prt_ast, "Print ast", PRTdoPrint, ALWAYS, cg)      
 
 SUBPHASE( frtr, 
