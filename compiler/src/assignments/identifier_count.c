@@ -20,9 +20,9 @@
 /*
  * Node for a linkedlist holding the known variable names.
  */
-struct varname_node {
-	char *varName;
-	struct varname_node *next;
+struct varname_usage {
+	char *varName; // By keeping a copy of the variable name we can make use of the LUTfoldLut method later on.
+	int usageCount;
 };
 
 /*
@@ -30,7 +30,6 @@ struct varname_node {
  */
 struct INFO {
   lut_t *lookupTable;
-  struct varname_node *varNames;
 };
 
 
@@ -39,7 +38,6 @@ struct INFO {
  */
 
 #define INFO_LOOKUP_TABLE(n)  ((n)->lookupTable)
-#define INFO_VARNAMES(n) ((n)->varNames)
 
 /*
  * INFO functions
@@ -55,43 +53,28 @@ static info *MakeInfo(void)
 
   // Would not be needed if MEMcalloc would exist ;-)
   INFO_LOOKUP_TABLE( result) = LUTgenerateLut();
-  INFO_VARNAMES( result) = NULL;
 
   DBUG_RETURN( result);
 }
 
-void cleanList(struct varname_node *node) {
-	if (node) {
-		cleanList(node->next);
-		node->varName = MEMfree(node->varName);
-		MEMfree(node);
-	}
+void* cleanVarUsageStruct(void *init, void *item) {
+	struct varname_usage *varUsage = item;
+	varUsage->varName = MEMfree(varUsage->varName);
+	return NULL;
 }
 
 static info *FreeInfo( info *info)
 {
   DBUG_ENTER ("FreeInfo");
 
+  // We don't fold anything but use it for its iterating capacities
+  LUTfoldLutS(INFO_LOOKUP_TABLE(info), NULL, &cleanVarUsageStruct);
+
   INFO_LOOKUP_TABLE(info) = LUTremoveLut(INFO_LOOKUP_TABLE(info));
-
-  cleanList(INFO_VARNAMES(info));
-
-  INFO_VARNAMES(info) = NULL;
 
   info = MEMfree( info);
 
   DBUG_RETURN( info);
-}
-
-/*
- * Adds a new struct varname_node element to the head of the list and
- * returns the new head.
- */
-struct varname_node *addNewVarName(struct varname_node *list, char* varName) {
-	struct varname_node *newNode = MEMmalloc(sizeof(struct varname_node));
-	newNode->varName = STRcpy(varName);
-	newNode->next = list;
-	return newNode;
 }
 
 /*
@@ -104,32 +87,23 @@ int registerVarUsage(info *arg_info, char* varName) {
 	void** lutInfo;
 	if ((lutInfo = LUTsearchInLutS(lut, varName)) == NULL) {
 		// New variable, add to the lookup table
-		int* varUsage = MEMmalloc(sizeof(int));
-		*varUsage = 1;
+		struct varname_usage *varUsage = MEMmalloc(sizeof(struct varname_usage));
+		varUsage->varName = STRcpy(varName);
+		varUsage->usageCount = 1;
 		LUTinsertIntoLutS(lut, varName, varUsage);
-		// And add the name to our linked list. (iterator or visitor pattern would make this list superfluous)
-		INFO_VARNAMES(arg_info) = addNewVarName(INFO_VARNAMES(arg_info), varName);
 		return 1;
 	} else {
 		// Known variable, just increase the usage count
-		int *varUsage = *lutInfo;
-		*varUsage += 1;
+		struct varname_usage *varUsage = *lutInfo;
+		varUsage->usageCount += 1;
 		return 0;
 	}
 }
 
-void printVarNameInfo(info* arg_info) {
-	lut_t* lut = INFO_LOOKUP_TABLE(arg_info);
-	struct varname_node* varNameInfo = INFO_VARNAMES(arg_info);
-
-	// A iterator or visitor pattern would have been nice, now we need to keep
-	// track of all the used names. The LUTfold methods only seem to provide the associated value
-	// and not the key. So that no use :-(
-	while (varNameInfo) {
-		int* varUsage = *LUTsearchInLutS(lut, varNameInfo->varName);
-		printf("Variable %s is referenced %d times.\n", varNameInfo->varName, *varUsage);
-		varNameInfo = varNameInfo->next;
-	}
+void *printVarUsage(void * init, void *item) {
+	struct varname_usage *varUsage = item;
+	printf("Variable %s is referenced %d times.\n", varUsage->varName, varUsage->usageCount);
+	return NULL;
 }
 
 node *ICvar(node *arg_node, info *arg_info) {
@@ -159,7 +133,8 @@ node *ICdoIdentifierCount( node *syntaxtree) {
 	  syntaxtree = TRAVdo( syntaxtree, arg_info);
 	  TRAVpop();
 
-	  printVarNameInfo(arg_info);
+	  // We don't fold anything but use it for its iterating capacities
+	  LUTfoldLutS(INFO_LOOKUP_TABLE(arg_info), NULL, &printVarUsage);
 
 	  arg_info = FreeInfo( arg_info);
 
