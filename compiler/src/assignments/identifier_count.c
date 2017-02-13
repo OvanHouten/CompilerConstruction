@@ -51,7 +51,6 @@ static info *MakeInfo(void)
 
   result = (info *)MEMmalloc(sizeof(info));
 
-  // Would not be needed if MEMcalloc would exist ;-)
   INFO_LOOKUP_TABLE( result) = LUTgenerateLut();
 
   DBUG_RETURN( result);
@@ -102,7 +101,7 @@ int registerVarUsage(info *arg_info, char* varName) {
 
 void *printVarUsage(void * init, void *item) {
 	struct varname_usage *varUsage = item;
-	printf("Variable %s is referenced %d times.\n", varUsage->varName, varUsage->usageCount);
+	printf("Variable [%s] is referenced %d times.\n", varUsage->varName, varUsage->usageCount);
 	return NULL;
 }
 
