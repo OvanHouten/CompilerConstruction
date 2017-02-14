@@ -6,3 +6,4 @@ Probably the following tools need to be installed before building the compiler.
 * flex
 * xsltproc
 * indent
+* graphviz
