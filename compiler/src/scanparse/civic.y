@@ -83,30 +83,14 @@ varlet: ID
         ;
 
 
-expr: constant
-      {
-        $$ = $1;
-      }
-    | ID
-      {
-        $$ = TBmakeVar( STRcpy( $1));
-      }
-    | BRACKET_L expr binop expr BRACKET_R
-      {
-        $$ = TBmakeBinop( $3, $2, $4);
-      }
-    | expr binop expr
-      {
-        $$ = TBmakeBinop( $2, $1, $3);
-      }
-    | unop expr 
-  	  {
-        $$ = TBmakeUnop( $1, $2);
-	  }
-    | unop BRACKET_L expr BRACKET_R
-  	  {
-        $$ = TBmakeUnop( $1, $3);
-	  }
+expr: BRACKET_L expr binop expr BRACKET_R { $$ = TBmakeBinop( $3, $2, $4); }
+    | expr binop expr                     { $$ = TBmakeBinop( $2, $1, $3); }
+    | unop BRACKET_L expr BRACKET_R  	  { $$ = TBmakeUnop( $1, $3); }
+    | unop expr                           { $$ = TBmakeUnop( $1, $2); }
+    | BRACKET_L ID BRACKET_R              { $$ = TBmakeVar( STRcpy( $2)); }
+    | ID                                  { $$ = TBmakeVar( STRcpy( $1)); }
+    | BRACKET_L constant BRACKET_R        { $$ = $2; }
+    | constant                            { $$ = $1; }
     ;
 
 constant: floatval
