@@ -17,7 +17,7 @@
     <type name="Bool" ctype="bool" init="FALSE" copy="literal" />
     <type name="Float" ctype="float" init="0.0" copy="literal" />
     <type name="BinOp" ctype="binop" init="BO_unknown" copy="literal" />
-    <type name="MonOp" ctype="monop" init="MO_unknown" copy="literal" />
+    <type name="UnOp" ctype="unop" init="UO_unknown" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
     <type name="CompilerPhase" ctype="compiler_phase_t" init="PH_initial" copy="literal" />
   </attributetypes>
@@ -84,7 +84,7 @@
         <node name="Num" />
         <node name="Float" />
         <node name="Bool" />
-        <node name="MonOp" />
+        <node name="UnOp" />
       </target>
     </nodeset>
     <nodeset name="Stmt">
@@ -217,9 +217,9 @@
       </attributes>
     </node>
 <!--
- Node MonOp:
+ Node UnOp:
 -->
-    <node name="MonOp">
+    <node name="UnOp">
       <description>represents unary operator application</description>
       <sons>
         <son name="Right">
@@ -237,7 +237,7 @@
       <attributes>
         <description>operator type</description>
         <attribute name="Op">
-          <type name="MonOp">
+          <type name="UnOp">
             <targets>
               <target mandatory="yes">
                 <any />

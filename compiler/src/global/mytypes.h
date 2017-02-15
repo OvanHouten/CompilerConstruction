@@ -3,9 +3,9 @@
 
 
 /*
- * This enumeration defines all monops
+ * This enumeration defines all unops
  */
-typedef enum { MO_not, MO_neg, MO_unknown } monop;
+typedef enum { UO_not, UO_neg, UO_unknown } unop;
 
 /*
  * This enumeration defines all binops

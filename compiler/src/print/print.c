@@ -214,37 +214,37 @@ node * PRTbinop (node * arg_node, info * arg_info)
 
 /** <!--******************************************************************-->
  *
- * @fn PRTmonop
+ * @fn PRTunop
  *
  * @brief Prints the node and its sons/attributes
  *
- * @param arg_node MonOp node to process
+ * @param arg_node UnOp node to process
  * @param arg_info pointer to info structure
  *
  * @return processed node
  *
  ***************************************************************************/
 
-node * PRTmonop (node * arg_node, info * arg_info)
+node * PRTunop (node * arg_node, info * arg_info)
 {
   char *tmp;
 
-  DBUG_ENTER ("PRTmonop");
+  DBUG_ENTER ("PRTunop");
 
-  switch (MONOP_OP( arg_node)) {
-    case MO_neg:
+  switch (UNOP_OP( arg_node)) {
+    case UO_neg:
       tmp = "-";
       break;
-    case MO_not:
+    case UO_not:
       tmp = "!";
       break;
-    case MO_unknown:
-      DBUG_ASSERT( 0, "unknown monop detected!");
+    case UO_unknown:
+      DBUG_ASSERT( 0, "unknown unop detected!");
   }
 
   printf( " %s (", tmp);
 
-  MONOP_RIGHT( arg_node) = TRAVdo( MONOP_RIGHT( arg_node), arg_info);
+  UNOP_RIGHT( arg_node) = TRAVdo( UNOP_RIGHT( arg_node), arg_info);
 
   printf( ")");
 

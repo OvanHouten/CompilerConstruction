@@ -26,7 +26,7 @@ static int yyerror( char *errname);
  int                 cint;
  float               cflt;
  binop               cbinop;
- monop               cmonop;
+ unop               cunop;
  node               *node;
 }
 
@@ -42,7 +42,7 @@ static int yyerror( char *errname);
 %type <node> intval floatval boolval constant expr
 %type <node> stmts stmt assign varlet program
 %type <cbinop> binop
-%type <cmonop> monop
+%type <cunop> unop
 
 %start program
 
@@ -95,9 +95,9 @@ expr: constant
       {
         $$ = TBmakeBinop( $3, $2, $4);
       }
-    | monop expr 
+    | unop expr 
   	  {
-        $$ = TBmakeMonop( $1, $2);
+        $$ = TBmakeUnop( $1, $2);
 	  }
     ;
 
@@ -137,8 +137,8 @@ boolval: TRUEVAL
          }
        ;
 
-monop: NOT       { $$ = MO_not; }
-	 | MINUS     { $$ = MO_neg; }
+unop: NOT       { $$ = UO_not; }
+	 | MINUS     { $$ = UO_neg; }
 	 ;
 	
 binop: PLUS      { $$ = BO_add; }
