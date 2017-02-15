@@ -159,6 +159,7 @@ binop: PLUS      { $$ = BO_add; }
      | GE        { $$ = BO_ge; }
      | GT        { $$ = BO_gt; }
      | EQ        { $$ = BO_eq; }
+     | NE        { $$ = BO_ne; }
      | OR        { $$ = BO_or; }
      | AND       { $$ = BO_and; }
      ;
