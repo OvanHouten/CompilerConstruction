@@ -51,6 +51,32 @@ static info *FreeInfo( info *info)
   return info;
 }
 
+node *PRTdeclaration(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTdeclaration");
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTfundec(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTfunDec");
+
+	DBUG_RETURN(arg_node);
+}
+node *PRTfundef(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTfunDef");
+
+	DBUG_RETURN(arg_node);
+}
+node *PRTglobaldec(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTglobalDec");
+
+	DBUG_RETURN(arg_node);
+}
+node *PRTglobaldef(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTglobalDef");
+
+	DBUG_RETURN(arg_node);
+}
 
 
 /** <!--******************************************************************-->
@@ -123,8 +149,7 @@ PRTassign (node * arg_node, info * arg_info)
  *
  ***************************************************************************/
 
-node *
-PRTbinop (node * arg_node, info * arg_info)
+node * PRTbinop (node * arg_node, info * arg_info)
 {
   char *tmp;
 
@@ -181,6 +206,47 @@ PRTbinop (node * arg_node, info * arg_info)
   printf( " %s ", tmp);
 
   BINOP_RIGHT( arg_node) = TRAVdo( BINOP_RIGHT( arg_node), arg_info);
+
+  printf( ")");
+
+  DBUG_RETURN (arg_node);
+}
+
+/** <!--******************************************************************-->
+ *
+ * @fn PRTmonop
+ *
+ * @brief Prints the node and its sons/attributes
+ *
+ * @param arg_node MonOp node to process
+ * @param arg_info pointer to info structure
+ *
+ * @return processed node
+ *
+ ***************************************************************************/
+
+node * PRTmonop (node * arg_node, info * arg_info)
+{
+  char *tmp;
+
+  DBUG_ENTER ("PRTmonop");
+
+  printf( "( ");
+
+  switch (MONOP_OP( arg_node)) {
+    case MO_neg:
+      tmp = "-";
+      break;
+    case MO_not:
+      tmp = "!";
+      break;
+    case MO_unknown:
+      DBUG_ASSERT( 0, "unknown monop detected!");
+  }
+
+  printf( " %s ", tmp);
+
+  MONOP_RIGHT( arg_node) = TRAVdo( MONOP_RIGHT( arg_node), arg_info);
 
   printf( ")");
 

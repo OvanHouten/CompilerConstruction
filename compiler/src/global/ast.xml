@@ -17,6 +17,7 @@
     <type name="Bool" ctype="bool" init="FALSE" copy="literal" />
     <type name="Float" ctype="float" init="0.0" copy="literal" />
     <type name="BinOp" ctype="binop" init="BO_unknown" copy="literal" />
+    <type name="MonOp" ctype="monop" init="MO_unknown" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
     <type name="CompilerPhase" ctype="compiler_phase_t" init="PH_initial" copy="literal" />
   </attributetypes>
@@ -68,6 +69,14 @@
 -->
 
   <nodesets>
+  	<nodeset name="Declaration">
+  		<target>
+  			<node name="FunDec"/>
+  			<node name="FunDef"/>
+  			<node name="GlobalDec"/>
+  			<node name="GlobalDef"/>
+  		</target>
+  	</nodeset>
     <nodeset name="Expr">
       <target>
         <node name="BinOp" />
@@ -75,6 +84,7 @@
         <node name="Num" />
         <node name="Float" />
         <node name="Bool" />
+        <node name="MonOp" />
       </target>
     </nodeset>
     <nodeset name="Stmt">
@@ -89,6 +99,12 @@
 -->
 
   <syntaxtree>
+  	<node name="Declaration">
+  	</node>
+	<node name="FunDec"/>
+	<node name="FunDef"/>
+	<node name="GlobalDec"/>
+	<node name="GlobalDef"/>
 <!--
  Node Stmts:
 -->
@@ -188,6 +204,40 @@
         <description>operator type</description>
         <attribute name="Op">
           <type name="BinOp">
+            <targets>
+              <target mandatory="yes">
+                <any />
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
+    </node>
+<!--
+ Node MonOp:
+-->
+    <node name="MonOp">
+      <description>represents unary operator application</description>
+      <sons>
+        <son name="Right">
+        <description>right operand expression</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <description>operator type</description>
+        <attribute name="Op">
+          <type name="MonOp">
             <targets>
               <target mandatory="yes">
                 <any />

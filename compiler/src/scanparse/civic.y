@@ -26,11 +26,13 @@ static int yyerror( char *errname);
  int                 cint;
  float               cflt;
  binop               cbinop;
+ monop               cmonop;
  node               *node;
 }
 
 %token BRACKET_L BRACKET_R COMMA SEMICOLON
 %token MINUS PLUS STAR SLASH PERCENT LE LT GE GT EQ NE OR AND
+%token NOT NEG
 %token TRUEVAL FALSEVAL LET
 
 %token <cint> NUM
@@ -40,6 +42,7 @@ static int yyerror( char *errname);
 %type <node> intval floatval boolval constant expr
 %type <node> stmts stmt assign varlet program
 %type <cbinop> binop
+%type <cmonop> monop
 
 %start program
 
@@ -130,6 +133,10 @@ boolval: TRUEVAL
          }
        ;
 
+monop: NOT       { $$ = MO_not; }
+	 | NEG       { $$ = MO_neg; }
+	 ;
+	
 binop: PLUS      { $$ = BO_add; }
      | MINUS     { $$ = BO_sub; }
      | STAR      { $$ = BO_mul; }

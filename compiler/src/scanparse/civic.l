@@ -43,6 +43,9 @@
 "/"                        { FILTER( SLASH);  } 
 "%"                        { FILTER( PERCENT);  } 
 
+"-"                        { FILTER( NEG);  } 
+"!"                        { FILTER( NOT);  } 
+
 "<="                       { FILTER( LE);    }
 "<"                        { FILTER( LT);    } 
 ">="                       { FILTER( GE);    }
