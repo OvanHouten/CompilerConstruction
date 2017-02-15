@@ -1,1 +1,2 @@
 De uitwerkingen van de opdrachten 1.1, 1.2 en 1.3 zijn te vinden in de sub-directories 1-1, 1-2 en 1-3 in de test directory van de compiler.
+Iedere te schrijven functie zit in een source file. In de main methode wordt afhankelijk van de opdracht de functie met een aantal verschillende waardes aangeroepen. Ieder programma print de verwachte uitkomst én de berekende waarde. Afhankelijjk van het progamma kan de volgorde wisselen.
