@@ -231,8 +231,6 @@ node * PRTmonop (node * arg_node, info * arg_info)
 
   DBUG_ENTER ("PRTmonop");
 
-  printf( "( ");
-
   switch (MONOP_OP( arg_node)) {
     case MO_neg:
       tmp = "-";
@@ -244,7 +242,7 @@ node * PRTmonop (node * arg_node, info * arg_info)
       DBUG_ASSERT( 0, "unknown monop detected!");
   }
 
-  printf( " %s ", tmp);
+  printf( " %s (", tmp);
 
   MONOP_RIGHT( arg_node) = TRAVdo( MONOP_RIGHT( arg_node), arg_info);
 

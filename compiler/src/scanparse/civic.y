@@ -95,6 +95,10 @@ expr: constant
       {
         $$ = TBmakeBinop( $3, $2, $4);
       }
+    | monop expr 
+  	  {
+        $$ = TBmakeMonop( $1, $2);
+	  }
     ;
 
 constant: floatval
