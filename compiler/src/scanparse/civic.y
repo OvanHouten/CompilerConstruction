@@ -32,7 +32,7 @@ static int yyerror( char *errname);
 
 %token BRACKET_L BRACKET_R COMMA SEMICOLON
 %token MINUS PLUS STAR SLASH PERCENT LE LT GE GT EQ NE OR AND
-%token NOT NEG
+%token NOT
 %token TRUEVAL FALSEVAL LET
 
 %token <cint> NUM
@@ -138,7 +138,7 @@ boolval: TRUEVAL
        ;
 
 monop: NOT       { $$ = MO_not; }
-	 | NEG       { $$ = MO_neg; }
+	 | MINUS     { $$ = MO_neg; }
 	 ;
 	
 binop: PLUS      { $$ = BO_add; }
