@@ -95,9 +95,17 @@ expr: constant
       {
         $$ = TBmakeBinop( $3, $2, $4);
       }
+    | expr binop expr
+      {
+        $$ = TBmakeBinop( $2, $1, $3);
+      }
     | unop expr 
   	  {
         $$ = TBmakeUnop( $1, $2);
+	  }
+    | unop BRACKET_L expr BRACKET_R
+  	  {
+        $$ = TBmakeUnop( $1, $3);
 	  }
     ;
 
@@ -137,7 +145,7 @@ boolval: TRUEVAL
          }
        ;
 
-unop: NOT       { $$ = UO_not; }
+ unop: NOT       { $$ = UO_not; }
 	 | MINUS     { $$ = UO_neg; }
 	 ;
 	
