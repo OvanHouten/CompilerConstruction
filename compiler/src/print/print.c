@@ -159,7 +159,7 @@ PRTif (node * arg_node, info * arg_info)
   printf(") {\n");
   IF_IFBLOCK( arg_node) = TRAVdo( IF_IFBLOCK( arg_node), arg_info);
   if (IF_ELSEBLOCK( arg_node) != NULL) {
-	  printf("} else }\n");
+	  printf("} else {\n");
 	  IF_ELSEBLOCK( arg_node) = TRAVdo(IF_ELSEBLOCK( arg_node), arg_info);
   }
   printf( "};\n");
@@ -167,6 +167,32 @@ PRTif (node * arg_node, info * arg_info)
   DBUG_RETURN (arg_node);
 }
 
+/** <!--******************************************************************-->
+ *
+ * @fn PRTwhile
+ *
+ * @brief Prints the while and its sons/attributes
+ *
+ * @param arg_node while node to process
+ * @param arg_info pointer to info structure
+ *
+ * @return processed node
+ *
+ ***************************************************************************/
+
+node *
+PRTwhile (node * arg_node, info * arg_info)
+{
+  DBUG_ENTER ("PRTwhile");
+
+  printf("while (");
+  WHILE_CONDITION( arg_node) = TRAVdo( WHILE_CONDITION( arg_node), arg_info);
+  printf(") {\n");
+  WHILE_BLOCK( arg_node) = TRAVdo( WHILE_BLOCK( arg_node), arg_info);
+  printf( "};\n");
+
+  DBUG_RETURN (arg_node);
+}
 /** <!--******************************************************************-->
  *
  * @fn PRTbinop

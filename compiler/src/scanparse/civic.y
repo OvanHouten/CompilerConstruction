@@ -33,7 +33,7 @@ static int yyerror( char *errname);
 %token BRACKET_L BRACKET_R CURLY_L CURLY_R COMMA SEMICOLON
 %token MINUS PLUS STAR SLASH PERCENT LE LT GE GT EQ NE OR AND
 %token NOT
-%token IF ELSE
+%token IF ELSE WHILE
 %token TRUEVAL FALSEVAL LET
 
 %token <cint> NUM
@@ -41,7 +41,7 @@ static int yyerror( char *errname);
 %token <id> ID
 
 %type <node> intval floatval boolval constant expr
-%type <node> stmts stmt assign if varlet program
+%type <node> stmts stmt assign if while varlet program
 %type <cbinop> binop
 %type <cunop> unop
 
@@ -70,6 +70,7 @@ stmt:  assign
          $$ = $1;
        }
        | if { $$ = $1; }
+       | while { $$ = $1; }
        ;
 
 assign: varlet LET expr SEMICOLON
@@ -82,11 +83,16 @@ if: 	IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R
 		{ 
 	   	   $$ = TBmakeIf( $3, $6, NULL );
 		}
-		| IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R ELSE CURLY_L stmts CURLY_R 
+		| IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R ELSE CURLY_L stmts CURLY_R
 		{ 
 	   	   $$ = TBmakeIf( $3, $6, $10 );
 		}
 		;
+		
+while:  WHILE BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R
+		{
+			$$ = TBmakeWhile($3, $6);
+		}
 
 varlet: ID
         {

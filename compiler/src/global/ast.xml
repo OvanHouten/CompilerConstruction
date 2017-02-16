@@ -91,6 +91,7 @@
       <target>
         <node name="Assign" />
         <node name="If" />
+        <node name="While" />
       </target>
     </nodeset>
   </nodesets>
@@ -147,7 +148,7 @@
         <son name="Let">
         <description>
          left hand side variable; can be missing to represent procedure calls
-	</description>
+		</description>
           <targets>
             <target mandatory="no">
               <node name="VarLet" />
@@ -204,6 +205,38 @@
         <description>right hand side expression</description>
           <targets>
             <target mandatory="no">
+              <set name="Stmt" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node While:
+-->
+     <node name="While">
+      <description>represents the while statement</description>
+      <sons>
+        <son name="Condition">
+        <description>represents the condition</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Block">
+        <description>to be excuted while the condition is true</description>
+          <targets>
+            <target mandatory="yes">
               <set name="Stmt" />
                 <phases>
                   <all />
