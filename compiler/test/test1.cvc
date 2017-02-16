@@ -10,3 +10,31 @@ i = -false;
 j = -(7*7);
 k = ! true && false;
 l = 2 != (7 - 3);
+m = 42--42;
+n=a;
+o = 2 < 3;
+
+if ( v < q) {
+    zz = 1;
+}
+
+if ( v < q) {
+    zz = 1;
+    qq = zz + 1;
+} else {
+	zz = zz / z;
+}
+
+if ( v < q) {
+	if ( v < q) {
+	    zz = 1;
+	    qq = zz + 1;
+	} else {
+		zz = zz / z;
+	}
+} else {
+	if ( v < q) {
+	    zz = 1;
+	    qq = zz + 1;
+	}
+}

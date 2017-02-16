@@ -138,6 +138,37 @@ PRTassign (node * arg_node, info * arg_info)
 
 /** <!--******************************************************************-->
  *
+ * @fn PRTif
+ *
+ * @brief Prints the condition and its sons/attributes
+ *
+ * @param arg_node If node to process
+ * @param arg_info pointer to info structure
+ *
+ * @return processed node
+ *
+ ***************************************************************************/
+
+node *
+PRTif (node * arg_node, info * arg_info)
+{
+  DBUG_ENTER ("PRTif");
+
+  printf("if (");
+  IF_CONDITION( arg_node) = TRAVdo( IF_CONDITION( arg_node), arg_info);
+  printf(") {\n");
+  IF_IFBLOCK( arg_node) = TRAVdo( IF_IFBLOCK( arg_node), arg_info);
+  if (IF_ELSEBLOCK( arg_node) != NULL) {
+	  printf("} else }\n");
+	  IF_ELSEBLOCK( arg_node) = TRAVdo(IF_ELSEBLOCK( arg_node), arg_info);
+  }
+  printf( "};\n");
+
+  DBUG_RETURN (arg_node);
+}
+
+/** <!--******************************************************************-->
+ *
  * @fn PRTbinop
  *
  * @brief Prints the node and its sons/attributes
@@ -242,11 +273,11 @@ node * PRTunop (node * arg_node, info * arg_info)
       DBUG_ASSERT( 0, "unknown unop detected!");
   }
 
-  printf( " %s (", tmp);
+  printf( "(%s(", tmp);
 
   UNOP_RIGHT( arg_node) = TRAVdo( UNOP_RIGHT( arg_node), arg_info);
 
-  printf( ")");
+  printf( "))");
 
   DBUG_RETURN (arg_node);
 }

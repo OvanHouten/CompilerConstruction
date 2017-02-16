@@ -90,6 +90,7 @@
     <nodeset name="Stmt">
       <target>
         <node name="Assign" />
+        <node name="If" />
       </target>
     </nodeset>
   </nodesets>
@@ -161,6 +162,49 @@
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node If:
+-->
+     <node name="If">
+      <description>represents if-else statement</description>
+      <sons>
+        <son name="Condition">
+        <description>represents the condition</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="IfBlock">
+        <description>to be excuted if the condition is true</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Stmt" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="ElseBlock">
+        <description>right hand side expression</description>
+          <targets>
+            <target mandatory="no">
+              <set name="Stmt" />
                 <phases>
                   <all />
                 </phases>

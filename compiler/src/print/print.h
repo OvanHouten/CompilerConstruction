@@ -18,6 +18,7 @@ extern node *PRTglobaldec(node * arg_node, info * arg_info);
 extern node *PRTglobaldef(node * arg_node, info * arg_info);
 extern node *PRTstmts (node * arg_node, info * arg_info);
 extern node *PRTassign (node * arg_node, info * arg_info);
+extern node *PRTif (node * arg_node, info * arg_info);
 extern node *PRTvar (node * arg_node, info * arg_info);
 extern node *PRTvarlet (node * arg_node, info * arg_info);
 extern node *PRTbinop (node * arg_node, info * arg_info);

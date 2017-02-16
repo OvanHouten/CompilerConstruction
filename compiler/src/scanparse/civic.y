@@ -26,13 +26,14 @@ static int yyerror( char *errname);
  int                 cint;
  float               cflt;
  binop               cbinop;
- unop               cunop;
+ unop                cunop;
  node               *node;
 }
 
-%token BRACKET_L BRACKET_R COMMA SEMICOLON
+%token BRACKET_L BRACKET_R CURLY_L CURLY_R COMMA SEMICOLON
 %token MINUS PLUS STAR SLASH PERCENT LE LT GE GT EQ NE OR AND
 %token NOT
+%token IF ELSE
 %token TRUEVAL FALSEVAL LET
 
 %token <cint> NUM
@@ -40,7 +41,7 @@ static int yyerror( char *errname);
 %token <id> ID
 
 %type <node> intval floatval boolval constant expr
-%type <node> stmts stmt assign varlet program
+%type <node> stmts stmt assign if varlet program
 %type <cbinop> binop
 %type <cunop> unop
 
@@ -64,10 +65,11 @@ stmts: stmt stmts
         }
         ;
 
-stmt: assign
+stmt:  assign
        {
          $$ = $1;
        }
+       | if { $$ = $1; }
        ;
 
 assign: varlet LET expr SEMICOLON
@@ -76,6 +78,16 @@ assign: varlet LET expr SEMICOLON
         }
         ;
 
+if: 	IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R 
+		{ 
+	   	   $$ = TBmakeIf( $3, $6, NULL );
+		}
+		| IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R ELSE CURLY_L stmts CURLY_R 
+		{ 
+	   	   $$ = TBmakeIf( $3, $6, $10 );
+		}
+		;
+
 varlet: ID
         {
           $$ = TBmakeVarlet( STRcpy( $1));
@@ -83,13 +95,10 @@ varlet: ID
         ;
 
 
-expr: BRACKET_L expr binop expr BRACKET_R { $$ = TBmakeBinop( $3, $2, $4); }
+expr: BRACKET_L expr BRACKET_R            { $$ = $2; }
     | expr binop expr                     { $$ = TBmakeBinop( $2, $1, $3); }
-    | unop BRACKET_L expr BRACKET_R  	  { $$ = TBmakeUnop( $1, $3); }
     | unop expr                           { $$ = TBmakeUnop( $1, $2); }
-    | BRACKET_L ID BRACKET_R              { $$ = TBmakeVar( STRcpy( $2)); }
     | ID                                  { $$ = TBmakeVar( STRcpy( $1)); }
-    | BRACKET_L constant BRACKET_R        { $$ = $2; }
     | constant                            { $$ = $1; }
     ;
 

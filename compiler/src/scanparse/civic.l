@@ -32,8 +32,13 @@
 
 %%
 
+"if"                       { FILTER( IF); }
+"else"                     { FILTER( ELSE); }
+
 "("                        { FILTER( BRACKET_L); }
 ")"                        { FILTER( BRACKET_R); }
+"{"                        { FILTER( CURLY_L); }
+"}"                        { FILTER( CURLY_R); }
 ","                        { FILTER( COMMA); }
 ";"                        { FILTER( SEMICOLON); }
 
