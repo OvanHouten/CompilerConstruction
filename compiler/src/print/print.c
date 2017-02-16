@@ -162,7 +162,7 @@ PRTif (node * arg_node, info * arg_info)
 	  printf("} else {\n");
 	  IF_ELSEBLOCK( arg_node) = TRAVdo(IF_ELSEBLOCK( arg_node), arg_info);
   }
-  printf( "};\n");
+  printf( "}\n");
 
   DBUG_RETURN (arg_node);
 }
@@ -189,10 +189,38 @@ PRTwhile (node * arg_node, info * arg_info)
   WHILE_CONDITION( arg_node) = TRAVdo( WHILE_CONDITION( arg_node), arg_info);
   printf(") {\n");
   WHILE_BLOCK( arg_node) = TRAVdo( WHILE_BLOCK( arg_node), arg_info);
-  printf( "};\n");
+  printf( "}\n");
 
   DBUG_RETURN (arg_node);
 }
+
+/** <!--******************************************************************-->
+ *
+ * @fn PRTdowhile
+ *
+ * @brief Prints the do-while and its sons/attributes
+ *
+ * @param arg_node while node to process
+ * @param arg_info pointer to info structure
+ *
+ * @return processed node
+ *
+ ***************************************************************************/
+
+node *
+PRTdo (node * arg_node, info * arg_info)
+{
+  DBUG_ENTER ("PRTdo");
+
+  printf("do {\n");
+  WHILE_BLOCK( arg_node) = TRAVdo( WHILE_BLOCK( arg_node), arg_info);
+  printf("} while (");
+  WHILE_CONDITION( arg_node) = TRAVdo( WHILE_CONDITION( arg_node), arg_info);
+  printf( ");\n");
+
+  DBUG_RETURN (arg_node);
+}
+
 /** <!--******************************************************************-->
  *
  * @fn PRTbinop

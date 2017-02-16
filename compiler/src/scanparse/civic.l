@@ -34,6 +34,7 @@
 
 "if"                       { FILTER( IF); }
 "else"                     { FILTER( ELSE); }
+"do"                       { FILTER( DO); }
 "while"                    { FILTER( WHILE); }
 
 "("                        { FILTER( BRACKET_L); }

@@ -92,6 +92,7 @@
         <node name="Assign" />
         <node name="If" />
         <node name="While" />
+        <node name="Do" />
       </target>
     </nodeset>
   </nodesets>
@@ -194,7 +195,7 @@
         <description>to be excuted if the condition is true</description>
           <targets>
             <target mandatory="yes">
-              <set name="Stmt" />
+              <node name="Stmts" />
                 <phases>
                   <all />
                 </phases>
@@ -205,7 +206,7 @@
         <description>right hand side expression</description>
           <targets>
             <target mandatory="no">
-              <set name="Stmt" />
+              <node name="Stmts" />
                 <phases>
                   <all />
                 </phases>
@@ -237,7 +238,39 @@
         <description>to be excuted while the condition is true</description>
           <targets>
             <target mandatory="yes">
-              <set name="Stmt" />
+              <node name="Stmts" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node Do:
+-->
+     <node name="Do">
+      <description>represents the while statement</description>
+      <sons>
+        <son name="Condition">
+        <description>represents the condition</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Block">
+        <description>to be excuted while the condition is true</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Stmts" />
                 <phases>
                   <all />
                 </phases>

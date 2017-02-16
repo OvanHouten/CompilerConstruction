@@ -33,7 +33,7 @@ static int yyerror( char *errname);
 %token BRACKET_L BRACKET_R CURLY_L CURLY_R COMMA SEMICOLON
 %token MINUS PLUS STAR SLASH PERCENT LE LT GE GT EQ NE OR AND
 %token NOT
-%token IF ELSE WHILE
+%token IF ELSE WHILE DO
 %token TRUEVAL FALSEVAL LET
 
 %token <cint> NUM
@@ -41,7 +41,7 @@ static int yyerror( char *errname);
 %token <id> ID
 
 %type <node> intval floatval boolval constant expr
-%type <node> stmts stmt assign if while varlet program
+%type <node> stmts stmt assign if while do varlet program
 %type <cbinop> binop
 %type <cunop> unop
 
@@ -65,11 +65,9 @@ stmts: stmt stmts
         }
         ;
 
-stmt:  assign
-       {
-         $$ = $1;
-       }
-       | if { $$ = $1; }
+stmt:  assign  { $$ = $1; }
+       | if    { $$ = $1; }
+       | do    { $$ = $1; }
        | while { $$ = $1; }
        ;
 
@@ -79,7 +77,11 @@ assign: varlet LET expr SEMICOLON
         }
         ;
 
-if: 	IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R 
+if:		IF BRACKET_L expr BRACKET_R stmt 
+		{ 
+	   	   $$ = TBmakeIf( $3, $5, NULL );
+		}
+		| IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R 
 		{ 
 	   	   $$ = TBmakeIf( $3, $6, NULL );
 		}
@@ -92,6 +94,11 @@ if: 	IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R
 while:  WHILE BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R
 		{
 			$$ = TBmakeWhile($3, $6);
+		}
+
+do:  DO CURLY_L stmts CURLY_R WHILE BRACKET_L expr BRACKET_R SEMICOLON
+		{
+			$$ = TBmakeWhile($7, $3);
 		}
 
 varlet: ID

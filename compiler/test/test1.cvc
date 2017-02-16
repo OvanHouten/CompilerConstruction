@@ -38,3 +38,24 @@ if ( v < q) {
 	    qq = zz + 1;
 	}
 }
+
+while (2 > 3) {
+	qq =q*2;
+}
+
+while (2 > 3) {
+	while (2 > 3) {
+		qq =q*2;
+	}
+	qq =q*2;
+}
+
+while (2 > 3) {
+	qq =q*2;
+	if ( v < q) {
+	    zz = 1;
+	    qq = zz + 1;
+	} else {
+		zz = zz / z;
+	}
+}
