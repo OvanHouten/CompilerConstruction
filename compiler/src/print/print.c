@@ -28,9 +28,12 @@
  */
 struct INFO {
   bool firsterror;
+  int indent;
 };
 
 #define INFO_FIRSTERROR(n) ((n)->firsterror)
+#define INFO_INDENT(n) ((n)->indent)
+#define INDENT_SIZE 4
 
 static info *MakeInfo()
 {
@@ -39,6 +42,7 @@ static info *MakeInfo()
   result = MEMmalloc(sizeof(info));
 
   INFO_FIRSTERROR(result) = FALSE;
+  INFO_INDENT(result) = 0;
   
   return result;
 }
@@ -130,7 +134,7 @@ PRTassign (node * arg_node, info * arg_info)
   
   ASSIGN_EXPR( arg_node) = TRAVdo( ASSIGN_EXPR( arg_node), arg_info);
   
-  printf( ";\n");
+  printf( ";\n%*s", INFO_INDENT(arg_info), "");
   
   DBUG_RETURN (arg_node);
 }
@@ -154,15 +158,20 @@ PRTif (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTif");
 
+  INFO_INDENT(arg_info) += INDENT_SIZE;
   printf("if (");
   IF_CONDITION( arg_node) = TRAVdo( IF_CONDITION( arg_node), arg_info);
-  printf(") {\n");
+  printf(") {\n%*s", INFO_INDENT(arg_info), "");
+
   IF_IFBLOCK( arg_node) = TRAVdo( IF_IFBLOCK( arg_node), arg_info);
+
   if (IF_ELSEBLOCK( arg_node) != NULL) {
-	  printf("} else {\n");
+	  printf("\b\b\b\b} else {\n%*s", INFO_INDENT(arg_info), "");
 	  IF_ELSEBLOCK( arg_node) = TRAVdo(IF_ELSEBLOCK( arg_node), arg_info);
   }
-  printf( "}\n");
+
+  INFO_INDENT(arg_info) -= INDENT_SIZE;
+  printf( "}\n%*s", INFO_INDENT(arg_info), "");
 
   DBUG_RETURN (arg_node);
 }
@@ -187,9 +196,13 @@ PRTwhile (node * arg_node, info * arg_info)
 
   printf("while (");
   WHILE_CONDITION( arg_node) = TRAVdo( WHILE_CONDITION( arg_node), arg_info);
-  printf(") {\n");
+  INFO_INDENT(arg_info) += INDENT_SIZE;
+  printf(") {\n%*s", INFO_INDENT(arg_info), "");
+
   WHILE_BLOCK( arg_node) = TRAVdo( WHILE_BLOCK( arg_node), arg_info);
-  printf( "}\n");
+
+  INFO_INDENT(arg_info) -= INDENT_SIZE;
+  printf( "}\n%*s", INFO_INDENT(arg_info), "");
 
   DBUG_RETURN (arg_node);
 }
@@ -212,11 +225,15 @@ PRTdo (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTdo");
 
-  printf("do {\n");
+  INFO_INDENT(arg_info) += INDENT_SIZE;
+  printf("do {\n%*s", INFO_INDENT(arg_info), "");
   WHILE_BLOCK( arg_node) = TRAVdo( WHILE_BLOCK( arg_node), arg_info);
-  printf("} while (");
+  INFO_INDENT(arg_info) -= INDENT_SIZE;
+  printf("%*s} while (", INFO_INDENT(arg_info), "");
+
   WHILE_CONDITION( arg_node) = TRAVdo( WHILE_CONDITION( arg_node), arg_info);
-  printf( ");\n");
+
+  printf( ");\n%*s", INFO_INDENT(arg_info), "");
 
   DBUG_RETURN (arg_node);
 }
