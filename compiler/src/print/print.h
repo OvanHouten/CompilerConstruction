@@ -31,6 +31,25 @@ extern node *PRTbool (node * arg_node, info * arg_info);
 extern node *PRTsymboltableentry (node * arg_node, info * arg_info);
 extern node *PRTerror (node * arg_node, info * arg_info);
 
+/*
+ * Begin functioncounters
+ */
+/*
+ * End functioncounters
+ */
+/*
+ * Begin array
+ */
+/*
+ * End arrays
+ */
+/*
+ * Begin multi arrays
+ */
+/*
+ * End multi arrays
+ */
+
 extern node *PRTdoPrint( node *syntaxtree);
 
 #endif /* _SAC_PRT_NODE_H_ */

@@ -571,3 +571,23 @@ node
 /**
  * @}
  */
+
+/*
+ * Begin functioncounters
+ */
+/*
+ * End functioncounters
+ */
+/*
+ * Begin array
+ */
+/*
+ * End arrays
+ */
+/*
+ * Begin multi arrays
+ */
+/*
+ * End multi arrays
+ */
+

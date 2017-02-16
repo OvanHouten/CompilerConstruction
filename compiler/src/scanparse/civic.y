@@ -170,6 +170,25 @@ binop: PLUS      { $$ = BO_add; }
      | AND       { $$ = BO_and; }
      ;
       
+     /*
+      * Begin functioncounters
+      */
+     /*
+      * End functioncounters
+      */
+     /*
+      * Begin array
+      */
+     /*
+      * End arrays
+      */
+     /*
+      * Begin multi arrays
+      */
+     /*
+      * End multi arrays
+      */
+
 %%
 
 static int yyerror( char *error)
