@@ -30,16 +30,25 @@ static int yyerror( char *errname);
  node               *node;
 }
 
-%token BRACKET_L BRACKET_R COMMA SEMICOLON
-%token MINUS PLUS STAR SLASH PERCENT LE LT GE GT EQ NE OR AND
-%token NOT
-%token TRUEVAL FALSEVAL LET
+%left  LET
+%left  OR
+%left  AND
+%left  EQ NE
+%left  LE LT GE GT
+%left  PLUS MINUS
+%left  STAR SLASH PERCENT
+%right NOT
+%left  BRACKET_R  
+%left  BRACKET_L  
+
+%token COMMA SEMICOLON
+%token TRUEVAL FALSEVAL
 
 %token <cint> NUM
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> intval floatval boolval constant expr
+%type <node> intval floatval boolval constant expr unexpr binexpr
 %type <node> stmts stmt assign varlet program
 %type <cbinop> binop
 %type <cunop> unop
@@ -54,7 +63,7 @@ program: stmts
          }
          ;
 
-stmts: stmt stmts
+stmts: stmts stmt
         {
           $$ = TBmakeStmts( $1, $2);
         }
@@ -83,31 +92,28 @@ varlet: ID
         ;
 
 
-expr: constant
-      {
-        $$ = $1;
-      }
+expr: unexpr
+    | binexpr
     | ID
       {
         $$ = TBmakeVar( STRcpy( $1));
       }
-    | BRACKET_L expr binop expr BRACKET_R
-      {
-        $$ = TBmakeBinop( $3, $2, $4);
-      }
-    | expr binop expr
-      {
-        $$ = TBmakeBinop( $2, $1, $3);
-      }
-    | unop expr 
-  	  {
-        $$ = TBmakeUnop( $1, $2);
-	  }
-    | unop BRACKET_L expr BRACKET_R
-  	  {
-        $$ = TBmakeUnop( $1, $3);
-	  }
+    | constant
+    {
+      $$ = $1;
+    }
     ;
+
+unexpr: unop expr
+      	  {
+            $$ = TBmakeUnop( $1, $2);
+    	  }
+
+
+binexpr: expr binop expr
+          {
+            $$ = TBmakeBinop( $2, $1, $3);
+          }
 
 constant: floatval
           {
@@ -154,6 +160,7 @@ binop: PLUS      { $$ = BO_add; }
      | STAR      { $$ = BO_mul; }
      | SLASH     { $$ = BO_div; }
      | PERCENT   { $$ = BO_mod; }
+     | NE        { $$ = BO_ne; }
      | LE        { $$ = BO_le; }
      | LT        { $$ = BO_lt; }
      | GE        { $$ = BO_ge; }
