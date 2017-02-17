@@ -28,9 +28,17 @@
  */
 struct INFO {
   bool firsterror;
+  int indent;
+  bool isNewLine;
 };
 
 #define INFO_FIRSTERROR(n) ((n)->firsterror)
+#define INFO_INDENT(n) ((n)->indent)
+#define INFO_IS_NEW_LINE(n) ((n)->isNewLine)
+#define INDENT_SIZE 4
+#define INDENT(arg_info) INFO_INDENT(arg_info) += INDENT_SIZE; INFO_IS_NEW_LINE(arg_info) = TRUE;
+#define UNINDENT(arg_info) INFO_INDENT(arg_info) -= INDENT_SIZE; INFO_IS_NEW_LINE(arg_info) = TRUE;
+#define PRINT_INDENT(arg_info) printf("%*s", INFO_IS_NEW_LINE(arg_info) ? INFO_INDENT(arg_info) : 0, ""); INFO_IS_NEW_LINE(arg_info) = FALSE;
 
 static info *MakeInfo()
 {
@@ -39,7 +47,9 @@ static info *MakeInfo()
   result = MEMmalloc(sizeof(info));
 
   INFO_FIRSTERROR(result) = FALSE;
+  INFO_INDENT(result) = 0;
   
+
   return result;
 }
 
@@ -131,6 +141,7 @@ PRTassign (node * arg_node, info * arg_info)
   ASSIGN_EXPR( arg_node) = TRAVdo( ASSIGN_EXPR( arg_node), arg_info);
   
   printf( ";\n");
+  INFO_IS_NEW_LINE(arg_info) = TRUE;
   
   DBUG_RETURN (arg_node);
 }
@@ -154,15 +165,26 @@ PRTif (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTif");
 
+  PRINT_INDENT(arg_info);
   printf("if (");
   IF_CONDITION( arg_node) = TRAVdo( IF_CONDITION( arg_node), arg_info);
   printf(") {\n");
+  INDENT(arg_info);
+
   IF_IFBLOCK( arg_node) = TRAVdo( IF_IFBLOCK( arg_node), arg_info);
+
   if (IF_ELSEBLOCK( arg_node) != NULL) {
+	  UNINDENT(arg_info);
+	  PRINT_INDENT(arg_info);
 	  printf("} else {\n");
+	  INDENT(arg_info);
 	  IF_ELSEBLOCK( arg_node) = TRAVdo(IF_ELSEBLOCK( arg_node), arg_info);
   }
+
+  UNINDENT(arg_info);
+  PRINT_INDENT(arg_info);
   printf( "}\n");
+  INFO_IS_NEW_LINE(arg_info) = TRUE;
 
   DBUG_RETURN (arg_node);
 }
@@ -185,10 +207,16 @@ PRTwhile (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTwhile");
 
+  PRINT_INDENT(arg_info);
   printf("while (");
   WHILE_CONDITION( arg_node) = TRAVdo( WHILE_CONDITION( arg_node), arg_info);
   printf(") {\n");
+  INDENT(arg_info);
+
   WHILE_BLOCK( arg_node) = TRAVdo( WHILE_BLOCK( arg_node), arg_info);
+
+  UNINDENT(arg_info);
+  PRINT_INDENT(arg_info);
   printf( "}\n");
 
   DBUG_RETURN (arg_node);
@@ -212,11 +240,20 @@ PRTdo (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTdo");
 
+  PRINT_INDENT(arg_info);
   printf("do {\n");
+  INDENT(arg_info);
+
   WHILE_BLOCK( arg_node) = TRAVdo( WHILE_BLOCK( arg_node), arg_info);
+
+  UNINDENT(arg_info);
+  PRINT_INDENT(arg_info);
   printf("} while (");
+
   WHILE_CONDITION( arg_node) = TRAVdo( WHILE_CONDITION( arg_node), arg_info);
+
   printf( ");\n");
+  INFO_IS_NEW_LINE(arg_info) = TRUE;
 
   DBUG_RETURN (arg_node);
 }
@@ -433,6 +470,7 @@ PRTvar (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTvar");
 
+  PRINT_INDENT(arg_info);
   printf( "%s", VAR_NAME( arg_node));
 
   DBUG_RETURN (arg_node);
@@ -457,6 +495,7 @@ PRTvarlet (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTvarlet");
 
+  PRINT_INDENT(arg_info);
   printf( "%s", VARLET_NAME( arg_node));
 
   DBUG_RETURN (arg_node);
@@ -551,7 +590,7 @@ node
 
   DBUG_ASSERT( (syntaxtree!= NULL), "PRTdoPrint called with empty syntaxtree");
 
-  printf( "\n\n------------------------------\n\n");
+//  printf( "\n\n------------------------------\n\n");
 
   info = MakeInfo();
   
@@ -563,7 +602,7 @@ node
 
   info = FreeInfo(info);
 
-  printf( "\n------------------------------\n\n");
+//  printf( "\n------------------------------\n\n");
 
   DBUG_RETURN( syntaxtree);
 }
