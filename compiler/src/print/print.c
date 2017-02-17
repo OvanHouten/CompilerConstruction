@@ -48,7 +48,7 @@ static info *MakeInfo()
 
   INFO_FIRSTERROR(result) = FALSE;
   INFO_INDENT(result) = 0;
-  
+  INFO_IS_NEW_LINE(result) = FALSE;
 
   return result;
 }
