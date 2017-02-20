@@ -70,14 +70,14 @@
 -->
 
   <nodesets>
-  	<nodeset name="Declaration">
-  		<target>
-  			<node name="FunDec"/>
-  			<node name="FunDef"/>
-  			<node name="GlobalDec"/>
-  			<node name="GlobalDef"/>
-  		</target>
-  	</nodeset>
+      <nodeset name="Declaration">
+        <target>
+          <node name="FunDec"/>
+          <node name="FunDef"/>
+          <node name="GlobalDec"/>
+          <node name="GlobalDef"/>
+        </target>
+      </nodeset>
     <nodeset name="Expr">
       <target>
         <node name="BinOp" />
@@ -95,6 +95,8 @@
         <node name="If" />
         <node name="While" />
         <node name="Do" />
+        <node name="For" />
+        <node name="Return" />
       </target>
     </nodeset>
     <nodeset name="LeftAssign">
@@ -109,12 +111,88 @@
   =========================================================================
 -->
 
+<!--
+ Node Stmts:
+-->
   <syntaxtree>
-  	<node name="Declaration"/>
-	<node name="FunDec"/>
-	<node name="FunDef"/>
-	<node name="GlobalDec"/>
-	<node name="GlobalDef"/>
+      <node name="Declaration">
+      </node>
+<!--
+ Node FunDec:
+-->
+    <node name="FunDec">
+      <description>Function Declaration</description>
+      <sons>
+        <son name="">
+          <description></description>
+            <targets>
+              <target>
+                <set name=""/>
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+        </son>
+      </sons>
+    </node>
+<!--
+ Node FunDef:
+-->
+    <node name="FunDef">
+      <description>Function Definition</description>
+      <sons>
+        <son name="">
+          <description></description>
+          <targets>
+            <target>
+              <set name=""/>
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+      </sons>
+    </node>
+<!--
+ Node GlobalDec:
+-->
+    <node name="GlobalDec">
+      <description>Global Declaration</description>
+      <sons>
+        <son name="">
+          <description></description>
+            <targets>
+              <target>
+                <set name=""/>
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+        </son>
+      </sons>
+    </node>
+<!--
+ Node GlobalDef:
+-->
+    <node name="GlobalDef">
+      <description>Global Definition</description>
+      <sons>
+        <son name="">
+          <description></description>
+            <targets>
+              <target>
+                <set name=""/>
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+        </son>
+      </sons>
+    </node>
 <!--
  Node Stmts:
 -->
@@ -308,6 +386,28 @@
           <targets>
             <target mandatory="yes">
               <node name="Stmts" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+
+<!--
+ Node Return:
+-->  
+    <node name="Return">
+      <description>represents return statement</description>
+      <sons>
+        <son name="Expression">
+        <description>represents the return expression</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
                 <phases>
                   <all />
                 </phases>
@@ -585,25 +685,25 @@
       </attributes>
     </node>
     
-	<!-- Node Module: -->
-	<node name="Module">
-		<description>represents the usage information of the artihmatic operators</description>
-		<sons>
-			<son name="Stmts">
-				<description>remaining statements in sequence</description>
-				<targets>
-					<target mandatory="no">
-						<node name="Stmts" />
-						<phases>
-							<all />
-						</phases>
-					</target>
-				</targets>
-			</son>
-		</sons>
-		<attributes>
-		</attributes>
-	</node>
+    <!-- Node Module: -->
+    <node name="Module">
+        <description>represents the usage information of the artihmatic operators</description>
+        <sons>
+            <son name="Stmts">
+                <description>remaining statements in sequence</description>
+                <targets>
+                    <target mandatory="no">
+                        <node name="Stmts" />
+                        <phases>
+                            <all />
+                        </phases>
+                    </target>
+                </targets>
+            </son>
+        </sons>
+        <attributes>
+        </attributes>
+    </node>
 
 <!--
  Node Error:
