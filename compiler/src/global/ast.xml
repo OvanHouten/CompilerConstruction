@@ -282,6 +282,38 @@
       </attributes>
     </node>
 <!--
+ Node For:
+-->
+     <node name="For">
+      <description>represents the for statement</description>
+      <sons>
+        <son name="Condition">
+        <description>represents the condition</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Block">
+        <description>to be excuted until the condition becomes false</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Stmts" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
  Node BinOp:
 -->
     <node name="BinOp">

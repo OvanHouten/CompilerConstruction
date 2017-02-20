@@ -29,7 +29,7 @@ static int yyerror( char *errname);
  node               *node;
 }
 
-%token IF ELSE WHILE
+%token IF ELSE WHILE FOR
 %right DO
 %left  LET
 %left  OR
@@ -42,6 +42,7 @@ static int yyerror( char *errname);
 %left  CURLY_L CURLY_R
 %left  BRACKET_L BRACKET_R
 
+%token INT_TYPE FLOAT_TYPE BOOL_TYPE
 %token COMMA SEMICOLON
 %token TRUEVAL FALSEVAL
 

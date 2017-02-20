@@ -35,10 +35,12 @@ struct INFO {
 #define INFO_FIRSTERROR(n) ((n)->firsterror)
 #define INFO_INDENT(n) ((n)->indent)
 #define INFO_IS_NEW_LINE(n) ((n)->isNewLine)
+
+// Default indent size
 #define INDENT_SIZE 4
-#define INDENT(arg_info) INFO_INDENT(arg_info) += INDENT_SIZE; INFO_IS_NEW_LINE(arg_info) = TRUE;
-#define UNINDENT(arg_info) INFO_INDENT(arg_info) -= INDENT_SIZE; INFO_IS_NEW_LINE(arg_info) = TRUE;
-#define PRINT_INDENT(arg_info) printf("%*s", INFO_IS_NEW_LINE(arg_info) ? INFO_INDENT(arg_info) : 0, ""); INFO_IS_NEW_LINE(arg_info) = FALSE;
+#define INCREASE_INDENTATION(arg_info) INFO_INDENT(arg_info) += INDENT_SIZE; INFO_IS_NEW_LINE(arg_info) = TRUE;
+#define DECREASE_INDENTATION(arg_info) INFO_INDENT(arg_info) -= INDENT_SIZE; INFO_IS_NEW_LINE(arg_info) = TRUE;
+#define INDENT(arg_info) printf("%*s", INFO_IS_NEW_LINE(arg_info) ? INFO_INDENT(arg_info) : 0, ""); INFO_IS_NEW_LINE(arg_info) = FALSE;
 
 static info *MakeInfo()
 {
@@ -165,24 +167,24 @@ PRTif (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTif");
 
-  PRINT_INDENT(arg_info);
+  INDENT(arg_info);
   printf("if (");
   IF_CONDITION( arg_node) = TRAVdo( IF_CONDITION( arg_node), arg_info);
   printf(") {\n");
-  INDENT(arg_info);
+  INCREASE_INDENTATION(arg_info);
 
   IF_IFBLOCK( arg_node) = TRAVdo( IF_IFBLOCK( arg_node), arg_info);
 
   if (IF_ELSEBLOCK( arg_node) != NULL) {
-	  UNINDENT(arg_info);
-	  PRINT_INDENT(arg_info);
-	  printf("} else {\n");
+	  DECREASE_INDENTATION(arg_info);
 	  INDENT(arg_info);
+	  printf("} else {\n");
+	  INCREASE_INDENTATION(arg_info);
 	  IF_ELSEBLOCK( arg_node) = TRAVdo(IF_ELSEBLOCK( arg_node), arg_info);
   }
 
-  UNINDENT(arg_info);
-  PRINT_INDENT(arg_info);
+  DECREASE_INDENTATION(arg_info);
+  INDENT(arg_info);
   printf( "}\n");
   INFO_IS_NEW_LINE(arg_info) = TRUE;
 
@@ -207,16 +209,16 @@ PRTwhile (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTwhile");
 
-  PRINT_INDENT(arg_info);
+  INDENT(arg_info);
   printf("while (");
   WHILE_CONDITION( arg_node) = TRAVdo( WHILE_CONDITION( arg_node), arg_info);
   printf(") {\n");
-  INDENT(arg_info);
+  INCREASE_INDENTATION(arg_info);
 
   WHILE_BLOCK( arg_node) = TRAVdo( WHILE_BLOCK( arg_node), arg_info);
 
-  UNINDENT(arg_info);
-  PRINT_INDENT(arg_info);
+  DECREASE_INDENTATION(arg_info);
+  INDENT(arg_info);
   printf( "}\n");
 
   DBUG_RETURN (arg_node);
@@ -240,19 +242,53 @@ PRTdo (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTdo");
 
-  PRINT_INDENT(arg_info);
-  printf("do {\n");
   INDENT(arg_info);
+  printf("do {\n");
+  INCREASE_INDENTATION(arg_info);
 
   DO_BLOCK( arg_node) = TRAVdo( DO_BLOCK( arg_node), arg_info);
 
-  UNINDENT(arg_info);
-  PRINT_INDENT(arg_info);
+  DECREASE_INDENTATION(arg_info);
+  INDENT(arg_info);
   printf("} while (");
 
   DO_CONDITION( arg_node) = TRAVdo( DO_CONDITION( arg_node), arg_info);
 
   printf( ");\n");
+  INFO_IS_NEW_LINE(arg_info) = TRUE;
+
+  DBUG_RETURN (arg_node);
+}
+
+/** <!--******************************************************************-->
+ *
+ * @fn PRTfor
+ *
+ * @brief Prints the for-loop and its sons/attributes
+ *
+ * @param arg_node for node to process
+ * @param arg_info pointer to info structure
+ *
+ * @return processed node
+ *
+ ***************************************************************************/
+
+node *
+PRTfor (node * arg_node, info * arg_info)
+{
+  DBUG_ENTER ("PRTfor");
+
+  INDENT(arg_info);
+  printf("for (");
+//  DO_CONDITION( arg_node) = TRAVdo( DO_CONDITION( arg_node), arg_info);
+  printf(") {\n");
+  INCREASE_INDENTATION(arg_info);
+
+  DO_BLOCK( arg_node) = TRAVdo( DO_BLOCK( arg_node), arg_info);
+
+  DECREASE_INDENTATION(arg_info);
+  INDENT(arg_info);
+  printf("}\n");
   INFO_IS_NEW_LINE(arg_info) = TRUE;
 
   DBUG_RETURN (arg_node);
@@ -470,7 +506,7 @@ PRTvar (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTvar");
 
-  PRINT_INDENT(arg_info);
+  INDENT(arg_info);
   printf( "%s", VAR_NAME( arg_node));
 
   DBUG_RETURN (arg_node);
@@ -495,7 +531,7 @@ PRTvarlet (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTvarlet");
 
-  PRINT_INDENT(arg_info);
+  INDENT(arg_info);
   printf( "%s", VARLET_NAME( arg_node));
 
   DBUG_RETURN (arg_node);

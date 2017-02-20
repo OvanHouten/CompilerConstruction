@@ -3,12 +3,12 @@
 
 
 /*
- * This enumeration defines all unops
+ * This enumeration defines all unary operations
  */
 typedef enum { UO_not, UO_neg, UO_unknown } unop;
 
 /*
- * This enumeration defines all binops
+ * This enumeration defines all binary operations
  */
 typedef enum { BO_add, BO_sub, BO_mul, BO_div, BO_mod, 
                BO_lt, BO_le, BO_gt, BO_ge, BO_eq, BO_ne, 

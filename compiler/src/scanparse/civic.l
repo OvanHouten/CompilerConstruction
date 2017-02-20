@@ -36,6 +36,11 @@
 "else"                     { FILTER( ELSE); }
 "do"                       { FILTER( DO); }
 "while"                    { FILTER( WHILE); }
+"for"                      { FILTER( FOR); }
+
+"int"                      { FILTER( INT_TYPE); }
+"float"                    { FILTER( FLOAT_TYPE) }
+"bool"                     { FILTER( BOOL_TYPE) }
 
 "("                        { FILTER( BRACKET_L); }
 ")"                        { FILTER( BRACKET_R); }
