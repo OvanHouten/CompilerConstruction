@@ -1,0 +1,34 @@
+=== SHIFT/REDUCE PROBLEM ===
+After adding some rules to the civic.y file it turned out that we had some shift/reduce errors.
+
+Here are two actual lines from the Bison verbose output
+
+   11 unexpr: unop expr .
+   12 binexpr: expr . binop expr
+   
+The shift/reduce errors where caused by the following rule
+
+expr: unexpr
+    | binexpr
+    ;
+    
+The two mentioned rules 'unexpr' and 'binexpr' are the names of a rule for unary expressions and for binary expressions repectivly.
+
+This was fixed by compining the two rules into a single slightly more verbose rule, see below for a small portion of the actual solution.
+
+expr: BRACKET_L expr BRACKET_R { $$ = $2; }
+    | NOT expr          { $$ = TBmakeUnop( UO_not, $2); }
+    | MINUS expr        { $$ = TBmakeUnop( UO_neg, $2); }
+    | expr MINUS expr   { $$ = TBmakeBinop( BO_sub, $1, $3); }
+    | expr PLUS expr    { $$ = TBmakeBinop( BO_add, $1, $3); }
+    | expr STAR expr    { $$ = TBmakeBinop( BO_mul, $1, $3); }
+
+Combined with left and right assisiativy rules for the operators it works as expected.
+
+
+=== DO-WHILE vs WHILE ===
+Currently we have two different AST nodes for the 'while' and the 'do-while' loop. These can easily be combined into a single 'while' node with an extra attribute indicating pre or post condition check in order to distinguish the two.
+
+=== FOR loop vs WHILE loops ===
+We can try to combine all the loops into a single AST node. For now we have not implemented this. Mainly because the differences between a for loop and the (do-)while loops.
+

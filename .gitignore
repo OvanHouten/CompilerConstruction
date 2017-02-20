@@ -8,7 +8,8 @@ bin/
 *.output
 
 # Generated documentation
-compiler/doc/
+compiler/doc/ast.html
+compiler/doc/ast.png
 
 # Framework build system specifics
 \.*.d

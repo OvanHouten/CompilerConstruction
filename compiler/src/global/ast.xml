@@ -253,7 +253,7 @@
  Node Do:
 -->
      <node name="Do">
-      <description>represents the while statement</description>
+      <description>represents the do-while statement</description>
       <sons>
         <son name="Condition">
         <description>represents the condition</description>
@@ -267,7 +267,7 @@
           </targets>
         </son>
         <son name="Block">
-        <description>to be excuted while the condition is true</description>
+        <description>to be excuted until the condition becomes false</description>
           <targets>
             <target mandatory="yes">
               <node name="Stmts" />
