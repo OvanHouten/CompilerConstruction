@@ -99,6 +99,17 @@
         <node name="Return" />
       </target>
     </nodeset>
+    <nodeset name="Block">
+        <target>
+            <node name="Stmts" />
+	        <node name="VarDeclare" />
+	        <node name="Assign" />
+	        <node name="If" />
+	        <node name="While" />
+	        <node name="Do" />
+	        <node name="For" />
+        </target>
+    </nodeset>
     <nodeset name="LeftAssign">
         <target>
             <node name="VarDeclare" />
@@ -370,8 +381,19 @@
      <node name="For">
       <description>represents the for statement</description>
       <sons>
-        <son name="Condition">
-        <description>represents the condition</description>
+        <son name="Var">
+          <description>to be excuted until the condition becomes false</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Var" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Start">
+          <description>represents the start value for the for-loop</description>
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
@@ -381,11 +403,33 @@
              </target>
           </targets>
         </son>
-        <son name="Block">
-        <description>to be excuted until the condition becomes false</description>
+        <son name="Finish">
+          <description>represents the finish value (exluded) for the for-loop</description>
           <targets>
             <target mandatory="yes">
-              <node name="Stmts" />
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Step">
+          <description>represents the step size for the for-loop</description>
+          <targets>
+            <target mandatory="no">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Block">
+          <description>to be excuted until the condition becomes false</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Block" />
                 <phases>
                   <all />
                 </phases>
@@ -393,8 +437,6 @@
           </targets>
         </son>
       </sons>
-      <attributes>
-      </attributes>
     </node>
 
 <!--

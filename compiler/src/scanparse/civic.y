@@ -29,8 +29,6 @@ static int yyerror( char *errname);
  node               *node;
 }
 
-%token IF ELSE WHILE FOR
-%right DO
 %left  LET
 %left  OR
 %left  AND
@@ -39,6 +37,8 @@ static int yyerror( char *errname);
 %left  PLUS MINUS
 %left  STAR SLASH PERCENT
 %right NOT
+%token IF ELSE WHILE FOR
+%right DO
 %left  CURLY_L CURLY_R
 %left  BRACKET_L BRACKET_R
 
@@ -51,7 +51,7 @@ static int yyerror( char *errname);
 %token <id> ID
 
 %type <node> intval floatval boolval constant expr
-%type <node> stmts stmt assign declare if while do vardeclare program
+%type <node> stmts stmt assign declare if while do for program
 
 %start program
 
@@ -68,17 +68,18 @@ stmts: stmt stmts { $$ = TBmakeStmts( $1, $2); }
 		| if      { $$ = $1; }
 		| do      { $$ = $1; }
 		| while   { $$ = $1; }
+		| for     { $$ = $1; }
 		;         
 
-declare: vardeclare SEMICOLON { $$ = $1; }
-		
-vardeclare: INT_TYPE ID   { $$ = TBmakeVardeclare( STRcpy( $2), TY_int); }
-          | FLOAT_TYPE ID { $$ = TBmakeVardeclare( STRcpy( $2), TY_float); }
-          | BOOL_TYPE ID  { $$ = TBmakeVardeclare( STRcpy( $2), TY_bool); }
-          | ID            { $$ = TBmakeVardeclare( STRcpy( $1), TY_unknown); }
+declare: INT_TYPE ID SEMICOLON   { $$ = TBmakeVardeclare( STRcpy( $2), TY_int); }
+       | FLOAT_TYPE ID SEMICOLON { $$ = TBmakeVardeclare( STRcpy( $2), TY_float); }
+       | BOOL_TYPE ID SEMICOLON  { $$ = TBmakeVardeclare( STRcpy( $2), TY_bool); }
+       ;
 
-assign: vardeclare LET expr SEMICOLON { $$ = TBmakeAssign( $1, $3); }
-      | ID LET expr SEMICOLON         { $$ = TBmakeAssign( TBmakeVar( $1), $3); }
+assign: INT_TYPE ID LET expr SEMICOLON   { $$ = TBmakeAssign( TBmakeVardeclare( STRcpy( $2), TY_int), $4); }
+      | FLOAT_TYPE ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeVardeclare( STRcpy( $2), TY_float), $4); }
+      | BOOL_TYPE ID LET expr SEMICOLON  { $$ = TBmakeAssign( TBmakeVardeclare( STRcpy( $2), TY_bool), $4); }
+      | ID LET expr SEMICOLON            { $$ = TBmakeAssign( TBmakeVar( $1), $3); }
       ;
 
 if:		IF BRACKET_L expr BRACKET_R stmt { $$ = TBmakeIf( $3, $5, NULL ); }
@@ -86,9 +87,15 @@ if:		IF BRACKET_L expr BRACKET_R stmt { $$ = TBmakeIf( $3, $5, NULL ); }
       | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R ELSE CURLY_L stmts CURLY_R { $$ = TBmakeIf( $3, $6, $10 ); }
       ;
 
-do:     DO CURLY_L stmts CURLY_R WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = TBmakeDo($7, $3); }
+do:   DO CURLY_L stmts CURLY_R WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = TBmakeDo($7, $3); }
 
-while:  WHILE BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeWhile($3, $6); }
+while: WHILE BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeWhile($3, $6); }
+
+for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R stmt { $$ = TBmakeFor( TBmakeVar( $4), $6, $8, NULL, $10); }
+   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeFor( TBmakeVar( $4), $6, $8, NULL, $11); }
+   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R stmt { $$ = TBmakeFor( TBmakeVar( $4), $6, $8, $10, $12); }
+   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeFor( TBmakeVar( $4), $6, $8, $10, $13); }
+   ;
 
 expr: BRACKET_L expr BRACKET_R { $$ = $2; }
     | NOT expr          { $$ = TBmakeUnop( UO_not, $2); }

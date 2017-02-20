@@ -345,12 +345,16 @@ PRTfor (node * arg_node, info * arg_info)
   DBUG_ENTER ("PRTfor");
 
   INDENT(arg_info);
-  printf("for (");
-//  DO_CONDITION( arg_node) = TRAVdo( DO_CONDITION( arg_node), arg_info);
-  printf(") {\n");
+  printf("for ( int ");
+  FOR_VAR(arg_node) = TRAVdo( FOR_VAR(arg_node), arg_info);
+  printf(" = ");
+  FOR_START(arg_node) = TRAVdo( FOR_START(arg_node), arg_info);
+  printf(", ");
+  FOR_FINISH(arg_node) = TRAVdo( FOR_FINISH(arg_node), arg_info);
+  printf(" ) {\n");
   INCREASE_INDENTATION(arg_info);
 
-  DO_BLOCK( arg_node) = TRAVdo( DO_BLOCK( arg_node), arg_info);
+  FOR_BLOCK( arg_node) = TRAVdo( FOR_BLOCK( arg_node), arg_info);
 
   DECREASE_INDENTATION(arg_info);
   INDENT(arg_info);
@@ -578,6 +582,26 @@ PRTvar (node * arg_node, info * arg_info)
   DBUG_RETURN (arg_node);
 }
 
+
+/** <!--******************************************************************-->
+ *
+ * @fn PRTreturn
+ *
+ * @brief Prints the node and its sons/attributes
+ *
+ * @param arg_node return node to process
+ * @param arg_info pointer to info structure
+ *
+ * @return processed node
+ *
+ ***************************************************************************/
+
+node *PRTreturn (node * arg_node, info * arg_info)
+{
+  DBUG_ENTER ("PRTreturn");
+
+  DBUG_RETURN (arg_node);
+}
 
 /** <!--******************************************************************-->
  *
