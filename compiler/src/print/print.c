@@ -244,13 +244,13 @@ PRTdo (node * arg_node, info * arg_info)
   printf("do {\n");
   INDENT(arg_info);
 
-  WHILE_BLOCK( arg_node) = TRAVdo( WHILE_BLOCK( arg_node), arg_info);
+  DO_BLOCK( arg_node) = TRAVdo( DO_BLOCK( arg_node), arg_info);
 
   UNINDENT(arg_info);
   PRINT_INDENT(arg_info);
   printf("} while (");
 
-  WHILE_CONDITION( arg_node) = TRAVdo( WHILE_CONDITION( arg_node), arg_info);
+  DO_CONDITION( arg_node) = TRAVdo( DO_CONDITION( arg_node), arg_info);
 
   printf( ");\n");
   INFO_IS_NEW_LINE(arg_info) = TRUE;
