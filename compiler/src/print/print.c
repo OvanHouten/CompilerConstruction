@@ -119,6 +119,72 @@ PRTstmts (node * arg_node, info * arg_info)
 
 /** <!--******************************************************************-->
  *
+ * @fn PRTvardeclares
+ *
+ * @brief Prints the node and its sons/attributes
+ *
+ * @param arg_node vardeclares node to process
+ * @param arg_info pointer to info structure
+ *
+ * @return processed node
+ *
+ ***************************************************************************/
+
+node *
+PRTvardeclares (node * arg_node, info * arg_info)
+{
+  DBUG_ENTER ("PRTvardeclares");
+
+  VARDECLARES_VARDECLARE( arg_node) = TRAVdo( VARDECLARES_VARDECLARE( arg_node), arg_info);
+
+  if (VARDECLARES_NEXT( arg_node) != NULL) {
+	  printf(", ");
+  }
+  VARDECLARES_NEXT( arg_node) = TRAVopt( VARDECLARES_NEXT( arg_node), arg_info);
+
+  DBUG_RETURN (arg_node);
+}
+
+/** <!--******************************************************************-->
+ *
+ * @fn PRTvardeclare
+ *
+ * @brief Prints the node and its sons/attributes
+ *
+ * @param arg_node vardeclare node to process
+ * @param arg_info pointer to info structure
+ *
+ * @return processed node
+ *
+ ***************************************************************************/
+
+node *
+PRTvardeclare (node * arg_node, info * arg_info)
+{
+  DBUG_ENTER ("PRTvardeclare");
+
+  INDENT(arg_info);
+  char *typeName;
+  switch (VARDECLARE_TYPE(arg_node)) {
+  case TY_int:
+	  typeName = "int ";
+	  break;
+  case TY_float:
+	  typeName = "float ";
+	  break;
+  case TY_bool:
+	  typeName = "bool ";
+	  break;
+  default:
+	  typeName = "FAILURE "; // Need to handle this properly!
+  }
+  printf( "%s%s", typeName, VARDECLARE_NAME( arg_node));
+
+  DBUG_RETURN (arg_node);
+}
+
+/** <!--******************************************************************-->
+ *
  * @fn PRTassign
  *
  * @brief Prints the node and its sons/attributes
@@ -279,12 +345,16 @@ PRTfor (node * arg_node, info * arg_info)
   DBUG_ENTER ("PRTfor");
 
   INDENT(arg_info);
-  printf("for (");
-//  DO_CONDITION( arg_node) = TRAVdo( DO_CONDITION( arg_node), arg_info);
-  printf(") {\n");
+  printf("for ( int ");
+  FOR_VAR(arg_node) = TRAVdo( FOR_VAR(arg_node), arg_info);
+  printf(" = ");
+  FOR_START(arg_node) = TRAVdo( FOR_START(arg_node), arg_info);
+  printf(", ");
+  FOR_FINISH(arg_node) = TRAVdo( FOR_FINISH(arg_node), arg_info);
+  printf(" ) {\n");
   INCREASE_INDENTATION(arg_info);
 
-  DO_BLOCK( arg_node) = TRAVdo( DO_BLOCK( arg_node), arg_info);
+  FOR_BLOCK( arg_node) = TRAVdo( FOR_BLOCK( arg_node), arg_info);
 
   DECREASE_INDENTATION(arg_info);
   INDENT(arg_info);
@@ -515,28 +585,23 @@ PRTvar (node * arg_node, info * arg_info)
 
 /** <!--******************************************************************-->
  *
- * @fn PRTvarlet
+ * @fn PRTreturn
  *
  * @brief Prints the node and its sons/attributes
  *
- * @param arg_node letrec node to process
+ * @param arg_node return node to process
  * @param arg_info pointer to info structure
  *
  * @return processed node
  *
  ***************************************************************************/
 
-node *
-PRTvarlet (node * arg_node, info * arg_info)
+node *PRTreturn (node * arg_node, info * arg_info)
 {
-  DBUG_ENTER ("PRTvarlet");
-
-  INDENT(arg_info);
-  printf( "%s", VARLET_NAME( arg_node));
+  DBUG_ENTER ("PRTreturn");
 
   DBUG_RETURN (arg_node);
 }
-
 
 /** <!--******************************************************************-->
  *

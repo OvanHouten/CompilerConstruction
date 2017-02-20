@@ -8,6 +8,11 @@
 typedef enum { UO_not, UO_neg, UO_unknown } unop;
 
 /*
+ * This enumeration defines all data types
+ */
+typedef enum { TY_int, TY_bool, TY_float, TY_unknown } type;
+
+/*
  * This enumeration defines all binary operations
  */
 typedef enum { BO_add, BO_sub, BO_mul, BO_div, BO_mod, 
