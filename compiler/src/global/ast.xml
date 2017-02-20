@@ -536,6 +536,27 @@
       <attributes>
       </attributes>
     </node>
+    
+	<!-- Node Module: -->
+	<node name="Module">
+		<description>represents the usage information of the artihmatic operators</description>
+		<sons>
+			<son name="Stmts">
+				<description>remaining statements in sequence</description>
+				<targets>
+					<target mandatory="no">
+						<node name="Stmts" />
+						<phases>
+							<all />
+						</phases>
+					</target>
+				</targets>
+			</son>
+		</sons>
+		<attributes>
+		</attributes>
+	</node>
+
 <!--
  Node Error:
 -->

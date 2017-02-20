@@ -558,6 +558,35 @@ node *PRTsymboltableentry (node * arg_node, info * arg_info)
   DBUG_RETURN (arg_node);
 }
 
+
+/** <!--******************************************************************-->
+ *
+ * @fn PRTmodule
+ *
+ * @brief Prints the module information.
+ *
+ * @param arg_node letrec node to process
+ * @param arg_info pointer to info structure
+ *
+ * @return processed node
+ *
+ ***************************************************************************/
+
+node *PRTmodule (node * arg_node, info * arg_info) {
+  DBUG_ENTER ("PRTmodule");
+
+  // First print the usual AST
+  TRAVdo(MODULE_STMTS(arg_node), arg_info);
+
+  // And then our extra info.
+//  printf("\n");
+//  printf( "Number of add operations: %d\n", MODULE_ADD( arg_node));
+
+
+
+  DBUG_RETURN (arg_node);
+}
+
 /** <!--******************************************************************-->
  *
  * @fn PRTerror
