@@ -51,27 +51,35 @@ static int yyerror( char *errname);
 %token <id> ID
 
 %type <node> intval floatval boolval constant expr
-%type <node> stmts stmt assign if while do varlet program
+%type <node> stmts stmt assign declare if while do vardeclare program
 
 %start program
 
 %%
 
-program: stmts { parseresult = $1; }
+program: stmts { parseresult = TBmakeModule( $1); }
 
 stmts: stmt stmts { $$ = TBmakeStmts( $1, $2); }
      | stmt       { $$ = TBmakeStmts( $1, NULL); }
      ;
 
- stmt:  assign  { $$ = $1; }
-		| if    { $$ = $1; }
-		| do    { $$ = $1; }
-		| while { $$ = $1; }
-		;
+ stmt:    declare { $$ = $1; }
+        | assign  { $$ = $1; }
+		| if      { $$ = $1; }
+		| do      { $$ = $1; }
+		| while   { $$ = $1; }
+		;         
 
-assign: varlet LET expr SEMICOLON { $$ = TBmakeAssign( $1, $3); }
+declare: vardeclare SEMICOLON { $$ = $1; }
+		
+vardeclare: INT_TYPE ID   { $$ = TBmakeVardeclare( STRcpy( $2), TY_int); }
+          | FLOAT_TYPE ID { $$ = TBmakeVardeclare( STRcpy( $2), TY_float); }
+          | BOOL_TYPE ID  { $$ = TBmakeVardeclare( STRcpy( $2), TY_bool); }
+          | ID            { $$ = TBmakeVardeclare( STRcpy( $1), TY_unknown); }
 
-varlet: ID { $$ = TBmakeVarlet( STRcpy( $1)); }
+assign: vardeclare LET expr SEMICOLON { $$ = TBmakeAssign( $1, $3); }
+      | ID LET expr SEMICOLON         { $$ = TBmakeAssign( TBmakeVar( $1), $3); }
+      ;
 
 if:		IF BRACKET_L expr BRACKET_R stmt { $$ = TBmakeIf( $3, $5, NULL ); }
       | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeIf( $3, $6, NULL ); }

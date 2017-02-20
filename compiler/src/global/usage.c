@@ -46,7 +46,7 @@ void PrintAuthorInfo(void)
   printf( "\n\nAUTHORS:\n\n"
 
           "SAC Development Team for the Compiler Framework.\n\n"
-          "???? for the CiviC compiler.\n\n");
+          "Nico Tromp, Olaf van Houten for the CiviC compiler.\n\n");
   
 
   DBUG_VOID_RETURN;

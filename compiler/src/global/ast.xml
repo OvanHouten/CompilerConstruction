@@ -18,6 +18,7 @@
     <type name="Float" ctype="float" init="0.0" copy="literal" />
     <type name="BinOp" ctype="binop" init="BO_unknown" copy="literal" />
     <type name="UnOp" ctype="unop" init="UO_unknown" copy="literal" />
+    <type name="Type" ctype="type" init="TY_unknown" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
     <type name="CompilerPhase" ctype="compiler_phase_t" init="PH_initial" copy="literal" />
   </attributetypes>
@@ -45,7 +46,7 @@
       <traversal id="RI" name="Rename identifiers" default="sons" include="rename_identifiers.h">
         <travuser>
           <node name="Var" />
-          <node name="VarLet" />
+          <node name="VarDeclare" />
         </travuser>
       </traversal>
 
@@ -89,11 +90,18 @@
     </nodeset>
     <nodeset name="Stmt">
       <target>
+        <node name="VarDeclare" />
         <node name="Assign" />
         <node name="If" />
         <node name="While" />
         <node name="Do" />
       </target>
+    </nodeset>
+    <nodeset name="LeftAssign">
+        <target>
+            <node name="VarDeclare" />
+            <node name="Var" />
+        </target>
     </nodeset>
   </nodesets>
 
@@ -102,8 +110,7 @@
 -->
 
   <syntaxtree>
-  	<node name="Declaration">
-  	</node>
+  	<node name="Declaration"/>
 	<node name="FunDec"/>
 	<node name="FunDef"/>
 	<node name="GlobalDec"/>
@@ -147,12 +154,10 @@
       <description>represents assignment statement</description>
       <sons>
         <son name="Let">
-        <description>
-         left hand side variable; can be missing to represent procedure calls
-		</description>
+        <description>left hand side variable; can be missing to represent procedure calls</description>
           <targets>
             <target mandatory="no">
-              <node name="VarLet" />
+              <set name="LeftAssign" />
                 <phases>
                   <all />
                 </phases>
@@ -393,16 +398,59 @@
       </attributes>
     </node>
 <!--
- Node VarLet:
+ Node VarDeclares:
 -->
-    <node name="VarLet">
-      <description>represents variable (identifier) in assignment position</description>
+     <node name="VarDeclares">
+      <description>represents (sequence of) variable declarations</description>
+      <sons>
+        <son name="VarDeclare">
+        <description>first statement in sequence</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="VarDeclare" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Next">
+        <description>remaining variable declarations in sequence</description>
+          <targets>
+            <target mandatory="no">
+              <node name="VarDeclares" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node VarDeclare:
+-->
+    <node name="VarDeclare">
+      <description>represents a variable declaration</description>
       <sons>
       </sons>
       <attributes>
         <attribute name="Name">
         <description>Identifier in character string representation</description>
           <type name="String">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <all />
+                </phases>
+               </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Type">
+          <type name="Type">
             <targets>
               <target mandatory="yes">
                 <any />
@@ -422,7 +470,7 @@
                 <phases>
                   <all />
                 </phases>
-              </target>
+          </target>
             </targets>
           </type>
         </attribute>
@@ -457,7 +505,7 @@
                 <phases>
                   <all />
                 </phases>
- 	      </target>
+          </target>
             </targets>
           </type>
         </attribute>

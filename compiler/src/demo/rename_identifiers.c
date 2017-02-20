@@ -27,16 +27,16 @@
  * Traversal functions
  */
 
-node *RIvarlet( node *arg_node, info *arg_info)
+node *RIvardeclare( node *arg_node, info *arg_info)
 {
   char *name;
 
-  DBUG_ENTER("RIvarlet");
+  DBUG_ENTER("RIvardeclare");
 
-  DBUG_PRINT( "RI", ("Renaming variable: %s", VARLET_NAME( arg_node)));
+  DBUG_PRINT( "RI", ("Renaming variable: %s", VARDECLARE_NAME( arg_node)));
 
-  name = VARLET_NAME( arg_node);
-  VARLET_NAME( arg_node) = STRcat( "__", name);
+  name = VARDECLARE_NAME( arg_node);
+  VARDECLARE_NAME( arg_node) = STRcat( "__", name);
   MEMfree(name);
 
   DBUG_RETURN( arg_node);
