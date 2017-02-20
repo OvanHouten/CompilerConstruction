@@ -289,7 +289,7 @@
         <description>to be excuted if the condition is true</description>
           <targets>
             <target mandatory="yes">
-              <node name="Stmts" />
+              <set name="Block" />
                 <phases>
                   <all />
                 </phases>
@@ -300,7 +300,7 @@
         <description>right hand side expression</description>
           <targets>
             <target mandatory="no">
-              <node name="Stmts" />
+              <set name="Block" />
                 <phases>
                   <all />
                 </phases>
@@ -332,7 +332,7 @@
         <description>to be excuted while the condition is true</description>
           <targets>
             <target mandatory="yes">
-              <node name="Stmts" />
+              <set name="Block" />
                 <phases>
                   <all />
                 </phases>
@@ -364,7 +364,7 @@
         <description>to be excuted until the condition becomes false</description>
           <targets>
             <target mandatory="yes">
-              <node name="Stmts" />
+              <set name="Block" />
                 <phases>
                   <all />
                 </phases>
