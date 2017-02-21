@@ -13,6 +13,7 @@ compiler/doc/ast.png
 
 # Framework build system specifics
 \.*.d
+compiler/make_track
 
 # Generated header and C files
 compiler/src/framework/attribs.h
