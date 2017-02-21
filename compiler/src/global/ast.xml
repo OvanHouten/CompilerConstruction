@@ -115,14 +115,8 @@
         
     <nodeset name="Block">
       <target>
-        <node name="Block" />
-        <node name="Assign" />
-        <node name="Funcall"/>
-        <node name="If" />
-        <node name="While" />
-        <node name="Do" />
-        <node name="For" />
-        <node name="Return" />
+        <node name="Statement" />
+        <node name="Statements" />
       </target>
     </nodeset>
     
@@ -383,7 +377,7 @@
         <son name="Params">
           <description>Parameters of the function, can be 0 or more</description>
           <targets>
-            <target mandatory="No">
+            <target mandatory="no">
               <node name="Params" />
               <phases>
                 <all />
@@ -584,11 +578,11 @@
              </target>
           </targets>
         </son>
-        <son name="Block">
+        <son name="Statements">
           <description>Block of statements</description>
           <targets>
             <target mandatory="no">
-              <node name="Block" />
+              <node name="Statements" />
                 <phases>
                   <all />
                 </phases>
@@ -678,7 +672,7 @@
  -->
     <node name="Funcall" >
       <sons>
-        <son name="ID">
+        <son name="Id">
           <description>The name of the method to be called</description>
           <targets>
             <target mandatory="yes">
@@ -722,32 +716,6 @@
 -->
     <node name="Block">
       <description>Represents (sequence of) statements, may be empty</description>
-      <sons>
-        <son name="Statement">
-          <description>First statement in sequence</description>
-          <targets>
-            <target mandatory="no">
-              <set name="Statement" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="Next">
-          <description>Remaining statements in sequence</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Block" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-      </attributes>
     </node>
 
 <!--
