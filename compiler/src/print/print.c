@@ -254,6 +254,21 @@ node *PRTlogicop (node * arg_node, info * arg_info)
 }
 
 
+node *PRTlocalfundef(node * arg_node, info * arg_info)
+{
+	DBUG_ENTER("PRTlocalfundef");
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTlocalfundefs(node * arg_node, info * arg_info)
+{
+	DBUG_ENTER("PRTlocalfundefs");
+
+	DBUG_RETURN(arg_node);
+}
+
+
 
 
 

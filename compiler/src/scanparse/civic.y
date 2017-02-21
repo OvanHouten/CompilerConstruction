@@ -73,14 +73,12 @@ stmts: stmt stmts { $$ = TBmakeStatements( $1, $2); }
 		| for     { $$ = $1; }
 		;         
 
-declare: INT_TYPE ID SEMICOLON   { $$ = TBmakeVardec( STRcpy( $2), TY_int); }
-       | FLOAT_TYPE ID SEMICOLON { $$ = TBmakeVardec( STRcpy( $2), TY_float); }
-       | BOOL_TYPE ID SEMICOLON  { $$ = TBmakeVardec( STRcpy( $2), TY_bool); }
+declare: INT_TYPE ID SEMICOLON   { $$ = TBmakeVardec( TBmakeInt(), TBmakeId( $2)); }
+       | FLOAT_TYPE ID SEMICOLON { $$ = TBmakeVardec( TBmakeFloat(), TBmakeId( $2)); }
+       | BOOL_TYPE ID SEMICOLON  { $$ = TBmakeVardec( TBmakeBool(), TBmakeId( $2)); }
        ;
 
-assign: INT_TYPE ID LET expr SEMICOLON   { $$ = TBmakeAssign( TBmakeVardec( STRcpy( $2), TY_int), $4); }
-      | FLOAT_TYPE ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeVardec( STRcpy( $2), TY_float), $4); }
-      | BOOL_TYPE ID LET expr SEMICOLON  { $$ = TBmakeAssign( TBmakeVardec( STRcpy( $2), TY_bool), $4); }
+assign: INT_TYPE ID LET expr SEMICOLON   { $$ = TBmakeAssign( TBmakeVardec( TBmakeId( $2)S, TY_bool), $4); }
       | ID LET expr SEMICOLON            { $$ = TBmakeAssign( TBmakeVar( $1), $3); }
       ;
 
