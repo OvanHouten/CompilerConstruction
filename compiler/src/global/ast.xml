@@ -125,7 +125,7 @@
       <target>
         <node name="Expr" />
         <node name="BinOp" />
-        <set name="MonOp" />
+        <node name="MonOp" />
         <node name="TypeCast" />
         <node name="FunCall" />
         <node name="Id" />
