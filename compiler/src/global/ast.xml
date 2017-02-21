@@ -130,7 +130,7 @@
       <target>
         <node name="Expr" />
         <node name="BinOp" />
-        <node name="MonOp" />
+        <node name="UnOp" />
         <node name="TypeCast" />
         <node name="Funcall" />
         <node name="Id" />
@@ -174,7 +174,7 @@
       </target>
     </nodeset>
     
-    <nodeset name="MonOp">
+    <nodeset name="UnOp">
       <target>
         <node name="Neg" />
         <node name="NOT" />
@@ -207,10 +207,10 @@
  Node Program:
 -->
      <node name="Program">
-      <description>represents (sequence of) statements</description>
+      <description>Represenst the program</description>
       <sons>
         <son name="Declaration">
-        <description>first statement in sequence</description>
+          <description>First Declaration is mandatory</description>
           <targets>
             <target mandatory="yes">
               <node name="Declarations" />
@@ -229,10 +229,10 @@
  Node Declarations:
 -->
      <node name="Declarations">
-      <description>represents (sequence of) declaratios</description>
+      <description>Represents (sequence of) declarations</description>
       <sons>
         <son name="Declaration">
-        <description>first declaration in sequence</description>
+          <description>First declaration in sequence</description>
           <targets>
             <target mandatory="yes">
               <set name="Declaration" />
@@ -243,7 +243,7 @@
           </targets>
         </son>
         <son name="Next">
-        <description>remaining declarations in sequence</description>
+          <description>Remaining declarations in sequence</description>
           <targets>
             <target mandatory="no">
               <node name="Declarations" />
@@ -260,10 +260,10 @@
  Node Statements:
 -->
      <node name="Statements">
-      <description>represents (sequence of) statements</description>
+      <description>Represents (sequence of) statements</description>
       <sons>
         <son name="Statement">
-        <description>first tatement in sequence</description>
+          <description>First statement in sequence</description>
           <targets>
             <target mandatory="yes">
               <set name="Statement" />
@@ -274,7 +274,7 @@
           </targets>
         </son>
         <son name="Next">
-        <description>remaining statements in sequence</description>
+          <description>Remaining statements in sequence</description>
           <targets>
             <target mandatory="no">
               <node name="Statements" />
@@ -293,9 +293,10 @@
  Node FunDec:
 -->
     <node name="FunDec">
+      <description>Function Declaration</description>
       <sons>
         <son name="FunHeader">
-          <description></description>
+          <description>Function Header</description>
           <targets>
             <target mandatory="yes">
               <node name="FunHeader" />
@@ -312,9 +313,10 @@
  Node FunDef:
 -->
     <node name="FunDef">
+      <description>Function Definition</description>
       <sons>
         <son name="FunHeader">
-          <description></description>
+          <description>Function Header</description>
           <targets>
             <target mandatory="yes">
               <node name="FunHeader" />
@@ -325,26 +327,27 @@
           </targets>
         </son>
           <son name="FunBody">
-          <description></description>
-          <targets>
-            <target mandatory="yes">
-              <node name="FunBody" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-      </sons>
+            <description>Function Body</description>
+            <targets>
+              <target mandatory="yes">
+                <node name="FunBody" />
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </son>
+        </sons>
       <attributes>
         <attribute name="Export">
-            <type name="Bool">
-                <targets>
-	                <target mandatory="yes">
-	                    <phases><all /></phases>
-	                </target>
-	            </targets>
-            </type>
+          <description>Export keyword flag</description>
+          <type name="Bool">
+            <targets>
+	          <target mandatory="yes">
+	            <phases><all /></phases>
+	          </target>
+	        </targets>
+          </type>
         </attribute>
       </attributes>
     </node>
@@ -356,7 +359,7 @@
       <description>Function Header</description>
       <sons>
         <son name="RetType">
-          <description></description>
+          <description>Returntype of function</description>
           <targets>
             <target mandatory="yes">
               <node name="RetType" />
@@ -367,7 +370,7 @@
           </targets>
         </son>
         <son name="Id">
-          <description></description>
+          <description>Identifier of Function</description>
           <targets>
             <target mandatory="yes">
               <node name="Id" />
@@ -378,7 +381,7 @@
           </targets>
         </son>
         <son name="Params">
-          <description></description>
+          <description>Parameters of the function, can be 0 or more</description>
           <targets>
             <target mandatory="No">
               <node name="Params" />
@@ -395,6 +398,7 @@
  Node RetType:
 -->
     <node name="RetType">
+      <description>Return type</description>
     </node>
 
 <!--
@@ -403,7 +407,7 @@
     <node name="GlobalDec">
       <sons>
         <son name="Type">
-          <description></description>
+          <description>Type of variable</description>
           <targets>
             <target mandatory="yes">
               <node name="Type" />
@@ -414,7 +418,7 @@
           </targets>
         </son>
         <son name="Id">
-          <description></description>
+          <description>Identifier of variable</description>
           <targets>
             <target mandatory="yes">
               <node name="Id" />
@@ -435,7 +439,7 @@
     <node name="GlobalDef">
       <sons>
         <son name="Type">
-          <description></description>
+          <description>Type of variable</description>
           <targets>
             <target mandatory="yes">
               <node name="Type" />
@@ -446,7 +450,7 @@
           </targets>
         </son>
         <son name="Id">
-          <description></description>
+          <description>Identifier of variable</description>
           <targets>
             <target mandatory="yes">
               <node name="Id" />
@@ -457,7 +461,7 @@
           </targets>
         </son>
         <son name="Expr">
-          <description></description>
+          <description>Assignment of variable</description>
           <targets>
             <target mandatory="no">
               <node name="Expr" />
@@ -470,6 +474,7 @@
       </sons>
       <attributes>
         <attribute name="Export">
+            <description>Export keyword flag</description>
             <type name="Bool">
                 <targets>
                     <target mandatory="yes">
@@ -485,12 +490,14 @@
  Node Type:
 -->
     <node name="Type">
+      <description>Type</description>
     </node>
     
 <!--
  Node BasicType:
 -->
     <node name="BasicType">
+      <description>BasicType</description>
     </node>
     
     
@@ -498,10 +505,10 @@
  Node Params:
 -->
      <node name="Params">
-      <description>represents (sequence of) params</description>
+      <description>Represents (sequence of) params</description>
       <sons>
         <son name="Param">
-        <description>first param in sequence</description>
+          <description>First param in sequence</description>
           <targets>
             <target mandatory="yes">
               <node name="Param" />
@@ -512,7 +519,7 @@
           </targets>
         </son>
         <son name="Next">
-        <description>remaining params in sequence</description>
+          <description>Remaining params in sequence</description>
           <targets>
             <target mandatory="no">
               <node name="Params" />
@@ -531,10 +538,10 @@
  Node Param:
 -->
      <node name="Param">
-      <description>represents (sequence of) statements</description>
+      <description>Represents a parameter</description>
       <sons>
         <son name="Type">
-        <description></description>
+          <description>Type of parameter</description>
           <targets>
             <target mandatory="yes">
               <set name="Type" />
@@ -545,7 +552,7 @@
           </targets>
         </son>
         <son name="Id">
-        <description></description>
+          <description>Identifier of the parameter</description>
           <targets>
             <target mandatory="Yes">
               <node name="Id" />
@@ -564,10 +571,10 @@
  Node FunBody:
 -->
      <node name="FunBody">
-      <description></description>
+      <description>Function Body</description>
       <sons>
         <son name="VarDecs">
-        <description></description>
+          <description>Variable declerations</description>
           <targets>
             <target mandatory="no">
               <node name="VarDecs" />
@@ -578,7 +585,7 @@
           </targets>
         </son>
         <son name="Block">
-        <description></description>
+          <description>Block of statements</description>
           <targets>
             <target mandatory="no">
               <node name="Block" />
@@ -597,10 +604,10 @@
  Node VarDecs:
 -->
      <node name="VarDecs">
-      <description>represents (sequence of) VarDecs</description>
+      <description>Represents (sequence of) VarDecs</description>
       <sons>
         <son name="VarDec">
-        <description>first VarDec in sequence</description>
+          <description>First VarDec in sequence</description>
           <targets>
             <target mandatory="yes">
               <set name="VarDec" />
@@ -611,7 +618,7 @@
           </targets>
         </son>
         <son name="Next">
-        <description>remaining VarDecs in sequence</description>
+          <description>Remaining VarDecs in sequence</description>
           <targets>
             <target mandatory="no">
               <node name="VarDecs" />
@@ -630,10 +637,10 @@
  Node VarDec:
 -->
      <node name="VarDec">
-      <description></description>
+      <description>Variable declarations</description>
       <sons>
         <son name="Type">
-        <description></description>
+          <description>Type of variable declaration</description>
           <targets>
             <target mandatory="Yes">
               <set name="Type" />
@@ -644,7 +651,7 @@
           </targets>
         </son>
         <son name="Id">
-        <description></description>
+          <description>Identifier</description>
           <targets>
             <target mandatory="yes">
               <node name="Id" />
@@ -663,6 +670,7 @@
  Node Statement:
 -->
     <node name="Statement">
+      <description>Statement</description>
     </node>
     
 <!--
@@ -671,7 +679,7 @@
     <node name="Funcall" >
       <sons>
         <son name="ID">
-          <description>the name of the method to be called</description>
+          <description>The name of the method to be called</description>
           <targets>
             <target mandatory="yes">
               <node name="Id" />
@@ -682,7 +690,7 @@
           </targets>
         </son>
         <son name="Params">
-          <description>the parameters for the function call</description>
+          <description>The parameters for the function call</description>
           <targets>
             <target mandatory="No">
               <node name="Expressions" />
@@ -699,22 +707,24 @@
   Node Typecast: 
  -->
     <node name="Typecast" >
+      <description>Typecast</description>
     </node>
 
 <!--
   Node Const: 
  -->
     <node name="Const" >
+      <description>Constant</description>
     </node>
 
 <!--
  Node Block:
 -->
     <node name="Block">
-      <description>represents (sequence of) statements</description>
+      <description>Represents (sequence of) statements, may be empty</description>
       <sons>
         <son name="Statement">
-        <description>first statement in sequence</description>
+          <description>First statement in sequence</description>
           <targets>
             <target mandatory="no">
               <set name="Statement" />
@@ -725,7 +735,7 @@
           </targets>
         </son>
         <son name="Next">
-        <description>remaining statements in sequence</description>
+          <description>Remaining statements in sequence</description>
           <targets>
             <target mandatory="no">
               <node name="Block" />
@@ -744,10 +754,10 @@
  Node Assign:
 -->
      <node name="Assign">
-      <description>represents assignment statement</description>
+      <description>Represents assignment statement</description>
       <sons>
         <son name="Let">
-        <description>left hand side variable; can be missing to represent procedure calls</description>
+          <description>Left hand side variable; can be missing to represent procedure calls</description>
           <targets>
             <target mandatory="no">
               <set name="LeftAssign" />
@@ -758,7 +768,7 @@
           </targets>
         </son>
         <son name="Expr">
-        <description>right hand side expression</description>
+          <description>Right hand side expression</description>
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
@@ -777,10 +787,10 @@
  Node If:
 -->
      <node name="If">
-      <description>represents if-else statement</description>
+      <description>Represents if-else statement</description>
       <sons>
         <son name="Condition">
-        <description>represents the condition</description>
+          <description>Represents the condition</description>
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
@@ -791,7 +801,7 @@
           </targets>
         </son>
         <son name="IfBlock">
-        <description>to be excuted if the condition is true</description>
+          <description>To be excuted if the condition is true</description>
           <targets>
             <target mandatory="yes">
               <set name="Block" />
@@ -802,7 +812,7 @@
           </targets>
         </son>
         <son name="ElseBlock">
-        <description>right hand side expression</description>
+          <description>Right hand side expression</description>
           <targets>
             <target mandatory="no">
               <set name="Block" />
@@ -821,10 +831,10 @@
  Node While:
 -->
      <node name="While">
-      <description>represents the while statement</description>
+      <description>Represents the while statement</description>
       <sons>
         <son name="Condition">
-        <description>represents the condition</description>
+          <description>Represents the condition</description>
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
@@ -835,7 +845,7 @@
           </targets>
         </son>
         <son name="Block">
-        <description>to be excuted while the condition is true</description>
+          <description>To be excuted while the condition is true</description>
           <targets>
             <target mandatory="yes">
               <set name="Block" />
@@ -854,10 +864,10 @@
  Node Do:
 -->
      <node name="Do">
-      <description>represents the do-while statement</description>
+      <description>Represents the do-while statement</description>
       <sons>
         <son name="Condition">
-        <description>represents the condition</description>
+          <description>Represents the condition</description>
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
@@ -868,7 +878,7 @@
           </targets>
         </son>
         <son name="Block">
-        <description>to be excuted until the condition becomes false</description>
+          <description>To be excuted until the condition becomes false</description>
           <targets>
             <target mandatory="yes">
               <set name="Block" />
@@ -887,10 +897,10 @@
  Node For:
 -->
      <node name="For">
-      <description>represents the for statement</description>
+      <description>Represents the for statement</description>
       <sons>
         <son name="ID">
-          <description>the name of the counter variable</description>
+          <description>The name of the counter variable</description>
           <targets>
             <target mandatory="yes">
               <node name="Id" />
@@ -901,7 +911,7 @@
           </targets>
         </son>
         <son name="Start">
-          <description>represents the start value for the for-loop</description>
+          <description>Represents the start value for the for-loop</description>
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
@@ -912,7 +922,7 @@
           </targets>
         </son>
         <son name="Finish">
-          <description>represents the finish value (exluded) for the for-loop</description>
+          <description>Represents the finish value (exluded) for the for-loop</description>
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
@@ -923,7 +933,7 @@
           </targets>
         </son>
         <son name="Step">
-          <description>represents the step size for the for-loop</description>
+          <description>Represents the step size for the for-loop</description>
           <targets>
             <target mandatory="no">
               <set name="Expr" />
@@ -934,7 +944,7 @@
           </targets>
         </son>
         <son name="Block">
-          <description>to be excuted until the condition becomes false</description>
+          <description>To be excuted until the condition becomes false</description>
           <targets>
             <target mandatory="yes">
               <set name="Block" />
@@ -951,10 +961,10 @@
  Node Return:
 -->  
     <node name="Return">
-      <description>represents return statement</description>
+      <description>Represents return statement</description>
       <sons>
         <son name="Expression">
-        <description>represents the return expression</description>
+          <description>Represents the return expression</description>
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
@@ -973,10 +983,10 @@
  Node Expressions:
 -->
      <node name="Expressions">
-      <description>represents (sequence of) expressions</description>
+      <description>Represents (sequence of) expressions</description>
       <sons>
         <son name="Expr">
-        <description>first expr in sequence</description>
+          <description>First expr in sequence</description>
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
@@ -987,7 +997,7 @@
           </targets>
         </son>
         <son name="Next">
-        <description>remaining expressions in sequence</description>
+          <description>Remaining expressions in sequence</description>
           <targets>
             <target mandatory="no">
               <node name="Expressions" />
@@ -1012,10 +1022,10 @@
  Node BinOp:
 -->
     <node name="BinOp">
-      <description>represents binary operator application</description>
+      <description>Represents binary operator application</description>
       <sons>
         <son name="Left">
-        <description>left operand expression</description>
+          <description>Left operand expression</description>
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
@@ -1026,7 +1036,7 @@
           </targets>
         </son>
         <son name="Right">
-        <description>right operand expression</description>
+          <description>Right operand expression</description>
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
@@ -1038,8 +1048,8 @@
         </son>
       </sons>
       <attributes>
-        <description>operator type</description>
         <attribute name="Op">
+          <description>Operator type</description>
           <type name="BinOp">
             <targets>
               <target mandatory="yes">
@@ -1057,10 +1067,10 @@
  Node UnOp:
 -->
     <node name="UnOp">
-      <description>represents unary operator application</description>
+      <description>Represents unary operator application</description>
       <sons>
         <son name="Right">
-        <description>right operand expression</description>
+          <description>Right operand expression</description>
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
@@ -1072,8 +1082,8 @@
         </son>
       </sons>
       <attributes>
-        <description>operator type</description>
         <attribute name="Op">
+          <description>Operator type</description>
           <type name="UnOp">
             <targets>
               <target mandatory="yes">
@@ -1091,7 +1101,7 @@
  Node Id:
 -->
     <node name="Id">
-      <description>represents variable (identifier) in expression position</description>
+      <description>Represents variable (identifier) in expression position</description>
       <sons>
       </sons>
       <attributes>
@@ -1116,7 +1126,7 @@
                 <phases>
                   <all />
                 </phases>
-          </target>
+              </target>
             </targets>
           </type>
         </attribute>
@@ -1149,11 +1159,12 @@
  Node Int:
 -->
    <node name="Int">
-      <description>represents integer constant</description>
+      <description>Represents integer constant</description>
       <sons>
       </sons>
       <attributes>
         <attribute name="Value">
+          <description>Value of integer</description>
           <type name="Int">
             <targets>
               <target mandatory="yes">
@@ -1170,11 +1181,12 @@
  Node Float:
 -->
     <node name="Float">
-      <description>represents floating point constant</description>
+      <description>Represents floating point constant</description>
       <sons>
       </sons>
       <attributes>
         <attribute name="Value">
+          <description>Value of Float</description>
           <type name="Float">
             <targets>
               <target mandatory="yes">
@@ -1191,11 +1203,12 @@
  Node Bool:
 -->
     <node name="Bool">
-      <description>represents Boolean constant (true/false)</description>
+      <description>Represents Boolean constant (true/false)</description>
       <sons>
       </sons>
       <attributes>
         <attribute name="Value">
+          <description>Value of Boolean</description>
           <type name="Bool">
             <targets>
               <target mandatory="yes">
@@ -1213,7 +1226,7 @@
  Node SymbolTableEntry:
 -->
     <node name="SymbolTableEntry">
-      <description>represents symbol table entry</description>
+      <description>Represents symbol table entry</description>
       <sons>
       </sons>
       <attributes>
@@ -1224,7 +1237,7 @@
  Node Error:
 -->
     <node name="Error">
-      <description>represents internal Error representation constructor</description>
+      <description>Represents internal Error representation constructor</description>
       <sons>
         <son name="Next">
           <targets>
