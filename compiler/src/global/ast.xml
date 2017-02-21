@@ -103,7 +103,6 @@
   	
   	<nodeset name="Statement">
       <target>
-        <node name="VarDecs" />
         <node name="Assign" />
         <node name="Funcall"/>
         <node name="If" />
@@ -117,7 +116,6 @@
     <nodeset name="Block">
       <target>
         <node name="Block" />
-        <node name="VarDecs" />
         <node name="Assign" />
         <node name="Funcall"/>
         <node name="If" />
