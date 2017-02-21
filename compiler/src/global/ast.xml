@@ -139,7 +139,7 @@
         <node name="LogicOp" />
       </target>
     </nodeset>
-    
+<!--    
     <nodeset name="ArithOp">
       <target>
         <node name="Add" />
@@ -167,14 +167,14 @@
         <node name="OR" />
       </target>
     </nodeset>
-    
+
     <nodeset name="UnOp">
       <target>
         <node name="Neg" />
         <node name="NOT" />
       </target>
     </nodeset>
-    
+       
     <nodeset name="Const">
       <target>
         <node name="IntConst" />
@@ -188,8 +188,8 @@
         <node name="true" />
         <node name="false" />
       </target>
-
     </nodeset>
+-->
   </nodesets>
 
 <!--
