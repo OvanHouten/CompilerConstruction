@@ -221,7 +221,7 @@
     </node>
 
 <!--
- Node Declaratios:
+ Node Declarations:
 -->
      <node name="Declarations">
       <description>represents (sequence of) declaratios</description>
@@ -340,11 +340,11 @@
             </target>
           </targets>
         </son>
-        <son name="Param">
+        <son name="Params">
           <description></description>
           <targets>
             <target mandatory="No">
-              <node name="Param" />
+              <node name="Params" />
               <phases>
                 <all />
               </phases>
@@ -454,6 +454,40 @@
  Node BasicType:
 -->
     <node name="BasicType">
+    </node>
+    
+    
+<!--
+ Node Params:
+-->
+     <node name="Params">
+      <description>represents (sequence of) params</description>
+      <sons>
+        <son name="Param">
+        <description>first param in sequence</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Param" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Next">
+        <description>remaining params in sequence</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Params" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
     </node>
 
 <!--
@@ -565,6 +599,30 @@
   Node FunCall: 
  -->
     <node name="Funcall" >
+      <sons>
+        <son name="ID">
+          <description>the name of the method to be called</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Id" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Params">
+          <description>the parameters for the function call</description>
+          <targets>
+            <target mandatory="No">
+              <node name="Expressions" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+      </sons>
     </node>
 
 <!--
@@ -762,7 +820,7 @@
       <description>represents the for statement</description>
       <sons>
         <son name="ID">
-          <description>to be excuted until the condition becomes false</description>
+          <description>the name of the counter variable</description>
           <targets>
             <target mandatory="yes">
               <node name="Id" />
@@ -830,6 +888,39 @@
           <targets>
             <target mandatory="yes">
               <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+
+<!--
+ Node Expressions:
+-->
+     <node name="Expressions">
+      <description>represents (sequence of) expressions</description>
+      <sons>
+        <son name="Expr">
+        <description>first expr in sequence</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Next">
+        <description>remaining expressions in sequence</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Expressions" />
                 <phases>
                   <all />
                 </phases>
