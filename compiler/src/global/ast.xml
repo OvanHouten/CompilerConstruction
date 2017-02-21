@@ -177,14 +177,6 @@
         <node name="NOT" />
       </target>
     </nodeset>
-       
-    <nodeset name="Const">
-      <target>
-        <node name="IntConst" />
-        <node name="FloatConst" />
-        <node name="BoolConst" />
-      </target>
-    </nodeset>
     
     <nodeset name="BoolConst">
       <target>
@@ -193,6 +185,14 @@
       </target>
     </nodeset>
 -->
+	<nodeset name="Const">
+      <target>
+        <node name="IntConst" />
+        <node name="FloatConst" />
+        <node name="BoolConst" />
+      </target>
+    </nodeset>
+    
   </nodesets>
 
 <!--
@@ -712,6 +712,10 @@
  -->
     <node name="Const" >
       <description>Constant</description>
+      <sons>
+      </sons>
+      <attributes>
+      </attributes>
     </node>
 
 <!--
@@ -1268,9 +1272,21 @@
 <!--
  Node Int:
 -->
-   <node name="Int">
+   <node name="IntConst">
       <description>Represents integer constant</description>
       <sons>
+        <son name="Int">
+          <description>Integer constant</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Int">
+                <phases>
+                  <all />
+                </phases>
+              </node>
+            </target>
+          </targets>
+        </son>
       </sons>
       <attributes>
         <attribute name="Value">
@@ -1290,9 +1306,21 @@
 <!--
  Node Float:
 -->
-    <node name="Float">
+    <node name="FloatConst">
       <description>Represents floating point constant</description>
       <sons>
+        <son name="Float">
+          <description>Float constant</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Float">
+                <phases>
+                  <all />
+                </phases>
+              </node>
+            </target>
+          </targets>
+        </son>
       </sons>
       <attributes>
         <attribute name="Value">
@@ -1312,9 +1340,21 @@
 <!--
  Node Bool:
 -->
-    <node name="Bool">
+    <node name="BoolConst">
       <description>Represents Boolean constant (true/false)</description>
       <sons>
+        <son name="Bool">
+          <description>Bool constant</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Bool">
+                <phases>
+                  <all />
+                </phases>
+              </node>
+            </target>
+          </targets>
+        </son>
       </sons>
       <attributes>
         <attribute name="Value">
