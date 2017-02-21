@@ -208,18 +208,7 @@
         <description>first statement in sequence</description>
           <targets>
             <target mandatory="yes">
-              <set name="Declaration" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="Next">
-        <description></description>
-          <targets>
-            <target mandatory="no">
-              <node name="Program" />
+              <node name="Declarations" />
                 <phases>
                   <all />
                 </phases>
@@ -232,11 +221,37 @@
     </node>
 
 <!--
- Node Declaration:
+ Node Declaratios:
 -->
-    <node name="Declaration">
+     <node name="Declarations">
+      <description>represents (sequence of) declaratios</description>
+      <sons>
+        <son name="Declaration">
+        <description>first declaration in sequence</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Declaration" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Next">
+        <description>remaining declarations in sequence</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Declarations" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
     </node>
-
 <!--
  Node FunDec:
 -->

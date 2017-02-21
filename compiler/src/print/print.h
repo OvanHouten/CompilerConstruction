@@ -12,6 +12,7 @@
 #include "types.h"
 
 extern node *PRTprogram(node * arg_node, info * arg_info);
+extern node *PRTdeclarations(node * arg_node, info * arg_info);
 extern node *PRTfunheader(node * arg_node, info * arg_info);
 extern node *PRTrettype(node * arg_node, info * arg_info);
 extern node *PRTtype(node * arg_node, info * arg_info);

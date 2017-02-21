@@ -69,6 +69,12 @@ node *PRTprogram(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
+node *PRTdeclarations(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTdeclarations");
+
+	DBUG_RETURN(arg_node);
+}
+
 node *PRTfunheader(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunheader");
 
