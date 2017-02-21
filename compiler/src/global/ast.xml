@@ -17,6 +17,9 @@
     <type name="Bool" ctype="bool" init="FALSE" copy="literal" />
     <type name="Float" ctype="float" init="0.0" copy="literal" />
     <type name="BinOp" ctype="binop" init="BO_unknown" copy="literal" />
+    <type name="RelOp" ctype="relop" init="RO_unknown" copy="literal" />
+    <type name="LogicOp" ctype="logicop" init="LO_unknown" copy="literal" />
+    <type name="ArtithOp" ctype="arithop" init="AO_unknown" copy="literal" />
     <type name="UnOp" ctype="unop" init="UO_unknown" copy="literal" />
     <type name="Type" ctype="type" init="TY_unknown" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
@@ -1031,6 +1034,145 @@
         </attribute>
       </attributes>
     </node>
+
+<!--
+ Node ArtihOp:
+-->
+    <node name="ArithOp">
+      <description>Represents arithmatic operator application</description>
+      <sons>
+        <son name="Left">
+          <description>Left operand expression</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Right">
+          <description>Right operand expression</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <attribute name="Op">
+          <description>Operator type</description>
+          <type name="ArithOp">
+            <targets>
+              <target mandatory="yes">
+                <any />
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
+    </node>
+
+<!--
+ Node RelOp:
+-->
+    <node name="RelOp">
+      <description>Represents relational operator application</description>
+      <sons>
+        <son name="Left">
+          <description>Left operand expression</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Right">
+          <description>Right operand expression</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <attribute name="Op">
+          <description>Operator type</description>
+          <type name="RelOp">
+            <targets>
+              <target mandatory="yes">
+                <any />
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
+    </node>
+
+<!--
+ Node LogicOp:
+-->
+    <node name="LogicOp">
+      <description>Represents logical operator application</description>
+      <sons>
+        <son name="Left">
+          <description>Left operand expression</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Right">
+          <description>Right operand expression</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <attribute name="Op">
+          <description>Operator type</description>
+          <type name="LogicOp">
+            <targets>
+              <target mandatory="yes">
+                <any />
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
+    </node>
+
 <!--
  Node UnOp:
 -->
