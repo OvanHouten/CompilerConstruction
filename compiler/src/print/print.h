@@ -30,6 +30,11 @@ extern node *PRTid(node * arg_node, info * arg_info);
 extern node *PRTvoid(node * arg_node, info * arg_info);
 extern node *PRTint(node * arg_node, info * arg_info);
 
+extern node *PRTstatements(node * arg_node, info * arg_info);
+extern node *PRTparams(node * arg_node, info * arg_info);
+extern node *PRTvardecs(node * arg_node, info * arg_info);
+extern node *PRTexpressions(node * arg_node, info * arg_info);
+
 extern node *PRTdeclaration(node * arg_node, info * arg_info);
 extern node *PRTfundec(node * arg_node, info * arg_info);
 extern node *PRTfundef(node * arg_node, info * arg_info);

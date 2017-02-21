@@ -27,11 +27,11 @@
  * Traversal functions
  */
 
-node *RIvardeclare( node *arg_node, info *arg_info)
+node *RIvardec( node *arg_node, info *arg_info)
 {
   char *name;
 
-  DBUG_ENTER("RIvardeclare");
+  DBUG_ENTER("RIvardec");
 
   DBUG_PRINT( "RI", ("Renaming variable: %s", VARDECLARE_NAME( arg_node)));
 

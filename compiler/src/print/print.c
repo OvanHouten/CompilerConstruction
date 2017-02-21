@@ -186,6 +186,30 @@ node *PRTint(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
+node *PRTstatements(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTstatements");
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTparams(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTparams");
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTvardecs(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTvardecs");
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTexpressions(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTexpressions");
+
+	DBUG_RETURN(arg_node);
+}
+
 
 
 
