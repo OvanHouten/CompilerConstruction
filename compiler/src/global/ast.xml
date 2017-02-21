@@ -105,7 +105,7 @@
       <target>
         <node name="VarDeclare" />
         <node name="Assign" />
-        <node name="FunCall"/>
+        <node name="Funcall"/>
         <node name="If" />
         <node name="While" />
         <node name="Do" />
@@ -117,7 +117,14 @@
     <nodeset name="Block">
       <target>
         <node name="Block" />
-        <node name="Statement" />
+        <node name="VarDeclare" />
+        <node name="Assign" />
+        <node name="Funcall"/>
+        <node name="If" />
+        <node name="While" />
+        <node name="Do" />
+        <node name="For" />
+        <node name="Return" />
       </target>
     </nodeset>
     
@@ -127,7 +134,7 @@
         <node name="BinOp" />
         <node name="MonOp" />
         <node name="TypeCast" />
-        <node name="FunCall" />
+        <node name="Funcall" />
         <node name="Id" />
         <node name="Const" />
       </target>
