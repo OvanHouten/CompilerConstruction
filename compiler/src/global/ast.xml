@@ -142,49 +142,7 @@
         <node name="LogicOp" />
       </target>
     </nodeset>
-<!--    
-    <nodeset name="ArithOp">
-      <target>
-        <node name="Add" />
-        <node name="Substract" />
-        <node name="Multiply" />
-        <node name="Divide" />
-        <node name="Modulo" />
-      </target>
-    </nodeset>
-    
-    <nodeset name="RelOp">
-      <target>
-        <node name="Equal" />
-        <node name="NotEqual" />
-        <node name="LessThan" />
-        <node name="LessEqual" />
-        <node name="GreaterThan" />
-        <node name="GreaterEqual" />
-      </target>
-    </nodeset>
-    
-    <nodeset name="LogicOp">
-      <target>
-        <node name="AND" />
-        <node name="OR" />
-      </target>
-    </nodeset>
 
-    <nodeset name="UnOp">
-      <target>
-        <node name="Neg" />
-        <node name="NOT" />
-      </target>
-    </nodeset>
-    
-    <nodeset name="BoolConst">
-      <target>
-        <node name="true" />
-        <node name="false" />
-      </target>
-    </nodeset>
--->
 	<nodeset name="Const">
       <target>
         <node name="IntConst" />
@@ -323,18 +281,18 @@
             </target>
           </targets>
         </son>
-          <son name="FunBody">
-            <description>Function Body</description>
-            <targets>
-              <target mandatory="yes">
-                <node name="FunBody" />
-                <phases>
-                  <all />
-                </phases>
-              </target>
-            </targets>
-          </son>
-        </sons>
+        <son name="FunBody">
+          <description>Function Body</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="FunBody" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+      </sons>
       <attributes>
         <attribute name="Export">
           <description>Export keyword flag</description>
@@ -575,6 +533,17 @@
           <targets>
             <target mandatory="no">
               <node name="VarDecs" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="LocalFunDefs">
+          <description>Block of local function definitions</description>
+          <targets>
+            <target mandatory="no">
+              <node name="LocalFunDefs" />
                 <phases>
                   <all />
                 </phases>
@@ -1426,6 +1395,88 @@
       </attributes>
       <flags></flags>
     </node>
+
+<!--
+  ===================== Extension 1 =====================
+-->
+
+<!--
+  Node LocalFunDef:
+-->
+	<node name="LocalFunDef">
+	  <description>Represents local function definition</description>
+      <sons>
+        <son name="FunHeader">
+          <description>FunHeader</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="FunHeader">
+                <phases>
+                  <all />
+                </phases>
+              </node>
+            </target>
+          </targets>
+        </son>
+        <son name="FunBody">
+          <description>Fun Body</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="FunBody">
+                <phases>
+                  <all />
+                </phases>
+              </node>
+            </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+	</node>
+
+<!--
+  Node LocalFunDefs:
+-->
+	<node name="LocalFunDefs">
+	  <description>Represents 0 or more local function definitions</description>
+      <sons>
+        <son name="LocalFunDef">
+          <description>Represents local function definition</description>
+          <targets>
+            <target mandatory="no">
+              <node name="LocalFunDef">
+                <phases>
+                  <all />
+                </phases>
+              </node>
+            </target>
+          </targets>
+        </son>
+        <son name="Next">
+          <description>Represents next local function definition</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="LocalFunDefs">
+                <phases>
+                  <all />
+                </phases>
+              </node>
+            </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+	</node>
+
+<!--
+  ===================== Extension 2 =====================
+-->
+
+<!--
+  ===================== Extension 3 =====================
+-->
 
   </syntaxtree>
 
