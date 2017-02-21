@@ -130,25 +130,6 @@ boolval:  TRUEVAL  { $$ = TBmakeBool( TRUE); }
        |  FALSEVAL { $$ = TBmakeBool( FALSE); }
        ;
 		
-     /*
-      * Begin functioncounters
-      */
-     /*
-      * End functioncounters
-      */
-     /*
-      * Begin array
-      */
-     /*
-      * End arrays
-      */
-     /*
-      * Begin multi arrays
-      */
-     /*
-      * End multi arrays
-      */
-
 %%
 
 static int yyerror( char *error)
