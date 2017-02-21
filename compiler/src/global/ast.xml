@@ -249,9 +249,41 @@
           </targets>
         </son>
       </sons>
+    </node>
+
+<!--
+ Node Statements:
+-->
+     <node name="Statements">
+      <description>represents (sequence of) statements</description>
+      <sons>
+        <son name="Statement">
+        <description>first tatement in sequence</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Statement" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Next">
+        <description>remaining statements in sequence</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Statements" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
       <attributes>
       </attributes>
     </node>
+
 <!--
  Node FunDec:
 -->
@@ -529,10 +561,43 @@
      <node name="FunBody">
       <description></description>
       <sons>
-        <son name="VarDec">
+        <son name="VarDecs">
         <description></description>
           <targets>
             <target mandatory="no">
+              <node name="VarDecs" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Statements">
+        <description></description>
+          <targets>
+            <target mandatory="no">
+              <node name="Statements" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+
+<!--
+ Node VarDecs:
+-->
+     <node name="VarDecs">
+      <description>represents (sequence of) VarDecs</description>
+      <sons>
+        <son name="VarDec">
+        <description>first VarDec in sequence</description>
+          <targets>
+            <target mandatory="yes">
               <set name="VarDec" />
                 <phases>
                   <all />
@@ -540,11 +605,11 @@
              </target>
           </targets>
         </son>
-        <son name="Statement">
-        <description></description>
+        <son name="Next">
+        <description>remaining VarDecs in sequence</description>
           <targets>
             <target mandatory="no">
-              <node name="Statement" />
+              <node name="VarDecs" />
                 <phases>
                   <all />
                 </phases>
