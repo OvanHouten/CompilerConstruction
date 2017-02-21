@@ -82,6 +82,13 @@
       </target>
     </nodeset>
     
+    <nodeset name="GlobalDef">
+  	  <target>
+  	    <node name="GlobalVarDef"/>
+  	    <node name="GlobalArrDef"/>
+  	  </target>
+  	</nodeset>
+    
     <nodeset name="RetType">
   	  <target>
   	    <node name="Void"/>
@@ -112,6 +119,7 @@
         <node name="Do" />
         <node name="For" />
         <node name="Return" />
+        <node name="ArrayAssign" />
       </target>
     </nodeset>
         
@@ -131,6 +139,14 @@
         <node name="Funcall" />
         <node name="Id" />
         <node name="Const" />
+        <node name="Array" />
+      </target>
+    </nodeset>
+    
+    <nodeset name="ArrExpr">
+      <target>
+        <node name="ArrData" />
+        <node name="Expr" />
       </target>
     </nodeset>
     
@@ -371,6 +387,17 @@
             </target>
           </targets>
         </son>
+        <son name="ArraySize">
+          <description>Size of array</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Ids" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
         <son name="Id">
           <description>Identifier of variable</description>
           <targets>
@@ -392,51 +419,8 @@
 -->
     <node name="GlobalDef">
       <sons>
-        <son name="Type">
-          <description>Type of variable</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Type" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="Id">
-          <description>Identifier of variable</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Id" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="Expr">
-          <description>Assignment of variable</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Expr" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
       </sons>
       <attributes>
-        <attribute name="Export">
-            <description>Export keyword flag</description>
-            <type name="Bool">
-                <targets>
-                    <target mandatory="yes">
-                        <phases><all /></phases>
-                    </target>
-                </targets>
-            </type>
-        </attribute>
       </attributes>
     </node>
 
@@ -520,6 +504,17 @@
           <targets>
             <target mandatory="yes">
               <set name="Type" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="ArraySize">
+          <description>Size of array, if Param is an array, can be multidimensional</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Ids" />
                 <phases>
                   <all />
                 </phases>
@@ -636,11 +631,33 @@
              </target>
           </targets>
         </son>
+        <son name="ArraySize">
+          <description>Arraysize, can be multidimensional</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Exprs" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
         <son name="Id">
           <description>Identifier</description>
           <targets>
             <target mandatory="yes">
               <node name="Id" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Expr">
+          <description>To be assigned expression</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Expr" />
                 <phases>
                   <all />
                 </phases>
@@ -679,7 +696,7 @@
           <description>The parameters for the function call</description>
           <targets>
             <target mandatory="No">
-              <node name="Expressions" />
+              <node name="Exprs" />
               <phases>
                 <all />
               </phases>
@@ -927,7 +944,7 @@
     <node name="Return">
       <description>Represents return statement</description>
       <sons>
-        <son name="Expression">
+        <son name="Expr">
           <description>Represents the return expression</description>
           <targets>
             <target mandatory="yes">
@@ -944,9 +961,9 @@
     </node>
 
 <!--
- Node Expressions:
+ Node Exprs:
 -->
-     <node name="Expressions">
+     <node name="Exprs">
       <description>Represents (sequence of) expressions</description>
       <sons>
         <son name="Expr">
@@ -964,7 +981,7 @@
           <description>Remaining expressions in sequence</description>
           <targets>
             <target mandatory="no">
-              <node name="Expressions" />
+              <node name="Exprs" />
                 <phases>
                   <all />
                 </phases>
@@ -1455,9 +1472,298 @@
 -->
 
 <!--
+  Node GlobalVarDef:
+-->
+	<node name="GlobalVarDef">
+	  <sons>
+        <son name="Type">
+          <description>Type of variable</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Type" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+        <son name="Id">
+          <description>Identifier of variable</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Id" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+        <son name="Expr">
+          <description>Assignment of variable</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Expr" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <attribute name="Export">
+            <description>Export keyword flag</description>
+            <type name="Bool">
+                <targets>
+                    <target mandatory="yes">
+                        <phases><all /></phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+      </attributes>
+	</node>
+
+<!--
+  Node GlobalArrDef:
+-->	
+  	<node name="GlobalArrDef">
+      <sons>
+        <son name="Type">
+          <description>Type of variable</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Type" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+        <son name="ArraySize">
+          <description>Size of array, multidimensional</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Exprs" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+        <son name="Id">
+          <description>Identifier of variable</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Id" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+        <son name="ArrExpr">
+          <description>Assignment of array expression</description>
+          <targets>
+            <target mandatory="no">
+              <node name="ArrExpr" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <attribute name="Export">
+            <description>Export keyword flag</description>
+            <type name="Bool">
+                <targets>
+                    <target mandatory="yes">
+                        <phases><all /></phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+      </attributes>
+  	</node>
+
+<!--
+  Node ArrayExpr:
+-->
+    <node name="ArrExpr">
+    </node>
+
+<!--
+  Node ArrayAssign:
+-->
+    <node name="ArrayAssign">
+	  <description>Represents the assignment of an array</description>
+      <sons>
+        <son name="Id">
+          <description>Represents the name of the array</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Id">
+                <phases>
+                  <all />
+                </phases>
+              </node>
+            </target>
+          </targets>
+        </son>
+        <son name="ArraySize">
+          <description>Represents the size of the array, can be multidimensional</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Exprs">
+                <phases>
+                  <all />
+                </phases>
+              </node>
+            </target>
+          </targets>
+        </son>
+        <son name="Expr">
+          <description>Represents to be assigned expression</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Expr">
+                <phases>
+                  <all />
+                </phases>
+              </node>
+            </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+	</node>
+
+<!--
+  Node ArrData:
+-->	
+	<node name="ArrData">
+	  <description>Represents the data of an array</description>
+      <sons>
+        <son name="ArrExprs">
+          <description>Represents the elements of an array, at least one. Can be multidimensional</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="ArrExprs">
+                <phases>
+                  <all />
+                </phases>
+              </node>
+            </target>
+          </targets>
+        </son>
+      </sons>
+    </node>
+    
+<!--
+  Node Array:
+-->
+    <node name="Array">
+	  <description>Represents the assignment of an array</description>
+      <sons>
+        <son name="Id">
+          <description>Represents the name of the array</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Id">
+                <phases>
+                  <all />
+                </phases>
+              </node>
+            </target>
+          </targets>
+        </son>
+        <son name="Exprs">
+          <description>Represents the index of the array</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Exprs">
+                <phases>
+                  <all />
+                </phases>
+              </node>
+            </target>
+          </targets>
+        </son>
+      </sons>
+    </node>
+
+<!--
   ===================== Extension 3 =====================
 -->
-
+<!--
+  Node Ids:
+-->
+    <node name="Ids">
+      <description>Represents (sequence of) identifiers</description>
+      <sons>
+        <son name="Id">
+          <description>First identifier in sequence</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Id" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Next">
+          <description>Remaining identefiers in sequence</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Ids" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+    
+<!--
+  Node ArrExprs:
+-->
+    <node name="ArrExprs">
+      <description>Represents (sequence of) array expressions</description>
+      <sons>
+        <son name="ArrExpr">
+          <description>First array expression in sequence</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="ArrExpr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Next">
+          <description>Remaining array expressions in sequence</description>
+          <targets>
+            <target mandatory="no">
+              <node name="ArrExprs" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+    
   </syntaxtree>
 
 </definition>
