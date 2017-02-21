@@ -63,6 +63,126 @@ static info *FreeInfo( info *info)
   return info;
 }
 
+node *PRTprogram(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTprogram");
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTfunheader(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTfunheader");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTrettype(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTrettype");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTtype(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTtype");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTbasictype(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTbasictype");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTparam(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTparam");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTfunbody(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTfunbody");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTvardec(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTvardec");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTstatement(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTstatement");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTfuncall(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTfuncall");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTtypecast(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTtypecast");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTconst(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTconst");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTblock(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTblock");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTexpr(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTexpr");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTid(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTid");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTvoid(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTvoid");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTint(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTint");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+
+
 node *PRTdeclaration(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTdeclaration");
 

@@ -20,6 +20,7 @@
     <type name="UnOp" ctype="unop" init="UO_unknown" copy="literal" />
     <type name="Type" ctype="type" init="TY_unknown" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
+    <type name="Void" ctype="void*" init="NULL" copy="lookup" /> <!-- Not sure this is how we want it, but for now it works. -->
     <type name="CompilerPhase" ctype="compiler_phase_t" init="PH_initial" copy="literal" />
   </attributetypes>
 
@@ -45,7 +46,7 @@
 
       <traversal id="RI" name="Rename identifiers" default="sons" include="rename_identifiers.h">
         <travuser>
-          <node name="Var" />
+          <node name="Id" />
           <node name="VarDeclare" />
         </travuser>
       </traversal>
@@ -124,7 +125,7 @@
       <target>
         <node name="Expr" />
         <node name="BinOp" />
-        <node name="MonOp" />
+        <set name="MonOp" />
         <node name="TypeCast" />
         <node name="FunCall" />
         <node name="Id" />
@@ -285,6 +286,13 @@
       </sons>
       <attributes>
         <attribute name="Export">
+            <type name="Bool">
+                <targets>
+	                <target mandatory="yes">
+	                    <phases><all /></phases>
+	                </target>
+	            </targets>
+            </type>
         </attribute>
       </attributes>
     </node>
@@ -410,6 +418,13 @@
       </sons>
       <attributes>
         <attribute name="Export">
+            <type name="Bool">
+                <targets>
+                    <target mandatory="yes">
+                        <phases><all /></phases>
+                    </target>
+                </targets>
+            </type>
         </attribute>
       </attributes>
     </node>
@@ -529,6 +544,24 @@
  Node Statement:
 -->
     <node name="Statement">
+    </node>
+    
+<!--
+  Node FunCall: 
+ -->
+    <node name="Funcall" >
+    </node>
+
+<!--
+  Node Typecast: 
+ -->
+    <node name="Typecast" >
+    </node>
+
+<!--
+  Node Const: 
+ -->
+    <node name="Const" >
     </node>
 
 <!--
@@ -713,11 +746,11 @@
      <node name="For">
       <description>represents the for statement</description>
       <sons>
-        <son name="Var">
+        <son name="ID">
           <description>to be excuted until the condition becomes false</description>
           <targets>
             <target mandatory="yes">
-              <node name="Var" />
+              <node name="Id" />
                 <phases>
                   <all />
                 </phases>

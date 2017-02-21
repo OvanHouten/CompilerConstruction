@@ -3,7 +3,7 @@
 #include "types.h"
 
 extern node *RIvardeclare (node *arg_node, info *arg_info);
-extern node *RIvar (node *arg_node, info *arg_info);
+extern node *RIid(node * arg_node, info * arg_info);
 extern node *RIdoRenameIdentifiers( node *syntaxtree);
 
 #endif

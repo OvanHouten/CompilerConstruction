@@ -11,6 +11,24 @@
 
 #include "types.h"
 
+extern node *PRTprogram(node * arg_node, info * arg_info);
+extern node *PRTfunheader(node * arg_node, info * arg_info);
+extern node *PRTrettype(node * arg_node, info * arg_info);
+extern node *PRTtype(node * arg_node, info * arg_info);
+extern node *PRTbasictype(node * arg_node, info * arg_info);
+extern node *PRTparam(node * arg_node, info * arg_info);
+extern node *PRTfunbody(node * arg_node, info * arg_info);
+extern node *PRTvardec(node * arg_node, info * arg_info);
+extern node *PRTstatement(node * arg_node, info * arg_info);
+extern node *PRTfuncall(node * arg_node, info * arg_info);
+extern node *PRTtypecast(node * arg_node, info * arg_info);
+extern node *PRTconst(node * arg_node, info * arg_info);
+extern node *PRTblock(node * arg_node, info * arg_info);
+extern node *PRTexpr(node * arg_node, info * arg_info);
+extern node *PRTid(node * arg_node, info * arg_info);
+extern node *PRTvoid(node * arg_node, info * arg_info);
+extern node *PRTint(node * arg_node, info * arg_info);
+
 extern node *PRTdeclaration(node * arg_node, info * arg_info);
 extern node *PRTfundec(node * arg_node, info * arg_info);
 extern node *PRTfundef(node * arg_node, info * arg_info);

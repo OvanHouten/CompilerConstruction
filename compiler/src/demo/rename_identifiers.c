@@ -46,12 +46,12 @@ node *RIvar( node *arg_node, info *arg_info)
 {
   char *name;
 
-  DBUG_ENTER("RIvar");
+  DBUG_ENTER("RIid");
 
-  DBUG_PRINT( "RI", ("Renaming variable: %s", VAR_NAME( arg_node)));
+  DBUG_PRINT( "RI", ("Renaming variable: %s", ID_NAME( arg_node)));
 
-  name = VAR_NAME( arg_node);
-  VAR_NAME( arg_node) = STRcat( "__", name);
+  name = ID_NAME( arg_node);
+  ID_NAME( arg_node) = STRcat( "__", name);
   MEMfree(name);
 
   DBUG_RETURN( arg_node);
