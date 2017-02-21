@@ -30,6 +30,10 @@ extern node *PRTid(node * arg_node, info * arg_info);
 extern node *PRTvoid(node * arg_node, info * arg_info);
 extern node *PRTint(node * arg_node, info * arg_info);
 
+extern node *PRTintconst(node * arg_node, info * arg_info);
+extern node *PRTfloatconst(node * arg_node, info * arg_info);
+extern node *PRTboolconst(node * arg_node, info * arg_info);
+
 extern node *PRTstatements(node * arg_node, info * arg_info);
 extern node *PRTparams(node * arg_node, info * arg_info);
 extern node *PRTvardecs(node * arg_node, info * arg_info);
@@ -50,6 +54,11 @@ extern node *PRTdo (node * arg_node, info * arg_info);
 extern node *PRTfor (node * arg_node, info * arg_info);
 extern node *PRTvar (node * arg_node, info * arg_info);
 extern node *PRTbinop (node * arg_node, info * arg_info);
+
+extern node *PRTarithop (node * arg_node, info * arg_info);
+extern node *PRTrelop (node * arg_node, info * arg_info);
+extern node *PRTlogicop (node * arg_node, info * arg_info);
+
 extern node *PRTunop (node * arg_node, info * arg_info);
 extern node *PRTfloat (node * arg_node, info * arg_info);
 extern node *PRTnum (node * arg_node, info * arg_info);

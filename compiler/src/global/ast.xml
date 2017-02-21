@@ -16,10 +16,9 @@
     <type name="Int" ctype="int" init="0" copy="literal" />
     <type name="Bool" ctype="bool" init="FALSE" copy="literal" />
     <type name="Float" ctype="float" init="0.0" copy="literal" />
-    <type name="BinOp" ctype="binop" init="BO_unknown" copy="literal" />
     <type name="RelOp" ctype="relop" init="RO_unknown" copy="literal" />
     <type name="LogicOp" ctype="logicop" init="LO_unknown" copy="literal" />
-    <type name="ArtithOp" ctype="arithop" init="AO_unknown" copy="literal" />
+    <type name="ArithOp" ctype="arithop" init="AO_unknown" copy="literal" />
     <type name="UnOp" ctype="unop" init="UO_unknown" copy="literal" />
     <type name="Type" ctype="type" init="TY_unknown" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
@@ -491,10 +490,31 @@
     </node>
     
 <!--
+ Node Int:
+-->
+    <node name="Int">
+      <description>Int</description>
+    </node>
+    
+<!--
  Node BasicType:
 -->
     <node name="BasicType">
       <description>BasicType</description>
+    </node>
+    
+<!--
+ Node Float:
+-->
+    <node name="Float">
+      <description>Float</description>
+    </node>
+    
+<!--
+ Node Bool:
+-->
+    <node name="Bool">
+      <description>Bool</description>
     </node>
     
     
@@ -994,52 +1014,6 @@
 	</node>
 	
 <!--
- Node BinOp:
--->
-    <node name="BinOp">
-      <description>Represents binary operator application</description>
-      <sons>
-        <son name="Left">
-          <description>Left operand expression</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="Expr" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="Right">
-          <description>Right operand expression</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="Expr" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-        <attribute name="Op">
-          <description>Operator type</description>
-          <type name="BinOp">
-            <targets>
-              <target mandatory="yes">
-                <any />
-                <phases>
-                  <all />
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
-      </attributes>
-    </node>
-
-<!--
  Node ArtihOp:
 -->
     <node name="ArithOp">
@@ -1083,6 +1057,12 @@
           </type>
         </attribute>
       </attributes>
+    </node>
+
+<!--
+ Node BinOp:
+-->
+    <node name="BinOp">
     </node>
 
 <!--

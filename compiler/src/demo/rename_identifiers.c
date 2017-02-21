@@ -33,10 +33,10 @@ node *RIvardec( node *arg_node, info *arg_info)
 
   DBUG_ENTER("RIvardec");
 
-  DBUG_PRINT( "RI", ("Renaming variable: %s", VARDECLARE_NAME( arg_node)));
+  DBUG_PRINT( "RI", ("Renaming variable: %s", VARDEC_ID( arg_node)));
 
   name = VARDECLARE_NAME( arg_node);
-  VARDECLARE_NAME( arg_node) = STRcat( "__", name);
+  VARDEC_ID( arg_node) = STRcat( "__", name);
   MEMfree(name);
 
   DBUG_RETURN( arg_node);

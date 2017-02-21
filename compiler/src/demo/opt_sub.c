@@ -37,23 +37,23 @@ node *OSbinop (node *arg_node, info *arg_info)
    * Extremely important:
    *  we must continue to traverse the abstract syntax tree !!
    */
-  BINOP_LEFT( arg_node) = TRAVdo( BINOP_LEFT( arg_node), arg_info);
-  BINOP_RIGHT( arg_node) = TRAVdo( BINOP_RIGHT( arg_node), arg_info);
-
-  if (BINOP_OP( arg_node) == BO_sub) {
-    if ((NODE_TYPE( BINOP_LEFT( arg_node)) == N_var)
-	&& (NODE_TYPE( BINOP_RIGHT( arg_node)) == N_var)
-	&& STReq( VAR_NAME( BINOP_LEFT( arg_node)), VAR_NAME( BINOP_RIGHT( arg_node)))) {
-      arg_node = FREEdoFreeTree( arg_node);
-      arg_node = TBmakeNum( 0);
-    }
-    else if  ((NODE_TYPE( BINOP_LEFT( arg_node)) == N_num)
-	      && (NODE_TYPE( BINOP_RIGHT( arg_node)) == N_num)
-	      && (NUM_VALUE( BINOP_LEFT( arg_node)) == NUM_VALUE( BINOP_RIGHT( arg_node)))) {
-      arg_node = FREEdoFreeTree( arg_node);
-      arg_node = TBmakeNum( 0);
-    }
-  }
+//  BINOP_LEFT( arg_node) = TRAVdo( BINOP_LEFT( arg_node), arg_info);
+//  BINOP_RIGHT( arg_node) = TRAVdo( BINOP_RIGHT( arg_node), arg_info);
+//
+//  if (BINOP_OP( arg_node) == BO_sub) {
+//    if ((NODE_TYPE( BINOP_LEFT( arg_node)) == N_var)
+//	&& (NODE_TYPE( BINOP_RIGHT( arg_node)) == N_var)
+//	&& STReq( VAR_NAME( BINOP_LEFT( arg_node)), VAR_NAME( BINOP_RIGHT( arg_node)))) {
+//      arg_node = FREEdoFreeTree( arg_node);
+//      arg_node = TBmakeNum( 0);
+//    }
+//    else if  ((NODE_TYPE( BINOP_LEFT( arg_node)) == N_num)
+//	      && (NODE_TYPE( BINOP_RIGHT( arg_node)) == N_num)
+//	      && (NUM_VALUE( BINOP_LEFT( arg_node)) == NUM_VALUE( BINOP_RIGHT( arg_node)))) {
+//      arg_node = FREEdoFreeTree( arg_node);
+//      arg_node = TBmakeNum( 0);
+//    }
+//  }
 
   DBUG_RETURN( arg_node);
 }

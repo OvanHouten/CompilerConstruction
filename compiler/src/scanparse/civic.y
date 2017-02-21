@@ -25,7 +25,9 @@ static int yyerror( char *errname);
  char               *id;
  int                 cint;
  float               cflt;
- binop               cbinop;
+ arithop             carithop;
+ logicop             clogicop;
+ relop               crelop;
  node               *node;
 }
 
@@ -57,10 +59,10 @@ static int yyerror( char *errname);
 
 %%
 
-program: stmts { parseresult = TBmakeModule( $1); }
+program: stmts { parseresult = TBmakeProgram( $1); }
 
-stmts: stmt stmts { $$ = TBmakeStmts( $1, $2); }
-     | stmt       { $$ = TBmakeStmts( $1, NULL); }
+stmts: stmt stmts { $$ = TBmakeStatements( $1, $2); }
+     | stmt       { $$ = TBmakeStatements( $1, NULL); }
      ;
 
  stmt:    declare { $$ = $1; }
@@ -71,14 +73,14 @@ stmts: stmt stmts { $$ = TBmakeStmts( $1, $2); }
 		| for     { $$ = $1; }
 		;         
 
-declare: INT_TYPE ID SEMICOLON   { $$ = TBmakeVardeclare( STRcpy( $2), TY_int); }
-       | FLOAT_TYPE ID SEMICOLON { $$ = TBmakeVardeclare( STRcpy( $2), TY_float); }
-       | BOOL_TYPE ID SEMICOLON  { $$ = TBmakeVardeclare( STRcpy( $2), TY_bool); }
+declare: INT_TYPE ID SEMICOLON   { $$ = TBmakeVardec( STRcpy( $2), TY_int); }
+       | FLOAT_TYPE ID SEMICOLON { $$ = TBmakeVardec( STRcpy( $2), TY_float); }
+       | BOOL_TYPE ID SEMICOLON  { $$ = TBmakeVardec( STRcpy( $2), TY_bool); }
        ;
 
-assign: INT_TYPE ID LET expr SEMICOLON   { $$ = TBmakeAssign( TBmakeVardeclare( STRcpy( $2), TY_int), $4); }
-      | FLOAT_TYPE ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeVardeclare( STRcpy( $2), TY_float), $4); }
-      | BOOL_TYPE ID LET expr SEMICOLON  { $$ = TBmakeAssign( TBmakeVardeclare( STRcpy( $2), TY_bool), $4); }
+assign: INT_TYPE ID LET expr SEMICOLON   { $$ = TBmakeAssign( TBmakeVardec( STRcpy( $2), TY_int), $4); }
+      | FLOAT_TYPE ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeVardec( STRcpy( $2), TY_float), $4); }
+      | BOOL_TYPE ID LET expr SEMICOLON  { $$ = TBmakeAssign( TBmakeVardec( STRcpy( $2), TY_bool), $4); }
       | ID LET expr SEMICOLON            { $$ = TBmakeAssign( TBmakeVar( $1), $3); }
       ;
 
@@ -100,19 +102,19 @@ for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R stmt { $$ = TBmakeF
 expr: BRACKET_L expr BRACKET_R { $$ = $2; }
     | NOT expr          { $$ = TBmakeUnop( UO_not, $2); }
     | MINUS expr        { $$ = TBmakeUnop( UO_neg, $2); }
-    | expr MINUS expr   { $$ = TBmakeBinop( BO_sub, $1, $3); }
-    | expr PLUS expr    { $$ = TBmakeBinop( BO_add, $1, $3); }
-    | expr STAR expr    { $$ = TBmakeBinop( BO_mul, $1, $3); }
-    | expr SLASH expr   { $$ = TBmakeBinop( BO_div, $1, $3); }
-    | expr PERCENT expr { $$ = TBmakeBinop( BO_mod, $1, $3); }
-    | expr LT expr      { $$ = TBmakeBinop( BO_lt, $1, $3); }
-    | expr LE expr      { $$ = TBmakeBinop( BO_le, $1, $3); }
-    | expr EQ expr      { $$ = TBmakeBinop( BO_eq, $1, $3); }
-    | expr NE expr      { $$ = TBmakeBinop( BO_ne, $1, $3); }
-    | expr GE expr      { $$ = TBmakeBinop( BO_ge, $1, $3); }
-    | expr GT expr      { $$ = TBmakeBinop( BO_gt, $1, $3); }
-    | expr AND expr     { $$ = TBmakeBinop( BO_and, $1, $3); }
-    | expr OR expr      { $$ = TBmakeBinop( BO_or, $1, $3); }
+    | expr MINUS expr   { $$ = TBmakeArithop( AO_sub, $1, $3); }
+    | expr PLUS expr    { $$ = TBmakeArithop( AO_add, $1, $3); }
+    | expr STAR expr    { $$ = TBmakeArithop( AO_mul, $1, $3); }
+    | expr SLASH expr   { $$ = TBmakeArithop( AO_div, $1, $3); }
+    | expr PERCENT expr { $$ = TBmakeArithop( AO_mod, $1, $3); }
+    | expr LT expr      { $$ = TBmakeRelop( RO_lt, $1, $3); }
+    | expr LE expr      { $$ = TBmakeRelop( RO_le, $1, $3); }
+    | expr EQ expr      { $$ = TBmakeRelop( RO_eq, $1, $3); }
+    | expr NE expr      { $$ = TBmakeRelop( RO_ne, $1, $3); }
+    | expr GE expr      { $$ = TBmakeRelop( RO_ge, $1, $3); }
+    | expr GT expr      { $$ = TBmakeRelop( RO_gt, $1, $3); }
+    | expr AND expr     { $$ = TBmakeLogicop( LO_and, $1, $3); }
+    | expr OR expr      { $$ = TBmakeLogicop( LO_or, $1, $3); }
     | ID                { $$ = TBmakeVar( STRcpy( $1)); }
     | constant          { $$ = $1; }
     ;
