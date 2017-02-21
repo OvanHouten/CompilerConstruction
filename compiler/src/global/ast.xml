@@ -1544,7 +1544,7 @@
           <description>Size of array, multidimensional</description>
           <targets>
             <target mandatory="yes">
-              <node name="Expresssions" />
+              <node name="Exprs" />
               <phases>
                 <all />
               </phases>
@@ -1587,6 +1587,12 @@
         </attribute>
       </attributes>
   	</node>
+
+<!--
+  Node ArrayExpr:
+-->
+    <node name="ArrExpr">
+    </node>
 
 <!--
   Node ArrayAssign:
