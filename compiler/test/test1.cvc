@@ -1,7 +1,7 @@
 a = (43-2);
 b = (true*7);
-c = ((a + b) - c);
-d = ((7-7) * 0);
+c = ((a + b) - c); // Comment
+d = ((7-7) * 0); // More comment // and more
 e = (c - c);
 f = !7;
 bool g = !false;
@@ -83,3 +83,12 @@ for (int i = 0, 100)
     for (int j = i, 100)
         i = j;
         j = i;
+        
+/*
+ * Multi line comment
+ */
+qqqqq = qqqqqq;
+/*
+ * Multi line comment
+ */
+zzzzzzzzz= zzzzzzzzzzzzzz;

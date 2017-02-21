@@ -57,14 +57,14 @@
 
 "!"                        { FILTER( NOT);  } 
 
-"<="                       { FILTER( LE);    }
-"<"                        { FILTER( LT);    } 
-">="                       { FILTER( GE);    }
-">"                        { FILTER( GT);    }
-"=="                       { FILTER( EQ);    }
-"!="                       { FILTER( NE);    }
-"&&"                       { FILTER( AND);    }
-"||"                       { FILTER( OR);    }
+"<="                       { FILTER( LE);  }
+"<"                        { FILTER( LT);  } 
+">="                       { FILTER( GE);  }
+">"                        { FILTER( GT);  }
+"=="                       { FILTER( EQ);  }
+"!="                       { FILTER( NE);  }
+"&&"                       { FILTER( AND); }
+"||"                       { FILTER( OR);  }
 
 "="                        { FILTER( LET);    }
 
@@ -74,6 +74,9 @@
 [A-Za-z][A-Za-z0-9_]*      { yylval.id = STRcpy(yytext);
                              FILTER( ID);
                            }
+
+\/\/.*$                     { /* empty */ }
+"/*"([^*]|(\*+[^*/]))*\*+\/ { /* empty */ }
 
 [0-9]+                     { yylval.cint=atoi(yytext);
                              FILTER( NUM);
