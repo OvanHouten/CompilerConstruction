@@ -577,11 +577,11 @@
              </target>
           </targets>
         </son>
-        <son name="Statements">
+        <son name="Block">
         <description></description>
           <targets>
             <target mandatory="no">
-              <node name="Statements" />
+              <node name="Block" />
                 <phases>
                   <all />
                 </phases>
