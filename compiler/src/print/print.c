@@ -125,7 +125,7 @@ node *PRTfundef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunDef");
 
 	if (FUNDEF_EXPORT(arg_node) == TRUE) {
-		printf("export");
+		printf("export ");
 	}
 	TRAVdo(FUNDEF_FUNHEADER(arg_node), arg_info);
 	printf(" {");
