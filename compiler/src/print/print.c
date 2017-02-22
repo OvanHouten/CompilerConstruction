@@ -38,9 +38,13 @@ struct INFO {
 
 // Default indent size
 #define INDENT_SIZE 4
-#define INCREASE_INDENTATION(arg_info) INFO_INDENT(arg_info) += INDENT_SIZE; INFO_IS_NEW_LINE(arg_info) = TRUE;
-#define DECREASE_INDENTATION(arg_info) INFO_INDENT(arg_info) -= INDENT_SIZE; INFO_IS_NEW_LINE(arg_info) = TRUE;
+// Macro to increase the indentation, as a side effect the first call to INDENT() will start on a new line
+#define INCREASE_INDENTATION(arg_info) INFO_INDENT(arg_info) += INDENT_SIZE; INDENT_AT_NEWLINE(arg_info)
+// Macro to decrease the indentation, as a side effect the first call to INDENT() will start on a new line
+#define DECREASE_INDENTATION(arg_info) INFO_INDENT(arg_info) -= INDENT_SIZE; INDENT_AT_NEWLINE(arg_info)
+// Will print the indentation if, and only if it is needed, as a side effect
 #define INDENT(arg_info) printf("%*s", INFO_IS_NEW_LINE(arg_info) ? INFO_INDENT(arg_info) : 0, ""); INFO_IS_NEW_LINE(arg_info) = FALSE;
+#define INDENT_AT_NEWLINE(arg_info) INFO_IS_NEW_LINE(arg_info) = TRUE;
 
 static info *MakeInfo()
 {
@@ -485,7 +489,7 @@ PRTassign (node * arg_node, info * arg_info)
 //  ASSIGN_EXPR( arg_node) = TRAVdo( ASSIGN_EXPR( arg_node), arg_info);
 //
 //  printf( ";\n");
-//  INFO_IS_NEW_LINE(arg_info) = TRUE;
+//  INDENT_AT_NEWLINE(arg_info);
   
   DBUG_RETURN (arg_node);
 }
@@ -528,7 +532,7 @@ PRTif (node * arg_node, info * arg_info)
 //  DECREASE_INDENTATION(arg_info);
 //  INDENT(arg_info);
 //  printf( "}\n");
-//  INFO_IS_NEW_LINE(arg_info) = TRUE;
+//  INDENT_AT_NEWLINE(arg_info);
 
   DBUG_RETURN (arg_node);
 }
@@ -597,7 +601,7 @@ PRTdo (node * arg_node, info * arg_info)
 //  DO_CONDITION( arg_node) = TRAVdo( DO_CONDITION( arg_node), arg_info);
 //
 //  printf( ");\n");
-//  INFO_IS_NEW_LINE(arg_info) = TRUE;
+//  INDENT_AT_NEWLINE(arg_info);
 //
   DBUG_RETURN (arg_node);
 }
@@ -635,7 +639,7 @@ PRTfor (node * arg_node, info * arg_info)
 //  DECREASE_INDENTATION(arg_info);
 //  INDENT(arg_info);
 //  printf("}\n");
-//  INFO_IS_NEW_LINE(arg_info) = TRUE;
+//  INDENT_AT_NEWLINE(arg_info);
 
   DBUG_RETURN (arg_node);
 }
