@@ -1,0 +1,4 @@
+extern int main();
+extern float main();
+extern bool main();
+extern void main();

@@ -68,7 +68,11 @@ declarations: declaration declarations { $$ = TBmakeDeclarations( $1, $2); }
 
 declaration: fundec { $$ = $1; }
 
-fundec: INT_TYPE ID BRACKET_L BRACKET_R SEMICOLON { $$ = TBmakeFundec( TBmakeFunheader( TBmakeInt(), TBmakeId($2), NULL)); }
+fundec: EXTERN INT_TYPE ID BRACKET_L BRACKET_R SEMICOLON   { $$ = TBmakeFundec( TBmakeFunheader( TBmakeInt(), TBmakeId($3), NULL)); }
+      | EXTERN FLOAT_TYPE ID BRACKET_L BRACKET_R SEMICOLON { $$ = TBmakeFundec( TBmakeFunheader( TBmakeFloat(), TBmakeId($3), NULL)); }
+      | EXTERN BOOL_TYPE ID BRACKET_L BRACKET_R SEMICOLON  { $$ = TBmakeFundec( TBmakeFunheader( TBmakeBool(), TBmakeId($3), NULL)); }
+      | EXTERN VOID ID BRACKET_L BRACKET_R SEMICOLON       { $$ = TBmakeFundec( TBmakeFunheader( TBmakeVoid(), TBmakeId($3), NULL)); }
+      ;
 
 stmts: stmt stmts { $$ = TBmakeStatements( $1, $2); }
      | stmt       { $$ = TBmakeStatements( $1, NULL); }
