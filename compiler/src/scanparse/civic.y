@@ -53,8 +53,9 @@ static int yyerror( char *errname);
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> intval floatval boolval constant expr declarations declaration fundec globaldec params param
-%type <node> stmts stmt assign declare if while do for program
+%type <node> intval floatval boolval constant expr
+%type <node> program declarations declaration fundec funheader globaldec params param
+%type <node> stmts stmt assign declare if while do for
 
 %start program
 
@@ -68,15 +69,17 @@ declarations: declaration declarations { $$ = TBmakeDeclarations( $1, $2); }
 
 declaration: fundec    { $$ = $1; }
            | globaldec { $$ = $1; }
+           
+fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundec($2); }
 
-fundec: EXTERN INT_TYPE ID BRACKET_L BRACKET_R SEMICOLON          { $$ = TBmakeFundec( TBmakeFunheader( TBmakeInt(), TBmakeId($3), NULL)); }
-      | EXTERN FLOAT_TYPE ID BRACKET_L BRACKET_R SEMICOLON        { $$ = TBmakeFundec( TBmakeFunheader( TBmakeFloat(), TBmakeId($3), NULL)); }
-      | EXTERN BOOL_TYPE ID BRACKET_L BRACKET_R SEMICOLON         { $$ = TBmakeFundec( TBmakeFunheader( TBmakeBool(), TBmakeId($3), NULL)); }
-      | EXTERN VOID ID BRACKET_L BRACKET_R SEMICOLON              { $$ = TBmakeFundec( TBmakeFunheader( TBmakeVoid(), TBmakeId($3), NULL)); }
-      | EXTERN INT_TYPE ID BRACKET_L params BRACKET_R SEMICOLON   { $$ = TBmakeFundec( TBmakeFunheader( TBmakeInt(), TBmakeId($3), $5)); }
-      | EXTERN FLOAT_TYPE ID BRACKET_L params BRACKET_R SEMICOLON { $$ = TBmakeFundec( TBmakeFunheader( TBmakeFloat(), TBmakeId($3), $5)); }
-      | EXTERN BOOL_TYPE ID BRACKET_L params BRACKET_R SEMICOLON  { $$ = TBmakeFundec( TBmakeFunheader( TBmakeBool(), TBmakeId($3), $5)); }
-      | EXTERN VOID ID BRACKET_L params BRACKET_R SEMICOLON       { $$ = TBmakeFundec( TBmakeFunheader( TBmakeVoid(), TBmakeId($3), $5)); }
+funheader: INT_TYPE ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( TBmakeInt(), TBmakeId($2), NULL); }
+      | FLOAT_TYPE ID BRACKET_L BRACKET_R         { $$ = TBmakeFunheader( TBmakeFloat(), TBmakeId($2), NULL); }
+      | BOOL_TYPE ID BRACKET_L BRACKET_R          { $$ = TBmakeFunheader( TBmakeBool(), TBmakeId($2), NULL); }
+      | VOID ID BRACKET_L BRACKET_R               { $$ = TBmakeFunheader( TBmakeVoid(), TBmakeId($2), NULL); }
+      | INT_TYPE ID BRACKET_L params BRACKET_R    { $$ = TBmakeFunheader( TBmakeInt(), TBmakeId($2), $4); }
+      | FLOAT_TYPE ID BRACKET_L params BRACKET_R  { $$ = TBmakeFunheader( TBmakeFloat(), TBmakeId($2), $4); }
+      | BOOL_TYPE ID BRACKET_L params BRACKET_R   { $$ = TBmakeFunheader( TBmakeBool(), TBmakeId($2), $4); }
+      | VOID ID BRACKET_L params BRACKET_R        { $$ = TBmakeFunheader( TBmakeVoid(), TBmakeId($2), $4); }
       ;
       
 globaldec: EXTERN INT_TYPE ID SEMICOLON   { $$ = TBmakeGlobaldec( TBmakeInt(), NULL, TBmakeId($3)); }
