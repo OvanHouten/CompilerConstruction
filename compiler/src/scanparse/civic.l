@@ -79,7 +79,7 @@
                            }
 
 #.*$                        { /* empty */ }
-\/\/.*$                     { /* empty */ }
+"//".*$                     { /* empty */ }
 "/*"([^*]|(\*+[^*/]))*\*+\/ { /* empty */ }
 
 [0-9]+                     { yylval.cint=atoi(yytext);
@@ -89,6 +89,7 @@
 -?[1-9][0-9]*\.[0-9]*      { yylval.cint=atof(yytext);
                              FILTER( FLOAT);
                            }
+
 \n.*                       { global.line += 1;
                              global.col = 0;
                              yyless(1);
