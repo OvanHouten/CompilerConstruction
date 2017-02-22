@@ -99,7 +99,6 @@ node *PRTfundec(node * arg_node, info * arg_info) {
 node *PRTfunheader(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunheader");
 
-	INDENT(arg_info);
 	printf("extern ");
 	TRAVdo(FUNHEADER_RETTYPE(arg_node), arg_info);
 	TRAVdo(FUNHEADER_ID(arg_node), arg_info);
@@ -111,6 +110,19 @@ node *PRTfunheader(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
+node *PRTglobaldec(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTglobalDec");
+
+	printf("extern ");
+	TRAVdo(GLOBALDEC_TYPE(arg_node), arg_info);
+	TRAVdo(GLOBALDEC_ID(arg_node), arg_info);
+	printf(";\n");
+	INDENT_AT_NEWLINE(arg_info);
+
+	DBUG_RETURN(arg_node);
+}
+
+
 node *PRTid(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTid");
 
@@ -119,6 +131,8 @@ node *PRTid(node * arg_node, info * arg_info) {
 
 	DBUG_RETURN(arg_node);
 }
+
+// PARAMS
 
 node *PRTparams(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTparams");
@@ -140,6 +154,8 @@ node *PRTparam(node * arg_node, info * arg_info) {
 
 	DBUG_RETURN(arg_node);
 }
+
+// TYPES
 
 node *PRTint(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTint");
@@ -420,11 +436,6 @@ node *PRTlocalfundefs(node * arg_node, info * arg_info)
 
 node *PRTfundef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunDef");
-
-	DBUG_RETURN(arg_node);
-}
-node *PRTglobaldec(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTglobalDec");
 
 	DBUG_RETURN(arg_node);
 }

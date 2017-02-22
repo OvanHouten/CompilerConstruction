@@ -1,0 +1,3 @@
+extern int bla; 
+extern float bla; 
+extern bool bla; 
