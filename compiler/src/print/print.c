@@ -70,11 +70,28 @@ static info *FreeInfo( info *info)
 node *PRTprogram(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTprogram");
 
+	printf("\n\n/* CiviC program by Nico Tromp & Olaf van Houten */\n\n");
+
+	TRAVdo(PROGRAM_DECLARATION(arg_node), arg_info);
+
+	printf("\nThat's all folks....\n\n");
+
 	DBUG_RETURN(arg_node);
 }
 
 node *PRTdeclarations(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTdeclarations");
+
+	TRAVopt(DECLARATIONS_DECLARATION(arg_node), arg_info);
+	TRAVopt(DECLARATIONS_NEXT(arg_node), arg_info);
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTfundec(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTfunDec");
+
+	TRAVopt(FUNDEC_FUNHEADER(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
 }
@@ -82,12 +99,101 @@ node *PRTdeclarations(node * arg_node, info * arg_info) {
 node *PRTfunheader(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunheader");
 
+	INDENT(arg_info);
+	printf("extern ");
+	TRAVdo(FUNHEADER_RETTYPE(arg_node), arg_info);
+	TRAVdo(FUNHEADER_ID(arg_node), arg_info);
+	printf("(");
+	TRAVopt(FUNHEADER_PARAMS(arg_node), arg_info);
+	printf(");\n");
+	INDENT_AT_NEWLINE(arg_info);
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTid(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTid");
+
+	INDENT(arg_info);
+	printf(ID_NAME(arg_node));
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTint(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTint");
+
+	INDENT(arg_info);
+	printf("int ");
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTfloat (node * arg_node, info * arg_info)
+{
+  DBUG_ENTER ("PRTfloat");
+
+  INDENT(arg_info);
+  printf( "float ");
+
+  DBUG_RETURN (arg_node);
+}
+
+node *PRTbool (node * arg_node, info * arg_info)
+{
+  DBUG_ENTER ("PRTbool");
+
+  INDENT(arg_info);
+  printf("bool ");
+
+  DBUG_RETURN (arg_node);
+}
+node *PRTvoid(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTvoid");
+
+	INDENT(arg_info);
+	printf("void ");
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTparams(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTparams");
+
+	TRAVopt(PARAMS_PARAM(arg_node), arg_info);
+	if (PARAMS_NEXT(arg_node) != NULL) {
+		printf(", ");
+	}
+	TRAVopt(PARAMS_NEXT(arg_node), arg_info);
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTparam(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTparam");
+
+	TRAVdo(PARAM_TYPE(arg_node), arg_info);
+	TRAVdo(PARAM_ID(arg_node), arg_info);
+
+	DBUG_RETURN(arg_node);
+}
+
+
+
+
+// Obsolete ???
+
+node *PRTdeclaration(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTdeclaration");
+
 	DBUG_RETURN(arg_node);
 }
 
 
 node *PRTrettype(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTrettype");
+
+	printf("return type");
 
 	DBUG_RETURN(arg_node);
 }
@@ -106,12 +212,6 @@ node *PRTbasictype(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-
-node *PRTparam(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTparam");
-
-	DBUG_RETURN(arg_node);
-}
 
 
 node *PRTfunbody(node * arg_node, info * arg_info) {
@@ -170,34 +270,9 @@ node *PRTexpr(node * arg_node, info * arg_info) {
 }
 
 
-node *PRTid(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTid");
-
-	DBUG_RETURN(arg_node);
-}
-
-
-node *PRTvoid(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTvoid");
-
-	DBUG_RETURN(arg_node);
-}
-
-
-node *PRTint(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTint");
-
-	DBUG_RETURN(arg_node);
-}
 
 node *PRTstatements(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTstatements");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTparams(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTparams");
 
 	DBUG_RETURN(arg_node);
 }
@@ -343,17 +418,7 @@ node *PRTlocalfundefs(node * arg_node, info * arg_info)
 
 
 
-node *PRTdeclaration(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTdeclaration");
 
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTfundec(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTfunDec");
-
-	DBUG_RETURN(arg_node);
-}
 node *PRTfundef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunDef");
 
@@ -760,28 +825,6 @@ node * PRTunop (node * arg_node, info * arg_info)
 }
 
 
-/** <!--******************************************************************-->
- *
- * @fn PRTfloat
- *
- * @brief Prints the node and its sons/attributes
- *
- * @param arg_node Float node to process
- * @param arg_info pointer to info structure
- *
- * @return processed node
- *
- ***************************************************************************/
-
-node *
-PRTfloat (node * arg_node, info * arg_info)
-{
-  DBUG_ENTER ("PRTfloat");
-
-//  printf( "%f", FLOAT_VALUE( arg_node));
-
-  DBUG_RETURN (arg_node);
-}
 
 
 
@@ -809,33 +852,7 @@ PRTnum (node * arg_node, info * arg_info)
 }
 
 
-/** <!--******************************************************************-->
- *
- * @fn PRTboolean
- *
- * @brief Prints the node and its sons/attributes
- *
- * @param arg_node Boolean node to process
- * @param arg_info pointer to info structure
- *
- * @return processed node
- *
- ***************************************************************************/
 
-node *
-PRTbool (node * arg_node, info * arg_info)
-{
-  DBUG_ENTER ("PRTbool");
-
-//  if (BOOL_VALUE( arg_node)) {
-//    printf( "true");
-//  }
-//  else {
-//    printf( "false");
-//  }
-  
-  DBUG_RETURN (arg_node);
-}
 
 
 /** <!--******************************************************************-->

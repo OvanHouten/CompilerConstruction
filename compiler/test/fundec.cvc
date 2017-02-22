@@ -2,3 +2,5 @@ extern int main();
 extern float main();
 extern bool main();
 extern void main();
+extern int main(int a);
+extern int main(int a, int b);

@@ -100,7 +100,9 @@
   	
   	<nodeset name="Type">
   	  <target>
-  	    <node name="BasicType"/>
+        <node name="Bool"/>
+        <node name="Int"/>
+        <node name="Float"/>
   	  </target>
   	</nodeset>
   	
@@ -441,13 +443,6 @@
     </node>
     
 <!--
- Node BasicType:
--->
-    <node name="BasicType">
-      <description>BasicType</description>
-    </node>
-    
-<!--
  Node Float:
 -->
     <node name="Float">
@@ -505,7 +500,7 @@
           <description>Type of parameter</description>
           <targets>
             <target mandatory="yes">
-              <set name="Type" />
+              <set name="BasicType" />
                 <phases>
                   <all />
                 </phases>
