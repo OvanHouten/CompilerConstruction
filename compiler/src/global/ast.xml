@@ -591,7 +591,7 @@
           <description>First VarDec in sequence</description>
           <targets>
             <target mandatory="yes">
-              <set name="VarDec" />
+              <node name="VarDec" />
                 <phases>
                   <all />
                 </phases>
@@ -741,7 +741,7 @@
           <description>Left hand side variable; can be missing to represent procedure calls</description>
           <targets>
             <target mandatory="no">
-              <set name="LeftAssign" />
+              <node name="Id" />
                 <phases>
                   <all />
                 </phases>
