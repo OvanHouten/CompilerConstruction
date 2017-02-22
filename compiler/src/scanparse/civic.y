@@ -54,7 +54,7 @@ static int yyerror( char *errname);
 %token <id> ID
 
 %type <node> intval floatval boolval constant expr
-%type <node> program declarations declaration fundec funheader globaldec params param
+%type <node> program declarations declaration fundec funheader fundef globaldec params param funbody
 %type <node> stmts stmt assign declare if while do for
 
 %start program
@@ -68,9 +68,13 @@ declarations: declaration declarations { $$ = TBmakeDeclarations( $1, $2); }
             ;
 
 declaration: fundec    { $$ = $1; }
+           | fundef    { $$ = $1; }
            | globaldec { $$ = $1; }
            
 fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundec($2); }
+
+fundef: funheader CURLY_L funbody CURLY_R        { $$ = TBmakeFundef( FALSE, $1, $3); }
+      | EXPORT funheader CURLY_L funbody CURLY_R { $$ = TBmakeFundef( TRUE, $2, $4); }
 
 funheader: INT_TYPE ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( TBmakeInt(), TBmakeId($2), NULL); }
       | FLOAT_TYPE ID BRACKET_L BRACKET_R         { $$ = TBmakeFunheader( TBmakeFloat(), TBmakeId($2), NULL); }
@@ -93,7 +97,8 @@ params: param COMMA params { $$ = TBmakeParams( $1, $3); }
       
 param: INT_TYPE ID { $$ = TBmakeParam( TBmakeInt(), NULL, TBmakeId($2)); }
 
-         
+funbody: stmts { $$ = TBmakeFunbody(NULL, NULL, $1); } 
+
          
 stmts: stmt stmts { $$ = TBmakeStatements( $1, $2); }
      | stmt       { $$ = TBmakeStatements( $1, NULL); }
