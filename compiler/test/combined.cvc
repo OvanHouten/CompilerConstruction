@@ -5,3 +5,6 @@ extern void main4();
 extern int main5(int a);
 extern int main6(int a, int b);
 
+extern int bla1; 
+extern float bla2; 
+extern bool bla3; 
