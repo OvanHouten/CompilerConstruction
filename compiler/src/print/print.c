@@ -120,43 +120,6 @@ node *PRTid(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTint(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTint");
-
-	INDENT(arg_info);
-	printf("int ");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTfloat (node * arg_node, info * arg_info)
-{
-  DBUG_ENTER ("PRTfloat");
-
-  INDENT(arg_info);
-  printf( "float ");
-
-  DBUG_RETURN (arg_node);
-}
-
-node *PRTbool (node * arg_node, info * arg_info)
-{
-  DBUG_ENTER ("PRTbool");
-
-  INDENT(arg_info);
-  printf("bool ");
-
-  DBUG_RETURN (arg_node);
-}
-node *PRTvoid(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTvoid");
-
-	INDENT(arg_info);
-	printf("void ");
-
-	DBUG_RETURN(arg_node);
-}
-
 node *PRTparams(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTparams");
 
@@ -178,6 +141,42 @@ node *PRTparam(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
+node *PRTint(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTint");
+
+	INDENT(arg_info);
+	printf("int ");
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTfloat (node * arg_node, info * arg_info) {
+  DBUG_ENTER ("PRTfloat");
+
+  INDENT(arg_info);
+  printf( "float ");
+
+  DBUG_RETURN (arg_node);
+}
+
+node *PRTbool (node * arg_node, info * arg_info) {
+  DBUG_ENTER ("PRTbool");
+
+  INDENT(arg_info);
+  printf("bool ");
+
+  DBUG_RETURN (arg_node);
+}
+
+node *PRTvoid(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTvoid");
+
+	INDENT(arg_info);
+	printf("void ");
+
+	DBUG_RETURN(arg_node);
+}
+
 
 
 
@@ -185,7 +184,7 @@ node *PRTparam(node * arg_node, info * arg_info) {
 
 node *PRTdeclaration(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTdeclaration");
-
+printf("=============================\n");
 	DBUG_RETURN(arg_node);
 }
 
