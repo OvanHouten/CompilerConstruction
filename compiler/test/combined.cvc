@@ -4,6 +4,12 @@ extern bool main3();
 extern void main4();
 extern int main5(int a);
 extern int main6(int a, int b);
+extern float main7(int a);
+extern float main8(int a, int b);
+extern bool main9(int a);
+extern bool main10(int a, int b);
+extern void main11(int a);
+extern void main12(int a, int b);
 
 extern int bla1; 
 extern float bla2; 
