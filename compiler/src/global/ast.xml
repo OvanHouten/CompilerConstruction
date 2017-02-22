@@ -92,7 +92,9 @@
     <nodeset name="RetType">
   	  <target>
   	    <node name="Void"/>
-  	    <node name="BasicType"/>
+        <node name="Bool"/>
+        <node name="Int"/>
+        <node name="Float"/>
   	  </target>
   	</nodeset>
   	
@@ -332,7 +334,7 @@
           <description>Returntype of function</description>
           <targets>
             <target mandatory="yes">
-              <node name="RetType" />
+              <set name="RetType" />
               <phases>
                 <all />
               </phases>
@@ -1221,17 +1223,6 @@
       <sons>
       </sons>
       <attributes>
-        <attribute name="Value">
-          <type name="Void">
-            <targets>
-              <target mandatory="yes">
-                 <phases>
-                  <all />
-                </phases>
-             </target>
-            </targets>
-          </type>
-        </attribute>
       </attributes>
     </node>
     

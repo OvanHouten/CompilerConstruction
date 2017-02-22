@@ -37,7 +37,10 @@
 "do"                       { FILTER( DO); }
 "while"                    { FILTER( WHILE); }
 "for"                      { FILTER( FOR); }
+"extern"                   { FILTER( EXTERN); }
+"export"                   { FILTER( EXPORT); }
 
+"void"                     { FILTER( VOID); }
 "int"                      { FILTER( INT_TYPE); }
 "float"                    { FILTER( FLOAT_TYPE) }
 "bool"                     { FILTER( BOOL_TYPE) }
@@ -75,6 +78,7 @@
                              FILTER( ID);
                            }
 
+#.*$                        { /* empty */ }
 \/\/.*$                     { /* empty */ }
 "/*"([^*]|(\*+[^*/]))*\*+\/ { /* empty */ }
 
@@ -82,6 +86,9 @@
                              FILTER( NUM);
                            }
 
+-?[1-9][0-9]*\.[0-9]*      { yylval.cint=atof(yytext);
+                             FILTER( FLOAT);
+                           }
 \n.*                       { global.line += 1;
                              global.col = 0;
                              yyless(1);

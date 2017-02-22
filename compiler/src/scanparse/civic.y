@@ -44,7 +44,8 @@ static int yyerror( char *errname);
 %left  CURLY_L CURLY_R
 %left  BRACKET_L BRACKET_R
 
-%token INT_TYPE FLOAT_TYPE BOOL_TYPE
+%token EXTERN EXPORT
+%token INT_TYPE FLOAT_TYPE BOOL_TYPE VOID
 %token COMMA SEMICOLON
 %token TRUEVAL FALSEVAL
 
@@ -52,14 +53,22 @@ static int yyerror( char *errname);
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> intval floatval boolval constant expr
+%type <node> intval floatval boolval constant expr declarations declaration fundec
 %type <node> stmts stmt assign declare if while do for program
 
 %start program
 
 %%
 
-program: stmts { parseresult = TBmakeProgram( $1); }
+program: declarations { parseresult = TBmakeProgram( $1); }
+
+declarations: declaration declarations { $$ = TBmakeDeclarations( $1, $2); }
+            | declaration              { $$ = TBmakeDeclarations( $1, NULL); }
+            ;
+
+declaration: fundec { $$ = $1; }
+
+fundec: INT_TYPE ID BRACKET_L BRACKET_R SEMICOLON { $$ = TBmakeFundec( TBmakeFunheader( TBmakeInt(), TBmakeId($2), NULL)); }
 
 stmts: stmt stmts { $$ = TBmakeStatements( $1, $2); }
      | stmt       { $$ = TBmakeStatements( $1, NULL); }
