@@ -12,6 +12,10 @@ export int onlyStatement(bool a) {
 }
 int main() {
 	int a;
+	int aa;
 	int b = 1;
+	int bb = 1;
+	int c;
 	a = b;
+	aa = bb;
 }

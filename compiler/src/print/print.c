@@ -128,16 +128,69 @@ node *PRTfundef(node * arg_node, info * arg_info) {
 		printf("export ");
 	}
 	TRAVdo(FUNDEF_FUNHEADER(arg_node), arg_info);
-	printf(" {");
+	printf(" {\n");
 	INCREASE_INDENTATION(arg_info);
 
 	TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
 	DECREASE_INDENTATION(arg_info);
-	printf("\n}\n");
+	printf("}\n");
 	INDENT_AT_NEWLINE(arg_info);
 
 	DBUG_RETURN(arg_node);
+}
+
+node *PRTfunbody(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTfunbody");
+
+	TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
+	TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTvardecs(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTvardecs");
+
+	TRAVdo(VARDECS_VARDEC(arg_node), arg_info);
+	printf(";\n");
+	INDENT_AT_NEWLINE(arg_info);
+	TRAVopt(VARDECS_NEXT(arg_node), arg_info);
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTvardec(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTvardec");
+
+	INDENT(arg_info);
+	TRAVdo(VARDEC_TYPE(arg_node), arg_info);
+	TRAVdo(VARDEC_ID(arg_node), arg_info);
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTstatements(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTstatements");
+
+	TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
+    printf(";\n");
+    INDENT_AT_NEWLINE(arg_info);
+	TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTassign (node * arg_node, info * arg_info)
+{
+  DBUG_ENTER ("PRTassign");
+
+  INDENT(arg_info);
+  TRAVdo( ASSIGN_LET( arg_node), arg_info);
+  printf( " = ");
+  TRAVdo( ASSIGN_EXPR( arg_node), arg_info);
+
+  DBUG_RETURN (arg_node);
 }
 
 node *PRTid(node * arg_node, info * arg_info) {
@@ -210,9 +263,49 @@ node *PRTvoid(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
+node *PRTintconst(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTintconst");
+
+	printf("%d", INTCONST_VALUE(arg_node));
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTfloatconst(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTfloatconst");
+
+	printf("%f", FLOATCONST_VALUE(arg_node));
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTboolconst(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTboolconst");
+
+	printf("%s", INTCONST_VALUE(arg_node) ? "true" : "false");
+
+	DBUG_RETURN(arg_node);
+}
 
 
 // Obsolete ???
+
+node *PRTexpr(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTexpr");
+
+	printf("expr");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTstatement(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTstatement");
+
+	DBUG_RETURN(arg_node);
+}
+
+
 
 node *PRTdeclaration(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTdeclaration");
@@ -245,25 +338,7 @@ node *PRTbasictype(node * arg_node, info * arg_info) {
 
 
 
-node *PRTfunbody(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTfunbody");
 
-	DBUG_RETURN(arg_node);
-}
-
-
-node *PRTvardec(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTvardec");
-
-	DBUG_RETURN(arg_node);
-}
-
-
-node *PRTstatement(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTstatement");
-
-	DBUG_RETURN(arg_node);
-}
 
 
 node *PRTfuncall(node * arg_node, info * arg_info) {
@@ -294,25 +369,7 @@ node *PRTblock(node * arg_node, info * arg_info) {
 }
 
 
-node *PRTexpr(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTexpr");
 
-	DBUG_RETURN(arg_node);
-}
-
-
-
-node *PRTstatements(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTstatements");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTvardecs(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTvardecs");
-
-	DBUG_RETURN(arg_node);
-}
 
 node *PRTexpressions(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTexpressions");
@@ -393,25 +450,6 @@ node *PRTarithop (node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTintconst(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTintconst");
-
-	DBUG_RETURN(arg_node);
-}
-
-
-node *PRTfloatconst(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTfloatconst");
-
-	DBUG_RETURN(arg_node);
-}
-
-
-node *PRTboolconst(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTboolconst");
-
-	DBUG_RETURN(arg_node);
-}
 
 
 
@@ -549,36 +587,6 @@ PRTvardeclare (node * arg_node, info * arg_info)
   DBUG_RETURN (arg_node);
 }
 
-/** <!--******************************************************************-->
- *
- * @fn PRTassign
- *
- * @brief Prints the node and its sons/attributes
- *
- * @param arg_node BinOp node to process
- * @param arg_info pointer to info structure
- *
- * @return processed node
- *
- ***************************************************************************/
-
-node *
-PRTassign (node * arg_node, info * arg_info)
-{
-  DBUG_ENTER ("PRTassign");
-
-//  if (ASSIGN_LET( arg_node) != NULL) {
-//    ASSIGN_LET( arg_node) = TRAVdo( ASSIGN_LET( arg_node), arg_info);
-//    printf( " = ");
-//  }
-//
-//  ASSIGN_EXPR( arg_node) = TRAVdo( ASSIGN_EXPR( arg_node), arg_info);
-//
-//  printf( ";\n");
-//  INDENT_AT_NEWLINE(arg_info);
-  
-  DBUG_RETURN (arg_node);
-}
 
 
 /** <!--******************************************************************-->
