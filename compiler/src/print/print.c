@@ -74,7 +74,7 @@ node *PRTprogram(node * arg_node, info * arg_info) {
 
 	TRAVdo(PROGRAM_DECLARATION(arg_node), arg_info);
 
-	printf("\nThat's all folks....\n\n");
+	printf("\n//That's all folks....\n\n");
 
 	DBUG_RETURN(arg_node);
 }
