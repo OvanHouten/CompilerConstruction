@@ -210,6 +210,73 @@ node *PRTexpressions(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
+
+node *PRTexprs(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTexpressions");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTglobalvardef(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTglobalvardef");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTglobalarrdef(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTglobalarrdef");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTarrexpr(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTarrexpr");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTarrayassign(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTarrayassign");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTarrdata(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTarrdata");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTarray(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTarray");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTids(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTids");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+node *PRTarrexprs(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTarrexprs");
+
+	DBUG_RETURN(arg_node);
+}
+
+
+
+
+
 node *PRTarithop (node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTarithop");
 

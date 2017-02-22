@@ -73,13 +73,15 @@ stmts: stmt stmts { $$ = TBmakeStatements( $1, $2); }
 		| for     { $$ = $1; }
 		;         
 
-declare: INT_TYPE ID SEMICOLON   { $$ = TBmakeVardec( TBmakeInt(), TBmakeId( $2)); }
-       | FLOAT_TYPE ID SEMICOLON { $$ = TBmakeVardec( TBmakeFloat(), TBmakeId( $2)); }
-       | BOOL_TYPE ID SEMICOLON  { $$ = TBmakeVardec( TBmakeBool(), TBmakeId( $2)); }
+declare: INT_TYPE ID SEMICOLON   { $$ = TBmakeVardec( TBmakeInt(), NULL, TBmakeId( $2), NULL); }
+       | FLOAT_TYPE ID SEMICOLON { $$ = TBmakeVardec( TBmakeFloat(), NULL, TBmakeId( $2), NULL); }
+       | BOOL_TYPE ID SEMICOLON  { $$ = TBmakeVardec( TBmakeBool(), NULL, TBmakeId( $2), NULL); }
        ;
 
-assign: INT_TYPE ID LET expr SEMICOLON   { $$ = TBmakeAssign( TBmakeVardec( TBmakeId( $2)S, TY_bool), $4); }
-      | ID LET expr SEMICOLON            { $$ = TBmakeAssign( TBmakeVar( $1), $3); }
+assign: INT_TYPE ID LET expr SEMICOLON   { $$ = TBmakeAssign( TBmakeVardec( TBmakeInt(), NULL, TBmakeId( $2), NULL), $4); }
+      | FLOAT_TYPE ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeVardec( TBmakeFloat(), NULL, TBmakeId( $2), NULL), $4); }
+      | BOOL_TYPE ID LET expr SEMICOLON  { $$ = TBmakeAssign( TBmakeVardec( TBmakeBool(), NULL, TBmakeId( $2), NULL), $4); }
+      | ID LET expr SEMICOLON            { $$ = TBmakeAssign( TBmakeId( $1), $3); }
       ;
 
 if:		IF BRACKET_L expr BRACKET_R stmt { $$ = TBmakeIf( $3, $5, NULL ); }
@@ -91,10 +93,10 @@ do:   DO CURLY_L stmts CURLY_R WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = T
 
 while: WHILE BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeWhile($3, $6); }
 
-for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R stmt { $$ = TBmakeFor( TBmakeVar( $4), $6, $8, NULL, $10); }
-   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeFor( TBmakeVar( $4), $6, $8, NULL, $11); }
-   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R stmt { $$ = TBmakeFor( TBmakeVar( $4), $6, $8, $10, $12); }
-   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeFor( TBmakeVar( $4), $6, $8, $10, $13); }
+for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R stmt { $$ = TBmakeFor( TBmakeId( $4), $6, $8, NULL, $10); }
+   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeFor( TBmakeId( $4), $6, $8, NULL, $11); }
+   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R stmt { $$ = TBmakeFor( TBmakeId( $4), $6, $8, $10, $12); }
+   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeFor( TBmakeId( $4), $6, $8, $10, $13); }
    ;
 
 expr: BRACKET_L expr BRACKET_R { $$ = $2; }
@@ -113,7 +115,7 @@ expr: BRACKET_L expr BRACKET_R { $$ = $2; }
     | expr GT expr      { $$ = TBmakeRelop( RO_gt, $1, $3); }
     | expr AND expr     { $$ = TBmakeLogicop( LO_and, $1, $3); }
     | expr OR expr      { $$ = TBmakeLogicop( LO_or, $1, $3); }
-    | ID                { $$ = TBmakeVar( STRcpy( $1)); }
+    | ID                { $$ = TBmakeId( STRcpy( $1)); }
     | constant          { $$ = $1; }
     ;
 
@@ -124,7 +126,7 @@ constant: floatval { $$ = $1; }
  
 floatval: FLOAT { $$ = TBmakeFloat( $1); }
 
-intval:   NUM { $$ = TBmakeNum( $1); }
+intval:   NUM { $$ = TBmakeIntconst( $1, TBmakeInt()); }
 
 boolval:  TRUEVAL  { $$ = TBmakeBool( TRUE); }
        |  FALSEVAL { $$ = TBmakeBool( FALSE); }

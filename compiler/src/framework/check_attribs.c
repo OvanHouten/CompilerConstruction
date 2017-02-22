@@ -171,3 +171,22 @@ CHKMattribExtLink( node * attr, info * arg_info)
   DBUG_RETURN( attr);
 }
 
+/********************************************************************
+ *
+ * @fn CHKMattribVoid
+ *
+ * @brief Touch Void attribute
+ *
+ * @param attr Void node to process
+ * @param arg_info arg_info structure
+ *
+ * @return entire attribute
+ *
+ ***************************************************************************/
+void    *CHKMattribVoid(void *attr, info * arg_info)
+{
+  DBUG_ENTER( "CHKMattribVoid");
+
+  DBUG_RETURN( attr);
+}
+

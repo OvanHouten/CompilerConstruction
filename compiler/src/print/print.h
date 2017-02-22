@@ -39,6 +39,16 @@ extern node *PRTparams(node * arg_node, info * arg_info);
 extern node *PRTvardecs(node * arg_node, info * arg_info);
 extern node *PRTexpressions(node * arg_node, info * arg_info);
 
+extern node *PRTexprs(node * arg_node, info * arg_info);
+extern node *PRTglobalvardef(node * arg_node, info * arg_info);
+extern node *PRTglobalarrdef(node * arg_node, info * arg_info);
+extern node *PRTarrexpr(node * arg_node, info * arg_info);
+extern node *PRTarrayassign(node * arg_node, info * arg_info);
+extern node *PRTarrdata(node * arg_node, info * arg_info);
+extern node *PRTarray(node * arg_node, info * arg_info);
+extern node *PRTids(node * arg_node, info * arg_info);
+extern node *PRTarrexprs(node * arg_node, info * arg_info);
+
 extern node *PRTdeclaration(node * arg_node, info * arg_info);
 extern node *PRTfundec(node * arg_node, info * arg_info);
 extern node *PRTfundef(node * arg_node, info * arg_info);

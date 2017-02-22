@@ -99,3 +99,22 @@ FREEattribLink (node *attr, node * parent)
   DBUG_RETURN (NULL);
 }
 
+/********************************************************************
+ *
+ * @fn FREEattribLink
+ *
+ * @brief Frees String attribute
+ *
+ * @param attr String node to process
+ * @param parent parent node
+ *
+ * @return result of Free call, usually NULL
+ *
+ ***************************************************************************/
+void    *FREEattribVoid(void *attr, node * parent)
+{
+  DBUG_ENTER ("FREEattribVoid");
+
+  DBUG_RETURN (NULL);
+}
+
