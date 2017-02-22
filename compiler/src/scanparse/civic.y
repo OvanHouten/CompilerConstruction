@@ -54,8 +54,8 @@ static int yyerror( char *errname);
 %token <id> ID
 
 %type <node> intval floatval boolval constant expr
-%type <node> program declarations declaration fundec funheader fundef globaldec params param funbody
-%type <node> stmts stmt assign declare if while do for
+%type <node> program declarations declaration fundec funheader fundef globaldec params param funbody vardecs vardec
+%type <node> stmts stmt assign if while do for
 
 %start program
 
@@ -95,34 +95,42 @@ params: param COMMA params { $$ = TBmakeParams( $1, $3); }
       | param              { $$ = TBmakeParams( $1, NULL); }
       ;
       
-param: INT_TYPE ID { $$ = TBmakeParam( TBmakeInt(), NULL, TBmakeId($2)); }
+param: INT_TYPE ID   { $$ = TBmakeParam( TBmakeInt(), NULL, TBmakeId($2)); }
+     | FLOAT_TYPE ID { $$ = TBmakeParam( TBmakeFloat(), NULL, TBmakeId($2)); }
+     | BOOL_TYPE ID  { $$ = TBmakeParam( TBmakeBool(), NULL, TBmakeId($2)); }
 
-funbody: stmts { $$ = TBmakeFunbody(NULL, NULL, $1); } 
+funbody: vardecs stmts { $$ = TBmakeFunbody($1, NULL, $2); } 
+       | vardecs       { $$ = TBmakeFunbody($1, NULL, NULL); } 
+       | stmts         { $$ = TBmakeFunbody(NULL, NULL, $1); }
+       |               { $$ = TBmakeFunbody(NULL, NULL, NULL); }
+       ;
 
          
 stmts: stmt stmts { $$ = TBmakeStatements( $1, $2); }
      | stmt       { $$ = TBmakeStatements( $1, NULL); }
      ;
 
- stmt:    declare { $$ = $1; }
-        | assign  { $$ = $1; }
+vardecs: vardec vardecs { $$ = TBmakeVardecs( $1, $2); }
+       | vardec         { $$ = TBmakeVardecs( $1, NULL); }
+	   ;
+       
+vardec: INT_TYPE ID SEMICOLON            { $$ = TBmakeVardec( TBmakeInt(), NULL, TBmakeId( $2), NULL); }
+	  | FLOAT_TYPE ID SEMICOLON          { $$ = TBmakeVardec( TBmakeFloat(), NULL, TBmakeId( $2), NULL); }
+	  | BOOL_TYPE ID SEMICOLON           { $$ = TBmakeVardec( TBmakeBool(), NULL, TBmakeId( $2), NULL); }
+	  | INT_TYPE ID LET expr SEMICOLON   { $$ = TBmakeAssign( TBmakeVardec( TBmakeInt(), NULL, TBmakeId( $2), NULL), $4); }
+	  | FLOAT_TYPE ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeVardec( TBmakeFloat(), NULL, TBmakeId( $2), NULL), $4); }
+	  | BOOL_TYPE ID LET expr SEMICOLON  { $$ = TBmakeAssign( TBmakeVardec( TBmakeBool(), NULL, TBmakeId( $2), NULL), $4); }
+	  ;
+
+assign: ID LET expr SEMICOLON             { $$ = TBmakeAssign( TBmakeId( $1), $3); }
+
+stmt:  assign    { $$ = $1; }  
 		| if      { $$ = $1; }
 		| do      { $$ = $1; }
 		| while   { $$ = $1; }
 		| for     { $$ = $1; }
 		;         
-
-declare: INT_TYPE ID SEMICOLON   { $$ = TBmakeVardec( TBmakeInt(), NULL, TBmakeId( $2), NULL); }
-       | FLOAT_TYPE ID SEMICOLON { $$ = TBmakeVardec( TBmakeFloat(), NULL, TBmakeId( $2), NULL); }
-       | BOOL_TYPE ID SEMICOLON  { $$ = TBmakeVardec( TBmakeBool(), NULL, TBmakeId( $2), NULL); }
-       ;
-
-assign: INT_TYPE ID LET expr SEMICOLON   { $$ = TBmakeAssign( TBmakeVardec( TBmakeInt(), NULL, TBmakeId( $2), NULL), $4); }
-      | FLOAT_TYPE ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeVardec( TBmakeFloat(), NULL, TBmakeId( $2), NULL), $4); }
-      | BOOL_TYPE ID LET expr SEMICOLON  { $$ = TBmakeAssign( TBmakeVardec( TBmakeBool(), NULL, TBmakeId( $2), NULL), $4); }
-      | ID LET expr SEMICOLON            { $$ = TBmakeAssign( TBmakeId( $1), $3); }
-      ;
-
+		
 if:		IF BRACKET_L expr BRACKET_R stmt { $$ = TBmakeIf( $3, $5, NULL ); }
       | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeIf( $3, $6, NULL ); }
       | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R ELSE CURLY_L stmts CURLY_R { $$ = TBmakeIf( $3, $6, $10 ); }

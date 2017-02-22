@@ -1,6 +1,17 @@
-int gcdinternal(int a, int b) {
-	a = b;
+int empty() {
 }
-export int gcdexport(int a, int b) {
+void singleParam(int a) {
+}
+export void multipleParams(int a, float b) {
+}
+int onlyDecs(int a, int b) {
+	int c;
+}
+export int onlyStatement(bool a) {
+	c = d;
+}
+int main() {
+	int a;
+	int b = 1;
 	a = b;
 }
