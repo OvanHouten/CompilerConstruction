@@ -79,16 +79,18 @@ fundec: EXTERN INT_TYPE ID BRACKET_L BRACKET_R SEMICOLON          { $$ = TBmakeF
       | EXTERN VOID ID BRACKET_L params BRACKET_R SEMICOLON       { $$ = TBmakeFundec( TBmakeFunheader( TBmakeVoid(), TBmakeId($3), $5)); }
       ;
       
+globaldec: EXTERN INT_TYPE ID SEMICOLON   { $$ = TBmakeGlobaldec( TBmakeInt(), NULL, TBmakeId($3)); }
+         | EXTERN FLOAT_TYPE ID SEMICOLON { $$ = TBmakeGlobaldec( TBmakeFloat(), NULL, TBmakeId($3)); }
+         | EXTERN BOOL_TYPE ID SEMICOLON  { $$ = TBmakeGlobaldec( TBmakeBool(), NULL, TBmakeId($3)); }
+         ;
+
 params: param COMMA params { $$ = TBmakeParams( $1, $3); }
       | param              { $$ = TBmakeParams( $1, NULL); }
       ;
       
 param: INT_TYPE ID { $$ = TBmakeParam( TBmakeInt(), NULL, TBmakeId($2)); }
 
-globaldec: EXTERN INT_TYPE ID SEMICOLON   { $$ = TBmakeGlobaldec( TBmakeInt(), NULL, TBmakeId($3)); }
-         | EXTERN FLOAT_TYPE ID SEMICOLON { $$ = TBmakeGlobaldec( TBmakeFloat(), NULL, TBmakeId($3)); }
-         | EXTERN BOOL_TYPE ID SEMICOLON  { $$ = TBmakeGlobaldec( TBmakeBool(), NULL, TBmakeId($3)); }
-         ;
+         
          
 stmts: stmt stmts { $$ = TBmakeStatements( $1, $2); }
      | stmt       { $$ = TBmakeStatements( $1, NULL); }
