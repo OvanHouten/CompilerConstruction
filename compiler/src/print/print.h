@@ -23,6 +23,14 @@ extern node *PRTfunbody(node * arg_node, info * arg_info);
 extern node *PRTvardecs(node * arg_node, info * arg_info);
 extern node *PRTstatements(node * arg_node, info * arg_info);
 extern node *PRTassign (node * arg_node, info * arg_info);
+extern node *PRTif (node * arg_node, info * arg_info);
+extern node *PRTwhile (node * arg_node, info * arg_info);
+extern node *PRTdo (node * arg_node, info * arg_info);
+extern node *PRTfor (node * arg_node, info * arg_info);
+
+extern node *PRTrelop (node * arg_node, info * arg_info);
+extern node *PRTarithop (node * arg_node, info * arg_info);
+extern node *PRTlogicop (node * arg_node, info * arg_info);
 
 extern node *PRTid(node * arg_node, info * arg_info);
 
@@ -70,16 +78,9 @@ extern node *PRTglobaldef(node * arg_node, info * arg_info);
 extern node *PRTstmts (node * arg_node, info * arg_info);
 extern node *PRTvardeclares (node * arg_node, info * arg_info);
 extern node *PRTvardeclare (node * arg_node, info * arg_info);
-extern node *PRTif (node * arg_node, info * arg_info);
-extern node *PRTwhile (node * arg_node, info * arg_info);
-extern node *PRTdo (node * arg_node, info * arg_info);
-extern node *PRTfor (node * arg_node, info * arg_info);
 extern node *PRTvar (node * arg_node, info * arg_info);
 extern node *PRTbinop (node * arg_node, info * arg_info);
 
-extern node *PRTarithop (node * arg_node, info * arg_info);
-extern node *PRTrelop (node * arg_node, info * arg_info);
-extern node *PRTlogicop (node * arg_node, info * arg_info);
 
 extern node *PRTlocalfundef(node * arg_node, info * arg_info);
 extern node *PRTlocalfundefs(node * arg_node, info * arg_info);

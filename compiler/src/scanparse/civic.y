@@ -124,7 +124,7 @@ vardec: INT_TYPE ID SEMICOLON            { $$ = TBmakeVardec( TBmakeInt(), NULL,
 
 assign: ID LET expr SEMICOLON             { $$ = TBmakeAssign( TBmakeId( $1), $3); }
 
-stmt:  assign    { $$ = $1; }  
+stmt:  assign     { $$ = $1; }  
 		| if      { $$ = $1; }
 		| do      { $$ = $1; }
 		| while   { $$ = $1; }

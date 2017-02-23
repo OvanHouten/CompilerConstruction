@@ -33,6 +33,21 @@ int main() {
 	int b = 1;
 	int bb = 1;
 	int c;
+	a = 2 + 3 * 4;
 	a = b;
 	aa = bb;
+	if (aa > bb) {
+		bb =aa;
+	} else {
+		aa=bb;
+	}
+	while (aa != bb) {
+		bb = bb + 1;
+	}
+	do {
+		aaa = bbb;
+		for (int q = 4, aa) {
+			bb = c;
+		}
+	} while (a != c && c > d);
 }
