@@ -350,7 +350,6 @@ node *PRTarithop (node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-
 node *PRTlogicop (node * arg_node, info * arg_info)
 {
 	DBUG_ENTER("PRTlogicop");
@@ -376,6 +375,31 @@ node *PRTlogicop (node * arg_node, info * arg_info)
 
 	DBUG_RETURN(arg_node);
 }
+
+node * PRTunop (node * arg_node, info * arg_info)
+{
+  char *tmp;
+
+  DBUG_ENTER ("PRTunop");
+
+  switch (UNOP_OP( arg_node)) {
+    case UO_neg:
+      tmp = "-";
+      break;
+    case UO_not:
+      tmp = "!";
+      break;
+    case UO_unknown:
+      DBUG_ASSERT( 0, "unknown unop detected!");
+  }
+
+  printf( "%s(", tmp);
+  UNOP_RIGHT( arg_node) = TRAVdo( UNOP_RIGHT( arg_node), arg_info);
+  printf( ")");
+
+  DBUG_RETURN (arg_node);
+}
+
 
 node *PRTid(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTid");
@@ -917,44 +941,6 @@ node * PRTbinop (node * arg_node, info * arg_info)
   DBUG_RETURN (arg_node);
 }
 
-/** <!--******************************************************************-->
- *
- * @fn PRTunop
- *
- * @brief Prints the node and its sons/attributes
- *
- * @param arg_node UnOp node to process
- * @param arg_info pointer to info structure
- *
- * @return processed node
- *
- ***************************************************************************/
-
-node * PRTunop (node * arg_node, info * arg_info)
-{
-//  char *tmp;
-
-  DBUG_ENTER ("PRTunop");
-
-//  switch (UNOP_OP( arg_node)) {
-//    case UO_neg:
-//      tmp = "-";
-//      break;
-//    case UO_not:
-//      tmp = "!";
-//      break;
-//    case UO_unknown:
-//      DBUG_ASSERT( 0, "unknown unop detected!");
-//  }
-//
-//  printf( "(%s(", tmp);
-//
-//  UNOP_RIGHT( arg_node) = TRAVdo( UNOP_RIGHT( arg_node), arg_info);
-//
-//  printf( "))");
-
-  DBUG_RETURN (arg_node);
-}
 
 
 

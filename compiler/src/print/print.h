@@ -31,6 +31,7 @@ extern node *PRTfor (node * arg_node, info * arg_info);
 extern node *PRTrelop (node * arg_node, info * arg_info);
 extern node *PRTarithop (node * arg_node, info * arg_info);
 extern node *PRTlogicop (node * arg_node, info * arg_info);
+extern node *PRTunop (node * arg_node, info * arg_info);
 
 extern node *PRTid(node * arg_node, info * arg_info);
 
@@ -85,7 +86,6 @@ extern node *PRTbinop (node * arg_node, info * arg_info);
 extern node *PRTlocalfundef(node * arg_node, info * arg_info);
 extern node *PRTlocalfundefs(node * arg_node, info * arg_info);
 
-extern node *PRTunop (node * arg_node, info * arg_info);
 extern node *PRTnum (node * arg_node, info * arg_info);
 extern node *PRTreturn (node * arg_node, info * arg_info);
 extern node *PRTsymboltableentry (node * arg_node, info * arg_info);

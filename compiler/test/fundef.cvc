@@ -13,8 +13,8 @@ export int onlyStatement(bool a) {
 int main() {
 	int a;
 	int aa;
-	int b = 1;
-	int bb = 1;
+	int b = -1;
+	int bb = !1;
 	float q = 2 + 3 * 4;
 	int c;
 	a = 2 + 3 * 4;
