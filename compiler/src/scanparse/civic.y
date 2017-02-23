@@ -121,8 +121,6 @@ vardec: INT_TYPE ID SEMICOLON            { $$ = TBmakeVardec( TBmakeInt(), NULL,
 	  | BOOL_TYPE ID LET expr SEMICOLON  { $$ = TBmakeAssign( TBmakeVardec( TBmakeBool(), NULL, TBmakeId( $2), NULL), $4); }
 	  ;
 
-assign: ID LET expr SEMICOLON             { $$ = TBmakeAssign( TBmakeId( $1), $3); }
-
 stmt: assign { $$ = $1; }  
 	| if     { $$ = $1; }
 	| do     { $$ = $1; }
@@ -130,9 +128,12 @@ stmt: assign { $$ = $1; }
 	| for    { $$ = $1; }
 	| return { $$ = $1; }
 	;         
-		
-if: IF BRACKET_L expr BRACKET_R stmt { $$ = TBmakeIf( $3, $5, NULL ); }
-  | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeIf( $3, $6, NULL ); }
+
+assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId( $1), $3); }
+
+
+if: IF BRACKET_L expr BRACKET_R stmt                                             { $$ = TBmakeIf( $3, $5, NULL ); }
+  | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R                            { $$ = TBmakeIf( $3, $6, NULL ); }
   | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R ELSE CURLY_L stmts CURLY_R { $$ = TBmakeIf( $3, $6, $10 ); }
   ;
 
@@ -140,9 +141,9 @@ do:   DO CURLY_L stmts CURLY_R WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = T
 
 while: WHILE BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeWhile($3, $6); }
 
-for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R stmt { $$ = TBmakeFor( TBmakeId( $4), $6, $8, NULL, $10); }
-   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeFor( TBmakeId( $4), $6, $8, NULL, $11); }
-   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R stmt { $$ = TBmakeFor( TBmakeId( $4), $6, $8, $10, $12); }
+for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R stmt                             { $$ = TBmakeFor( TBmakeId( $4), $6, $8, NULL, $10); }
+   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R CURLY_L stmts CURLY_R            { $$ = TBmakeFor( TBmakeId( $4), $6, $8, NULL, $11); }
+   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R stmt                  { $$ = TBmakeFor( TBmakeId( $4), $6, $8, $10, $12); }
    | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeFor( TBmakeId( $4), $6, $8, $10, $13); }
    ;
    
