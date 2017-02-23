@@ -384,7 +384,7 @@
           <description>Type of variable</description>
           <targets>
             <target mandatory="yes">
-              <node name="Type" />
+              <set name="Type" />
               <phases>
                 <all />
               </phases>
