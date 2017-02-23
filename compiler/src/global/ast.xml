@@ -654,7 +654,7 @@
           <description>To be assigned expression</description>
           <targets>
             <target mandatory="no">
-              <node name="Expr" />
+              <set name="Expr" />
                 <phases>
                   <all />
                 </phases>
