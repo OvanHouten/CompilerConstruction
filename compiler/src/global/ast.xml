@@ -137,13 +137,18 @@
     <nodeset name="Expr">
       <target>
         <node name="Expr" />
-        <node name="BinOp" />
+        <node name="ArithOp" />
+        <node name="RelOp" />
+        <node name="LogicOp" />
         <node name="UnOp" />
         <node name="TypeCast" />
         <node name="Funcall" />
         <node name="Id" />
         <node name="Const" />
         <node name="Array" />
+        <node name="IntConst" />
+        <node name="FloatConst" />
+        <node name="BoolConst" />
       </target>
     </nodeset>
     
@@ -160,6 +165,13 @@
         <node name="RelOp" />
         <node name="LogicOp" />
       </target>
+    </nodeset>
+    
+    <nodeset name="Id">
+        <target>
+            <node name="Id" />
+            <node name="VarDec" />
+        </target>
     </nodeset>
 
 	<nodeset name="Const">
@@ -738,7 +750,7 @@
           <description>Left hand side variable; can be missing to represent procedure calls</description>
           <targets>
             <target mandatory="no">
-              <node name="Id" />
+              <set name="Id" />
                 <phases>
                   <all />
                 </phases>

@@ -1,6 +1,5 @@
 %{
 
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -116,9 +115,9 @@ vardecs: vardec vardecs { $$ = TBmakeVardecs( $1, $2); }
 vardec: INT_TYPE ID SEMICOLON            { $$ = TBmakeVardec( TBmakeInt(), NULL, TBmakeId( $2), NULL); }
 	  | FLOAT_TYPE ID SEMICOLON          { $$ = TBmakeVardec( TBmakeFloat(), NULL, TBmakeId( $2), NULL); }
 	  | BOOL_TYPE ID SEMICOLON           { $$ = TBmakeVardec( TBmakeBool(), NULL, TBmakeId( $2), NULL); }
-	  | INT_TYPE ID LET expr SEMICOLON   { $$ = TBmakeAssign( TBmakeVardec( TBmakeInt(), NULL, TBmakeId( $2), NULL), $4); }
-	  | FLOAT_TYPE ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeVardec( TBmakeFloat(), NULL, TBmakeId( $2), NULL), $4); }
-	  | BOOL_TYPE ID LET expr SEMICOLON  { $$ = TBmakeAssign( TBmakeVardec( TBmakeBool(), NULL, TBmakeId( $2), NULL), $4); }
+	  | INT_TYPE ID LET expr SEMICOLON   { $$ = TBmakeVardec( TBmakeInt(), NULL, TBmakeId( $2), $4); }
+	  | FLOAT_TYPE ID LET expr SEMICOLON { $$ = TBmakeVardec( TBmakeFloat(), NULL, TBmakeId( $2), $4); }
+	  | BOOL_TYPE ID LET expr SEMICOLON  { $$ = TBmakeVardec( TBmakeBool(), NULL, TBmakeId( $2), $4); }
 	  ;
 
 stmt: assign { $$ = $1; }  
