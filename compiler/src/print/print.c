@@ -1024,6 +1024,15 @@ node *PRTreturn (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTreturn");
 
+  INDENT(arg_info);
+  printf("return");
+  if (RETURN_EXPR(arg_node)) {
+	  printf(" ");
+	  TRAVdo(RETURN_EXPR(arg_node), arg_info);
+  }
+  printf(";\n");
+  INDENT_AT_NEWLINE(arg_info);
+
   DBUG_RETURN (arg_node);
 }
 

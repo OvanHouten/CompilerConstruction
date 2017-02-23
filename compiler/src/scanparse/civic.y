@@ -31,7 +31,7 @@ static int yyerror( char *errname);
  node               *node;
 }
 
-%left  LET
+%right  LET
 %left  OR
 %left  AND
 %left  EQ NE
@@ -44,7 +44,7 @@ static int yyerror( char *errname);
 %left  CURLY_L CURLY_R
 %left  BRACKET_L BRACKET_R
 
-%token EXTERN EXPORT
+%token EXTERN EXPORT RETURN
 %token INT_TYPE FLOAT_TYPE BOOL_TYPE VOID
 %token COMMA SEMICOLON
 %token TRUEVAL FALSEVAL
@@ -55,7 +55,7 @@ static int yyerror( char *errname);
 
 %type <node> intval floatval boolval constant expr
 %type <node> program declarations declaration fundec funheader fundef globaldec params param funbody vardecs vardec
-%type <node> stmts stmt assign if while do for
+%type <node> stmts stmt assign if while do for return
 
 %start program
 
@@ -128,6 +128,7 @@ stmt: assign { $$ = $1; }
 	| do     { $$ = $1; }
 	| while  { $$ = $1; }
 	| for    { $$ = $1; }
+	| return { $$ = $1; }
 	;         
 		
 if: IF BRACKET_L expr BRACKET_R stmt { $$ = TBmakeIf( $3, $5, NULL ); }
@@ -144,6 +145,9 @@ for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R stmt { $$ = TBmakeF
    | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R stmt { $$ = TBmakeFor( TBmakeId( $4), $6, $8, $10, $12); }
    | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeFor( TBmakeId( $4), $6, $8, $10, $13); }
    ;
+   
+return: RETURN SEMICOLON      { $$ = TBmakeReturn(NULL); }
+      | RETURN expr SEMICOLON { $$ = TBmakeReturn( $2); }
 
 expr: BRACKET_L expr BRACKET_R { $$ = $2; }
     | NOT expr          { $$ = TBmakeUnop( UO_not, $2); }

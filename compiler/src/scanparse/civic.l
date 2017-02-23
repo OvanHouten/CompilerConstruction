@@ -39,6 +39,7 @@
 "for"                      { FILTER( FOR); }
 "extern"                   { FILTER( EXTERN); }
 "export"                   { FILTER( EXPORT); }
+"return"                   { FILTER( RETURN); }
 
 "void"                     { FILTER( VOID); }
 "int"                      { FILTER( INT_TYPE); }
