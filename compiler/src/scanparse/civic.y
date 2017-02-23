@@ -105,7 +105,6 @@ funbody: vardecs stmts { $$ = TBmakeFunbody($1, NULL, $2); }
        |               { $$ = TBmakeFunbody(NULL, NULL, NULL); }
        ;
 
-         
 stmts: stmt stmts { $$ = TBmakeStatements( $1, $2); }
      | stmt       { $$ = TBmakeStatements( $1, NULL); }
      ;
@@ -124,17 +123,17 @@ vardec: INT_TYPE ID SEMICOLON            { $$ = TBmakeVardec( TBmakeInt(), NULL,
 
 assign: ID LET expr SEMICOLON             { $$ = TBmakeAssign( TBmakeId( $1), $3); }
 
-stmt:  assign     { $$ = $1; }  
-		| if      { $$ = $1; }
-		| do      { $$ = $1; }
-		| while   { $$ = $1; }
-		| for     { $$ = $1; }
-		;         
+stmt: assign { $$ = $1; }  
+	| if     { $$ = $1; }
+	| do     { $$ = $1; }
+	| while  { $$ = $1; }
+	| for    { $$ = $1; }
+	;         
 		
-if:		IF BRACKET_L expr BRACKET_R stmt { $$ = TBmakeIf( $3, $5, NULL ); }
-      | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeIf( $3, $6, NULL ); }
-      | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R ELSE CURLY_L stmts CURLY_R { $$ = TBmakeIf( $3, $6, $10 ); }
-      ;
+if: IF BRACKET_L expr BRACKET_R stmt { $$ = TBmakeIf( $3, $5, NULL ); }
+  | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeIf( $3, $6, NULL ); }
+  | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R ELSE CURLY_L stmts CURLY_R { $$ = TBmakeIf( $3, $6, $10 ); }
+  ;
 
 do:   DO CURLY_L stmts CURLY_R WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = TBmakeDo($7, $3); }
 
