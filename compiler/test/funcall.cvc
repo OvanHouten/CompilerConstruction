@@ -1,0 +1,11 @@
+//extern printi(int a);
+
+int main() {
+	int a = 3;
+	bool b = printb(4 && -8);
+	printi();
+	printi(a);
+	printi(a, 3 > 4);
+	b = printb();
+	b = printb(4 && !8);
+}

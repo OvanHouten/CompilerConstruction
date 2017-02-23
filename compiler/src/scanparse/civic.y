@@ -38,8 +38,7 @@ static int yyerror( char *errname);
 %left  PLUS MINUS
 %left  STAR SLASH PERCENT
 %right NOT
-%token IF ELSE WHILE FOR
-%right DO
+%token IF ELSE DO WHILE FOR
 %left  CURLY_L CURLY_R
 %left  BRACKET_L BRACKET_R
 
@@ -52,8 +51,8 @@ static int yyerror( char *errname);
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> intval floatval boolval constant expr
-%type <node> program declarations declaration fundec funheader fundef globaldec params param funbody vardecs vardec
+%type <node> intval floatval boolval constant expr exprs
+%type <node> program declarations declaration fundec funheader fundef globaldec params param funbody vardecs vardec funcall
 %type <node> stmts stmt assign if while do for return
 
 %start program
@@ -120,16 +119,19 @@ vardec: INT_TYPE ID SEMICOLON            { $$ = TBmakeVardec( TBmakeInt(), NULL,
 	  | BOOL_TYPE ID LET expr SEMICOLON  { $$ = TBmakeVardec( TBmakeBool(), NULL, TBmakeId( $2), $4); }
 	  ;
 
-stmt: assign { $$ = $1; }  
-	| if     { $$ = $1; }
-	| do     { $$ = $1; }
-	| while  { $$ = $1; }
-	| for    { $$ = $1; }
-	| return { $$ = $1; }
+stmt: assign  { $$ = $1; }  
+	| if      { $$ = $1; }
+	| do      { $$ = $1; }
+	| while   { $$ = $1; }
+	| for     { $$ = $1; }
+	| return  { $$ = $1; }
+	| funcall SEMICOLON { $$ = $1; }
 	;         
 
 assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId( $1), $3); }
 
+funcall: ID BRACKET_L BRACKET_R       { $$ = TBmakeFuncall( TBmakeId($1), NULL); }
+       | ID BRACKET_L exprs BRACKET_R { $$ = TBmakeFuncall( TBmakeId($1), $3); }
 
 if: IF BRACKET_L expr BRACKET_R stmt                                             { $$ = TBmakeIf( $3, $5, NULL ); }
   | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R                            { $$ = TBmakeIf( $3, $6, NULL ); }
@@ -148,8 +150,12 @@ for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R stmt               
    
 return: RETURN SEMICOLON      { $$ = TBmakeReturn(NULL); }
       | RETURN expr SEMICOLON { $$ = TBmakeReturn( $2); }
+      
+exprs: expr COMMA exprs { $$ = TBmakeExprs( $1, $3); }
+     | expr             { $$ = TBmakeExprs( $1, NULL); }
 
-expr: BRACKET_L expr BRACKET_R { $$ = $2; }
+expr: BRACKET_L expr BRACKET_R     { $$ = $2; }
+    | funcall                      { $$ = $1; }
     | NOT expr          { $$ = TBmakeUnop( UO_not, $2); }
     | MINUS expr        { $$ = TBmakeUnop( UO_neg, $2); }
     | expr MINUS expr   { $$ = TBmakeArithop( AO_sub, $1, $3); }

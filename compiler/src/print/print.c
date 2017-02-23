@@ -186,6 +186,17 @@ node *PRTassign (node * arg_node, info * arg_info)
   DBUG_RETURN (arg_node);
 }
 
+node *PRTfuncall(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTfuncall");
+
+	TRAVdo(FUNCALL_ID(arg_node), arg_info);
+	printf("(");
+	TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
+	printf(")");
+
+	DBUG_RETURN(arg_node);
+}
+
 node *PRTif (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTif");
@@ -630,12 +641,6 @@ node *PRTbasictype(node * arg_node, info * arg_info) {
 
 
 
-node *PRTfuncall(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTfuncall");
-
-	DBUG_RETURN(arg_node);
-}
-
 
 node *PRTtypecast(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTtypecast");
@@ -669,7 +674,11 @@ node *PRTexpressions(node * arg_node, info * arg_info) {
 
 node *PRTexprs(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTexpressions");
-
+	TRAVdo(EXPRS_EXPR(arg_node), arg_info);
+	if (EXPRS_NEXT(arg_node)) {
+		printf(", ");
+		TRAVdo(EXPRS_NEXT(arg_node), arg_info);
+	}
 	DBUG_RETURN(arg_node);
 }
 
