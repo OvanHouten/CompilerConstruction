@@ -15,6 +15,24 @@ extern int bla1;
 extern float bla2; 
 extern bool bla3; 
 
-int gcd(int a, int b) {
+int empty() {
+}
+void singleParam(int a) {
+}
+export void multipleParams(int a, float b) {
+}
+int onlyDecs(int a, int b) {
+	int c;
+}
+export int onlyStatement(bool a) {
+	c = d;
+}
+int main() {
+	int a;
+	int aa;
+	int b = 1;
+	int bb = 1;
+	int c;
 	a = b;
+	aa = bb;
 }
