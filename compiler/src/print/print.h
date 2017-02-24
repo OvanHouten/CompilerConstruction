@@ -81,8 +81,6 @@ extern node *PRTdeclaration(node * arg_node, info * arg_info);
 extern node *PRTfundec(node * arg_node, info * arg_info);
 extern node *PRTglobaldec(node * arg_node, info * arg_info);
 extern node *PRTstmts (node * arg_node, info * arg_info);
-extern node *PRTvardeclares (node * arg_node, info * arg_info);
-extern node *PRTvardeclare (node * arg_node, info * arg_info);
 
 extern node *PRTlocalfundef(node * arg_node, info * arg_info);
 extern node *PRTlocalfundefs(node * arg_node, info * arg_info);
