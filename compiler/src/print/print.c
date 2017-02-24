@@ -327,6 +327,16 @@ node *PRTfor (node * arg_node, info * arg_info)
   DBUG_RETURN (arg_node);
 }
 
+node *PRTexprs(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTexpressions");
+	TRAVdo(EXPRS_EXPR(arg_node), arg_info);
+	if (EXPRS_NEXT(arg_node)) {
+		printf(", ");
+		TRAVdo(EXPRS_NEXT(arg_node), arg_info);
+	}
+	DBUG_RETURN(arg_node);
+}
+
 node *PRTrelop (node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTrelop");
 
@@ -625,9 +635,6 @@ node *PRTdoPrint( node *syntaxtree)
   DBUG_RETURN( syntaxtree);
 }
 
-// Only needed because we defined a node
-
-
 // Obsolete ???
 
 
@@ -668,13 +675,6 @@ node *PRTbasictype(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-
-
-
-
-
-
-
 node *PRTconst(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTconst");
 
@@ -684,17 +684,6 @@ node *PRTconst(node * arg_node, info * arg_info) {
 node *PRTexpressions(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTexpressions");
 
-	DBUG_RETURN(arg_node);
-}
-
-
-node *PRTexprs(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTexpressions");
-	TRAVdo(EXPRS_EXPR(arg_node), arg_info);
-	if (EXPRS_NEXT(arg_node)) {
-		printf(", ");
-		TRAVdo(EXPRS_NEXT(arg_node), arg_info);
-	}
 	DBUG_RETURN(arg_node);
 }
 
@@ -754,18 +743,6 @@ node *PRTarrexprs(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 node *PRTlocalfundef(node * arg_node, info * arg_info)
 {
 	DBUG_ENTER("PRTlocalfundef");
@@ -780,29 +757,11 @@ node *PRTlocalfundefs(node * arg_node, info * arg_info)
 	DBUG_RETURN(arg_node);
 }
 
-
-/** <!--******************************************************************-->
- *
- * @fn PRTstmts
- *
- * @brief Prints the node and its sons/attributes
- *
- * @param arg_node BinOp node to process
- * @param arg_info pointer to info structure
- *
- * @return processed node
- *
- ***************************************************************************/
-
 node *
 PRTstmts (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTstmts");
 
-//  STMTS_STMT( arg_node) = TRAVdo( STMTS_STMT( arg_node), arg_info);
-//
-//  STMTS_NEXT( arg_node) = TRAVopt( STMTS_NEXT( arg_node), arg_info);
-  
   DBUG_RETURN (arg_node);
 }
 
@@ -852,23 +811,6 @@ node *
 PRTvardeclare (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTvardeclare");
-
-//  INDENT(arg_info);
-//  char *typeName;
-//  switch (VARDECLARE_TYPE(arg_node)) {
-//  case TY_int:
-//	  typeName = "int ";
-//	  break;
-//  case TY_float:
-//	  typeName = "float ";
-//	  break;
-//  case TY_bool:
-//	  typeName = "bool ";
-//	  break;
-//  default:
-//	  typeName = "FAILURE "; // Need to handle this properly!
-//  }
-//  printf( "%s%s", typeName, VARDECLARE_NAME( arg_node));
 
   DBUG_RETURN (arg_node);
 }

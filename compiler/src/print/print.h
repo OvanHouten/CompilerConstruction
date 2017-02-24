@@ -33,6 +33,8 @@ extern node *PRTwhile (node * arg_node, info * arg_info);
 extern node *PRTdo (node * arg_node, info * arg_info);
 extern node *PRTfor (node * arg_node, info * arg_info);
 
+extern node *PRTexprs(node * arg_node, info * arg_info);
+
 extern node *PRTrelop (node * arg_node, info * arg_info);
 extern node *PRTarithop (node * arg_node, info * arg_info);
 extern node *PRTlogicop (node * arg_node, info * arg_info);
@@ -56,9 +58,6 @@ extern node *PRTerror (node * arg_node, info * arg_info);
 
 extern node *PRTdoPrint( node *syntaxtree);
 
-// Only needed because we defined a node
-
-//extern node *PRTbinop (node * arg_node, info * arg_info);
 // Obsolete???
 
 extern node *PRTstatement(node * arg_node, info * arg_info);
@@ -69,7 +68,6 @@ extern node *PRTconst(node * arg_node, info * arg_info);
 
 extern node *PRTexpressions(node * arg_node, info * arg_info);
 
-extern node *PRTexprs(node * arg_node, info * arg_info);
 extern node *PRTglobalvardef(node * arg_node, info * arg_info);
 extern node *PRTglobalarrdef(node * arg_node, info * arg_info);
 extern node *PRTarrexpr(node * arg_node, info * arg_info);
