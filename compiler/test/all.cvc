@@ -6,3 +6,8 @@ extern int function();
 extern void empty();
 extern void singleParam(int a);
 extern void multiParams(int a, bool b);
+
+void internal() {
+}
+float floating(float a) {
+}
