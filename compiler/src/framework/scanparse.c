@@ -48,6 +48,7 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "scanparse.h"
 #include "dbug.h"
@@ -77,6 +78,10 @@ node *SPdoScanParse( node *syntax_tree)
   DBUG_ASSERT( syntax_tree == NULL, 
                "SPdoScanParse() called with existing syntax tree.");
   
+  if (getenv("C_INCLUDE_PATH") == NULL) {
+      CTIabort("Please make sure the environment variable C_INCLUDE_PATH points to a directory where the 'civic.h' header file can be found!");
+  }
+
   if (global.cpp) {
     filename = STRcatn( 3,
                         ".",
@@ -109,7 +114,7 @@ node *SPdoRunPreProcessor( node *syntax_tree)
   DBUG_ENTER("SPdoRunPreProcessor");
 
   cppcallstr = STRcatn( 5, 
-                        "gcc -E ",
+                        "gcc -E -x c ",
                         global.infile,
                         " > .",
                         global.infile,

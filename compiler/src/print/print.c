@@ -463,7 +463,7 @@ node *PRTid(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTid");
 
 	INDENT(arg_info);
-	printf(ID_NAME(arg_node));
+	printf("%s", ID_NAME(arg_node));
 
 	DBUG_RETURN(arg_node);
 }
