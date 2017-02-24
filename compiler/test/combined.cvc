@@ -59,4 +59,11 @@ int main() {
 	printi(a, 3 > 4);
 	b = printb();
 	b = printb(4 && !8);
+	b = printb(printi(4));
+}
+int typecast() {
+	int a = 4;
+	float b = (float) a;
+	float c = 4.2;
+	int d = (int) c;
 }
