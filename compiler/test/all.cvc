@@ -11,3 +11,7 @@ void internal() {
 }
 float floating(float a) {
 }
+export bool external() {
+}
+export int grade(int passing) {
+}
