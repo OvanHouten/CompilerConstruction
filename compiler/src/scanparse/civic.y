@@ -51,7 +51,7 @@ static int yyerror( char *errname);
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> program declarations declaration funheader type
+%type <node> program declarations declaration funheader type params param
 
 %start program
 
@@ -64,9 +64,16 @@ declarations: declaration declarations { $$ = TBmakeDeclarations( $1, $2); }
             ;
 
 declaration: EXTERN type ID SEMICOLON   { $$ = TBmakeGlobaldec( $2, NULL, TBmakeId($3)); }
-           | EXTERN funheader SEMICOLON { $$ = TBmakeFundec( $2); } 
+           | EXTERN funheader SEMICOLON { $$ = TBmakeFundec( $2); }
 
-funheader: type ID BRACKET_L BRACKET_R { $$ = TBmakeFunheader( $1, TBmakeId($2), NULL); }
+funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $1, TBmakeId($2), NULL); }
+         | type ID BRACKET_L params BRACKET_R { $$ = TBmakeFunheader( $1, TBmakeId($2), $4); }
+
+params: param COMMA params { $$ = TBmakeParams( $1, $3); }
+      | param              { $$ = TBmakeParams( $1, NULL); }
+      ;
+      
+param: type ID { $$ = TBmakeParam( $1, NULL, TBmakeId($2)); }
 
 type: INT_TYPE   { $$ = TBmakeInt(); }
     | FLOAT_TYPE { $$ = TBmakeFloat(); }
