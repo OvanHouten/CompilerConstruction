@@ -61,7 +61,7 @@ static info *FreeInfo( info *info)
 node *PRTprogram(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTprogram");
 
-	TRAVdo(PROGRAM_DECLARATION(arg_node), arg_info);
+	TRAVdo(PROGRAM_DECLARATIONS(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
 }

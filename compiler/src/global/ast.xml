@@ -161,7 +161,7 @@
      <node name="Program">
       <description>Represenst the program</description>
       <sons>
-        <son name="Declaration">
+        <son name="Declarations">
           <description>First Declaration is mandatory</description>
           <targets>
             <target mandatory="yes">
