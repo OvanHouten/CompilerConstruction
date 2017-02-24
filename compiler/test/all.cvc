@@ -1,0 +1,6 @@
+extern int bla1;
+extern float bla2;
+extern bool bla3;
+
+extern int function();
+extern void empty();
