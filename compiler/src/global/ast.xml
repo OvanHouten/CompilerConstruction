@@ -720,6 +720,30 @@
  -->
     <node name="Typecast" >
       <description>Typecast</description>
+      <sons>
+        <son name="Type">
+          <description>The type the expression must be typecasted to</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="BasicType" />
+              <phase>
+                <all />
+              </phase>
+            </target>
+          </targets>
+        </son>
+        <son name="Expr">
+          <description>The expression that must be typecasted</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+              <phase>
+                <all />
+              </phase>
+            </target>
+          </targets>
+        </son>
+      </sons>
     </node>
 
 <!--
@@ -1207,7 +1231,7 @@
           </type>
         </attribute>
         <attribute name="Decl">
-        <description>Link to symbol table entry</description>
+          <description>Link to symbol table entry</description>
           <type name="Link">
             <targets>
               <target mandatory="no">
@@ -1288,14 +1312,14 @@
       </sons>
       <attributes>
         <attribute name="Value">
-          <description>Value of Float</description>
+          <description>Value of Boolean</description>
           <type name="Float">
             <targets>
               <target mandatory="yes">
-              </target>
                  <phases>
                   <all />
                 </phases>
+              </target>
             </targets>
           </type>
         </attribute>

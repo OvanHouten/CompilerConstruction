@@ -186,6 +186,17 @@ node *PRTassign (node * arg_node, info * arg_info)
   DBUG_RETURN (arg_node);
 }
 
+node *PRTtypecast(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTtypecast");
+
+	printf("( ");
+	TRAVdo(TYPECAST_TYPE(arg_node), arg_info);
+	printf(") ");
+	TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
+
+	DBUG_RETURN(arg_node);
+}
+
 node *PRTfuncall(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfuncall");
 
@@ -501,7 +512,7 @@ node *PRTfloatconst(node * arg_node, info * arg_info) {
 node *PRTboolconst(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTboolconst");
 
-	printf("%s", INTCONST_VALUE(arg_node) ? "true" : "false");
+	printf("%s", BOOLCONST_VALUE(arg_node) ? "true" : "false");
 
 	DBUG_RETURN(arg_node);
 }
@@ -641,12 +652,6 @@ node *PRTbasictype(node * arg_node, info * arg_info) {
 
 
 
-
-node *PRTtypecast(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTtypecast");
-
-	DBUG_RETURN(arg_node);
-}
 
 
 node *PRTconst(node * arg_node, info * arg_info) {

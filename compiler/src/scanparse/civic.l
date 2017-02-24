@@ -87,7 +87,7 @@
                              FILTER( NUM);
                            }
 
--?[1-9][0-9]*\.[0-9]*      { yylval.cint=atof(yytext);
+-?[1-9][0-9]*\.[0-9]*      { yylval.cflt=atof(yytext);
                              FILTER( FLOAT);
                            }
 

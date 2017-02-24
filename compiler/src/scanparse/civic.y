@@ -52,7 +52,7 @@ static int yyerror( char *errname);
 %token <id> ID
 
 %type <node> intval floatval boolval constant expr exprs
-%type <node> program declarations declaration fundec funheader fundef globaldec params param funbody vardecs vardec funcall
+%type <node> program declarations declaration fundec funheader fundef globaldec params param funbody vardecs vardec funcall typecast basictype
 %type <node> stmts stmt assign if while do for return
 
 %start program
@@ -138,9 +138,9 @@ if: IF BRACKET_L expr BRACKET_R stmt                                            
   | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R ELSE CURLY_L stmts CURLY_R { $$ = TBmakeIf( $3, $6, $10 ); }
   ;
 
-do:   DO CURLY_L stmts CURLY_R WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = TBmakeDo($7, $3); }
+do:    DO CURLY_L stmts CURLY_R WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = TBmakeDo($7, $3); }
 
-while: WHILE BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeWhile($3, $6); }
+while: WHILE BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R              { $$ = TBmakeWhile($3, $6); }
 
 for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R stmt                             { $$ = TBmakeFor( TBmakeId( $4), $6, $8, NULL, $10); }
    | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R CURLY_L stmts CURLY_R            { $$ = TBmakeFor( TBmakeId( $4), $6, $8, NULL, $11); }
@@ -156,6 +156,7 @@ exprs: expr COMMA exprs { $$ = TBmakeExprs( $1, $3); }
 
 expr: BRACKET_L expr BRACKET_R     { $$ = $2; }
     | funcall                      { $$ = $1; }
+    | typecast                     { $$ = $1; }
     | NOT expr          { $$ = TBmakeUnop( UO_not, $2); }
     | MINUS expr        { $$ = TBmakeUnop( UO_neg, $2); }
     | expr MINUS expr   { $$ = TBmakeArithop( AO_sub, $1, $3); }
@@ -174,18 +175,25 @@ expr: BRACKET_L expr BRACKET_R     { $$ = $2; }
     | ID                { $$ = TBmakeId( STRcpy( $1)); }
     | constant          { $$ = $1; }
     ;
+    
+typecast: BRACKET_L basictype BRACKET_R expr { $$ = TBmakeTypecast( $2, $4); }
+
+basictype: INT_TYPE   { $$ = TBmakeInt(); }
+         | FLOAT_TYPE { $$ = TBmakeFloat(); }
+         | BOOL_TYPE  { $$ = TBmakeBool(); }
+         ;
 
 constant: floatval { $$ = $1; }
         | intval   { $$ = $1; }
         | boolval  { $$ = $1; }
         ;
  
-floatval: FLOAT { $$ = TBmakeFloat( $1); }
+floatval: FLOAT { $$ = TBmakeFloatconst( $1, TBmakeFloat()); }
 
 intval:   NUM { $$ = TBmakeIntconst( $1, TBmakeInt()); }
 
-boolval:  TRUEVAL  { $$ = TBmakeBool( TRUE); }
-       |  FALSEVAL { $$ = TBmakeBool( FALSE); }
+boolval:  TRUEVAL  { $$ = TBmakeBoolconst( TRUE, TBmakeBool()); }
+       |  FALSEVAL { $$ = TBmakeBoolconst( FALSE, TBmakeBool()); }
        ;
 		
 %%

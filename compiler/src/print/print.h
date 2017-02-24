@@ -24,6 +24,7 @@ extern node *PRTvardecs(node * arg_node, info * arg_info);
 
 extern node *PRTstatements(node * arg_node, info * arg_info);
 extern node *PRTassign (node * arg_node, info * arg_info);
+extern node *PRTtypecast(node * arg_node, info * arg_info);
 extern node *PRTfuncall(node * arg_node, info * arg_info);
 
 extern node *PRTif (node * arg_node, info * arg_info);
@@ -56,7 +57,6 @@ extern node *PRTstatement(node * arg_node, info * arg_info);
 extern node *PRTrettype(node * arg_node, info * arg_info);
 extern node *PRTtype(node * arg_node, info * arg_info);
 extern node *PRTbasictype(node * arg_node, info * arg_info);
-extern node *PRTtypecast(node * arg_node, info * arg_info);
 extern node *PRTconst(node * arg_node, info * arg_info);
 extern node *PRTblock(node * arg_node, info * arg_info);
 extern node *PRTexpr(node * arg_node, info * arg_info);
