@@ -166,8 +166,15 @@ node *PRTstatements(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTstatements");
 
 	TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
-    printf(";\n");
-    INDENT_AT_NEWLINE(arg_info);
+
+	switch (NODE_TYPE(STATEMENTS_STATEMENT(arg_node))) {
+	case N_assign:
+	case N_funcall:
+	    printf(";\n");
+	    INDENT_AT_NEWLINE(arg_info);
+	    break;
+	default:;
+	}
 
 	TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
 
@@ -251,6 +258,7 @@ node *PRTwhile (node * arg_node, info * arg_info)
   DECREASE_INDENTATION(arg_info);
   INDENT(arg_info);
   printf( "}\n");
+  INDENT_AT_NEWLINE(arg_info);
 
   DBUG_RETURN (arg_node);
 }

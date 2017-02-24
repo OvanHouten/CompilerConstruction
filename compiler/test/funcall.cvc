@@ -8,4 +8,5 @@ int main() {
 	printi(a, 3 > 4);
 	b = printb();
 	b = printb(4 && !8);
+	c = printb(printf(3.2));
 }
