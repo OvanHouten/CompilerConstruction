@@ -34,6 +34,7 @@ int main() {
 	int bb = 1;
 	float q = 2 + 3 * 4;
 	int c;
+	bool b = printb(4 && -8);
 	a = 2 + 3 * 4;
 	a = b;
 	aa = bb;
@@ -53,4 +54,9 @@ int main() {
 		}
 		return a - 1;
 	} while (a != c && c > d);
+	printi();
+	printi(a);
+	printi(a, 3 > 4);
+	b = printb();
+	b = printb(4 && !8);
 }
