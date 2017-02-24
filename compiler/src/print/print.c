@@ -174,6 +174,7 @@ node *PRTstatements(node * arg_node, info * arg_info) {
 	    INDENT_AT_NEWLINE(arg_info);
 	    break;
 	default:;
+		// No need to print a semicolon and force printing at the correct indentation level.
 	}
 
 	TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
