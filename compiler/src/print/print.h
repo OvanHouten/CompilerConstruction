@@ -26,6 +26,7 @@ extern node *PRTstatements(node * arg_node, info * arg_info);
 extern node *PRTassign (node * arg_node, info * arg_info);
 extern node *PRTtypecast(node * arg_node, info * arg_info);
 extern node *PRTfuncall(node * arg_node, info * arg_info);
+extern node *PRTreturn (node * arg_node, info * arg_info);
 
 extern node *PRTif (node * arg_node, info * arg_info);
 extern node *PRTwhile (node * arg_node, info * arg_info);
@@ -51,6 +52,13 @@ extern node *PRTintconst(node * arg_node, info * arg_info);
 extern node *PRTfloatconst(node * arg_node, info * arg_info);
 extern node *PRTboolconst(node * arg_node, info * arg_info);
 
+extern node *PRTerror (node * arg_node, info * arg_info);
+
+extern node *PRTdoPrint( node *syntaxtree);
+
+// Only needed because we defined a node
+
+//extern node *PRTbinop (node * arg_node, info * arg_info);
 // Obsolete???
 
 extern node *PRTstatement(node * arg_node, info * arg_info);
@@ -60,7 +68,6 @@ extern node *PRTbasictype(node * arg_node, info * arg_info);
 extern node *PRTconst(node * arg_node, info * arg_info);
 extern node *PRTblock(node * arg_node, info * arg_info);
 extern node *PRTexpr(node * arg_node, info * arg_info);
-
 
 extern node *PRTexpressions(node * arg_node, info * arg_info);
 
@@ -81,19 +88,9 @@ extern node *PRTglobaldef(node * arg_node, info * arg_info);
 extern node *PRTstmts (node * arg_node, info * arg_info);
 extern node *PRTvardeclares (node * arg_node, info * arg_info);
 extern node *PRTvardeclare (node * arg_node, info * arg_info);
-extern node *PRTvar (node * arg_node, info * arg_info);
-extern node *PRTbinop (node * arg_node, info * arg_info);
-
 
 extern node *PRTlocalfundef(node * arg_node, info * arg_info);
 extern node *PRTlocalfundefs(node * arg_node, info * arg_info);
 
-extern node *PRTnum (node * arg_node, info * arg_info);
-extern node *PRTreturn (node * arg_node, info * arg_info);
 extern node *PRTsymboltableentry (node * arg_node, info * arg_info);
-extern node *PRTmodule (node * arg_node, info * arg_info);
-extern node *PRTerror (node * arg_node, info * arg_info);
-
-extern node *PRTdoPrint( node *syntaxtree);
-
 #endif /* _SAC_PRT_NODE_H_ */

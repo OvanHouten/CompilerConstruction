@@ -59,12 +59,6 @@
         </travuser>
       </traversal>
 
-      <traversal id="OS" name="Optimise subtraction" default="sons" include="opt_sub.h">
-        <travuser>
-          <node name="BinOp" />
-        </travuser>
-      </traversal>
-
     </general>
   </phases>
 
@@ -156,14 +150,6 @@
       <target>
         <node name="ArrData" />
         <node name="Expr" />
-      </target>
-    </nodeset>
-    
-    <nodeset name="BinOp">
-      <target>
-        <node name="ArithOp" />
-        <node name="RelOp" />
-        <node name="LogicOp" />
       </target>
     </nodeset>
     
@@ -1076,12 +1062,6 @@
           </type>
         </attribute>
       </attributes>
-    </node>
-
-<!--
- Node BinOp:
--->
-    <node name="BinOp">
     </node>
 
 <!--

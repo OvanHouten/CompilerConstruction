@@ -79,4 +79,4 @@ print       = print.o
 
 codegen     = gen_byte_code.o
 
-demo        = rename_identifiers.o opt_sub.o sum_ints.o
+demo        = rename_identifiers.o sum_ints.o

@@ -205,6 +205,7 @@ node *PRTtypecast(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
+
 node *PRTfuncall(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfuncall");
 
@@ -214,6 +215,22 @@ node *PRTfuncall(node * arg_node, info * arg_info) {
 	printf(")");
 
 	DBUG_RETURN(arg_node);
+}
+
+node *PRTreturn (node * arg_node, info * arg_info)
+{
+  DBUG_ENTER ("PRTreturn");
+
+  INDENT(arg_info);
+  printf("return");
+  if (RETURN_EXPR(arg_node)) {
+	  printf(" ");
+	  TRAVdo(RETURN_EXPR(arg_node), arg_info);
+  }
+  printf(";\n");
+  INDENT_AT_NEWLINE(arg_info);
+
+  DBUG_RETURN (arg_node);
 }
 
 node *PRTif (node * arg_node, info * arg_info)
@@ -608,6 +625,9 @@ node *PRTdoPrint( node *syntaxtree)
   DBUG_RETURN( syntaxtree);
 }
 
+// Only needed because we defined a node
+
+
 // Obsolete ???
 
 node *PRTexpr(node * arg_node, info * arg_info) {
@@ -882,13 +902,7 @@ PRTvardeclare (node * arg_node, info * arg_info)
   DBUG_RETURN (arg_node);
 }
 
-
-
-
-
-
-
-/** <!--******************************************************************-->
+/*************************************************************************
  *
  * @fn PRTbinop
  *
@@ -900,155 +914,14 @@ PRTvardeclare (node * arg_node, info * arg_info)
  * @return processed node
  *
  ***************************************************************************/
-
 node * PRTbinop (node * arg_node, info * arg_info)
 {
-//  char *tmp;
 
   DBUG_ENTER ("PRTbinop");
 
-//  printf( "( ");
-//
-//  BINOP_LEFT( arg_node) = TRAVdo( BINOP_LEFT( arg_node), arg_info);
-//
-//  switch (BINOP_OP( arg_node)) {
-//    case BO_add:
-//      tmp = "+";
-//      break;
-//    case BO_sub:
-//      tmp = "-";
-//      break;
-//    case BO_mul:
-//      tmp = "*";
-//      break;
-//    case BO_div:
-//      tmp = "/";
-//      break;
-//    case BO_mod:
-//      tmp = "%";
-//      break;
-//    case BO_lt:
-//      tmp = "<";
-//      break;
-//    case BO_le:
-//      tmp = "<=";
-//      break;
-//    case BO_gt:
-//      tmp = ">";
-//      break;
-//    case BO_ge:
-//      tmp = ">=";
-//      break;
-//    case BO_eq:
-//      tmp = "==";
-//      break;
-//    case BO_ne:
-//      tmp = "!=";
-//      break;
-//    case BO_or:
-//      tmp = "||";
-//      break;
-//    case BO_and:
-//      tmp = "&&";
-//      break;
-//    case BO_unknown:
-//      DBUG_ASSERT( 0, "unknown binop detected!");
-//  }
-//
-//  printf( " %s ", tmp);
-//
-//  BINOP_RIGHT( arg_node) = TRAVdo( BINOP_RIGHT( arg_node), arg_info);
-//
-//  printf( ")");
-
   DBUG_RETURN (arg_node);
 }
 
-
-
-
-
-
-/** <!--******************************************************************-->
- *
- * @fn PRTnum
- *
- * @brief Prints the node and its sons/attributes
- *
- * @param arg_node Num node to process
- * @param arg_info pointer to info structure
- *
- * @return processed node
- *
- ***************************************************************************/
-
-node *
-PRTnum (node * arg_node, info * arg_info)
-{
-  DBUG_ENTER ("PRTnum");
-
-//  printf( "%i", NUM_VALUE( arg_node));
-
-  DBUG_RETURN (arg_node);
-}
-
-
-
-
-
-/** <!--******************************************************************-->
- *
- * @fn PRTvar
- *
- * @brief Prints the node and its sons/attributes
- *
- * @param arg_node letrec node to process
- * @param arg_info pointer to info structure
- *
- * @return processed node
- *
- ***************************************************************************/
-
-node *
-PRTvar (node * arg_node, info * arg_info)
-{
-  DBUG_ENTER ("PRTvar");
-
-//  INDENT(arg_info);
-//  printf( "%s", VAR_NAME( arg_node));
-
-  DBUG_RETURN (arg_node);
-}
-
-
-/** <!--******************************************************************-->
- *
- * @fn PRTreturn
- *
- * @brief Prints the node and its sons/attributes
- *
- * @param arg_node return node to process
- * @param arg_info pointer to info structure
- *
- * @return processed node
- *
- ***************************************************************************/
-
-node *PRTreturn (node * arg_node, info * arg_info)
-{
-  DBUG_ENTER ("PRTreturn");
-
-  INDENT(arg_info);
-  printf("return");
-  if (RETURN_EXPR(arg_node)) {
-	  printf(" ");
-	  TRAVdo(RETURN_EXPR(arg_node), arg_info);
-  }
-  printf(";\n");
-  INDENT_AT_NEWLINE(arg_info);
-
-  DBUG_RETURN (arg_node);
-}
 
 /** <!--******************************************************************-->
  *
