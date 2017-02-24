@@ -64,6 +64,8 @@ declarations: declaration declarations { $$ = TBmakeDeclarations( $1, $2); }
             ;
 
 declaration: EXTERN type ID SEMICOLON         { $$ = TBmakeGlobaldec( $2, NULL, TBmakeId($3)); }
+           | type ID SEMICOLON                { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), NULL); }
+           | EXPORT type ID SEMICOLON         { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), NULL); }
            | EXTERN funheader SEMICOLON       { $$ = TBmakeFundec( $2); }
            | funheader CURLY_L CURLY_R        { $$ = TBmakeFundef( FALSE, $1, NULL); }
            | EXPORT funheader CURLY_L CURLY_R { $$ = TBmakeFundef( TRUE, $2, NULL); }

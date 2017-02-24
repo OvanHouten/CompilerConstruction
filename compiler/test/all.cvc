@@ -7,6 +7,9 @@ extern void empty();
 extern void singleParam(int a);
 extern void multiParams(int a, bool b);
 
+int internalCount;
+export int externalCount;
+
 void internal() {
 }
 float floating(float a) {

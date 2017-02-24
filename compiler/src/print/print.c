@@ -663,6 +663,15 @@ node *PRTconst(node * arg_node, info * arg_info) {
 node *PRTglobalvardef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTglobalvardef");
 
+	printf("%s", GLOBALVARDEF_EXPORT(arg_node) ? "export " : "");
+	TRAVdo(GLOBALVARDEF_TYPE(arg_node), arg_info);
+	TRAVdo(GLOBALVARDEF_ID(arg_node), arg_info);
+	if (GLOBALVARDEF_EXPR(arg_node)) {
+	    printf(" = ");
+	    TRAVdo(GLOBALVARDEF_EXPR(arg_node), arg_info);
+	}
+	printf(";\n");
+
 	DBUG_RETURN(arg_node);
 }
 
