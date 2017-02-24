@@ -58,15 +58,10 @@ extern node *PRTerror (node * arg_node, info * arg_info);
 
 extern node *PRTdoPrint( node *syntaxtree);
 
-// Obsolete???
-
 extern node *PRTstatement(node * arg_node, info * arg_info);
 extern node *PRTrettype(node * arg_node, info * arg_info);
 extern node *PRTtype(node * arg_node, info * arg_info);
-extern node *PRTbasictype(node * arg_node, info * arg_info);
 extern node *PRTconst(node * arg_node, info * arg_info);
-
-extern node *PRTexpressions(node * arg_node, info * arg_info);
 
 extern node *PRTglobalvardef(node * arg_node, info * arg_info);
 extern node *PRTglobalarrdef(node * arg_node, info * arg_info);
@@ -77,10 +72,8 @@ extern node *PRTarray(node * arg_node, info * arg_info);
 extern node *PRTids(node * arg_node, info * arg_info);
 extern node *PRTarrexprs(node * arg_node, info * arg_info);
 
-extern node *PRTdeclaration(node * arg_node, info * arg_info);
 extern node *PRTfundec(node * arg_node, info * arg_info);
 extern node *PRTglobaldec(node * arg_node, info * arg_info);
-extern node *PRTstmts (node * arg_node, info * arg_info);
 
 extern node *PRTlocalfundef(node * arg_node, info * arg_info);
 extern node *PRTlocalfundefs(node * arg_node, info * arg_info);

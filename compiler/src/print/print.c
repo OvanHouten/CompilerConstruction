@@ -635,23 +635,12 @@ node *PRTdoPrint( node *syntaxtree)
   DBUG_RETURN( syntaxtree);
 }
 
-// Obsolete ???
-
 
 node *PRTstatement(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTstatement");
 
 	DBUG_RETURN(arg_node);
 }
-
-
-
-node *PRTdeclaration(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTdeclaration");
-printf("=============================\n");
-	DBUG_RETURN(arg_node);
-}
-
 
 node *PRTrettype(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTrettype");
@@ -661,16 +650,8 @@ node *PRTrettype(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-
 node *PRTtype(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTtype");
-
-	DBUG_RETURN(arg_node);
-}
-
-
-node *PRTbasictype(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTbasictype");
 
 	DBUG_RETURN(arg_node);
 }
@@ -681,26 +662,17 @@ node *PRTconst(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTexpressions(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTexpressions");
-
-	DBUG_RETURN(arg_node);
-}
-
-
 node *PRTglobalvardef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTglobalvardef");
 
 	DBUG_RETURN(arg_node);
 }
 
-
 node *PRTglobalarrdef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTglobalarrdef");
 
 	DBUG_RETURN(arg_node);
 }
-
 
 node *PRTarrexpr(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTarrexpr");
@@ -715,7 +687,6 @@ node *PRTarrayassign(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-
 node *PRTarrdata(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTarrdata");
 
@@ -729,13 +700,11 @@ node *PRTarray(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-
 node *PRTids(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTids");
 
 	DBUG_RETURN(arg_node);
 }
-
 
 node *PRTarrexprs(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTarrexprs");
@@ -757,15 +726,7 @@ node *PRTlocalfundefs(node * arg_node, info * arg_info)
 	DBUG_RETURN(arg_node);
 }
 
-node *
-PRTstmts (node * arg_node, info * arg_info)
-{
-  DBUG_ENTER ("PRTstmts");
-
-  DBUG_RETURN (arg_node);
-}
-
-/** <!--******************************************************************-->
+/*************************************************************************
  *
  * @fn PRTsymboltableentry
  *
@@ -784,5 +745,3 @@ node *PRTsymboltableentry (node * arg_node, info * arg_info)
 
   DBUG_RETURN (arg_node);
 }
-
-
