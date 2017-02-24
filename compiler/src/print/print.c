@@ -630,14 +630,6 @@ node *PRTdoPrint( node *syntaxtree)
 
 // Obsolete ???
 
-node *PRTexpr(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTexpr");
-
-	printf("expr");
-
-	DBUG_RETURN(arg_node);
-}
-
 
 node *PRTstatement(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTstatement");

@@ -117,7 +117,6 @@
         
     <nodeset name="Expr">
       <target>
-        <node name="Expr" />
         <node name="ArithOp" />
         <node name="RelOp" />
         <node name="LogicOp" />
@@ -136,7 +135,7 @@
     <nodeset name="ArrExpr">
       <target>
         <node name="ArrData" />
-        <node name="Expr" />
+        <set name="Expr" />
       </target>
     </nodeset>
     
@@ -983,12 +982,6 @@
     </node>
 
 <!--
-  Node Expr:
--->
-	<node name="Expr">
-	</node>
-	
-<!--
  Node ArtihOp:
 -->
     <node name="ArithOp">
@@ -1474,7 +1467,7 @@
           <description>Assignment of variable</description>
           <targets>
             <target mandatory="no">
-              <node name="Expr" />
+              <set name="Expr" />
               <phases>
                 <all />
               </phases>
@@ -1600,11 +1593,10 @@
           <description>Represents to be assigned expression</description>
           <targets>
             <target mandatory="yes">
-              <node name="Expr">
-                <phases>
-                  <all />
-                </phases>
-              </node>
+              <set name="Expr" />
+              <phases>
+                <all />
+              </phases>
             </target>
           </targets>
         </son>
