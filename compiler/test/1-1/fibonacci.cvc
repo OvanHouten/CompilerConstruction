@@ -1,61 +1,61 @@
 #include <civic.h>
 
 void printFib(int fib) {
-	printInt(fib);
-	printNewlines(1);
+    printInt(fib);
+    printNewlines(1);
 }
 
 int fibs(int numberOfFibsToPrint) {
-	int fib = 0;
-	int previousFib = 0;
-	int secondPreviousFib = 1;
+    int fib = 0;
+    int previousFib = 0;
+    int secondPreviousFib = 1;
 
-	if (numberOfFibsToPrint == 0) {
-		printFib(fib);
-	} else {
-		while (numberOfFibsToPrint > 0) {
-			printFib(fib);
+    if (numberOfFibsToPrint == 0) {
+        printFib(fib);
+    } else {
+        while (numberOfFibsToPrint > 0) {
+            printFib(fib);
 
-			fib = previousFib + secondPreviousFib;
-			secondPreviousFib = previousFib;
-			previousFib = fib;
+            fib = previousFib + secondPreviousFib;
+            secondPreviousFib = previousFib;
+            previousFib = fib;
 
-			numberOfFibsToPrint = numberOfFibsToPrint - 1;
-		}
-		fib = secondPreviousFib;
-	}
-	// Return the last Fibonacci number printed.
-	return fib;
+            numberOfFibsToPrint = numberOfFibsToPrint - 1;
+        }
+        fib = secondPreviousFib;
+    }
+    // Return the last Fibonacci number printed.
+    return fib;
 }
 
 export int main() {
-	// Prints the specified first Fibonacci numbers followed by a line that starts with the last printed Fibonacci number
-	// and the expected last Fibnacci number separated by a space.
+    // Prints the specified first Fibonacci numbers followed by a line that starts with the last printed Fibonacci number
+    // and the expected last Fibnacci number separated by a space.
 
-	printInt(fibs(1));
-	printSpaces(1);
-	printInt(0);
-	printNewlines(2);
+    printInt(fibs(1));
+    printSpaces(1);
+    printInt(0);
+    printNewlines(2);
 
-	printInt(fibs(2));
-	printSpaces(1);
-	printInt(1);
-	printNewlines(3);
+    printInt(fibs(2));
+    printSpaces(1);
+    printInt(1);
+    printNewlines(3);
 
-	printInt(fibs(3));
-	printSpaces(1);
-	printInt(1);
-	printNewlines(2);
+    printInt(fibs(3));
+    printSpaces(1);
+    printInt(1);
+    printNewlines(2);
 
-	printInt(fibs(5));
-	printSpaces(1);
-	printInt(3);
-	printNewlines(2);
+    printInt(fibs(5));
+    printSpaces(1);
+    printInt(3);
+    printNewlines(2);
 
-	printInt(fibs(8));
-	printSpaces(1);
-	printInt(13);
-	printNewlines(2);
+    printInt(fibs(8));
+    printSpaces(1);
+    printInt(13);
+    printNewlines(2);
 
-	return 0;
+    return 0;
 }

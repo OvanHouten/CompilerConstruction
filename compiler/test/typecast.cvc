@@ -1,6 +1,6 @@
 int main() {
-	int a = 4;
-	float b = (float) a;
-	float c = 4.2;
-	int d = (int) c;
+    int a = 4;
+    float b = (float) a;
+    float c = 4.2;
+    int d = (int) c;
 }

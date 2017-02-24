@@ -15,6 +15,6 @@ n=a;
 o = 2 < 3;
 
 do {
-	p = p && !p;
-	a = b + c;
+    p = p && !p;
+    a = b + c;
 } while (2 > 1);

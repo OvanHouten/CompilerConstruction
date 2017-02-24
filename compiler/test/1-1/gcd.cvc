@@ -1,51 +1,51 @@
 #include <civic.h>
 
 int gcd(int a, int b) {
-	// The GCD
-	int gcd;
-	// Temporary variable for swpping the parameters if a < b
-	int swap;
+    // The GCD
+    int gcd;
+    // Temporary variable for swpping the parameters if a < b
+    int swap;
 
-	// Fix any input error
-	if (a < b) {
-		swap = a;
-		a = b;
-		b = swap;
-	}
+    // Fix any input error
+    if (a < b) {
+        swap = a;
+        a = b;
+        b = swap;
+    }
 
-	// Euclid method
-	if (a % b == 0) {
-		gcd = b;
-	} else {
-		gcd = gcd(b, a % b);
-	}
+    // Euclid method
+    if (a % b == 0) {
+        gcd = b;
+    } else {
+        gcd = gcd(b, a % b);
+    }
 
-	return gcd;
+    return gcd;
 }
 
 export int main() {
-	// Prints the expected GCD and the calculates GCD separated by a space
-	
-	printInt(6);
-	printSpaces(1);
-	printInt(gcd(54, 24));
-	printNewlines(2);
+    // Prints the expected GCD and the calculates GCD separated by a space
 
-	printInt(6);
-	printSpaces(1);
-	printInt(gcd(24, 54));
-	printNewlines(2);
+    printInt(6);
+    printSpaces(1);
+    printInt(gcd(54, 24));
+    printNewlines(2);
 
-	printInt(1);
-	printSpaces(1);
-	printInt(gcd(13, 125));
-	printNewlines(2);
+    printInt(6);
+    printSpaces(1);
+    printInt(gcd(24, 54));
+    printNewlines(2);
 
-	printInt(4);
-	printSpaces(1);
-	printInt(gcd(8, 12));
-	printNewlines(2);
+    printInt(1);
+    printSpaces(1);
+    printInt(gcd(13, 125));
+    printNewlines(2);
 
-	return 0;
+    printInt(4);
+    printSpaces(1);
+    printInt(gcd(8, 12));
+    printNewlines(2);
+
+    return 0;
 }
 

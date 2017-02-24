@@ -1,25 +1,25 @@
 #include <civic.h>
 
 void scanMat(int[m, n] ints) {
-	for (int i = 0, m) {
-		for (int j = 0, n) {
-			ints[i, j] = scanInt();
-		}	
-	}
+    for (int i = 0, m) {
+        for (int j = 0, n) {
+            ints[i, j] = scanInt();
+        }
+    }
 }
 
 export int main() {
-	int m = 3;
-	int n = 2;
-	int[m, n] ints;
+    int m = 3;
+    int n = 2;
+    int[m, n] ints;
 
-	scanMat(ints);
+    scanMat(ints);
 
-	// TODO reuse printMat method
-	for (int i = 0, m) {
-		for (int j = 0, n) {
-			printInt(ints[i, j]);
-		}	
-	}
-	return 0;
+    // TODO reuse printMat method
+    for (int i = 0, m) {
+        for (int j = 0, n) {
+            printInt(ints[i, j]);
+        }
+    }
+    return 0;
 }

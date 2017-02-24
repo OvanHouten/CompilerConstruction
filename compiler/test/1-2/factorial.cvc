@@ -1,37 +1,36 @@
 #include <civic.h>
 
-
 export int main() {
-	int fac(int n) {
-		// For now we ignore any negative number :-)
-		if (n <= 1) {
-			n = 1;
-		} else {
-			n = n * fac(n - 1);
-		}
-		return n;
-	}
-	// Print the expected factorial and the calculated factorial seprated by a space.
+    int fac(int n) {
+        // For now we ignore any negative number :-)
+        if (n <= 1) {
+            n = 1;
+        } else {
+            n = n * fac(n - 1);
+        }
+        return n;
+    }
+    // Print the expected factorial and the calculated factorial seprated by a space.
 
-	printInt(1);
-	printSpaces(1);
-	printInt(fac(0));
-	printNewlines(2);
+    printInt(1);
+    printSpaces(1);
+    printInt(fac(0));
+    printNewlines(2);
 
-	printInt(1);
-	printSpaces(1);
-	printInt(fac(1));
-	printNewlines(2);
+    printInt(1);
+    printSpaces(1);
+    printInt(fac(1));
+    printNewlines(2);
 
-	printInt(6);
-	printSpaces(1);
-	printInt(fac(3));
-	printNewlines(2);
+    printInt(6);
+    printSpaces(1);
+    printInt(fac(3));
+    printNewlines(2);
 
-	printInt(120);
-	printSpaces(1);
-	printInt(fac(5));
-	printNewlines(2);
+    printInt(120);
+    printSpaces(1);
+    printInt(fac(5));
+    printNewlines(2);
 
-	return 0;
+    return 0;
 }

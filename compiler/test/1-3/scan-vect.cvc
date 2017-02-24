@@ -1,19 +1,19 @@
 #include <civic.h>
 
 void scanVect(int[n] ints) {
-	for (int i = 0, n) {
-		ints[i] = scanInt();
-	}
+    for (int i = 0, n) {
+        ints[i] = scanInt();
+    }
 }
 
 export int main() {
-	int[3] ints;
-	scanVect(ints);
+    int[3] ints;
+    scanVect(ints);
 
-	// TODO reuse printVec method
-	for (int i = 0, 3) {
-		printInt(ints[i]);
-	}
-	return 0;
+    // TODO reuse printVec method
+    for (int i = 0, 3) {
+        printInt(ints[i]);
+    }
+    return 0;
 }
 

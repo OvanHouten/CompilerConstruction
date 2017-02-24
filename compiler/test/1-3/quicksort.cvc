@@ -1,79 +1,79 @@
 #include <civic.h>
 
 void printIntLn(int n) {
-	printInt(n);
-	printNewlines(1);
+    printInt(n);
+    printNewlines(1);
 }
 
 void swap(int[n] elements, int i, int j) {
-	int temp = elements[i];
-	elements[i] = elements[j];
-	elements[j] = temp;
+    int temp = elements[i];
+    elements[i] = elements[j];
+    elements[j] = temp;
 }
 
 void quickSortInternal(int[n] elements, int left, int right) {
-	int pivotIndex = left;
-	int i = left;
-	int j = right - 1;
-	bool isUnsorted = true;
-	bool keepTrying;
+    int pivotIndex = left;
+    int i = left;
+    int j = right - 1;
+    bool isUnsorted = true;
+    bool keepTrying;
 
-	if (left < right) {
-		while (isUnsorted) {
-			keepTrying = true;
-			while (keepTrying && elements[i] < elements[pivotIndex]) {
-				i = i + 1;
-				if (i == right) {
-					keepTrying = false;
-				}
-			}
+    if (left < right) {
+        while (isUnsorted) {
+            keepTrying = true;
+            while (keepTrying && elements[i] < elements[pivotIndex]) {
+                i = i + 1;
+                if (i == right) {
+                    keepTrying = false;
+                }
+            }
 
-			keepTrying = true;
-			while (keepTrying && elements[j] > elements[pivotIndex]) {
-				j = j - 1;
-				if (j == left) {
-					keepTrying = false;
-				}
-			}
-			if (i >= j) {
-				isUnsorted = false;
-			} else {
-				swap(elements, i, j);
-				isUnsorted = true;
-			}
-		}
-		swap(elements, left, j);
-		quickSortInternal(elements, left, j - 1);
-		quickSortInternal(elements, j + 1, right);
-	}
+            keepTrying = true;
+            while (keepTrying && elements[j] > elements[pivotIndex]) {
+                j = j - 1;
+                if (j == left) {
+                    keepTrying = false;
+                }
+            }
+            if (i >= j) {
+                isUnsorted = false;
+            } else {
+                swap(elements, i, j);
+                isUnsorted = true;
+            }
+        }
+        swap(elements, left, j);
+        quickSortInternal(elements, left, j - 1);
+        quickSortInternal(elements, j + 1, right);
+    }
 }
 
 void quickSort(int[n] unsorted) {
-	quickSortInternal(unsorted, 0, n);
+    quickSortInternal(unsorted, 0, n);
 }
-	
+
 void printVec(int[n] ints) {
-	for (int i = 0, n) {
-		printInt(ints[i]);
-		printSpaces(1);
-	}	
-	printNewlines(1);
+    for (int i = 0, n) {
+        printInt(ints[i]);
+        printSpaces(1);
+    }
+    printNewlines(1);
 }
 
 export int main() {
-	int n = 8;
-	int[n] unsorted = [9, 8, 1, 2, 4, 6, 3, 0];
-	printVec(unsorted);
-	quickSort(unsorted);
-	printVec(unsorted);
+    int n = 8;
+    int[n] unsorted = [9, 8, 1, 2, 4, 6, 3, 0];
+    printVec(unsorted);
+    quickSort(unsorted);
+    printVec(unsorted);
 
-	unsorted = [8,7,6,5,4,3,2,1];
-	printVec(unsorted);
-	quickSort(unsorted);
-	printVec(unsorted);
+    unsorted = [8,7,6,5,4,3,2,1];
+    printVec(unsorted);
+    quickSort(unsorted);
+    printVec(unsorted);
 
-	quickSort(unsorted);
-	printVec(unsorted);
+    quickSort(unsorted);
+    printVec(unsorted);
 
-	return 0;
+    return 0;
 }

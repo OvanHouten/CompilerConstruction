@@ -1,55 +1,55 @@
 #include <civic.h>
 
 int primes(int numberOfPrimes) {
-	int primeCandidate = 1;
-	int lastPrime = 0;
+    int primeCandidate = 1;
+    int lastPrime = 0;
 
-	bool isPrime() {
-		int divider = 2;
-		bool isPrime = true;
+    bool isPrime() {
+        int divider = 2;
+        bool isPrime = true;
 
-		// No need to go past the square root of primeCandidate. Since CiviC does not have
-		// a square root method we test for the square our self
-		while (isPrime && divider*divider <= primeCandidate) {
-			if (primeCandidate % divider == 0) {
-				isPrime = false;
-			}
-			divider = divider + 1;
-		}
-		
-		return isPrime;
-	}
+        // No need to go past the square root of primeCandidate. Since CiviC does not have
+        // a square root method we test for the square our self
+        while (isPrime && divider*divider <= primeCandidate) {
+            if (primeCandidate % divider == 0) {
+                isPrime = false;
+            }
+            divider = divider + 1;
+        }
 
-	while (numberOfPrimes > 0) {
-		if (isPrime()) {
-			printInt(primeCandidate);
-			printNewlines(1);
-			lastPrime = primeCandidate;
-			numberOfPrimes = numberOfPrimes -1;
-		}
-		primeCandidate = primeCandidate + 1;
-	}
-	return lastPrime;
+        return isPrime;
+    }
+
+    while (numberOfPrimes > 0) {
+        if (isPrime()) {
+            printInt(primeCandidate);
+            printNewlines(1);
+            lastPrime = primeCandidate;
+            numberOfPrimes = numberOfPrimes - 1;
+        }
+        primeCandidate = primeCandidate + 1;
+    }
+    return lastPrime;
 }
 
 export int main() {
-	// Prints the specified first primesfollowed by a line that starts with the last printed prime
-	// and the expected last prima separated by a space.
-	
-	printInt(primes(1));
-	printSpaces(1);
-	printInt(1);
-	printNewlines(2);
+    // Prints the specified first primesfollowed by a line that starts with the last printed prime
+    // and the expected last prima separated by a space.
 
-	printInt(primes(2));
-	printSpaces(1);
-	printInt(2);
-	printNewlines(2);
+    printInt(primes(1));
+    printSpaces(1);
+    printInt(1);
+    printNewlines(2);
 
-	printInt(primes(10));
-	printSpaces(1);
-	printInt(23);
-	printNewlines(2);
+    printInt(primes(2));
+    printSpaces(1);
+    printInt(2);
+    printNewlines(2);
 
-	return 0;
+    printInt(primes(10));
+    printSpaces(1);
+    printInt(23);
+    printNewlines(2);
+
+    return 0;
 }

@@ -1,7 +1,7 @@
 a = (43-2);
 b = (true*7);
 c = ((a + b) - c); // Comment
-d = ((7-7) * 0); // More comment // and more
+d = ((7-7) * 0);   // More comment // and more
 e = (c - c);
 f = !7;
 bool g = !false;
@@ -27,47 +27,47 @@ if ( v < q) {
     zz = 1;
     qq = zz + 1;
 } else {
-	zz = zz / z;
+    zz = zz / z;
 }
 
 if ( v < q) {
-	if ( v < q) {
-	    zz = 1;
-	    qq = zz + 1;
-	} else {
-		zz = zz / z;
-	}
+    if ( v < q) {
+        zz = 1;
+        qq = zz + 1;
+    } else {
+        zz = zz / z;
+    }
 } else {
-	if ( v < q) {
-	    zz = 1;
-	    qq = zz + 1;
-	}
+    if ( v < q) {
+        zz = 1;
+        qq = zz + 1;
+    }
 }
 
 while (2 > 3) {
-	qq =q*2;
+    qq =q*2;
 }
 
 while (2 > 3) {
-	while (2 > 3) {
-		qq =q*2;
-	}
-	qq =q*2;
+    while (2 > 3) {
+        qq =q*2;
+    }
+    qq =q*2;
 }
 
 while (2 > 3) {
-	qq =q*2;
-	if ( v < q) {
-	    zz = 1;
-	    qq = zz + 1;
-	} else {
-		zz = zz / z;
-	}
+    qq =q*2;
+    if ( v < q) {
+        zz = 1;
+        qq = zz + 1;
+    } else {
+        zz = zz / z;
+    }
 }
 
 do {
     a = b;
-} while (3 == 5);
+}while (3 == 5);
 
 int bla = 1;
 
@@ -75,15 +75,15 @@ for ( int i = 0+1, 100) {
     aaa = aaa;
     aaa = aaa;
 }
-for ( int i = 0+1, 100) 
+for ( int i = 0+1, 100)
 aaa = aaa;
 bbb = bbb;
 
 for (int i = 0, 100)
-    for (int j = i, 100)
-        i = j;
-        j = i;
-        
+for (int j = i, 100)
+i = j;
+j = i;
+
 /*
  * Multi line comment
  */
