@@ -72,16 +72,10 @@
         <node name="FunDec"/>
         <node name="FunDef"/>
         <node name="GlobalDec"/>
-        <node name="GlobalDef"/>
+        <node name="GlobalVarDef"/>
+        <node name="GlobalArrDef"/>
       </target>
     </nodeset>
-    
-    <nodeset name="GlobalDef">
-  	  <target>
-  	    <node name="GlobalVarDef"/>
-  	    <node name="GlobalArrDef"/>
-  	  </target>
-  	</nodeset>
     
     <nodeset name="RetType">
   	  <target>
@@ -411,16 +405,6 @@
             </target>
           </targets>
         </son>
-      </sons>
-      <attributes>
-      </attributes>
-    </node>
-
-<!--
- Node GlobalDef:
--->
-    <node name="GlobalDef">
-      <sons>
       </sons>
       <attributes>
       </attributes>

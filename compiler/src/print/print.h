@@ -84,7 +84,6 @@ extern node *PRTarrexprs(node * arg_node, info * arg_info);
 extern node *PRTdeclaration(node * arg_node, info * arg_info);
 extern node *PRTfundec(node * arg_node, info * arg_info);
 extern node *PRTglobaldec(node * arg_node, info * arg_info);
-extern node *PRTglobaldef(node * arg_node, info * arg_info);
 extern node *PRTstmts (node * arg_node, info * arg_info);
 extern node *PRTvardeclares (node * arg_node, info * arg_info);
 extern node *PRTvardeclare (node * arg_node, info * arg_info);

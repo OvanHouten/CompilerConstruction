@@ -799,17 +799,6 @@ node *PRTlocalfundefs(node * arg_node, info * arg_info)
 }
 
 
-
-
-
-
-node *PRTglobaldef(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTglobalDef");
-
-	DBUG_RETURN(arg_node);
-}
-
-
 /** <!--******************************************************************-->
  *
  * @fn PRTstmts
