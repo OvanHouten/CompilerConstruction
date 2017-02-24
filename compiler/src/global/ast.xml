@@ -115,13 +115,6 @@
       </target>
     </nodeset>
         
-    <nodeset name="Block">
-      <target>
-        <node name="Statement" />
-        <node name="Statements" />
-      </target>
-    </nodeset>
-    
     <nodeset name="Expr">
       <target>
         <node name="Expr" />
@@ -728,13 +721,6 @@
     </node>
 
 <!--
- Node Block:
--->
-    <node name="Block">
-      <description>Represents (sequence of) statements, may be empty</description>
-    </node>
-
-<!--
  Node Assign:
 -->
      <node name="Assign">
@@ -788,7 +774,7 @@
           <description>To be excuted if the condition is true</description>
           <targets>
             <target mandatory="yes">
-              <set name="Block" />
+              <node name="Statements" />
                 <phases>
                   <all />
                 </phases>
@@ -799,7 +785,7 @@
           <description>Right hand side expression</description>
           <targets>
             <target mandatory="no">
-              <set name="Block" />
+              <node name="Statements" />
                 <phases>
                   <all />
                 </phases>
@@ -832,7 +818,7 @@
           <description>To be excuted while the condition is true</description>
           <targets>
             <target mandatory="yes">
-              <set name="Block" />
+              <node name="Statements" />
                 <phases>
                   <all />
                 </phases>
@@ -865,7 +851,7 @@
           <description>To be excuted until the condition becomes false</description>
           <targets>
             <target mandatory="yes">
-              <set name="Block" />
+              <node name="Statements" />
                 <phases>
                   <all />
                 </phases>
@@ -931,7 +917,7 @@
           <description>To be excuted until the condition becomes false</description>
           <targets>
             <target mandatory="yes">
-              <set name="Block" />
+              <node name="Statements" />
                 <phases>
                   <all />
                 </phases>

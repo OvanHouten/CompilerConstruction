@@ -689,16 +689,6 @@ node *PRTconst(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-
-node *PRTblock(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTblock");
-
-	DBUG_RETURN(arg_node);
-}
-
-
-
-
 node *PRTexpressions(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTexpressions");
 

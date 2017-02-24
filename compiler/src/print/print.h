@@ -66,7 +66,6 @@ extern node *PRTrettype(node * arg_node, info * arg_info);
 extern node *PRTtype(node * arg_node, info * arg_info);
 extern node *PRTbasictype(node * arg_node, info * arg_info);
 extern node *PRTconst(node * arg_node, info * arg_info);
-extern node *PRTblock(node * arg_node, info * arg_info);
 extern node *PRTexpr(node * arg_node, info * arg_info);
 
 extern node *PRTexpressions(node * arg_node, info * arg_info);
