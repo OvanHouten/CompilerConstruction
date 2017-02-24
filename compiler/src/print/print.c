@@ -645,8 +645,6 @@ node *PRTstatement(node * arg_node, info * arg_info) {
 node *PRTrettype(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTrettype");
 
-	printf("return type");
-
 	DBUG_RETURN(arg_node);
 }
 
