@@ -201,7 +201,7 @@ boolval:  TRUEVAL  { $$ = TBmakeBoolconst( TRUE, TBmakeBool()); }
 static int yyerror( char *error)
 {
   CTIabort( "line %d, col %d\nError parsing source code: %s\n", 
-            global.line, global.col, error);
+            global.line + 1, global.col + 1, error);
 
   return( 0);
 }

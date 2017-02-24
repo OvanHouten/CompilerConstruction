@@ -79,9 +79,17 @@
                              FILTER( ID);
                            }
 
-#.*$                        { /* empty */ }
-"//".*$                     { /* empty */ }
-"/*"([^*]|(\*+[^*/]))*\*+\/ { /* empty */ }
+#.*$                         { /* empty */ }
+"//".*$                      { /* empty */ }
+"/*"([^*]|(\*+[^*/]))*\*+"/" { char* eol = yytext; 
+                               while (*eol != '\0') { 
+                            	   if (*eol == '\n') {
+                            	 	  global.line += 1; 
+                            	 	  global.col = 0;
+                            	   };
+                            	   eol++;
+                               }; 
+                             }
 
 [0-9]+                     { yylval.cint=atoi(yytext);
                              FILTER( NUM);
