@@ -79,19 +79,7 @@
                              FILTER( ID);
                            }
 
-#.*$                         { /* empty */ }
-"//".*$                      { /* empty */ }
-"/*"([^*]|(\*+[^*/]))*\*+"/" { char* eol = yytext; 
-                               while (*eol != '\0') { 
-                            	   if (*eol == '\n') {
-                            	 	  global.line += 1; 
-                            	 	  global.col = 0;
-                            	   };
-                            	   eol++;
-                               }; 
-                             }
-
-[0-9]+                     { yylval.cint=atoi(yytext);
+-?[0-9]+                   { yylval.cint=atoi(yytext);
                              FILTER( NUM);
                            }
 
@@ -106,4 +94,26 @@
 
 [ \t]                      { global.col += yyleng;
                            } 
+
+"//".*$                    { /* empty */ }                    
+
+#.*$                       { char* lineNr = yytext + 2;
+                              if (*lineNr != ' ') {
+                                  char* space = lineNr + 1;
+                                  while (*space != ' ') space++;
+                                  *space = '\0';
+                                  global.line = atoi(lineNr) - 1;
+                                  *space = ' ';
+                              }
+                           }
+
+"/*"([^*]|(\*+[^*/]))*\*+"/" { char* eol = yytext; 
+                               while (*eol != '\0') { 
+                                   if (*eol == '\n') {
+                                      global.line += 1; 
+                                      global.col = 0;
+                                   };
+                                   eol++;
+                               }; 
+                             }
 
