@@ -60,7 +60,7 @@ static int yyerror( char *errname);
 
 program: declarations { parseresult = TBmakeProgram( $1); }
 
-declarations: declaration declarations { $$ = TBmakeDeclarations( $1, $2); }
+declarations: declarations declaration { $$ = TBmakeDeclarations( $2, $1); }
             | declaration              { $$ = TBmakeDeclarations( $1, NULL); }
             ;
 
@@ -78,13 +78,13 @@ funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $1, TBmake
          | type ID BRACKET_L params BRACKET_R { $$ = TBmakeFunheader( $1, TBmakeId($2), $4); }
          ;
          
-params: param COMMA params { $$ = TBmakeParams( $1, $3); }
+params: params COMMA param { $$ = TBmakeParams( $3, $1); }
       | param              { $$ = TBmakeParams( $1, NULL); }
       ;
       
 param: type ID { $$ = TBmakeParam( $1, NULL, TBmakeId($2)); }
 
-statements: statement statements { $$ = TBmakeStatements( $1, $2); }
+statements: statements statement { $$ = TBmakeStatements( $2, $1); }
           | statement            { $$ = TBmakeStatements( $1, NULL); }
           ;
 
@@ -106,8 +106,6 @@ intval:   NUM { $$ = TBmakeIntconst( $1, TBmakeInt()); }
 boolval:  TRUEVAL  { $$ = TBmakeBoolconst( TRUE, TBmakeBool()); }
        |  FALSEVAL { $$ = TBmakeBoolconst( FALSE, TBmakeBool()); }
        ;
-
-    
 
 type: INT_TYPE   { $$ = TBmakeInt(); }
     | FLOAT_TYPE { $$ = TBmakeFloat(); }
