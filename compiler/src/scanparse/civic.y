@@ -51,7 +51,7 @@ static int yyerror( char *errname);
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> program declarations declaration funheader type params param funbody vardecs vardec stmts stmt exprs expr
+%type <node> program declarations declaration globaldec globaldef fundec fundef funheader type params param funbody vardecs vardec stmts stmt exprs expr
 %type <node> assign if while do for typecast return funcall
 %type <node> constant floatval intval boolval
 
@@ -65,15 +65,25 @@ declarations: declarations declaration { $$ = TBmakeDeclarations( $2, $1); }
             | declaration              { $$ = TBmakeDeclarations( $1, NULL); }
             ;
 
-declaration: EXTERN type ID SEMICOLON          { $$ = TBmakeGlobaldec( $2, NULL, TBmakeId($3)); }
-           | type ID SEMICOLON                 { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), NULL); }
-           | type ID LET expr SEMICOLON        { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), $4); }
-           | EXPORT type ID SEMICOLON          { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), NULL); }
-           | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), $5); }
-           | EXTERN funheader SEMICOLON        { $$ = TBmakeFundec( $2); }
-           | funheader funbody                 { $$ = TBmakeFundef( FALSE, $1, $2); }
-           | EXPORT funheader funbody          { $$ = TBmakeFundef( TRUE, $2, $3); }
+declaration: globaldec { $$ = $1; }
+           | globaldef { $$ = $1; }
+           | fundec    { $$ = $1; }
+           | fundef    { $$ = $1; }
            ;
+           
+globaldec: EXTERN type ID SEMICOLON { $$ = TBmakeGlobaldec( $2, NULL, TBmakeId($3)); }
+
+globaldef: type ID SEMICOLON                 { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), NULL); }
+         | type ID LET expr SEMICOLON        { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), $4); }
+         | EXPORT type ID SEMICOLON          { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), NULL); }
+         | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), $5); }
+         ;
+
+fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundec( $2); }
+
+fundef: funheader funbody                 { $$ = TBmakeFundef( FALSE, $1, $2); }
+      | EXPORT funheader funbody          { $$ = TBmakeFundef( TRUE, $2, $3); }
+      ;
 
 funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $1, TBmakeId($2), NULL); }
          | type ID BRACKET_L params BRACKET_R { $$ = TBmakeFunheader( $1, TBmakeId($2), $4); }
