@@ -130,8 +130,8 @@ node *PRTfundef(node * arg_node, info * arg_info) {
 node *PRTfunbody(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunbody");
 
-	TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
 	TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
+	TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
 }

@@ -9,4 +9,5 @@ int main() {
     b = printb();
     b = printb(4 && !8);
     c = printb(printf(3.2));
+    d = printing(a, b);
 }

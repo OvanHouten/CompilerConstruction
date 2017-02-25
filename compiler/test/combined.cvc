@@ -70,6 +70,7 @@ int main() {
     b = printb();
     b = printb(4 && !8);
     b = printb(printi(4));
+    d = printing(a, b);
 }
 int typecast() {
     int a = 4;

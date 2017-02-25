@@ -148,7 +148,7 @@ return: RETURN SEMICOLON      { $$ = TBmakeReturn(NULL); }
       
 typecast: BRACKET_L type BRACKET_R expr { $$ = TBmakeTypecast( $2, $4); }
 
-exprs: expr COMMA exprs { $$ = TBmakeExprs( $1, $3); }
+exprs: exprs COMMA expr { $$ = TBmakeExprs( $3, $1); }
      | expr             { $$ = TBmakeExprs( $1, NULL); }
 
 expr: BRACKET_L expr BRACKET_R { $$ = $2; }
