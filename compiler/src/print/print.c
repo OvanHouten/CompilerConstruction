@@ -69,8 +69,8 @@ node *PRTprogram(node * arg_node, info * arg_info) {
 node *PRTdeclarations(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTdeclarations");
 
-	TRAVopt(DECLARATIONS_DECLARATION(arg_node), arg_info);
 	TRAVopt(DECLARATIONS_NEXT(arg_node), arg_info);
+	TRAVopt(DECLARATIONS_DECLARATION(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
 }
@@ -130,8 +130,8 @@ node *PRTfundef(node * arg_node, info * arg_info) {
 node *PRTfunbody(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunbody");
 
-	TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
 	TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
+	TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
 }
@@ -139,10 +139,11 @@ node *PRTfunbody(node * arg_node, info * arg_info) {
 node *PRTvardecs(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTvardecs");
 
+	TRAVopt(VARDECS_NEXT(arg_node), arg_info);
+
 	TRAVdo(VARDECS_VARDEC(arg_node), arg_info);
 	printf(";\n");
 	INDENT_AT_NEWLINE(arg_info);
-	TRAVopt(VARDECS_NEXT(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
 }
@@ -162,11 +163,27 @@ node *PRTvardec(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
+node *PRTglobalvardef(node * arg_node, info * arg_info) {
+    DBUG_ENTER("PRTglobalvardef");
+
+    printf("%s", GLOBALVARDEF_EXPORT(arg_node) ? "export " : "");
+    TRAVdo(GLOBALVARDEF_TYPE(arg_node), arg_info);
+    TRAVdo(GLOBALVARDEF_ID(arg_node), arg_info);
+    if (GLOBALVARDEF_EXPR(arg_node)) {
+        printf(" = ");
+        TRAVdo(GLOBALVARDEF_EXPR(arg_node), arg_info);
+    }
+    printf(";\n");
+
+    DBUG_RETURN(arg_node);
+}
+
 node *PRTstatements(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTstatements");
 
-	TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
+	TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
 
+	TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
 	switch (NODE_TYPE(STATEMENTS_STATEMENT(arg_node))) {
 	case N_assign:
 	case N_funcall:
@@ -176,8 +193,6 @@ node *PRTstatements(node * arg_node, info * arg_info) {
 	default:;
 		// No need to print a semicolon and force printing at the correct indentation level.
 	}
-
-	TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
 }
@@ -329,12 +344,14 @@ node *PRTfor (node * arg_node, info * arg_info)
 
 node *PRTexprs(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTexpressions");
-	TRAVdo(EXPRS_EXPR(arg_node), arg_info);
+
+	TRAVopt(EXPRS_NEXT(arg_node), arg_info);
 	if (EXPRS_NEXT(arg_node)) {
 		printf(", ");
-		TRAVdo(EXPRS_NEXT(arg_node), arg_info);
 	}
-	DBUG_RETURN(arg_node);
+    TRAVdo(EXPRS_EXPR(arg_node), arg_info);
+
+    DBUG_RETURN(arg_node);
 }
 
 node *PRTrelop (node * arg_node, info * arg_info) {
@@ -473,11 +490,11 @@ node *PRTid(node * arg_node, info * arg_info) {
 node *PRTparams(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTparams");
 
-	TRAVopt(PARAMS_PARAM(arg_node), arg_info);
+	TRAVopt(PARAMS_NEXT(arg_node), arg_info);
 	if (PARAMS_NEXT(arg_node) != NULL) {
 		printf(", ");
 	}
-	TRAVopt(PARAMS_NEXT(arg_node), arg_info);
+	TRAVdo(PARAMS_PARAM(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
 }
@@ -656,21 +673,6 @@ node *PRTtype(node * arg_node, info * arg_info) {
 
 node *PRTconst(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTconst");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTglobalvardef(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTglobalvardef");
-
-	printf("%s", GLOBALVARDEF_EXPORT(arg_node) ? "export " : "");
-	TRAVdo(GLOBALVARDEF_TYPE(arg_node), arg_info);
-	TRAVdo(GLOBALVARDEF_ID(arg_node), arg_info);
-	if (GLOBALVARDEF_EXPR(arg_node)) {
-	    printf(" = ");
-	    TRAVdo(GLOBALVARDEF_EXPR(arg_node), arg_info);
-	}
-	printf(";\n");
 
 	DBUG_RETURN(arg_node);
 }
