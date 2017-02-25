@@ -20,6 +20,11 @@ extern int bla1;
 extern float bla2;
 extern bool bla3;
 
+int a;
+int b = 42;
+export float c;
+export float d = 13.1;
+
 int empty() {
 }
 void singleParam(int a) {
