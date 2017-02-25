@@ -51,9 +51,10 @@ static int yyerror( char *errname);
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> program declarations declaration globaldec globaldef fundec fundef funheader type params param funbody vardecs vardec stmts stmt exprs expr
+%type <node> program declarations declaration globaldec globaldef fundec fundef 
+%type <node> funheader params param funbody vardecs vardec stmts stmt exprs expr
 %type <node> assign if while do for typecast return funcall
-%type <node> constant floatval intval boolval
+%type <node> type constant floatval intval boolval
 
 %start program
 
