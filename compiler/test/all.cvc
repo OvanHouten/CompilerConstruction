@@ -14,10 +14,17 @@ int internalStart = -13;
 export float externalStart = 42.13;
 
 void internal() {
+    int a;
+    int b = 23;
+    int c = b;
 }
 float floating(float a) {
+    a;
 }
 export bool external() {
+    int a = 3;
+    int b;
+    b;
 }
 export int grade(int passing) {
 }

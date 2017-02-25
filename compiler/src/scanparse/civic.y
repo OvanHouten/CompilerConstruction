@@ -51,7 +51,7 @@ static int yyerror( char *errname);
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> program declarations declaration funheader type params param funbody statements statement expr 
+%type <node> program declarations declaration funheader type params param funbody vardecs vardec stmts stmt expr 
 %type <node> constant floatval intval boolval
 
 %start program
@@ -84,14 +84,25 @@ params: params COMMA param { $$ = TBmakeParams( $3, $1); }
       
 param: type ID { $$ = TBmakeParam( $1, NULL, TBmakeId($2)); }
 
-funbody: CURLY_L CURLY_R            { $$ = NULL; }
-       | CURLY_L statements CURLY_R { $$ = $2; }
+funbody: CURLY_L vardecs stmts CURLY_R { $$ = TBmakeFunbody($2, NULL, $3); } 
+       | CURLY_L vardecs CURLY_R       { $$ = TBmakeFunbody($2, NULL, NULL); } 
+       | CURLY_L stmts CURLY_R         { $$ = TBmakeFunbody(NULL, NULL, $2); }
+       | CURLY_L CURLY_R               { $$ = TBmakeFunbody(NULL, NULL, NULL); }
+       ;
 
-statements: statements statement { $$ = TBmakeStatements( $2, $1); }
-          | statement            { $$ = TBmakeStatements( $1, NULL); }
-          ;
+vardecs: vardecs vardec { $$ = TBmakeVardecs( $2, $1); }
+       | vardec         { $$ = TBmakeVardecs( $1, NULL); }
+       ;
+       
+vardec: type ID SEMICOLON            { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), NULL); }
+      | type ID LET expr SEMICOLON   { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), $4); }
+      ;
 
-statement: expr SEMICOLON { $$ = $1; }
+stmts: stmts stmt { $$ = TBmakeStatements( $2, $1); }
+     | stmt       { $$ = TBmakeStatements( $1, NULL); }
+     ;
+
+stmt: expr SEMICOLON { $$ = $1; }
 
 expr: BRACKET_L expr BRACKET_R { $$ = $2; } 
     | constant                 { $$ = $1; }
