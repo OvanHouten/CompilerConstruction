@@ -51,7 +51,8 @@ static int yyerror( char *errname);
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> program declarations declaration funheader type params param
+%type <node> program declarations declaration funheader type params param expr 
+%type <node> constant floatval intval boolval
 
 %start program
 
@@ -63,12 +64,14 @@ declarations: declaration declarations { $$ = TBmakeDeclarations( $1, $2); }
             | declaration              { $$ = TBmakeDeclarations( $1, NULL); }
             ;
 
-declaration: EXTERN type ID SEMICOLON         { $$ = TBmakeGlobaldec( $2, NULL, TBmakeId($3)); }
-           | type ID SEMICOLON                { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), NULL); }
-           | EXPORT type ID SEMICOLON         { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), NULL); }
-           | EXTERN funheader SEMICOLON       { $$ = TBmakeFundec( $2); }
-           | funheader CURLY_L CURLY_R        { $$ = TBmakeFundef( FALSE, $1, NULL); }
-           | EXPORT funheader CURLY_L CURLY_R { $$ = TBmakeFundef( TRUE, $2, NULL); }
+declaration: EXTERN type ID SEMICOLON          { $$ = TBmakeGlobaldec( $2, NULL, TBmakeId($3)); }
+           | type ID SEMICOLON                 { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), NULL); }
+           | type ID LET expr SEMICOLON        { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), $4); }
+           | EXPORT type ID SEMICOLON          { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), NULL); }
+           | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), $5); }
+           | EXTERN funheader SEMICOLON        { $$ = TBmakeFundec( $2); }
+           | funheader CURLY_L CURLY_R         { $$ = TBmakeFundef( FALSE, $1, NULL); }
+           | EXPORT funheader CURLY_L CURLY_R  { $$ = TBmakeFundef( TRUE, $2, NULL); }
            ;
 
 funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $1, TBmakeId($2), NULL); }
@@ -79,6 +82,25 @@ params: param COMMA params { $$ = TBmakeParams( $1, $3); }
       ;
       
 param: type ID { $$ = TBmakeParam( $1, NULL, TBmakeId($2)); }
+
+expr: BRACKET_L expr BRACKET_R { $$ = $2; } 
+    | constant                 { $$ = $1; }
+    | ID                       { $$ = TBmakeId($1); }
+    
+constant: floatval { $$ = $1; }
+        | intval   { $$ = $1; }
+        | boolval  { $$ = $1; }
+        ;
+ 
+floatval: FLOAT { $$ = TBmakeFloatconst( $1, TBmakeFloat()); }
+
+intval:   NUM { $$ = TBmakeIntconst( $1, TBmakeInt()); }
+
+boolval:  TRUEVAL  { $$ = TBmakeBoolconst( TRUE, TBmakeBool()); }
+       |  FALSEVAL { $$ = TBmakeBoolconst( FALSE, TBmakeBool()); }
+       ;
+
+    
 
 type: INT_TYPE   { $$ = TBmakeInt(); }
     | FLOAT_TYPE { $$ = TBmakeFloat(); }

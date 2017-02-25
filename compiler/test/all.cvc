@@ -10,6 +10,9 @@ extern void multiParams(int a, bool b);
 int internalCount;
 export int externalCount;
 
+int internalStart = -13;
+export float externalStart = 42.13;
+
 void internal() {
 }
 float floating(float a) {
