@@ -44,14 +44,14 @@ static int yyerror( char *errname);
 
 %token EXTERN EXPORT RETURN
 %token INT_TYPE FLOAT_TYPE BOOL_TYPE VOID
-%token COMMA SEMICOLON
+%token COMMA SEMICOLON CURLY_L CURLY_R
 %token TRUEVAL FALSEVAL
 
 %token <cint> NUM
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> program declarations declaration funheader type params param expr 
+%type <node> program declarations declaration funheader type params param statements statement expr 
 %type <node> constant floatval intval boolval
 
 %start program
@@ -64,24 +64,31 @@ declarations: declaration declarations { $$ = TBmakeDeclarations( $1, $2); }
             | declaration              { $$ = TBmakeDeclarations( $1, NULL); }
             ;
 
-declaration: EXTERN type ID SEMICOLON          { $$ = TBmakeGlobaldec( $2, NULL, TBmakeId($3)); }
-           | type ID SEMICOLON                 { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), NULL); }
-           | type ID LET expr SEMICOLON        { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), $4); }
-           | EXPORT type ID SEMICOLON          { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), NULL); }
-           | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), $5); }
-           | EXTERN funheader SEMICOLON        { $$ = TBmakeFundec( $2); }
-           | funheader CURLY_L CURLY_R         { $$ = TBmakeFundef( FALSE, $1, NULL); }
-           | EXPORT funheader CURLY_L CURLY_R  { $$ = TBmakeFundef( TRUE, $2, NULL); }
+declaration: EXTERN type ID SEMICOLON                    { $$ = TBmakeGlobaldec( $2, NULL, TBmakeId($3)); }
+           | type ID SEMICOLON                           { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), NULL); }
+           | type ID LET expr SEMICOLON                  { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), $4); }
+           | EXPORT type ID SEMICOLON                    { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), NULL); }
+           | EXPORT type ID LET expr SEMICOLON           { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), $5); }
+           | EXTERN funheader SEMICOLON                  { $$ = TBmakeFundec( $2); }
+           | funheader CURLY_L statements CURLY_R        { $$ = TBmakeFundef( FALSE, $1, $3); }
+           | EXPORT funheader CURLY_L statements CURLY_R { $$ = TBmakeFundef( TRUE, $2, $4); }
            ;
 
 funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $1, TBmakeId($2), NULL); }
          | type ID BRACKET_L params BRACKET_R { $$ = TBmakeFunheader( $1, TBmakeId($2), $4); }
-
+         ;
+         
 params: param COMMA params { $$ = TBmakeParams( $1, $3); }
       | param              { $$ = TBmakeParams( $1, NULL); }
       ;
       
 param: type ID { $$ = TBmakeParam( $1, NULL, TBmakeId($2)); }
+
+statements: statement statements { $$ = TBmakeStatements( $1, $2); }
+          | statement            { $$ = TBmakeStatements( $1, NULL); }
+          ;
+
+statement: expr SEMICOLON { $$ = $1; }
 
 expr: BRACKET_L expr BRACKET_R { $$ = $2; } 
     | constant                 { $$ = $1; }
