@@ -51,7 +51,8 @@ static int yyerror( char *errname);
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> program declarations declaration globaldec globaldef fundec fundef 
+%type <node> program declarations declaration globaldec globaldef fundec fundef
+%type <node> localfundefs localfundef
 %type <node> funheader params param funbody vardecs vardec stmts stmt exprs expr
 %type <node> assign if while do for typecast return funcall
 %type <node> type constant floatval intval boolval
@@ -96,10 +97,14 @@ params: params COMMA param { $$ = TBmakeParams( $3, $1); }
       
 param: type ID { $$ = TBmakeParam( $1, NULL, TBmakeId($2)); }
 
-funbody: CURLY_L vardecs stmts CURLY_R { $$ = TBmakeFunbody($2, NULL, $3); } 
-       | CURLY_L vardecs CURLY_R       { $$ = TBmakeFunbody($2, NULL, NULL); } 
-       | CURLY_L stmts CURLY_R         { $$ = TBmakeFunbody(NULL, NULL, $2); }
-       | CURLY_L CURLY_R               { $$ = TBmakeFunbody(NULL, NULL, NULL); }
+funbody: CURLY_L vardecs localfundefs stmts CURLY_R { $$ = TBmakeFunbody($2, $3, $4); }
+       | CURLY_L vardecs localfundefs CURLY_R       { $$ = TBmakeFunbody($2, $3, NULL); }
+       | CURLY_L vardecs stmts CURLY_R              { $$ = TBmakeFunbody($2, NULL, $3); } 
+       | CURLY_L localfundefs stmts CURLY_R         { $$ = TBmakeFunbody(NULL, $2, $3); } 
+       | CURLY_L vardecs CURLY_R                    { $$ = TBmakeFunbody($2, NULL, NULL); } 
+       | CURLY_L localfundefs CURLY_R               { $$ = TBmakeFunbody(NULL, $2, NULL); } 
+       | CURLY_L stmts CURLY_R                      { $$ = TBmakeFunbody(NULL, NULL, $2); }
+       | CURLY_L CURLY_R                            { $$ = TBmakeFunbody(NULL, NULL, NULL); }
        ;
 
 vardecs: vardecs vardec { $$ = TBmakeVardecs( $2, $1); }
@@ -109,6 +114,13 @@ vardecs: vardecs vardec { $$ = TBmakeVardecs( $2, $1); }
 vardec: type ID SEMICOLON            { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), NULL); }
       | type ID LET expr SEMICOLON   { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), $4); }
       ;
+
+localfundefs: localfundefs localfundef { $$ = TBmakeLocalfundefs( $2, $1); }
+            | localfundef              { $$ = TBmakeLocalfundefs( $1, NULL); }
+            ;
+       
+localfundef: funheader funbody { $$ = TBmakeLocalfundef( $1, $2); }
+           ;
 
 stmts: stmts stmt { $$ = TBmakeStatements( $2, $1); }
      | stmt       { $$ = TBmakeStatements( $1, NULL); }
