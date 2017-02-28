@@ -5,5 +5,10 @@ int foo() {
 		int test = 3;
 		return test;
 	}
+	void nothing(int a, float b) {
+	    if (a > b) {
+	        b = a;
+	    }
+	}
 	bar();
 }
