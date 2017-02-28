@@ -30,7 +30,7 @@ static int yyerror( char *errname);
  node               *node;
 }
 
-%right  LET
+%right LET
 %left  OR
 %left  AND
 %left  EQ NE
@@ -41,6 +41,7 @@ static int yyerror( char *errname);
 %token IF ELSE DO WHILE FOR
 %left  CURLY_L CURLY_R
 %left  BRACKET_L BRACKET_R
+%left  SQUARE_L SQUARE_R
 
 %token EXTERN EXPORT RETURN
 %token INT_TYPE FLOAT_TYPE BOOL_TYPE VOID
@@ -73,6 +74,7 @@ declaration: globaldec { $$ = $1; }
            ;
            
 globaldec: EXTERN type ID SEMICOLON { $$ = TBmakeGlobaldec( $2, NULL, TBmakeId($3)); }
+         | EXTERN type SQUARE_L ID SQUARE_R ID SEMICOLON { $$ = TBmakeGlobaldec( $2, TBmakeId($4), TBmakeId($6)); }
 
 globaldef: type ID SEMICOLON                 { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), NULL); }
          | type ID LET expr SEMICOLON        { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), $4); }

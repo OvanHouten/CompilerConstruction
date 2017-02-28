@@ -16,7 +16,8 @@ extern void main12(int a, int b);
  */
 
 // Single line comment
-extern int bla1;
+extern int[index] bla1;
+//extern int[3] bla4; KAN NU NIET
 extern float bla2;
 extern bool bla3;
 

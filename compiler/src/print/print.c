@@ -102,6 +102,11 @@ node *PRTglobaldec(node * arg_node, info * arg_info) {
 
 	printf("extern ");
 	TRAVdo(GLOBALDEC_TYPE(arg_node), arg_info);
+	if (GLOBALDEC_ARRAYSIZE(arg_node) != NULL) {
+		printf("[");
+		TRAVdo(GLOBALDEC_ARRAYSIZE(arg_node), arg_info);
+		printf("] ");
+	}
 	TRAVdo(GLOBALDEC_ID(arg_node), arg_info);
 	printf(";\n");
 
