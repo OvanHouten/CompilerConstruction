@@ -131,6 +131,7 @@ node *PRTfunbody(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunbody");
 
 	TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
+	TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
 	TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
@@ -724,14 +725,29 @@ node *PRTarrexprs(node * arg_node, info * arg_info) {
 node *PRTlocalfundef(node * arg_node, info * arg_info)
 {
 	DBUG_ENTER("PRTlocalfundef");
+    
+	TRAVdo(LOCALFUNDEF_FUNHEADER(arg_node), arg_info);
+	printf(" {\n");
+	INCREASE_INDENTATION(arg_info);
 
+	TRAVopt(LOCALFUNDEF_FUNBODY(arg_node), arg_info);
+
+	//DECREASE_INDENTATION(arg_info);
+	printf("}\n");
+	INDENT_AT_NEWLINE(arg_info);
+	
 	DBUG_RETURN(arg_node);
 }
 
 node *PRTlocalfundefs(node * arg_node, info * arg_info)
 {
 	DBUG_ENTER("PRTlocalfundefs");
+	
+	TRAVopt(LOCALFUNDEFS_NEXT(arg_node), arg_info);
 
+	TRAVdo(LOCALFUNDEFS_LOCALFUNDEF(arg_node), arg_info);
+	INDENT_AT_NEWLINE(arg_info);
+	
 	DBUG_RETURN(arg_node);
 }
 
