@@ -731,8 +731,9 @@ node *PRTlocalfundef(node * arg_node, info * arg_info)
 	INCREASE_INDENTATION(arg_info);
 
 	TRAVopt(LOCALFUNDEF_FUNBODY(arg_node), arg_info);
-
-	//DECREASE_INDENTATION(arg_info);
+	
+	DECREASE_INDENTATION(arg_info);
+	
 	printf("}\n");
 	INDENT_AT_NEWLINE(arg_info);
 	
