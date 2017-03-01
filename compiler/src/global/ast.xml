@@ -118,7 +118,6 @@
         <node name="TypeCast" />
         <node name="Funcall" />
         <node name="Id" />
-        <node name="Const" />
         <node name="Array" />
         <node name="IntConst" />
         <node name="FloatConst" />
@@ -140,14 +139,6 @@
         </target>
     </nodeset>
 
-	<nodeset name="Const">
-      <target>
-        <node name="IntConst" />
-        <node name="FloatConst" />
-        <node name="BoolConst" />
-      </target>
-    </nodeset>
-    
   </nodesets>
 
 <!--
@@ -700,17 +691,6 @@
           </targets>
         </son>
       </sons>
-    </node>
-
-<!--
-  Node Const: 
- -->
-    <node name="Const" >
-      <description>Constant</description>
-      <sons>
-      </sons>
-      <attributes>
-      </attributes>
     </node>
 
 <!--
