@@ -131,6 +131,7 @@ stmt: assign  { $$ = $1; }
     | for     { $$ = $1; }
     | return  { $$ = $1; }
     | funcall SEMICOLON { $$ = $1; }
+    | ID SQUARE_L exprs SQUARE_R LET expr { $$ = TBmakeArrayassign(TBmakeId($1), $3, $6); }
     ;         
 
 assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId( $1), $3); }
