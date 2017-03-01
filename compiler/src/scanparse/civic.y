@@ -100,7 +100,9 @@ params: params COMMA param { $$ = TBmakeParams( $3, $1); }
       | param              { $$ = TBmakeParams( $1, NULL); }
       ;
       
-param: type ID { $$ = TBmakeParam( $1, NULL, TBmakeId($2)); }
+param: type ID                       { $$ = TBmakeParam( $1, NULL, TBmakeId($2)); }
+     | type SQUARE_L ids SQUARE_R ID { $$ = TBmakeParam( $1, $3, TBmakeId($5)); }
+     ;
 
 funbody: CURLY_L vardecs stmts CURLY_R { $$ = TBmakeFunbody($2, NULL, $3); } 
        | CURLY_L vardecs CURLY_R       { $$ = TBmakeFunbody($2, NULL, NULL); } 
@@ -112,8 +114,10 @@ vardecs: vardecs vardec { $$ = TBmakeVardecs( $2, $1); }
        | vardec         { $$ = TBmakeVardecs( $1, NULL); }
        ;
        
-vardec: type ID SEMICOLON            { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), NULL); }
-      | type ID LET expr SEMICOLON   { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), $4); }
+vardec: type ID SEMICOLON                                   { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), NULL); }
+      | type ID LET expr SEMICOLON                          { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), $4); }
+      | type SQUARE_L ids SQUARE_L ID SEMICOLON             { $$ = TBmakeVardec( $1, $3, TBmakeId( $5), NULL); }
+      | type SQUARE_L ids SQUARE_L ID LET arrexpr SEMICOLON { $$ = TBmakeVardec( $1, $3, TBmakeId( $5), $7); }
       ;
 
 stmts: stmts stmt { $$ = TBmakeStatements( $2, $1); }
