@@ -688,9 +688,9 @@ node *PRTglobalarrdef(node * arg_node, info * arg_info) {
     printf("%s", GLOBALARRDEF_EXPORT(arg_node) ? "export " : "");
     TRAVdo(GLOBALARRDEF_TYPE(arg_node), arg_info);
     TRAVdo(GLOBALARRDEF_ID(arg_node), arg_info);
-    if (GLOBALARRDEF_ARREXPR(arg_node)) {
+    if (GLOBALARRDEF_ARREXPRS(arg_node)) {
         printf(" = ");
-        TRAVdo(GLOBALARRDEF_ARREXPR(arg_node), arg_info);
+        TRAVdo(GLOBALARRDEF_ARREXPRS(arg_node), arg_info);
     }
     printf(";\n");
 
@@ -731,6 +731,12 @@ node *PRTids(node * arg_node, info * arg_info) {
 
 node *PRTarrexprs(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTarrexprs");
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTarrelem(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTarrelem");
 
 	DBUG_RETURN(arg_node);
 }

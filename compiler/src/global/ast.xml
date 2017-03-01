@@ -126,20 +126,20 @@
       </target>
     </nodeset>
     
-    <nodeset name="ArrExpr">
-      <target>
-        <node name="ArrData" />
-        <set name="Expr" />
-      </target>
-    </nodeset>
-    
     <nodeset name="Id">
         <target>
             <node name="Id" />
             <node name="VarDec" />
         </target>
     </nodeset>
-
+	
+	<nodeset name="ArrExpr">
+        <target>
+            <node name="ArrExprs" />
+            <node name="ArrElem" />
+        </target>
+    </nodeset>
+	
 	<nodeset name="Const">
       <target>
         <node name="IntConst" />
@@ -1492,7 +1492,7 @@
           <description>Type of variable</description>
           <targets>
             <target mandatory="yes">
-              <node name="Type" />
+              <set name="Type" />
               <phases>
                 <all />
               </phases>
@@ -1521,11 +1521,11 @@
             </target>
           </targets>
         </son>
-        <son name="ArrExpr">
+        <son name="ArrExprs">
           <description>Assignment of array expression</description>
           <targets>
             <target mandatory="no">
-              <node name="ArrExpr" />
+              <node name="ArrExprs" />
               <phases>
                 <all />
               </phases>
@@ -1598,27 +1598,6 @@
       <attributes>
       </attributes>
 	</node>
-
-<!--
-  Node ArrData:
--->	
-	<node name="ArrData">
-	  <description>Represents the data of an array</description>
-      <sons>
-        <son name="ArrExprs">
-          <description>Represents the elements of an array, at least one. Can be multidimensional</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="ArrExprs">
-                <phases>
-                  <all />
-                </phases>
-              </node>
-            </target>
-          </targets>
-        </son>
-      </sons>
-    </node>
     
 <!--
   Node Array:
@@ -1718,6 +1697,25 @@
           </targets>
         </son>
       </sons>
+      <attributes>
+      </attributes>
+    </node>
+    
+    <node name="ArrElem">
+      <description>Represents an array element</description>
+      <sons>
+        <son name="Expr">
+          <description>Has to be an expression</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        </sons>
       <attributes>
       </attributes>
     </node>

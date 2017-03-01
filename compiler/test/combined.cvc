@@ -25,6 +25,7 @@ int b = 42;
 export float c;
 export float d = 13.1;
 export float[4] e = [1, 2, 3, 4];
+export float[function(), 1, id] olaf = sukkel;
 
 int empty() {
 }

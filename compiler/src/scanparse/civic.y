@@ -53,7 +53,7 @@ static int yyerror( char *errname);
 %token <id> ID
 
 %type <node> program declarations declaration globaldec globaldef fundec fundef 
-%type <node> funheader params param funbody vardecs vardec stmts stmt exprs expr arrexpr
+%type <node> funheader params param funbody vardecs vardec stmts stmt exprs expr arrexpr arrexprs ids
 %type <node> assign if while do for typecast return funcall
 %type <node> type constant floatval intval boolval
 
@@ -74,16 +74,16 @@ declaration: globaldec { $$ = $1; }
            ;
            
 globaldec: EXTERN type ID SEMICOLON { $$ = TBmakeGlobaldec( $2, NULL, TBmakeId($3)); }
-         | EXTERN type SQUARE_L ID SQUARE_R ID SEMICOLON { $$ = TBmakeGlobaldec( $2, TBmakeId($4), TBmakeId($6)); }
+         | EXTERN type SQUARE_L ids SQUARE_R ID SEMICOLON { $$ = TBmakeGlobaldec( $2, $4, TBmakeId($6)); }
 
 globaldef: type ID SEMICOLON                                      { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), NULL); }
          | type ID LET expr SEMICOLON                             { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), $4); }
          | EXPORT type ID SEMICOLON                               { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), NULL); }
          | EXPORT type ID LET expr SEMICOLON                      { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), $5); }
-         | type SQUARE_L expr SQUARE_R ID SEMICOLON                    { $$ = TBmakeGlobalarrdef( FALSE, $1, $3, TBmakeId($5), NULL); }
-         | type SQUARE_L expr SQUARE_R ID LET arrexpr SEMICOLON        { $$ = TBmakeGlobalarrdef( FALSE, $1, $3, TBmakeId($5), $7); }
-         | EXPORT type SQUARE_L expr SQUARE_R ID SEMICOLON             { $$ = TBmakeGlobalarrdef( TRUE, $2, $4, TBmakeId($6), NULL); }
-         | EXPORT type SQUARE_L expr SQUARE_R ID LET arrexpr SEMICOLON { $$ = TBmakeGlobalarrdef( TRUE, $2, $4, TBmakeId($6), $8); }
+         | type SQUARE_L exprs SQUARE_R ID SEMICOLON                    { $$ = TBmakeGlobalarrdef( FALSE, $1, $3, TBmakeId($5), NULL); }
+         | type SQUARE_L exprs SQUARE_R ID LET arrexpr SEMICOLON        { $$ = TBmakeGlobalarrdef( FALSE, $1, $3, TBmakeId($5), $7); }
+         | EXPORT type SQUARE_L exprs SQUARE_R ID SEMICOLON             { $$ = TBmakeGlobalarrdef( TRUE, $2, $4, TBmakeId($6), NULL); }
+         | EXPORT type SQUARE_L exprs SQUARE_R ID LET arrexpr SEMICOLON { $$ = TBmakeGlobalarrdef( TRUE, $2, $4, TBmakeId($6), $8); }
          ;
 
 fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundec( $2); }
@@ -198,9 +198,17 @@ type: INT_TYPE   { $$ = TBmakeInt(); }
     | VOID       { $$ = TBmakeVoid(); }
     ;
 
+ids: ids COMMA ID { $$ = TBmakeIds(TBmakeId($3), $1); }
+   | ID           { $$ = TBmakeIds(TBmakeId($1), NULL); }
+   ;
+
 arrexpr: SQUARE_L exprs SQUARE_R { $$ = $2; }
        | expr                    { $$ = $1; }
        ;
+
+arrexprs: arrexpr arrexprs   { $$ = TBmakeArrexprs($1 , $2); }
+        | arrexpr            { $$ = TBmakeArrexprs($1 , NULL); }
+        ;
 
 %%
 
