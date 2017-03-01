@@ -12,3 +12,11 @@ int foo() {
 	}
 	bar();
 }
+void veryNested(bool a) {
+    int b = 1;
+    int firstLevel(float c) {
+        bool secondLevel() {
+            return c != b && a < 0;
+        }
+    }
+}
