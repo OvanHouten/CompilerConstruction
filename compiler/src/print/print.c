@@ -685,6 +685,15 @@ node *PRTconst(node * arg_node, info * arg_info) {
 node *PRTglobalarrdef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTglobalarrdef");
 
+    printf("%s", GLOBALARRDEF_EXPORT(arg_node) ? "export " : "");
+    TRAVdo(GLOBALARRDEF_TYPE(arg_node), arg_info);
+    TRAVdo(GLOBALARRDEF_ID(arg_node), arg_info);
+    if (GLOBALARRDEF_ARREXPR(arg_node)) {
+        printf(" = ");
+        TRAVdo(GLOBALARRDEF_ARREXPR(arg_node), arg_info);
+    }
+    printf(";\n");
+
 	DBUG_RETURN(arg_node);
 }
 

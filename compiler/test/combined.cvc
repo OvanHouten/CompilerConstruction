@@ -17,7 +17,6 @@ extern void main12(int a, int b);
 
 // Single line comment
 extern int[index] bla1;
-//extern int[3] bla4; KAN NU NIET
 extern float bla2;
 extern bool bla3;
 
@@ -25,6 +24,7 @@ int a;
 int b = 42;
 export float c;
 export float d = 13.1;
+export float[4] e = [1, 2, 3, 4];
 
 int empty() {
 }
