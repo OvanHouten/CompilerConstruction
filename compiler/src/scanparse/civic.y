@@ -80,10 +80,10 @@ globaldef: type ID SEMICOLON                                      { $$ = TBmakeG
          | type ID LET expr SEMICOLON                             { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), $4); }
          | EXPORT type ID SEMICOLON                               { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), NULL); }
          | EXPORT type ID LET expr SEMICOLON                      { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), $5); }
-         | type SQUARE_L exprs SQUARE_R ID SEMICOLON                    { $$ = TBmakeGlobalarrdef( FALSE, $1, $3, TBmakeId($5), NULL); }
-         | type SQUARE_L exprs SQUARE_R ID LET arrexpr SEMICOLON        { $$ = TBmakeGlobalarrdef( FALSE, $1, $3, TBmakeId($5), $7); }
-         | EXPORT type SQUARE_L exprs SQUARE_R ID SEMICOLON             { $$ = TBmakeGlobalarrdef( TRUE, $2, $4, TBmakeId($6), NULL); }
-         | EXPORT type SQUARE_L exprs SQUARE_R ID LET arrexpr SEMICOLON { $$ = TBmakeGlobalarrdef( TRUE, $2, $4, TBmakeId($6), $8); }
+         | type SQUARE_L exprs SQUARE_R ID SEMICOLON                     { $$ = TBmakeGlobalarrdef( FALSE, $1, $3, TBmakeId($5), NULL); }
+         | type SQUARE_L exprs SQUARE_R ID LET arrexprs SEMICOLON        { $$ = TBmakeGlobalarrdef( FALSE, $1, $3, TBmakeId($5), $7); }
+         | EXPORT type SQUARE_L exprs SQUARE_R ID SEMICOLON              { $$ = TBmakeGlobalarrdef( TRUE, $2, $4, TBmakeId($6), NULL); }
+         | EXPORT type SQUARE_L exprs SQUARE_R ID LET arrexprs SEMICOLON { $$ = TBmakeGlobalarrdef( TRUE, $2, $4, TBmakeId($6), $8); }
          ;
 
 fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundec( $2); }
@@ -202,13 +202,13 @@ ids: ids COMMA ID { $$ = TBmakeIds(TBmakeId($3), $1); }
    | ID           { $$ = TBmakeIds(TBmakeId($1), NULL); }
    ;
 
-arrexpr: SQUARE_L exprs SQUARE_R { $$ = $2; }
-       | expr                    { $$ = $1; }
-       ;
-
-arrexprs: arrexpr arrexprs   { $$ = TBmakeArrexprs($1 , $2); }
-        | arrexpr            { $$ = TBmakeArrexprs($1 , NULL); }
+arrexprs: arrexprs COMMA arrexpr { $$ = TBmakeArrexprs($3, $1); }
+        | arrexpr                { $$ = TBmakeArrexprs($1, NULL); }
         ;
+
+arrexpr: SQUARE_L arrexprs SQUARE_R { $$ = $2; }
+       | SQUARE_L exprs SQUARE_R    { $$ = $2; }
+       ;
 
 %%
 

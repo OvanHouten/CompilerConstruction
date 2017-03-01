@@ -136,7 +136,7 @@
 	<nodeset name="ArrExpr">
         <target>
             <node name="ArrExprs" />
-            <node name="ArrElem" />
+            <node name="Exprs" />
         </target>
     </nodeset>
 	
@@ -1549,9 +1549,9 @@
 
 <!--
   Node ArrayExpr:
--->
     <node name="ArrExpr">
     </node>
+-->
 
 <!--
   Node ArrayAssign:
@@ -1678,7 +1678,7 @@
           <description>First array expression in sequence</description>
           <targets>
             <target mandatory="yes">
-              <node name="ArrExpr" />
+              <set name="ArrExpr" />
                 <phases>
                   <all />
                 </phases>
@@ -1697,25 +1697,6 @@
           </targets>
         </son>
       </sons>
-      <attributes>
-      </attributes>
-    </node>
-    
-    <node name="ArrElem">
-      <description>Represents an array element</description>
-      <sons>
-        <son name="Expr">
-          <description>Has to be an expression</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="Expr" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        </sons>
       <attributes>
       </attributes>
     </node>
