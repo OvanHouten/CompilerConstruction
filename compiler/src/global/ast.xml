@@ -88,14 +88,6 @@
   	  </target>
   	</nodeset>
   	
-  	<nodeset name="BasicType">
-  	  <target>
-  	    <node name="Bool"/>
-  	    <node name="Int"/>
-  	    <node name="Float"/>
-  	  </target>
-  	</nodeset>
-  	
   	<nodeset name="Statement">
       <target>
         <node name="Assign" />
@@ -132,13 +124,6 @@
       </target>
     </nodeset>
     
-    <nodeset name="Id">
-        <target>
-            <node name="Id" />
-            <node name="VarDec" />
-        </target>
-    </nodeset>
-
   </nodesets>
 
 <!--
@@ -459,7 +444,7 @@
           <description>Type of parameter</description>
           <targets>
             <target mandatory="yes">
-              <set name="BasicType" />
+              <set name="Type" />
                 <phases>
                   <all />
                 </phases>
@@ -672,7 +657,7 @@
           <description>The type the expression must be typecasted to</description>
           <targets>
             <target mandatory="yes">
-              <set name="BasicType" />
+              <set name="Type" />
               <phase>
                 <all />
               </phase>
@@ -703,7 +688,7 @@
           <description>Left hand side variable; can be missing to represent procedure calls</description>
           <targets>
             <target mandatory="no">
-              <set name="Id" />
+              <node name="Id" />
                 <phases>
                   <all />
                 </phases>
