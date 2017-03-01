@@ -88,14 +88,6 @@
   	  </target>
   	</nodeset>
   	
-  	<nodeset name="BasicType">
-  	  <target>
-  	    <node name="Bool"/>
-  	    <node name="Int"/>
-  	    <node name="Float"/>
-  	  </target>
-  	</nodeset>
-  	
   	<nodeset name="Statement">
       <target>
         <node name="Assign" />
@@ -118,7 +110,6 @@
         <node name="TypeCast" />
         <node name="Funcall" />
         <node name="Id" />
-        <node name="Const" />
         <node name="Array" />
         <node name="IntConst" />
         <node name="FloatConst" />
@@ -126,13 +117,6 @@
       </target>
     </nodeset>
     
-    <nodeset name="Id">
-        <target>
-            <node name="Id" />
-            <node name="VarDec" />
-        </target>
-    </nodeset>
-	
 	<nodeset name="ArrExpr">
         <target>
             <node name="ArrExprs" />
@@ -140,14 +124,6 @@
         </target>
     </nodeset>
 	
-	<nodeset name="Const">
-      <target>
-        <node name="IntConst" />
-        <node name="FloatConst" />
-        <node name="BoolConst" />
-      </target>
-    </nodeset>
-    
   </nodesets>
 
 <!--
@@ -468,7 +444,7 @@
           <description>Type of parameter</description>
           <targets>
             <target mandatory="yes">
-              <set name="BasicType" />
+              <set name="Type" />
                 <phases>
                   <all />
                 </phases>
@@ -681,7 +657,7 @@
           <description>The type the expression must be typecasted to</description>
           <targets>
             <target mandatory="yes">
-              <set name="BasicType" />
+              <set name="Type" />
               <phase>
                 <all />
               </phase>
@@ -703,17 +679,6 @@
     </node>
 
 <!--
-  Node Const: 
- -->
-    <node name="Const" >
-      <description>Constant</description>
-      <sons>
-      </sons>
-      <attributes>
-      </attributes>
-    </node>
-
-<!--
  Node Assign:
 -->
      <node name="Assign">
@@ -723,7 +688,7 @@
           <description>Left hand side variable; can be missing to represent procedure calls</description>
           <targets>
             <target mandatory="no">
-              <set name="Id" />
+              <node name="Id" />
                 <phases>
                   <all />
                 </phases>
