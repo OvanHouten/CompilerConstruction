@@ -122,10 +122,10 @@ vardecs: vardecs vardec { $$ = TBmakeVardecs( $2, $1); }
        | vardec         { $$ = TBmakeVardecs( $1, NULL); }
        ;
        
-vardec: type ID SEMICOLON                                   { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), NULL); }
-      | type ID LET expr SEMICOLON                          { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), $4); }
-      | type SQUARE_L ids SQUARE_L ID SEMICOLON             { $$ = TBmakeVardec( $1, $3, TBmakeId( $5), NULL); }
-      | type SQUARE_L ids SQUARE_L ID LET arrexpr SEMICOLON { $$ = TBmakeVardec( $1, $3, TBmakeId( $5), $7); }
+vardec: type ID SEMICOLON                                     { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), NULL); }
+      | type ID LET expr SEMICOLON                            { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), $4); }
+      | type SQUARE_L exprs SQUARE_R ID SEMICOLON             { $$ = TBmakeVardec( $1, $3, TBmakeId( $5), NULL); }
+      | type SQUARE_L exprs SQUARE_R ID LET arrexpr SEMICOLON { $$ = TBmakeVardec( $1, $3, TBmakeId( $5), $7); }
       ;
 
 localfundefs: localfundefs localfundef { $$ = TBmakeLocalfundefs( $2, $1); }
@@ -142,14 +142,14 @@ stmts: stmts stmt { $$ = TBmakeStatements( $2, $1); }
      | stmt       { $$ = TBmakeStatements( $1, NULL); }
      ;
      
-stmt: assign            { $$ = $1; }  
-    | if                { $$ = $1; }
-    | do                { $$ = $1; }
-    | while             { $$ = $1; }
-    | for               { $$ = $1; }
-    | return            { $$ = $1; }
-    | funcall SEMICOLON { $$ = $1; }
-    | ID SQUARE_L exprs SQUARE_R LET expr { $$ = TBmakeArrayassign(TBmakeId($1), $3, $6); }
+stmt: assign                                        { $$ = $1; }  
+    | if                                            { $$ = $1; }
+    | do                                            { $$ = $1; }
+    | while                                         { $$ = $1; }
+    | for                                           { $$ = $1; }
+    | return                                        { $$ = $1; }
+    | funcall SEMICOLON                             { $$ = $1; }
+    | ID SQUARE_L exprs SQUARE_R LET expr SEMICOLON { $$ = TBmakeArrayassign(TBmakeId($1), $3, $6); }
     ;         
 
 assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId( $1), $3); }
