@@ -591,6 +591,17 @@
              </target>
           </targets>
         </son>
+        <son name="ArrExpr">
+          <description>To be assigned expression</description>
+          <targets>
+            <target mandatory="no">
+              <set name="ArrExpr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
       </sons>
       <attributes>
       </attributes>
