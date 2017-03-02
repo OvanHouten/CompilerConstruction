@@ -375,7 +375,7 @@ node *PRTrelop (node * arg_node, info * arg_info) {
 		op = "!=";
 		break;
 	case RO_ge:
-		op = ".=";
+		op = ">=";
 		break;
 	case RO_gt:
 		op = ">";
