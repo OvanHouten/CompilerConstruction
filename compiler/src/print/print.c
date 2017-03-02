@@ -659,30 +659,6 @@ node *PRTdoPrint( node *syntaxtree)
 }
 
 
-node *PRTstatement(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTstatement");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTrettype(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTrettype");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTtype(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTtype");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTconst(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTconst");
-
-	DBUG_RETURN(arg_node);
-}
-
 node *PRTglobalarrdef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTglobalarrdef");
 
@@ -697,13 +673,6 @@ node *PRTglobalarrdef(node * arg_node, info * arg_info) {
 
 	DBUG_RETURN(arg_node);
 }
-
-node *PRTarrexpr(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTarrexpr");
-
-	DBUG_RETURN(arg_node);
-}
-
 
 node *PRTarrayassign(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTarrayassign");
