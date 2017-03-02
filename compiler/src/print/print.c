@@ -158,11 +158,18 @@ node *PRTvardec(node * arg_node, info * arg_info) {
 
 	INDENT(arg_info);
 	TRAVdo(VARDEC_TYPE(arg_node), arg_info);
+	
+	if(VARDEC_ARRAYSIZE(arg_node)) {
+		printf("[");
+		TRAVdo(VARDEC_ARRAYSIZE(arg_node), arg_info);
+		printf("] ");
+	}
+	
 	TRAVdo(VARDEC_ID(arg_node), arg_info);
 
-	if (VARDEC_EXPR(arg_node)) {
+	if (VARDEC_ARREXPR(arg_node)) {
 		printf(" = ");
-		TRAVdo(VARDEC_EXPR(arg_node), arg_info);
+		TRAVdo(VARDEC_ARREXPR(arg_node), arg_info);
 	}
 
 	DBUG_RETURN(arg_node);

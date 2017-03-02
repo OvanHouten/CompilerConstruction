@@ -580,11 +580,11 @@
              </target>
           </targets>
         </son>
-        <son name="Expr">
+        <son name="ArrExpr">
           <description>To be assigned expression</description>
           <targets>
             <target mandatory="no">
-              <set name="Expr" />
+              <set name="ArrExpr" />
                 <phases>
                   <all />
                 </phases>
