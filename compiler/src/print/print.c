@@ -687,20 +687,30 @@ node *PRTglobalarrdef(node * arg_node, info * arg_info) {
 
 node *PRTarrayassign(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTarrayassign");
-
+	
+	TRAVdo(ARRAYASSIGN_ID(arg_node), arg_info);
+	
+	printf("[");
+	TRAVdo(ARRAYASSIGN_ARRAYSIZE(arg_node), arg_info);
+	printf("]");
+	
+	printf(" = ");
+	TRAVdo(ARRAYASSIGN_EXPR(arg_node), arg_info);
+	printf(";\n");
+	INDENT_AT_NEWLINE(arg_info);
+	
 	DBUG_RETURN(arg_node);
 }
-
-node *PRTarrdata(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTarrdata");
-
-	DBUG_RETURN(arg_node);
-}
-
 
 node *PRTarray(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTarray");
-
+	
+	TRAVdo(ARRAY_ID(arg_node), arg_info);
+	
+	printf("[");
+	TRAVdo(ARRAY_EXPRS(arg_node), arg_info);
+	printf("]");
+	
 	DBUG_RETURN(arg_node);
 }
 
@@ -711,6 +721,7 @@ node *PRTids(node * arg_node, info * arg_info) {
 	if (IDS_NEXT(arg_node) != NULL) {
 		printf(", ");
 	}
+	
 	TRAVdo(IDS_ID(arg_node), arg_info);
 	
 	DBUG_RETURN(arg_node);
@@ -718,13 +729,15 @@ node *PRTids(node * arg_node, info * arg_info) {
 
 node *PRTarrexprs(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTarrexprs");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTarrelem(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTarrelem");
-
+	
+	TRAVopt(ARREXPRS_NEXT(arg_node), arg_info);
+	if (ARREXPRS_NEXT(arg_node) != NULL) {
+		printf(", ");
+	}
+	printf("[");
+	TRAVdo(ARREXPRS_ARREXPR(arg_node), arg_info);
+	printf("]");
+	
 	DBUG_RETURN(arg_node);
 }
 
