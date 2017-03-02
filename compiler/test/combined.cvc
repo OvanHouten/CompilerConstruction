@@ -48,6 +48,7 @@ int main() {
     float q = 2 + 3 * -4;
     int c;
     bool b = printb(4 && -8);
+    float l = 9.0 / 0.00;
     a = 2 + 3 * 4;
     a = b;
     aa = bb;
