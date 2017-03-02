@@ -117,9 +117,9 @@ vardecs: vardecs vardec { $$ = TBmakeVardecs( $2, $1); }
        | vardec         { $$ = TBmakeVardecs( $1, NULL); }
        ;
        
-vardec: type ID SEMICOLON                                     { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), NULL); }
-      | type ID LET expr SEMICOLON                            { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), $4); }
-      | type SQUARE_L exprs SQUARE_R ID SEMICOLON             { $$ = TBmakeVardec( $1, $3, TBmakeId( $5), NULL); }
+vardec: type ID SEMICOLON                                      { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), NULL); }
+      | type ID LET arrexprs SEMICOLON                         { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), $4); }
+      | type SQUARE_L exprs SQUARE_R ID SEMICOLON              { $$ = TBmakeVardec( $1, $3, TBmakeId( $5), NULL); }
       | type SQUARE_L exprs SQUARE_R ID LET arrexprs SEMICOLON { $$ = TBmakeVardec( $1, $3, TBmakeId( $5), $7); }
       ;
 
