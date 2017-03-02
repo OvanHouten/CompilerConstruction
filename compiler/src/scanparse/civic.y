@@ -22,7 +22,7 @@ static int yyerror( char *errname);
 %union {
  nodetype            nodetype;
  char               *id;
- int                 cint;
+ char               *cint;
  float               cflt;
  arithop             carithop;
  logicop             clogicop;
@@ -195,7 +195,16 @@ constant: floatval { $$ = $1; }
  
 floatval: FLOAT { $$ = TBmakeFloatconst( $1, TBmakeFloat()); }
 
-intval:   NUM { $$ = TBmakeIntconst( $1, TBmakeInt()); }
+intval:   NUM { int intValue = atoi($1);
+                char* backAsString = STRitoa(intValue);
+                bool validInteger = STReq($1, backAsString);
+                MEMfree(backAsString);
+                if (!validInteger) {
+                    yyerror("Integer value out of range.");
+                }
+                $$ = TBmakeIntconst( intValue, TBmakeInt());
+                MEMfree($1);
+              }
 
 boolval:  TRUEVAL  { $$ = TBmakeBoolconst( TRUE, TBmakeBool()); }
        |  FALSEVAL { $$ = TBmakeBoolconst( FALSE, TBmakeBool()); }
