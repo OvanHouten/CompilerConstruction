@@ -38,15 +38,17 @@ static int yyerror( char *errname);
 %left  PLUS MINUS
 %left  STAR SLASH PERCENT
 %right NOT
-%right IF ELSE
+
+%token IF
+%nonassoc THEN
+%nonassoc ELSE
 %token DO WHILE FOR
-%left  CURLY_L CURLY_R
-%left  BRACKET_L BRACKET_R
 
 %token EXTERN EXPORT RETURN
 %token INT_TYPE FLOAT_TYPE BOOL_TYPE VOID
 %token COMMA SEMICOLON CURLY_L CURLY_R
 %token TRUEVAL FALSEVAL
+%left  BRACKET_L BRACKET_R
 
 %token <cint> NUM
 %token <cflt> FLOAT
@@ -130,7 +132,7 @@ stmt: assign            { $$ = $1; }
 
 assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId( $1), $3); }
 
-if: IF BRACKET_L expr BRACKET_R block            { $$ = TBmakeIf( $3, $5, NULL ); }
+if: IF BRACKET_L expr BRACKET_R block %prec THEN           { $$ = TBmakeIf( $3, $5, NULL ); }
   | IF BRACKET_L expr BRACKET_R block ELSE block { $$ = TBmakeIf( $3, $5, $7 ); }
   ;
 
