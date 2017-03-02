@@ -1,8 +1,10 @@
 extern int[n] arr;
+extern int[n, m] arr2;
 
-void foo(int[m] a) {}
+void foo(int[n, m] a) {}
 
 export int main() {
     foo(arr);
+    foo(arr2);
     return 0;
 }
