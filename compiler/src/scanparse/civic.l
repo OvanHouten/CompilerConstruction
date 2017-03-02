@@ -93,7 +93,7 @@
                                }; 
                              }
 
-[0-9]+                     { yylval.cint=atoi(yytext);
+[0-9]+                     { yylval.cint=STRcpy(yytext);
                              FILTER( NUM);
                            }
 
