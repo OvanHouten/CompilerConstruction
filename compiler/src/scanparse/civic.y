@@ -77,10 +77,10 @@ declaration: globaldec { $$ = $1; }
            
 globaldec: EXTERN type ID SEMICOLON { $$ = TBmakeGlobaldec( $2, NULL, TBmakeId($3)); }
 
-globaldef: type ID SEMICOLON                 { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), NULL); }
-         | type ID LET expr SEMICOLON        { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), $4); }
-         | EXPORT type ID SEMICOLON          { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), NULL); }
-         | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), $5); }
+globaldef: type ID SEMICOLON                 { $$ = TBmakeGlobaldef( FALSE, $1, TBmakeId($2), NULL, NULL); }
+         | type ID LET expr SEMICOLON        { $$ = TBmakeGlobaldef( FALSE, $1, TBmakeId($2), $4, NULL); }
+         | EXPORT type ID SEMICOLON          { $$ = TBmakeGlobaldef( TRUE, $2, TBmakeId($3), NULL, NULL); }
+         | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeGlobaldef( TRUE, $2, TBmakeId($3), $5, NULL); }
          ;
 
 fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundec( $2); }

@@ -163,15 +163,16 @@ node *PRTvardec(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTglobalvardef(node * arg_node, info * arg_info) {
-    DBUG_ENTER("PRTglobalvardef");
 
-    printf("%s", GLOBALVARDEF_EXPORT(arg_node) ? "export " : "");
-    TRAVdo(GLOBALVARDEF_TYPE(arg_node), arg_info);
-    TRAVdo(GLOBALVARDEF_ID(arg_node), arg_info);
-    if (GLOBALVARDEF_EXPR(arg_node)) {
+node *PRTglobaldef(node * arg_node, info * arg_info) {
+    DBUG_ENTER("PRTglobaldef");
+
+    printf("%s", GLOBALDEF_EXPORT(arg_node) ? "export " : "");
+    TRAVdo(GLOBALDEF_TYPE(arg_node), arg_info);
+    TRAVdo(GLOBALDEF_ID(arg_node), arg_info);
+    if (GLOBALDEF_EXPR(arg_node)) {
         printf(" = ");
-        TRAVdo(GLOBALVARDEF_EXPR(arg_node), arg_info);
+        TRAVdo(GLOBALDEF_EXPR(arg_node), arg_info);
     }
     printf(";\n");
 
@@ -650,13 +651,6 @@ node *PRTdoPrint( node *syntaxtree)
   printf("\n//That's all folks....\n\n");
 
   DBUG_RETURN( syntaxtree);
-}
-
-
-node *PRTglobalarrdef(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTglobalarrdef");
-
-	DBUG_RETURN(arg_node);
 }
 
 node *PRTarrayassign(node * arg_node, info * arg_info) {

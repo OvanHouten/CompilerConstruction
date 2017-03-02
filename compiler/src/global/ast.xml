@@ -66,8 +66,7 @@
         <node name="FunDec"/>
         <node name="FunDef"/>
         <node name="GlobalDec"/>
-        <node name="GlobalVarDef"/>
-        <node name="GlobalArrDef"/>
+        <node name="GlobalDef"/>
       </target>
     </nodeset>
     
@@ -364,6 +363,71 @@
       <attributes>
       </attributes>
     </node>
+
+<!--
+  Node GlobalDef:
+-->
+	<node name="GlobalDef">
+	  <sons>
+        <son name="Type">
+          <description>Type of variable</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Type" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+        <son name="Id">
+          <description>Identifier of variable</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Id" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+        <son name="Expr">
+          <description>Assignment of variable</description>
+          <targets>
+            <target mandatory="no">
+              <set name="Expr" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+        <son name="ArrExprs">
+          <description>Assignment of array expression</description>
+          <targets>
+            <target mandatory="no">
+              <node name="ArrExprs" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <attribute name="Export">
+            <description>Export keyword flag</description>
+            <type name="Bool">
+                <targets>
+                    <target mandatory="yes">
+                        <phases><all /></phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+      </attributes>
+	</node>
+
 
 <!--
  Node Int:
@@ -1373,123 +1437,6 @@
 <!--
   ===================== Extension 2 =====================
 -->
-
-<!--
-  Node GlobalVarDef:
--->
-	<node name="GlobalVarDef">
-	  <sons>
-        <son name="Type">
-          <description>Type of variable</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="Type" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="Id">
-          <description>Identifier of variable</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Id" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="Expr">
-          <description>Assignment of variable</description>
-          <targets>
-            <target mandatory="no">
-              <set name="Expr" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-        <attribute name="Export">
-            <description>Export keyword flag</description>
-            <type name="Bool">
-                <targets>
-                    <target mandatory="yes">
-                        <phases><all /></phases>
-                    </target>
-                </targets>
-            </type>
-        </attribute>
-      </attributes>
-	</node>
-
-<!--
-  Node GlobalArrDef:
--->	
-  	<node name="GlobalArrDef">
-      <sons>
-        <son name="Type">
-          <description>Type of variable</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="Type" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="ArraySize">
-          <description>Size of array, multidimensional</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Exprs" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="Id">
-          <description>Identifier of variable</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Id" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="ArrExprs">
-          <description>Assignment of array expression</description>
-          <targets>
-            <target mandatory="no">
-              <node name="ArrExprs" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-        <attribute name="Export">
-            <description>Export keyword flag</description>
-            <type name="Bool">
-                <targets>
-                    <target mandatory="yes">
-                        <phases><all /></phases>
-                    </target>
-                </targets>
-            </type>
-        </attribute>
-      </attributes>
-  	</node>
 
 <!--
   Node ArrayAssign:
