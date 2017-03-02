@@ -1,0 +1,16 @@
+
+export float[4] e = [1.0, 2.0, 3.0, 4.0];
+
+export int main() {
+// Onderstaande slikt de reference compiler NIET! dit hoeven wij dus ook niet te supporten
+//    int[2, 2] boodschappen = [[bruinBrood, witBrood], fruit];
+    int aantalAppels =2;
+    int aantalPeren = 0;
+    int bruinBrood = 10;
+    int witBrood = 15;
+    // Dit moet nog geregeld worden
+//    int[2] fruit = [aantalAppels, aantalPeren];
+//    int[2, 2] boodschappen = [[bruinBrood, witBrood], [aantalAppels, aantalPeren]];
+//    boodschappen[1 ,0] = fruit[1];
+    return -1000000;
+}

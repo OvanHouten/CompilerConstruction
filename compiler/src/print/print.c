@@ -102,6 +102,11 @@ node *PRTglobaldec(node * arg_node, info * arg_info) {
 
 	printf("extern ");
 	TRAVdo(GLOBALDEC_TYPE(arg_node), arg_info);
+	if (GLOBALDEC_ARRAYSIZE(arg_node) != NULL) {
+		printf("[");
+		TRAVdo(GLOBALDEC_ARRAYSIZE(arg_node), arg_info);
+		printf("] ");
+	}
 	TRAVdo(GLOBALDEC_ID(arg_node), arg_info);
 	printf(";\n");
 
@@ -681,6 +686,15 @@ node *PRTconst(node * arg_node, info * arg_info) {
 node *PRTglobalarrdef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTglobalarrdef");
 
+    printf("%s", GLOBALARRDEF_EXPORT(arg_node) ? "export " : "");
+    TRAVdo(GLOBALARRDEF_TYPE(arg_node), arg_info);
+    TRAVdo(GLOBALARRDEF_ID(arg_node), arg_info);
+    if (GLOBALARRDEF_ARREXPRS(arg_node)) {
+        printf(" = ");
+        TRAVdo(GLOBALARRDEF_ARREXPRS(arg_node), arg_info);
+    }
+    printf(";\n");
+
 	DBUG_RETURN(arg_node);
 }
 
@@ -718,6 +732,12 @@ node *PRTids(node * arg_node, info * arg_info) {
 
 node *PRTarrexprs(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTarrexprs");
+
+	DBUG_RETURN(arg_node);
+}
+
+node *PRTarrelem(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTarrelem");
 
 	DBUG_RETURN(arg_node);
 }

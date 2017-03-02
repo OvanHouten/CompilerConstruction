@@ -30,7 +30,7 @@ static int yyerror( char *errname);
  node               *node;
 }
 
-%right  LET
+%right LET
 %left  OR
 %left  AND
 %left  EQ NE
@@ -49,13 +49,14 @@ static int yyerror( char *errname);
 %token COMMA SEMICOLON CURLY_L CURLY_R
 %token TRUEVAL FALSEVAL
 %left  BRACKET_L BRACKET_R
+%left  SQUARE_L SQUARE_R
 
 %token <cint> NUM
 %token <cflt> FLOAT
 %token <id> ID
 
 %type <node> program declarations declaration globaldec globaldef fundec fundef
-%type <node> funheader params param funbody vardecs vardec block stmts stmt exprs expr
+%type <node> funheader params param funbody vardecs vardec block  stmts stmt exprs expr arrexpr arrexprs ids
 %type <node> localfundefs localfundef
 %type <node> assign if while do for typecast return funcall
 %type <node> type constant floatval intval boolval
@@ -77,11 +78,16 @@ declaration: globaldec { $$ = $1; }
            ;
            
 globaldec: EXTERN type ID SEMICOLON { $$ = TBmakeGlobaldec( $2, NULL, TBmakeId($3)); }
+         | EXTERN type SQUARE_L ids SQUARE_R ID SEMICOLON { $$ = TBmakeGlobaldec( $2, $4, TBmakeId($6)); }
 
-globaldef: type ID SEMICOLON                 { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), NULL); }
-         | type ID LET expr SEMICOLON        { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), $4); }
-         | EXPORT type ID SEMICOLON          { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), NULL); }
-         | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), $5); }
+globaldef: type ID SEMICOLON                                      { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), NULL); }
+         | type ID LET expr SEMICOLON                             { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), $4); }
+         | EXPORT type ID SEMICOLON                               { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), NULL); }
+         | EXPORT type ID LET expr SEMICOLON                      { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), $5); }
+         | type SQUARE_L exprs SQUARE_R ID SEMICOLON                     { $$ = TBmakeGlobalarrdef( FALSE, $1, $3, TBmakeId($5), NULL); }
+         | type SQUARE_L exprs SQUARE_R ID LET arrexprs SEMICOLON        { $$ = TBmakeGlobalarrdef( FALSE, $1, $3, TBmakeId($5), $7); }
+         | EXPORT type SQUARE_L exprs SQUARE_R ID SEMICOLON              { $$ = TBmakeGlobalarrdef( TRUE, $2, $4, TBmakeId($6), NULL); }
+         | EXPORT type SQUARE_L exprs SQUARE_R ID LET arrexprs SEMICOLON { $$ = TBmakeGlobalarrdef( TRUE, $2, $4, TBmakeId($6), $8); }
          ;
 
 fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundec( $2); }
@@ -98,7 +104,9 @@ params: params COMMA param { $$ = TBmakeParams( $3, $1); }
       | param              { $$ = TBmakeParams( $1, NULL); }
       ;
       
-param: type ID { $$ = TBmakeParam( $1, NULL, TBmakeId($2)); }
+param: type ID                       { $$ = TBmakeParam( $1, NULL, TBmakeId($2)); }
+     | type SQUARE_L ids SQUARE_R ID { $$ = TBmakeParam( $1, $3, TBmakeId($5)); }
+     ;
 
 funbody: CURLY_L vardecs localfundefs stmts CURLY_R { $$ = TBmakeFunbody($2, $3, $4); }
        | CURLY_L vardecs localfundefs CURLY_R       { $$ = TBmakeFunbody($2, $3, NULL); }
@@ -114,8 +122,10 @@ vardecs: vardecs vardec { $$ = TBmakeVardecs( $2, $1); }
        | vardec         { $$ = TBmakeVardecs( $1, NULL); }
        ;
        
-vardec: type ID SEMICOLON            { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), NULL); }
-      | type ID LET expr SEMICOLON   { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), $4); }
+vardec: type ID SEMICOLON                                   { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), NULL); }
+      | type ID LET expr SEMICOLON                          { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), $4); }
+      | type SQUARE_L ids SQUARE_L ID SEMICOLON             { $$ = TBmakeVardec( $1, $3, TBmakeId( $5), NULL); }
+      | type SQUARE_L ids SQUARE_L ID LET arrexpr SEMICOLON { $$ = TBmakeVardec( $1, $3, TBmakeId( $5), $7); }
       ;
 
 localfundefs: localfundefs localfundef { $$ = TBmakeLocalfundefs( $2, $1); }
@@ -139,11 +149,12 @@ stmt: assign            { $$ = $1; }
     | for               { $$ = $1; }
     | return            { $$ = $1; }
     | funcall SEMICOLON { $$ = $1; }
+    | ID SQUARE_L exprs SQUARE_R LET expr { $$ = TBmakeArrayassign(TBmakeId($1), $3, $6); }
     ;         
 
 assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId( $1), $3); }
 
-if: IF BRACKET_L expr BRACKET_R block %prec THEN           { $$ = TBmakeIf( $3, $5, NULL ); }
+if: IF BRACKET_L expr BRACKET_R block %prec THEN { $$ = TBmakeIf( $3, $5, NULL ); }
   | IF BRACKET_L expr BRACKET_R block ELSE block { $$ = TBmakeIf( $3, $5, $7 ); }
   ;
 
@@ -167,25 +178,26 @@ exprs: exprs COMMA expr { $$ = TBmakeExprs( $3, $1); }
      | expr             { $$ = TBmakeExprs( $1, NULL); }
 
 expr: BRACKET_L expr BRACKET_R { $$ = $2; }
-    | funcall                  { $$ = $1; }
-    | typecast                 { $$ = $1; }
-    | NOT expr                 { $$ = TBmakeUnop( UO_not, $2); }
-    | MINUS expr               { $$ = TBmakeUnop( UO_neg, $2); }
-    | expr MINUS expr          { $$ = TBmakeArithop( AO_sub, $1, $3); }
-    | expr PLUS expr           { $$ = TBmakeArithop( AO_add, $1, $3); }
-    | expr STAR expr           { $$ = TBmakeArithop( AO_mul, $1, $3); }
-    | expr SLASH expr          { $$ = TBmakeArithop( AO_div, $1, $3); }
-    | expr PERCENT expr        { $$ = TBmakeArithop( AO_mod, $1, $3); }
-    | expr LT expr             { $$ = TBmakeRelop( RO_lt, $1, $3); }
-    | expr LE expr             { $$ = TBmakeRelop( RO_le, $1, $3); }
-    | expr EQ expr             { $$ = TBmakeRelop( RO_eq, $1, $3); }
-    | expr NE expr             { $$ = TBmakeRelop( RO_ne, $1, $3); }
-    | expr GE expr             { $$ = TBmakeRelop( RO_ge, $1, $3); }
-    | expr GT expr             { $$ = TBmakeRelop( RO_gt, $1, $3); }
-    | expr AND expr            { $$ = TBmakeLogicop( LO_and, $1, $3); }
-    | expr OR expr             { $$ = TBmakeLogicop( LO_or, $1, $3); }
-    | ID                       { $$ = TBmakeId( $1); }
-    | constant                 { $$ = $1; }
+    | funcall                    { $$ = $1; }
+    | typecast                   { $$ = $1; }
+    | NOT expr                   { $$ = TBmakeUnop( UO_not, $2); }
+    | MINUS expr                 { $$ = TBmakeUnop( UO_neg, $2); }
+    | expr MINUS expr            { $$ = TBmakeArithop( AO_sub, $1, $3); }
+    | expr PLUS expr             { $$ = TBmakeArithop( AO_add, $1, $3); }
+    | expr STAR expr             { $$ = TBmakeArithop( AO_mul, $1, $3); }
+    | expr SLASH expr            { $$ = TBmakeArithop( AO_div, $1, $3); }
+    | expr PERCENT expr          { $$ = TBmakeArithop( AO_mod, $1, $3); }
+    | expr LT expr               { $$ = TBmakeRelop( RO_lt, $1, $3); }
+    | expr LE expr               { $$ = TBmakeRelop( RO_le, $1, $3); }
+    | expr EQ expr               { $$ = TBmakeRelop( RO_eq, $1, $3); }
+    | expr NE expr               { $$ = TBmakeRelop( RO_ne, $1, $3); }
+    | expr GE expr               { $$ = TBmakeRelop( RO_ge, $1, $3); }
+    | expr GT expr               { $$ = TBmakeRelop( RO_gt, $1, $3); }
+    | expr AND expr              { $$ = TBmakeLogicop( LO_and, $1, $3); }
+    | expr OR expr               { $$ = TBmakeLogicop( LO_or, $1, $3); }
+    | ID                         { $$ = TBmakeId( $1); }
+    | constant                   { $$ = $1; }
+    | ID SQUARE_L exprs SQUARE_R { $$ = TBmakeArray( TBmakeId($1), $3); }
     ;
     
 constant: floatval { $$ = $1; }
@@ -206,6 +218,18 @@ type: INT_TYPE   { $$ = TBmakeInt(); }
     | BOOL_TYPE  { $$ = TBmakeBool(); }
     | VOID       { $$ = TBmakeVoid(); }
     ;
+
+ids: ids COMMA ID { $$ = TBmakeIds(TBmakeId($3), $1); }
+   | ID           { $$ = TBmakeIds(TBmakeId($1), NULL); }
+   ;
+
+arrexprs: arrexprs COMMA arrexpr { $$ = TBmakeArrexprs($3, $1); }
+        | arrexpr                { $$ = TBmakeArrexprs($1, NULL); }
+        ;
+
+arrexpr: SQUARE_L arrexprs SQUARE_R { $$ = $2; }
+       | SQUARE_L exprs SQUARE_R    { $$ = $2; }
+       ;
 
 %%
 

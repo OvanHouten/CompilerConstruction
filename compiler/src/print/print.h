@@ -71,6 +71,8 @@ extern node *PRTarrdata(node * arg_node, info * arg_info);
 extern node *PRTarray(node * arg_node, info * arg_info);
 extern node *PRTids(node * arg_node, info * arg_info);
 extern node *PRTarrexprs(node * arg_node, info * arg_info);
+extern node *PRTarrelem(node * arg_node, info * arg_info);
+
 
 extern node *PRTfundec(node * arg_node, info * arg_info);
 extern node *PRTglobaldec(node * arg_node, info * arg_info);

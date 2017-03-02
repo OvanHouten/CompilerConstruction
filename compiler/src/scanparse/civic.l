@@ -50,6 +50,8 @@
 ")"                        { FILTER( BRACKET_R); }
 "{"                        { FILTER( CURLY_L); }
 "}"                        { FILTER( CURLY_R); }
+"["                        { FILTER( SQUARE_L); }
+"]"                        { FILTER( SQUARE_R); }
 ","                        { FILTER( COMMA); }
 ";"                        { FILTER( SEMICOLON); }
 

@@ -16,7 +16,7 @@ extern void main12(int a, int b);
  */
 
 // Single line comment
-extern int bla1;
+extern int[index] bla1;
 extern float bla2;
 extern bool bla3;
 
@@ -24,6 +24,9 @@ int a;
 int b = 42;
 export float c;
 export float d = 13.1;
+export float[4] e = [1, 2, 3, 4];
+export float[function(), 1, id] olaf = [1, 2, 3];
+int[2] fruit = [aantalAppels, aantalPeren];
 
 int empty() {
 }
@@ -79,4 +82,17 @@ int typecast() {
     float c = 4.2;
     float e = -1.3;
     int d = (int) c;
+}
+int mainArrayTest() {
+    // Onderstaande slikt de reference compiler NIET! dit hoeven wij dus ook niet te supporten
+    //    int[2, 2] boodschappen = [[bruinBrood, witBrood], fruit];
+        int aantalAppels =2;
+        int aantalPeren = 0;
+        int bruinBrood = 10;
+        int witBrood = 15;
+        // Dit moet nog geregeld worden
+    //    int[2] fruit = [aantalAppels, aantalPeren];
+    //    int[2, 2] boodschappen = [[bruinBrood, witBrood], [aantalAppels, aantalPeren]];
+    //    boodschappen[1 ,0] = fruit[1];
+        return -1000000;
 }

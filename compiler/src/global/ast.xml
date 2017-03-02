@@ -117,13 +117,13 @@
       </target>
     </nodeset>
     
-    <nodeset name="ArrExpr">
-      <target>
-        <node name="ArrData" />
-        <set name="Expr" />
-      </target>
+	<nodeset name="ArrExpr">
+        <target>
+            <node name="ArrExprs" />
+            <node name="Exprs" />
+        </target>
     </nodeset>
-    
+	
   </nodesets>
 
 <!--
@@ -1457,7 +1457,7 @@
           <description>Type of variable</description>
           <targets>
             <target mandatory="yes">
-              <node name="Type" />
+              <set name="Type" />
               <phases>
                 <all />
               </phases>
@@ -1486,11 +1486,11 @@
             </target>
           </targets>
         </son>
-        <son name="ArrExpr">
+        <son name="ArrExprs">
           <description>Assignment of array expression</description>
           <targets>
             <target mandatory="no">
-              <node name="ArrExpr" />
+              <node name="ArrExprs" />
               <phases>
                 <all />
               </phases>
@@ -1514,9 +1514,9 @@
 
 <!--
   Node ArrayExpr:
--->
     <node name="ArrExpr">
     </node>
+-->
 
 <!--
   Node ArrayAssign:
@@ -1563,27 +1563,6 @@
       <attributes>
       </attributes>
 	</node>
-
-<!--
-  Node ArrData:
--->	
-	<node name="ArrData">
-	  <description>Represents the data of an array</description>
-      <sons>
-        <son name="ArrExprs">
-          <description>Represents the elements of an array, at least one. Can be multidimensional</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="ArrExprs">
-                <phases>
-                  <all />
-                </phases>
-              </node>
-            </target>
-          </targets>
-        </son>
-      </sons>
-    </node>
     
 <!--
   Node Array:
@@ -1664,7 +1643,7 @@
           <description>First array expression in sequence</description>
           <targets>
             <target mandatory="yes">
-              <node name="ArrExpr" />
+              <set name="ArrExpr" />
                 <phases>
                   <all />
                 </phases>
