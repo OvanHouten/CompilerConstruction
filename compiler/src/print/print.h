@@ -59,13 +59,7 @@ extern node *PRTerror (node * arg_node, info * arg_info);
 
 extern node *PRTdoPrint( node *syntaxtree);
 
-extern node *PRTstatement(node * arg_node, info * arg_info);
-extern node *PRTrettype(node * arg_node, info * arg_info);
-extern node *PRTtype(node * arg_node, info * arg_info);
-extern node *PRTconst(node * arg_node, info * arg_info);
-
 extern node *PRTglobalarrdef(node * arg_node, info * arg_info);
-extern node *PRTarrexpr(node * arg_node, info * arg_info);
 extern node *PRTarrayassign(node * arg_node, info * arg_info);
 extern node *PRTarrdata(node * arg_node, info * arg_info);
 extern node *PRTarray(node * arg_node, info * arg_info);

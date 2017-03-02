@@ -323,13 +323,6 @@
     </node>
 
 <!--
- Node RetType:
--->
-    <node name="RetType">
-      <description>Return type</description>
-    </node>
-
-<!--
  Node GlobalDec:
 -->
     <node name="GlobalDec">
@@ -372,13 +365,6 @@
       </attributes>
     </node>
 
-<!--
- Node Type:
--->
-    <node name="Type">
-      <description>Type</description>
-    </node>
-    
 <!--
  Node Int:
 -->
@@ -610,13 +596,6 @@
       </attributes>
     </node>
 
-<!--
- Node Statement:
--->
-    <node name="Statement">
-      <description>Statement</description>
-    </node>
-    
 <!--
   Node FunCall: 
  -->
@@ -1511,12 +1490,6 @@
         </attribute>
       </attributes>
   	</node>
-
-<!--
-  Node ArrayExpr:
-    <node name="ArrExpr">
-    </node>
--->
 
 <!--
   Node ArrayAssign:
