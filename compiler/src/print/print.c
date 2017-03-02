@@ -164,10 +164,16 @@ node *PRTvardec(node* arg_node, info* arg_info) {
 	}
 	
 	TRAVdo(VARDEC_ID(arg_node), arg_info);
+	
+	if (VARDEC_EXPR(arg_node)) {
+		printf(" = ");
+		TRAVdo(VARDEC_EXPR(arg_node), arg_info);
+	}
 
 	if (VARDEC_ARREXPR(arg_node)) {
-		printf(" = ");
+		printf(" = [");
 		TRAVdo(VARDEC_ARREXPR(arg_node), arg_info);
+		printf("]");
 	}
 
 	DBUG_RETURN(arg_node);
