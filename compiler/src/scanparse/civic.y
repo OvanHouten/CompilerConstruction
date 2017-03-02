@@ -186,9 +186,9 @@ floatval: FLOAT { $$ = TBmakeFloatconst( $1, TBmakeFloat()); }
 
 intval:   NUM { int intValue = atoi($1);
                 char* backAsString = STRitoa(intValue);
-                bool isInvalidInteger = STReq($1, backAsString);
+                bool validInteger = STReq($1, backAsString);
                 MEMfree(backAsString);
-                if (!isInvalidInteger) {
+                if (!validInteger) {
                     yyerror("Integer value out of range.");
                 }
                 $$ = TBmakeIntconst( intValue, TBmakeInt());
