@@ -509,6 +509,11 @@ node *PRTparam(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTparam");
 
 	TRAVdo(PARAM_TYPE(arg_node), arg_info);
+	if(PARAM_ARRAYSIZE(arg_node) != NULL) {
+		printf("[");
+		TRAVdo(PARAM_ARRAYSIZE(arg_node), arg_info);
+		printf("] ");
+	}
 	TRAVdo(PARAM_ID(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
@@ -695,7 +700,13 @@ node *PRTarray(node * arg_node, info * arg_info) {
 
 node *PRTids(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTids");
-
+	
+	TRAVopt(IDS_NEXT(arg_node), arg_info);
+	if (IDS_NEXT(arg_node) != NULL) {
+		printf(", ");
+	}
+	TRAVdo(IDS_ID(arg_node), arg_info);
+	
 	DBUG_RETURN(arg_node);
 }
 
