@@ -95,7 +95,7 @@
                              FILTER( NUM);
                            }
 
--?[1-9][0-9]*\.[0-9]*      { yylval.cflt=atof(yytext);
+-?[0-9]+\.[0-9]+           { yylval.cflt=atof(yytext);
                              FILTER( FLOAT);
                            }
 
