@@ -131,6 +131,7 @@ if: IF BRACKET_L expr BRACKET_R stmt                                            
   ;
 
 do:    DO CURLY_L stmts CURLY_R WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = TBmakeDo($7, $3); }
+  |    DO stmt WHILE BRACKET_L expr BRACKET_R SEMICOLON                  { $$ = TBmakeDo($5, $2); }
 
 while: WHILE BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R              { $$ = TBmakeWhile($3, $6); }
 
