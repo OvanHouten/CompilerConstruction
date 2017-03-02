@@ -52,7 +52,7 @@ static int yyerror( char *errname);
 %token <id> ID
 
 %type <node> program declarations declaration globaldec globaldef fundec fundef 
-%type <node> funheader params param funbody vardecs vardec stmts stmt exprs expr
+%type <node> funheader params param funbody vardecs vardec block stmts stmt exprs expr
 %type <node> assign if while do for typecast return funcall
 %type <node> type constant floatval intval boolval
 
@@ -110,35 +110,35 @@ vardec: type ID SEMICOLON            { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2
       | type ID LET expr SEMICOLON   { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), $4); }
       ;
 
+block: CURLY_L stmts CURLY_R { $$ = $2; }
+     | stmt                  { $$ = TBmakeStatements( $1, NULL); }
+     ;
+
 stmts: stmts stmt { $$ = TBmakeStatements( $2, $1); }
      | stmt       { $$ = TBmakeStatements( $1, NULL); }
      ;
-
-stmt: assign  { $$ = $1; }  
-    | if      { $$ = $1; }
-    | do      { $$ = $1; }
-    | while   { $$ = $1; }
-    | for     { $$ = $1; }
-    | return  { $$ = $1; }
+     
+stmt: assign            { $$ = $1; }  
+    | if                { $$ = $1; }
+    | do                { $$ = $1; }
+    | while             { $$ = $1; }
+    | for               { $$ = $1; }
+    | return            { $$ = $1; }
     | funcall SEMICOLON { $$ = $1; }
     ;         
 
 assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId( $1), $3); }
 
-if: IF BRACKET_L expr BRACKET_R stmt                                             { $$ = TBmakeIf( $3, $5, NULL ); }
-  | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R                            { $$ = TBmakeIf( $3, $6, NULL ); }
-  | IF BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R ELSE CURLY_L stmts CURLY_R { $$ = TBmakeIf( $3, $6, $10 ); }
+if: IF BRACKET_L expr BRACKET_R block            { $$ = TBmakeIf( $3, $5, NULL ); }
+  | IF BRACKET_L expr BRACKET_R block ELSE block { $$ = TBmakeIf( $3, $5, $7 ); }
   ;
 
-do:    DO CURLY_L stmts CURLY_R WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = TBmakeDo($7, $3); }
-  |    DO stmt WHILE BRACKET_L expr BRACKET_R SEMICOLON                  { $$ = TBmakeDo($5, $2); }
+do: DO block WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = TBmakeDo($5, $2); }
 
-while: WHILE BRACKET_L expr BRACKET_R CURLY_L stmts CURLY_R              { $$ = TBmakeWhile($3, $6); }
+while: WHILE BRACKET_L expr BRACKET_R block { $$ = TBmakeWhile($3, $5); }
 
-for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R stmt                             { $$ = TBmakeFor( TBmakeId( $4), $6, $8, NULL, $10); }
-   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R CURLY_L stmts CURLY_R            { $$ = TBmakeFor( TBmakeId( $4), $6, $8, NULL, $11); }
-   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R stmt                  { $$ = TBmakeFor( TBmakeId( $4), $6, $8, $10, $12); }
-   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R CURLY_L stmts CURLY_R { $$ = TBmakeFor( TBmakeId( $4), $6, $8, $10, $13); }
+for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R block             { $$ = TBmakeFor( TBmakeId( $4), $6, $8, NULL, $10); }
+   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R block  { $$ = TBmakeFor( TBmakeId( $4), $6, $8, $10, $12); }
    ;
    
 funcall: ID BRACKET_L BRACKET_R       { $$ = TBmakeFuncall( TBmakeId($1), NULL); }
