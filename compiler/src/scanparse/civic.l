@@ -91,11 +91,11 @@
                                }; 
                              }
 
--?[0-9]+                     { yylval.cint=atoi(yytext);
+[0-9]+                     { yylval.cint=atoi(yytext);
                              FILTER( NUM);
                            }
 
--?[0-9]+\.[0-9]+           { yylval.cflt=atof(yytext);
+[0-9]+\.[0-9]+             { yylval.cflt=atof(yytext);
                              FILTER( FLOAT);
                            }
 
