@@ -38,7 +38,8 @@ static int yyerror( char *errname);
 %left  PLUS MINUS
 %left  STAR SLASH PERCENT
 %right NOT
-%token IF ELSE DO WHILE FOR
+%right IF ELSE
+%token DO WHILE FOR
 %left  CURLY_L CURLY_R
 %left  BRACKET_L BRACKET_R
 
