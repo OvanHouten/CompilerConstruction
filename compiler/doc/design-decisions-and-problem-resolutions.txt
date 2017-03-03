@@ -40,3 +40,14 @@ Introduced a 'bogus' token THEN
 %nonassoc THEN
 %nonassoc ELSE
 And added '%prec THEN' to our grammar rule that handles the if-only case.
+
+=== GIT BRANCHES ===
+We have four branches
+- master: for the core development
+- LocalFunction: for local function related development
+- Array: for single and multi dimensional arrays (we opted for developing multi dimensional arrays, it can always be downgraded to single dimensional array if we run out of time)
+- Combined: an integration branch for integration of the other three branches (and whish should contain our compiler at the and of the course) 
+
+=== TEST SUITE ===
+After integrating the provided test suite we found some bugs in our grammar, for example the dangling-else problem. Within each branch the appropriate tests have been added.
+Before every commit we should doe a 'make clean && make check' to ensure we only commit we behaving code.
