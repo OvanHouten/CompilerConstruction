@@ -12,6 +12,7 @@
 #include "ctinfo.h"
 #include "free.h"
 #include "globals.h"
+#include "numbers.h"
 
 static node *parseresult = NULL;
 extern int yylex();
@@ -23,7 +24,7 @@ static int yyerror( char *errname);
  nodetype            nodetype;
  char               *id;
  char               *cint;
- float               cflt;
+ char               *cflt;
  arithop             carithop;
  logicop             clogicop;
  relop               crelop;
@@ -182,17 +183,24 @@ constant: floatval { $$ = $1; }
         | boolval  { $$ = $1; }
         ;
  
-floatval: FLOAT { $$ = TBmakeFloatconst( $1, TBmakeFloat()); }
+floatval: FLOAT { float* value = strToFloat($1);
+                  MEMfree($1);
+                  if (value) {
+                      $$ = TBmakeFloatconst( *value, TBmakeFloat());
+                      free(value);
+                  } else {
+                      yyerror("Float value out of range.");
+                  }
+                }
 
-intval:   NUM { int intValue = atoi($1);
-                char* backAsString = STRitoa(intValue);
-                bool validInteger = STReq($1, backAsString);
-                MEMfree(backAsString);
-                if (!validInteger) {
+intval:   NUM { int* value = strToInt($1);
+                MEMfree($1);
+                if (value) {
+                    $$ = TBmakeIntconst( *value, TBmakeInt());
+                    free(value);
+                } else {
                     yyerror("Integer value out of range.");
                 }
-                $$ = TBmakeIntconst( intValue, TBmakeInt());
-                MEMfree($1);
               }
 
 boolval:  TRUEVAL  { $$ = TBmakeBoolconst( TRUE, TBmakeBool()); }
