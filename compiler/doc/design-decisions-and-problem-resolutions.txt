@@ -32,3 +32,11 @@ Currently we have two different AST nodes for the 'while' and the 'do-while' loo
 === FOR loop vs WHILE loops ===
 We can try to combine all the loops into a single AST node. For now we have not implemented this. Mainly because the differences between a for loop and the (do-)while loops.
 
+=== CLEANER GRAMMER ===
+We have rebuild the grammar file from scratch. Our grammar was very verbose. After rebuilding it is much move concise and clean. 
+
+=== DANGLING ELSE PROBLEM ===
+Introduced a 'bogus' token THEN
+%nonassoc THEN
+%nonassoc ELSE
+And added '%prec THEN' to our grammar rule that handles the if-only case.

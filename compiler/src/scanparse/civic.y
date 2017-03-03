@@ -133,7 +133,7 @@ stmt: assign            { $$ = $1; }
 
 assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId( $1), $3); }
 
-if: IF BRACKET_L expr BRACKET_R block %prec THEN           { $$ = TBmakeIf( $3, $5, NULL ); }
+if: IF BRACKET_L expr BRACKET_R block %prec THEN { $$ = TBmakeIf( $3, $5, NULL ); }
   | IF BRACKET_L expr BRACKET_R block ELSE block { $$ = TBmakeIf( $3, $5, $7 ); }
   ;
 
