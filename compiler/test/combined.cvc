@@ -74,7 +74,7 @@ int main() {
     d = printing(a, b);
 }
 int typecast() {
-    int a = 4;
+    int a = -4;
     float b = (float) a;
     float c = 4.2;
     float e = -1.3;

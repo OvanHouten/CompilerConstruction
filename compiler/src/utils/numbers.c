@@ -41,7 +41,7 @@ float *strToFloat(char * s) {
     double value = 0;
     sscanf(s, "%lf", &value);
     // and check if it is a legal integer value
-    if (value >= DBL_MIN && value <= DBL_MAX) {
+    if (value >= -FLT_MAX && value <= FLT_MAX) {
         // Now convert the float value back to a string
         char* asString = malloc(20);
         int nrOfDigits = strlen(strstr(s, ".")) - 1;
