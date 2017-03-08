@@ -268,6 +268,8 @@ node *CAfuncall(node *arg_node, info *arg_info) {
 node *CAtypecast(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAtypecast");
 
+    TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
+
     DBUG_RETURN(arg_node);
 }
 
@@ -283,11 +285,26 @@ node *CAassign(node *arg_node, info *arg_info) {
 node *CAif(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAif");
 
+    TRAVdo(IF_CONDITION(arg_node), arg_info);
+
+    startNewScope(arg_info);
+    TRAVdo(IF_IFBLOCK(arg_node), arg_info);
+    closeScope(arg_info);
+
+    startNewScope(arg_info);
+    TRAVopt(IF_ELSEBLOCK(arg_node), arg_info);
+    closeScope(arg_info);
+
     DBUG_RETURN(arg_node);
 }
 
 node *CAwhile(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAwhile");
+
+    startNewScope(arg_info);
+    TRAVdo(WHILE_CONDITION(arg_node), arg_info);
+    TRAVopt(WHILE_BLOCK(arg_node), arg_info);
+    closeScope(arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -295,17 +312,32 @@ node *CAwhile(node *arg_node, info *arg_info) {
 node *CAdo(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAdo");
 
+    startNewScope(arg_info);
+    TRAVopt(DO_BLOCK(arg_node), arg_info);
+    closeScope(arg_info);
+    TRAVdo(DO_CONDITION(arg_node), arg_info);
+
     DBUG_RETURN(arg_node);
 }
 
 node *CAfor(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAfor");
 
+    startNewScope(arg_info);
+    registerNewVarDecl(arg_node, arg_info, ID_NAME(FOR_ID(arg_node)));
+    TRAVdo(FOR_START(arg_node), arg_info);
+    TRAVdo(FOR_FINISH(arg_node), arg_info);
+    TRAVopt(FOR_STEP(arg_node), arg_info);
+    TRAVopt(FOR_BLOCK(arg_node), arg_info);
+    closeScope(arg_info);
+
     DBUG_RETURN(arg_node);
 }
 
 node *CAreturn(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAreturn");
+
+    TRAVopt(RETURN_EXPR(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -322,11 +354,17 @@ node *CAexprs(node *arg_node, info *arg_info) {
 node *CAarithop(node *arg_node, info *arg_info) {
    DBUG_ENTER("CAarithop");
 
+   TRAVdo(ARITHOP_LEFT(arg_node), arg_info);
+   TRAVdo(ARITHOP_RIGHT(arg_node), arg_info);
+
    DBUG_RETURN(arg_node);
 }
 
 node *CArelop(node *arg_node, info *arg_info) {
     DBUG_ENTER("CArelop");
+
+    TRAVdo(RELOP_LEFT(arg_node), arg_info);
+    TRAVdo(RELOP_RIGHT(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -334,11 +372,16 @@ node *CArelop(node *arg_node, info *arg_info) {
 node *CAlogicop(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAlogicop");
 
+    TRAVdo(LOGICOP_LEFT(arg_node), arg_info);
+    TRAVdo(LOGICOP_RIGHT(arg_node), arg_info);
+
     DBUG_RETURN(arg_node);
 }
 
 node *CAunop(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAunop");
+
+    TRAVdo(UNOP_RIGHT(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
