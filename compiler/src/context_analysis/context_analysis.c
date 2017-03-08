@@ -73,7 +73,7 @@ struct SymbolTable *makeNewSymbolTable() {
 }
 
 node *CAprogram(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCprogram");
+    DBUG_ENTER("CAprogram");
 
     INFO_CURRENTSCOPE(arg_info) = makeNewSymbolTable();
     PROGRAM_SYMBOLTABLE(arg_node) = (node *)INFO_CURRENTSCOPE(arg_info);
@@ -87,7 +87,7 @@ node *CAprogram(node *arg_node, info *arg_info) {
 
 
 node *CAdeclarations(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCdeclarations");
+    DBUG_ENTER("CAdeclarations");
 
     TRAVopt(DECLARATIONS_NEXT(arg_node), arg_info);
     TRAVdo(DECLARATIONS_DECLARATION(arg_node), arg_info);
@@ -112,7 +112,7 @@ void registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
 
 
 node *CAfundec(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCfundec");
+    DBUG_ENTER("CAfundec");
 
     registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEC_FUNHEADER(arg_node))));
 
@@ -131,7 +131,7 @@ void closeScope(info *arg_info) {
 }
 
 node *CAfundef(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCfundef");
+    DBUG_ENTER("CAfundef");
 
     registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
     startNewScope(arg_info);
@@ -146,7 +146,7 @@ node *CAfundef(node *arg_node, info *arg_info) {
 
 
 node *CAfunheader(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCfunheader");
+    DBUG_ENTER("CAfunheader");
 
     TRAVopt(FUNHEADER_PARAMS(arg_node), arg_info);
 
@@ -154,7 +154,7 @@ node *CAfunheader(node *arg_node, info *arg_info) {
 }
 
 node *CAfunbody(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCfunbody");
+    DBUG_ENTER("CAfunbody");
 
     TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
     TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
@@ -179,7 +179,7 @@ void registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
 }
 
 node *CAglobaldec(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCglobaldec");
+    DBUG_ENTER("CAglobaldec");
 
     registerNewVarDecl(arg_node, arg_info, ID_NAME(GLOBALDEC_ID(arg_node)));
 
@@ -187,7 +187,7 @@ node *CAglobaldec(node *arg_node, info *arg_info) {
 }
 
 node *CAglobaldef(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCglobaldef");
+    DBUG_ENTER("CAglobaldef");
 
     registerNewVarDecl(arg_node, arg_info, ID_NAME(GLOBALDEF_ID(arg_node)));
 
@@ -195,25 +195,25 @@ node *CAglobaldef(node *arg_node, info *arg_info) {
 }
 
 node *CAint(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCint");
+    DBUG_ENTER("CAint");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAfloat(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCfloat");
+    DBUG_ENTER("CAfloat");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAbool(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCbool");
+    DBUG_ENTER("CAbool");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAparams(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCparams");
+    DBUG_ENTER("CAparams");
 
     TRAVopt(PARAMS_NEXT(arg_node), arg_info);
     TRAVdo(PARAMS_PARAM(arg_node), arg_info);
@@ -222,7 +222,7 @@ node *CAparams(node *arg_node, info *arg_info) {
 }
 
 node *CAparam(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCparam");
+    DBUG_ENTER("CAparam");
 
     registerNewVarDecl(arg_node, arg_info, ID_NAME(PARAM_ID(arg_node)));
 
@@ -230,7 +230,7 @@ node *CAparam(node *arg_node, info *arg_info) {
 }
 
 node *CAvardecs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCvardecs");
+    DBUG_ENTER("CAvardecs");
 
     TRAVopt(VARDECS_NEXT(arg_node), arg_info);
     TRAVdo(VARDECS_VARDEC(arg_node), arg_info);
@@ -239,7 +239,7 @@ node *CAvardecs(node *arg_node, info *arg_info) {
 }
 
 node *CAvardec(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCvardec");
+    DBUG_ENTER("CAvardec");
 
     registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEC_ID(arg_node)));
 
@@ -247,158 +247,158 @@ node *CAvardec(node *arg_node, info *arg_info) {
 }
 
 node *CAfuncall(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCfuncall");
+    DBUG_ENTER("CAfuncall");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAtypecast(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCtypecast");
+    DBUG_ENTER("CAtypecast");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAassign(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCassign");
+    DBUG_ENTER("CAassign");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAif(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCif");
+    DBUG_ENTER("CAif");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAwhile(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCwhile");
+    DBUG_ENTER("CAwhile");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAdo(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCdo");
+    DBUG_ENTER("CAdo");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAfor(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCfor");
+    DBUG_ENTER("CAfor");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAreturn(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCreturn");
+    DBUG_ENTER("CAreturn");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAexprs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCexprs");
+    DBUG_ENTER("CAexprs");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAarithop(node *arg_node, info *arg_info) {
-   DBUG_ENTER("CCarithop");
+   DBUG_ENTER("CAarithop");
 
    DBUG_RETURN(arg_node);
 }
 
 node *CArelop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCrelop");
+    DBUG_ENTER("CArelop");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAlogicop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CClogicop");
+    DBUG_ENTER("CAlogicop");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAunop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCunop");
+    DBUG_ENTER("CAunop");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAvoid(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCvoid");
+    DBUG_ENTER("CAvoid");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAintconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCintconst");
+    DBUG_ENTER("CAintconst");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAfloatconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCfloatconst");
+    DBUG_ENTER("CAfloatconst");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAboolconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCboolconst");
+    DBUG_ENTER("CAboolconst");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAsymboltableentry(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCsymboltableentry");
+    DBUG_ENTER("CAsymboltableentry");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAerror(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCerror");
+    DBUG_ENTER("CAerror");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAlocalfundef(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CClocalfundef");
+    DBUG_ENTER("CAlocalfundef");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAlocalfundefs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CClocalfundefs");
+    DBUG_ENTER("CAlocalfundefs");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAarrayassign(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCarrayassign");
+    DBUG_ENTER("CAarrayassign");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAarray(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCarray");
+    DBUG_ENTER("CAarray");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAids(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCids");
+    DBUG_ENTER("CAids");
 
     DBUG_RETURN(arg_node);
 }
 
 node *CAarrexprs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCarrexprs");
+    DBUG_ENTER("CAarrexprs");
 
     DBUG_RETURN(arg_node);
 }
 
 
 node *CAstatements(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCstatements");
+    DBUG_ENTER("CAstatements");
 
     printf("Statements\n");
 
@@ -409,7 +409,7 @@ node *CAstatements(node *arg_node, info *arg_info) {
 
 
 node *CAid(node * arg_node, info * arg_info) {
-    DBUG_ENTER("CCid");
+    DBUG_ENTER("CAid");
 
     printf("Var usage [%s]\n", ID_NAME(arg_node));
 
@@ -417,7 +417,7 @@ node *CAid(node * arg_node, info * arg_info) {
 }
 
 node *CAdoScopeAnalysis( node *syntaxtree) {
-    DBUG_ENTER("CCdoScopeAnslysis");
+    DBUG_ENTER("CAdoScopeAnslysis");
 
     info *arg_info = MakeInfo();
 
