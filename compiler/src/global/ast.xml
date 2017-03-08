@@ -46,7 +46,7 @@
       <traversal id="FREE" name="Free Syntax Tree" default="user" include="free_node.h" />
       <traversal id="CHK" name="Check Syntax Tree" default="user" include="check.h" />
 
-      <traversal id="CC" name="Context Analysis" default="user" include="context_analysis.h" />
+      <traversal id="CA" name="Context Analysis" default="user" include="context_analysis.h" />
 
       <traversal id="RI" name="Rename identifiers" default="sons" include="rename_identifiers.h">
         <travuser>
