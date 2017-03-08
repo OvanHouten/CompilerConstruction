@@ -95,11 +95,26 @@ node *CAdeclarations(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+void registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
+    lut_t* varDecls = INFO_CURRENTSCOPE(arg_info)->fundecls;
+    struct SymbolTableEntry* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
+    if (symbolTableEntry) {
+        CTIerror(
+                "Function [%s] has already been declared at line %d, column %d.",
+                name, symbolTableEntry->decl->lineno,
+                symbolTableEntry->decl->colno);
+    } else {
+        symbolTableEntry = MEMmalloc(sizeof(struct SymbolTableEntry));
+        symbolTableEntry->decl = arg_node;
+        LUTinsertIntoLutS(varDecls, name, symbolTableEntry);
+    }
+}
+
 
 node *CAfundec(node *arg_node, info *arg_info) {
     DBUG_ENTER("CCfundec");
 
-    printf("Fundec\n");
+    registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEC_FUNHEADER(arg_node))));
 
     DBUG_RETURN(arg_node);
 }
@@ -108,7 +123,7 @@ node *CAfundec(node *arg_node, info *arg_info) {
 node *CAfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CCfundef");
 
-    printf("Fundef\n");
+    registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
     TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
     TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
