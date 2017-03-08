@@ -151,6 +151,40 @@
         </son>
       </sons>
       <attributes>
+        <attribute name="SymbolTable">
+          <description>Link to symbol table entry</description>
+          <type name="Link">
+            <targets>
+              <target mandatory="no">
+                <phases>
+                  <phase from="Scope Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
+    </node>
+
+<!--
+ Node SymbolTableEntry:
+-->
+    <node name="SymbolTableEntry">
+      <description>Represents symbol table entry</description>
+      <sons>
+        <son name="SymbolTable">
+            <type name="Link">
+                <targets>
+                    <target mandatory="yes">
+                        <phases>
+                            <phase from="Scope Analysis"></phase>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </son>
+      </sons>
+      <attributes>
       </attributes>
     </node>
 
@@ -1184,7 +1218,7 @@
               <target mandatory="no">
                 <node name="SymbolTableEntry" />
                 <phases>
-                  <all />
+                  <phase from="Context Analysis"/>
                 </phases>
               </target>
             </targets>
@@ -1307,17 +1341,6 @@
       </attributes>
     </node>
     
-<!--
- Node SymbolTableEntry:
--->
-    <node name="SymbolTableEntry">
-      <description>Represents symbol table entry</description>
-      <sons>
-      </sons>
-      <attributes>
-      </attributes>
-    </node>
-
 <!--
  Node Error:
 -->

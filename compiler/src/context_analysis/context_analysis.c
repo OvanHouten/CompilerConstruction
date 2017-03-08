@@ -11,18 +11,34 @@
 #include "dbug.h"
 #include "memory.h"
 #include "context_analysis.h"
+#include "lookup_table.h"
+#include "ctinfo.h"
+
+struct SymbolTable {
+    struct SymbolTable *parent;
+    lut_t *vardecls;
+    lut_t *fundecls;
+};
+
+struct SymbolTableEntry {
+    node *decl; // Reference back to the declaring node
+};
 
 /*
  * INFO structure
  */
 struct INFO {
-  int scopelevel;
+  struct SymbolTable *currentScope;
 };
 
 /*
  * INFO macros
  */
-#define INFO_SCOPELEVEL(n)  ((n)->scopelevel)
+#define INFO_CURRENTSCOPE(n)  ((n)->currentScope)
+
+// The Lookup table (lut) returns a pointer to the original pointer that was provided while inserting
+// the new value. By using this macro we can get the original pointer back without any hassle.
+#define DEREF_IF_NOT_NULL(n) (n == NULL ? n : *n)
 
 /*
  * INFO functions
@@ -34,8 +50,7 @@ static info *MakeInfo(void)
   DBUG_ENTER( "MakeInfo");
 
   result = (info *)MEMmalloc(sizeof(info));
-
-  INFO_SCOPELEVEL(result) = 0;
+  result->currentScope = NULL;
 
   DBUG_RETURN( result);
 }
@@ -49,10 +64,23 @@ static info *FreeInfo( info *info)
   DBUG_RETURN( info);
 }
 
+struct SymbolTable *makeNewSymbolTable() {
+    struct SymbolTable *st = MEMmalloc(sizeof(struct SymbolTable));
+    st->parent = NULL;
+    st->vardecls = LUTgenerateLut();
+    st->fundecls = LUTgenerateLut();
+    return st;
+}
+
 node *CAprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("CCprogram");
 
+    INFO_CURRENTSCOPE(arg_info) = makeNewSymbolTable();
+    PROGRAM_SYMBOLTABLE(arg_node) = (node *)INFO_CURRENTSCOPE(arg_info);
+
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
+
+    INFO_CURRENTSCOPE(arg_info) = INFO_CURRENTSCOPE(arg_info)->parent;
 
     DBUG_RETURN(arg_node);
 }
@@ -104,10 +132,25 @@ node *CAfunbody(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+void registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
+    lut_t* varDecls = INFO_CURRENTSCOPE(arg_info)->vardecls;
+    struct SymbolTableEntry* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
+    if (symbolTableEntry) {
+        CTIerror(
+                "Variable [%s] has already been declared at line %d, column %d.",
+                name, symbolTableEntry->decl->lineno,
+                symbolTableEntry->decl->colno);
+    } else {
+        symbolTableEntry = MEMmalloc(sizeof(struct SymbolTableEntry));
+        symbolTableEntry->decl = arg_node;
+        LUTinsertIntoLutS(varDecls, name, symbolTableEntry);
+    }
+}
+
 node *CAglobaldec(node *arg_node, info *arg_info) {
     DBUG_ENTER("CCglobaldec");
 
-    printf("Globaldec\n");
+    registerNewVarDecl(arg_node, arg_info, ID_NAME(GLOBALDEC_ID(arg_node)));
 
     DBUG_RETURN(arg_node);
 }
@@ -115,7 +158,7 @@ node *CAglobaldec(node *arg_node, info *arg_info) {
 node *CAglobaldef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CCglobaldef");
 
-    printf("Globaldef\n");
+    registerNewVarDecl(arg_node, arg_info, ID_NAME(GLOBALDEF_ID(arg_node)));
 
     DBUG_RETURN(arg_node);
 }
@@ -340,7 +383,7 @@ node *CAdoScopeAnalysis( node *syntaxtree) {
 
     TRAVpush(TR_ca);
 
-    TRAVdo(syntaxtree, NULL);
+    TRAVdo(syntaxtree, arg_info);
 
     TRAVpop();
 
