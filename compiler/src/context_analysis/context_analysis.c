@@ -119,13 +119,27 @@ node *CAfundec(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+struct SymbolTable* startNewScope(info *arg_info) {
+    struct SymbolTable *newScope = makeNewSymbolTable();
+    newScope->parent = INFO_CURRENTSCOPE(arg_info);
+    INFO_CURRENTSCOPE(arg_info) = newScope;
+    return newScope;
+}
+
+void closeScope(info *arg_info) {
+    INFO_CURRENTSCOPE(arg_info) = INFO_CURRENTSCOPE(arg_info)->parent;
+}
 
 node *CAfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CCfundef");
 
     registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
+    startNewScope(arg_info);
+
     TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
     TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
+
+    closeScope(arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -134,7 +148,7 @@ node *CAfundef(node *arg_node, info *arg_info) {
 node *CAfunheader(node *arg_node, info *arg_info) {
     DBUG_ENTER("CCfunheader");
 
-    printf("Funheader\n");
+    TRAVopt(FUNHEADER_PARAMS(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -142,7 +156,9 @@ node *CAfunheader(node *arg_node, info *arg_info) {
 node *CAfunbody(node *arg_node, info *arg_info) {
     DBUG_ENTER("CCfunbody");
 
-    printf("Funbody\n");
+    TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
+    TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
+    TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -199,17 +215,33 @@ node *CAbool(node *arg_node, info *arg_info) {
 node *CAparams(node *arg_node, info *arg_info) {
     DBUG_ENTER("CCparams");
 
+    TRAVopt(PARAMS_NEXT(arg_node), arg_info);
+    TRAVdo(PARAMS_PARAM(arg_node), arg_info);
+
     DBUG_RETURN(arg_node);
 }
 
 node *CAparam(node *arg_node, info *arg_info) {
     DBUG_ENTER("CCparam");
 
+    registerNewVarDecl(arg_node, arg_info, ID_NAME(PARAM_ID(arg_node)));
+
     DBUG_RETURN(arg_node);
 }
 
 node *CAvardecs(node *arg_node, info *arg_info) {
     DBUG_ENTER("CCvardecs");
+
+    TRAVopt(VARDECS_NEXT(arg_node), arg_info);
+    TRAVdo(VARDECS_VARDEC(arg_node), arg_info);
+
+    DBUG_RETURN(arg_node);
+}
+
+node *CAvardec(node *arg_node, info *arg_info) {
+    DBUG_ENTER("CCvardec");
+
+    registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEC_ID(arg_node)));
 
     DBUG_RETURN(arg_node);
 }
@@ -375,13 +407,6 @@ node *CAstatements(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAvardec(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CCvardec");
-
-    printf("Var Declaration [%s]\n", ID_NAME(VARDEC_ID(arg_node)));
-
-    DBUG_RETURN(arg_node);
-}
 
 node *CAid(node * arg_node, info * arg_info) {
     DBUG_ENTER("CCid");
