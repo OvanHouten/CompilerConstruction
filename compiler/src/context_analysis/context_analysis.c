@@ -100,9 +100,8 @@ void registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
     struct SymbolTableEntry* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
     if (symbolTableEntry) {
         CTIerror(
-                "Function [%s] has already been declared at line %d, column %d.",
-                name, symbolTableEntry->decl->lineno,
-                symbolTableEntry->decl->colno);
+                "Function [%s] at line %d, column %d has already been declared at line %d, column %d.",
+                name, arg_node->lineno, arg_node->colno, symbolTableEntry->decl->lineno, symbolTableEntry->decl->colno);
     } else {
         symbolTableEntry = MEMmalloc(sizeof(struct SymbolTableEntry));
         symbolTableEntry->decl = arg_node;
@@ -168,14 +167,27 @@ void registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
     struct SymbolTableEntry* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
     if (symbolTableEntry) {
         CTIerror(
-                "Variable [%s] has already been declared at line %d, column %d.",
-                name, symbolTableEntry->decl->lineno,
-                symbolTableEntry->decl->colno);
+                "Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
+                name, arg_node->lineno, arg_node->colno, symbolTableEntry->decl->lineno, symbolTableEntry->decl->colno);
     } else {
         symbolTableEntry = MEMmalloc(sizeof(struct SymbolTableEntry));
         symbolTableEntry->decl = arg_node;
         LUTinsertIntoLutS(varDecls, name, symbolTableEntry);
     }
+}
+
+struct SymbolTableEntry *findVarDecl(info *arg_info, char *name) {
+    struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
+    while (currentScope) {
+        lut_t* varDecls = currentScope->vardecls;
+        struct SymbolTableEntry* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
+        if (symbolTableEntry) {
+            return symbolTableEntry;
+        } else {
+            currentScope = currentScope->parent;
+        }
+    }
+    return NULL;
 }
 
 node *CAglobaldec(node *arg_node, info *arg_info) {
@@ -189,6 +201,7 @@ node *CAglobaldec(node *arg_node, info *arg_info) {
 node *CAglobaldef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAglobaldef");
 
+    TRAVopt(GLOBALDEF_EXPR(arg_node), arg_info);
     registerNewVarDecl(arg_node, arg_info, ID_NAME(GLOBALDEF_ID(arg_node)));
 
     DBUG_RETURN(arg_node);
@@ -241,8 +254,8 @@ node *CAvardecs(node *arg_node, info *arg_info) {
 node *CAvardec(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAvardec");
 
+    TRAVopt(VARDEC_EXPR(arg_node), arg_info);
     registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEC_ID(arg_node)));
-
     DBUG_RETURN(arg_node);
 }
 
@@ -260,6 +273,9 @@ node *CAtypecast(node *arg_node, info *arg_info) {
 
 node *CAassign(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAassign");
+
+    TRAVopt(ASSIGN_EXPR(arg_node), arg_info);
+    TRAVdo(ASSIGN_LET(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -296,6 +312,9 @@ node *CAreturn(node *arg_node, info *arg_info) {
 
 node *CAexprs(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAexprs");
+
+    TRAVopt(EXPRS_NEXT(arg_node), arg_info);
+    TRAVdo(EXPRS_EXPR(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -396,22 +415,25 @@ node *CAarrexprs(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-
 node *CAstatements(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAstatements");
 
-    printf("Statements\n");
-
     TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
+    TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
 
-
 node *CAid(node * arg_node, info * arg_info) {
     DBUG_ENTER("CAid");
 
-    printf("Var usage [%s]\n", ID_NAME(arg_node));
+    char *name = ID_NAME(arg_node);
+    struct SymbolTableEntry *varDecl = findVarDecl(arg_info, name);
+    if (varDecl) {
+        ID_DECL(arg_node) = (node *)varDecl;
+    } else {
+        CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", name, arg_node->lineno, arg_node->colno);
+    }
 
     DBUG_RETURN(arg_node);
 }
