@@ -1,0 +1,2 @@
+void notAllowed(int a, int a) {
+}
