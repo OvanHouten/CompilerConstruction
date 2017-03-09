@@ -1,11 +1,12 @@
 /*
- * context_checks.c
+ * context_analysis.c
  *
  *  Created on: 3 Mar 2017
  *      Author: nico
  */
 
 #include "types.h"
+#include "node_basic.h"
 #include "tree_basic.h"
 #include "traverse.h"
 #include "dbug.h"

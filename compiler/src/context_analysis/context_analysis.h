@@ -1,5 +1,5 @@
 /*
- * context_checks.h
+ * context_analysis.h
  *
  *  Created on: 3 Mar 2017
  *      Author: nico
