@@ -1,0 +1,6 @@
+export int main() {
+    shouldBePossible();
+    return 0;
+}
+void shouldBePossible() {
+}

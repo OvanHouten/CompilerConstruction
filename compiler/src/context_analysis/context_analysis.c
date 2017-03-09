@@ -29,6 +29,7 @@ struct SymbolTableEntry {
  */
 struct INFO {
   struct SymbolTable *currentScope;
+  bool registerOnly;
 };
 
 /*
@@ -51,6 +52,7 @@ static info *MakeInfo(void)
 
   result = (info *)MEMmalloc(sizeof(info));
   result->currentScope = NULL;
+  result->registerOnly = FALSE;
 
   DBUG_RETURN( result);
 }
@@ -64,58 +66,16 @@ static info *FreeInfo( info *info)
   DBUG_RETURN( info);
 }
 
+// =============================================
+// Scope handling
+// =============================================
+
 struct SymbolTable *makeNewSymbolTable() {
     struct SymbolTable *st = MEMmalloc(sizeof(struct SymbolTable));
     st->parent = NULL;
     st->vardecls = LUTgenerateLut();
     st->fundecls = LUTgenerateLut();
     return st;
-}
-
-node *CAprogram(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAprogram");
-
-    INFO_CURRENTSCOPE(arg_info) = makeNewSymbolTable();
-    PROGRAM_SYMBOLTABLE(arg_node) = (node *)INFO_CURRENTSCOPE(arg_info);
-
-    TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
-
-    INFO_CURRENTSCOPE(arg_info) = INFO_CURRENTSCOPE(arg_info)->parent;
-
-    DBUG_RETURN(arg_node);
-}
-
-
-node *CAdeclarations(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAdeclarations");
-
-    TRAVopt(DECLARATIONS_NEXT(arg_node), arg_info);
-    TRAVdo(DECLARATIONS_DECLARATION(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-void registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
-    lut_t* varDecls = INFO_CURRENTSCOPE(arg_info)->fundecls;
-    struct SymbolTableEntry* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
-    if (symbolTableEntry) {
-        CTIerror(
-                "Function [%s] at line %d, column %d has already been declared at line %d, column %d.",
-                name, arg_node->lineno, arg_node->colno, symbolTableEntry->decl->lineno, symbolTableEntry->decl->colno);
-    } else {
-        symbolTableEntry = MEMmalloc(sizeof(struct SymbolTableEntry));
-        symbolTableEntry->decl = arg_node;
-        LUTinsertIntoLutS(varDecls, name, symbolTableEntry);
-    }
-}
-
-
-node *CAfundec(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAfundec");
-
-    registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEC_FUNHEADER(arg_node))));
-
-    DBUG_RETURN(arg_node);
 }
 
 struct SymbolTable* startNewScope(info *arg_info) {
@@ -129,16 +89,119 @@ void closeScope(info *arg_info) {
     INFO_CURRENTSCOPE(arg_info) = INFO_CURRENTSCOPE(arg_info)->parent;
 }
 
+struct SymbolTableEntry *registerNewDecl(node *arg_node, char *typeName, lut_t* decls, char *name) {
+    struct SymbolTableEntry *symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(decls, name));
+    if (symbolTableEntry) {
+        CTIerror(
+                "%s [%s] at line %d, column %d has already been declared at line %d, column %d.", typeName,
+                name, arg_node->lineno, arg_node->colno, symbolTableEntry->decl->lineno, symbolTableEntry->decl->colno);
+    } else {
+        symbolTableEntry = MEMmalloc(sizeof(struct SymbolTableEntry));
+        symbolTableEntry->decl = arg_node;
+        LUTinsertIntoLutS(decls, name, symbolTableEntry);
+    }
+    DBUG_PRINT("CA", ("Registered at [%p]", symbolTableEntry));
+    return symbolTableEntry;
+}
+
+struct SymbolTableEntry * registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
+    DBUG_PRINT("CA", ("Registering function [%s]", name));
+    return registerNewDecl(arg_node, "Function", INFO_CURRENTSCOPE(arg_info)->fundecls, name);
+}
+
+struct SymbolTableEntry * registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
+    DBUG_PRINT("CA", ("Registering variable [%s]", name));
+    return registerNewDecl(arg_node, "Variabel", INFO_CURRENTSCOPE(arg_info)->vardecls, name);
+}
+
+struct SymbolTableEntry *findVarDecl(info *arg_info, char *name) {
+    DBUG_PRINT("CA", ("Looking for variable [%s]", name));
+    struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
+    while (currentScope) {
+        lut_t* varDecls = currentScope->vardecls;
+        struct SymbolTableEntry* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
+        if (symbolTableEntry) {
+            DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, symbolTableEntry));
+            return symbolTableEntry;
+        } else {
+            currentScope = currentScope->parent;
+        }
+    }
+    DBUG_PRINT("CA", ("[%s] not found", name));
+    return NULL;
+}
+
+struct SymbolTableEntry *findFunDecl(info *arg_info, char *name) {
+    DBUG_PRINT("CA", ("Looking for function [%s]", name));
+    struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
+    while (currentScope) {
+        lut_t* funDecls = currentScope->fundecls;
+        struct SymbolTableEntry* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(funDecls, name));
+        if (symbolTableEntry) {
+            DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, symbolTableEntry));
+            return symbolTableEntry;
+        } else {
+            currentScope = currentScope->parent;
+        }
+    }
+    DBUG_PRINT("CA", ("[%s] not found", name));
+    return NULL;
+}
+
+// =============================================
+// Traversal code starts here
+// =============================================
+
+node *CAprogram(node *arg_node, info *arg_info) {
+    DBUG_ENTER("CAprogram");
+
+    INFO_CURRENTSCOPE(arg_info) = makeNewSymbolTable();
+    PROGRAM_SYMBOLTABLE(arg_node) = (node *)INFO_CURRENTSCOPE(arg_info);
+
+    // Only register functions at this stage
+    arg_info->registerOnly = TRUE;
+    TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
+    // No do it again and process the function bodies
+    arg_info->registerOnly = FALSE;
+    TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
+
+    INFO_CURRENTSCOPE(arg_info) = INFO_CURRENTSCOPE(arg_info)->parent;
+
+    DBUG_RETURN(arg_node);
+}
+
+node *CAdeclarations(node *arg_node, info *arg_info) {
+    DBUG_ENTER("CAdeclarations");
+
+    TRAVopt(DECLARATIONS_NEXT(arg_node), arg_info);
+    TRAVdo(DECLARATIONS_DECLARATION(arg_node), arg_info);
+
+    DBUG_RETURN(arg_node);
+}
+
+node *CAfundec(node *arg_node, info *arg_info) {
+    DBUG_ENTER("CAfundec");
+
+    if (arg_info->registerOnly) {
+        registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEC_FUNHEADER(arg_node))));
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
 node *CAfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAfundef");
 
-    registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
-    startNewScope(arg_info);
+    if (arg_info->registerOnly) {
+        registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
+    } else {
+        startNewScope(arg_info);
 
-    TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
-    TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
+        TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
+        TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
-    closeScope(arg_info);
+        closeScope(arg_info);
+    }
 
     DBUG_RETURN(arg_node);
 }
@@ -162,38 +225,12 @@ node *CAfunbody(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-void registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
-    lut_t* varDecls = INFO_CURRENTSCOPE(arg_info)->vardecls;
-    struct SymbolTableEntry* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
-    if (symbolTableEntry) {
-        CTIerror(
-                "Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
-                name, arg_node->lineno, arg_node->colno, symbolTableEntry->decl->lineno, symbolTableEntry->decl->colno);
-    } else {
-        symbolTableEntry = MEMmalloc(sizeof(struct SymbolTableEntry));
-        symbolTableEntry->decl = arg_node;
-        LUTinsertIntoLutS(varDecls, name, symbolTableEntry);
-    }
-}
-
-struct SymbolTableEntry *findVarDecl(info *arg_info, char *name) {
-    struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
-    while (currentScope) {
-        lut_t* varDecls = currentScope->vardecls;
-        struct SymbolTableEntry* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
-        if (symbolTableEntry) {
-            return symbolTableEntry;
-        } else {
-            currentScope = currentScope->parent;
-        }
-    }
-    return NULL;
-}
-
 node *CAglobaldec(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAglobaldec");
 
-    registerNewVarDecl(arg_node, arg_info, ID_NAME(GLOBALDEC_ID(arg_node)));
+    if (arg_info->registerOnly) {
+        registerNewVarDecl(arg_node, arg_info, ID_NAME(GLOBALDEC_ID(arg_node)));
+    }
 
     DBUG_RETURN(arg_node);
 }
@@ -201,8 +238,10 @@ node *CAglobaldec(node *arg_node, info *arg_info) {
 node *CAglobaldef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAglobaldef");
 
-    TRAVopt(GLOBALDEF_EXPR(arg_node), arg_info);
-    registerNewVarDecl(arg_node, arg_info, ID_NAME(GLOBALDEF_ID(arg_node)));
+    if (arg_info->registerOnly) {
+        TRAVopt(GLOBALDEF_EXPR(arg_node), arg_info);
+        registerNewVarDecl(arg_node, arg_info, ID_NAME(GLOBALDEF_ID(arg_node)));
+    }
 
     DBUG_RETURN(arg_node);
 }
@@ -261,6 +300,14 @@ node *CAvardec(node *arg_node, info *arg_info) {
 
 node *CAfuncall(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAfuncall");
+
+    char *name = ID_NAME(FUNCALL_ID(arg_node));
+    struct SymbolTableEntry *funDecl = findFunDecl(arg_info, name);
+    if (funDecl) {
+        TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
+    } else {
+        CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, arg_node->lineno, arg_node->colno);
+    }
 
     DBUG_RETURN(arg_node);
 }
