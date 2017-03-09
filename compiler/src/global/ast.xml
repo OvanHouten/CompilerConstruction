@@ -151,40 +151,6 @@
         </son>
       </sons>
       <attributes>
-        <attribute name="SymbolTable">
-          <description>Link to symbol table entry</description>
-          <type name="Link">
-            <targets>
-              <target mandatory="no">
-                <phases>
-                  <phase from="Scope Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
-      </attributes>
-    </node>
-
-<!--
- Node SymbolTableEntry:
--->
-    <node name="SymbolTableEntry">
-      <description>Represents symbol table entry</description>
-      <sons>
-        <son name="SymbolTable">
-            <type name="Link">
-                <targets>
-                    <target mandatory="yes">
-                        <phases>
-                            <phase from="Scope Analysis"></phase>
-                        </phases>
-                    </target>
-                </targets>
-            </type>
-        </son>
-      </sons>
-      <attributes>
       </attributes>
     </node>
 
@@ -1200,7 +1166,7 @@
       </sons>
       <attributes>
         <attribute name="Name">
-        <description>Identifier in character string representation</description>
+          <description>Identifier in character string representation</description>
           <type name="String">
             <targets>
               <target mandatory="yes">
@@ -1211,12 +1177,47 @@
             </targets>
           </type>
         </attribute>
+        <attribute name="Type">
+          <description>The type of the ID of function</description>
+          <type name="Type">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Distance">
+          <description>Distance to symbol table</description>
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Offset">
+          <description>Offset into the symbol table</description>
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
         <attribute name="Decl">
-          <description>Link to symbol table entry</description>
+          <description>Link to node declaring this ID??</description>
           <type name="Link">
             <targets>
               <target mandatory="no">
-                <node name="SymbolTableEntry" />
                 <phases>
                   <phase from="Context Analysis"/>
                 </phases>

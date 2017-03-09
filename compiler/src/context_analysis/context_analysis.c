@@ -114,7 +114,7 @@ struct SymbolTableEntry * registerNewFunDecl(node* arg_node, info* arg_info, cha
 
 struct SymbolTableEntry * registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
     DBUG_PRINT("CA", ("Registering variable [%s]", name));
-    return registerNewDecl(arg_node, "Variabel", INFO_CURRENTSCOPE(arg_info)->vardecls, name);
+    return registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->vardecls, name);
 }
 
 struct SymbolTableEntry *findVarDecl(info *arg_info, char *name) {
@@ -159,7 +159,6 @@ node *CAprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAprogram");
 
     INFO_CURRENTSCOPE(arg_info) = makeNewSymbolTable();
-    PROGRAM_SYMBOLTABLE(arg_node) = (node *)INFO_CURRENTSCOPE(arg_info);
 
     // Only register functions at this stage
     arg_info->registerOnly = TRUE;
@@ -242,8 +241,9 @@ node *CAglobaldef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAglobaldef");
 
     if (arg_info->registerOnly) {
-        TRAVopt(GLOBALDEF_EXPR(arg_node), arg_info);
         registerNewVarDecl(arg_node, arg_info, ID_NAME(GLOBALDEF_ID(arg_node)));
+    } else {
+        TRAVopt(GLOBALDEF_EXPR(arg_node), arg_info);
     }
 
     DBUG_RETURN(arg_node);
@@ -298,6 +298,7 @@ node *CAvardec(node *arg_node, info *arg_info) {
 
     TRAVopt(VARDEC_EXPR(arg_node), arg_info);
     registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEC_ID(arg_node)));
+
     DBUG_RETURN(arg_node);
 }
 
