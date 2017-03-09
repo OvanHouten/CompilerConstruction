@@ -17,8 +17,8 @@
 
 struct SymbolTable {
     struct SymbolTable *parent;
-    lut_t *vardecls;
-    lut_t *fundecls;
+    lut_t *varDecls;
+    lut_t *funDecls;
 };
 
 /*
@@ -70,17 +70,17 @@ static info *FreeInfo( info *info)
 struct SymbolTable *makeNewSymbolTable() {
     struct SymbolTable *st = MEMmalloc(sizeof(struct SymbolTable));
     st->parent = NULL;
-    st->vardecls = LUTgenerateLut();
-    st->fundecls = LUTgenerateLut();
+    st->varDecls = LUTgenerateLut();
+    st->funDecls = LUTgenerateLut();
     return st;
 }
 
 struct SymbolTable *freeSymbolTable(struct SymbolTable *symbolTable) {
     symbolTable->parent = NULL;
-    LUTremoveContentLut(symbolTable->vardecls);
-    LUTremoveContentLut(symbolTable->fundecls);
-    symbolTable->vardecls = LUTremoveLut(symbolTable->vardecls);
-    symbolTable->fundecls = LUTremoveLut(symbolTable->fundecls);
+    LUTremoveContentLut(symbolTable->varDecls);
+    LUTremoveContentLut(symbolTable->funDecls);
+    symbolTable->varDecls = LUTremoveLut(symbolTable->varDecls);
+    symbolTable->funDecls = LUTremoveLut(symbolTable->funDecls);
     symbolTable = MEMfree(symbolTable);
     return symbolTable;
 }
@@ -96,9 +96,9 @@ struct SymbolTable* startNewScope(info *arg_info) {
 
 void closeScope(info *arg_info) {
     DBUG_PRINT("CA", ("Closing scope"));
-    struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
+    struct SymbolTable *scopeToBeFreed = INFO_CURRENTSCOPE(arg_info);
     INFO_CURRENTSCOPE(arg_info) = INFO_CURRENTSCOPE(arg_info)->parent;
-    currentScope = freeSymbolTable(currentScope);
+    scopeToBeFreed = freeSymbolTable(scopeToBeFreed);
 }
 
 node *registerNewDecl(node *arg_node, char *typeName, lut_t* decls, char *name) {
@@ -116,19 +116,19 @@ node *registerNewDecl(node *arg_node, char *typeName, lut_t* decls, char *name) 
 
 node *registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
     DBUG_PRINT("CA", ("Registering function [%s]", name));
-    return registerNewDecl(arg_node, "Function", INFO_CURRENTSCOPE(arg_info)->fundecls, name);
+    return registerNewDecl(arg_node, "Function", INFO_CURRENTSCOPE(arg_info)->funDecls, name);
 }
 
 node *registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
     DBUG_PRINT("CA", ("Registering variable [%s]", name));
-    return registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->vardecls, name);
+    return registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->varDecls, name);
 }
 
 node *findVarDecl(info *arg_info, char *name) {
     DBUG_PRINT("CA", ("Looking for variable [%s]", name));
     struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
     while (currentScope) {
-        lut_t* varDecls = currentScope->vardecls;
+        lut_t* varDecls = currentScope->varDecls;
         node* declaringNode = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
         if (declaringNode) {
             DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, declaringNode));
@@ -145,11 +145,11 @@ node *findFunDecl(info *arg_info, char *name) {
     DBUG_PRINT("CA", ("Looking for function [%s]", name));
     struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
     while (currentScope) {
-        lut_t* funDecls = currentScope->fundecls;
-        node* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(funDecls, name));
-        if (symbolTableEntry) {
-            DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, symbolTableEntry));
-            return symbolTableEntry;
+        lut_t* funDecls = currentScope->funDecls;
+        node* declaringNode = DEREF_IF_NOT_NULL(LUTsearchInLutS(funDecls, name));
+        if (declaringNode) {
+            DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, declaringNode));
+            return declaringNode;
         } else {
             currentScope = currentScope->parent;
         }
@@ -315,6 +315,7 @@ node *CAfuncall(node *arg_node, info *arg_info) {
     char *name = ID_NAME(FUNCALL_ID(arg_node));
     node *funDecl = findFunDecl(arg_info, name);
     if (funDecl) {
+        ID_DECL(FUNCALL_ID(arg_node)) = funDecl;
         TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
     } else {
         CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
