@@ -21,10 +21,6 @@ struct SymbolTable {
     lut_t *fundecls;
 };
 
-struct SymbolTableEntry {
-    node *decl; // Reference back to the declaring node
-};
-
 /*
  * INFO structure
  */
@@ -105,40 +101,38 @@ void closeScope(info *arg_info) {
     currentScope = freeSymbolTable(currentScope);
 }
 
-struct SymbolTableEntry *registerNewDecl(node *arg_node, char *typeName, lut_t* decls, char *name) {
-    struct SymbolTableEntry *symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(decls, name));
-    if (symbolTableEntry) {
+node *registerNewDecl(node *arg_node, char *typeName, lut_t* decls, char *name) {
+    node *declaringNode = DEREF_IF_NOT_NULL(LUTsearchInLutS(decls, name));
+    if (declaringNode) {
         CTIerror(
                 "%s [%s] at line %d, column %d has already been declared at line %d, column %d.", typeName,
-                name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(symbolTableEntry->decl), NODE_COL(symbolTableEntry->decl));
+                name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(declaringNode), NODE_COL(declaringNode));
     } else {
-        symbolTableEntry = MEMmalloc(sizeof(struct SymbolTableEntry));
-        symbolTableEntry->decl = arg_node;
-        LUTinsertIntoLutS(decls, name, symbolTableEntry);
+        LUTinsertIntoLutS(decls, name, arg_node);
     }
-    DBUG_PRINT("CA", ("Registered at [%p]", symbolTableEntry));
-    return symbolTableEntry;
+    DBUG_PRINT("CA", ("Registered at [%p]", declaringNode));
+    return declaringNode;
 }
 
-struct SymbolTableEntry * registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
+node *registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
     DBUG_PRINT("CA", ("Registering function [%s]", name));
     return registerNewDecl(arg_node, "Function", INFO_CURRENTSCOPE(arg_info)->fundecls, name);
 }
 
-struct SymbolTableEntry * registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
+node *registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
     DBUG_PRINT("CA", ("Registering variable [%s]", name));
     return registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->vardecls, name);
 }
 
-struct SymbolTableEntry *findVarDecl(info *arg_info, char *name) {
+node *findVarDecl(info *arg_info, char *name) {
     DBUG_PRINT("CA", ("Looking for variable [%s]", name));
     struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
     while (currentScope) {
         lut_t* varDecls = currentScope->vardecls;
-        struct SymbolTableEntry* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
-        if (symbolTableEntry) {
-            DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, symbolTableEntry));
-            return symbolTableEntry;
+        node* declaringNode = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
+        if (declaringNode) {
+            DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, declaringNode));
+            return declaringNode;
         } else {
             currentScope = currentScope->parent;
         }
@@ -147,12 +141,12 @@ struct SymbolTableEntry *findVarDecl(info *arg_info, char *name) {
     return NULL;
 }
 
-struct SymbolTableEntry *findFunDecl(info *arg_info, char *name) {
+node *findFunDecl(info *arg_info, char *name) {
     DBUG_PRINT("CA", ("Looking for function [%s]", name));
     struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
     while (currentScope) {
         lut_t* funDecls = currentScope->fundecls;
-        struct SymbolTableEntry* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(funDecls, name));
+        node* symbolTableEntry = DEREF_IF_NOT_NULL(LUTsearchInLutS(funDecls, name));
         if (symbolTableEntry) {
             DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, symbolTableEntry));
             return symbolTableEntry;
@@ -319,7 +313,7 @@ node *CAfuncall(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAfuncall");
 
     char *name = ID_NAME(FUNCALL_ID(arg_node));
-    struct SymbolTableEntry *funDecl = findFunDecl(arg_info, name);
+    node *funDecl = findFunDecl(arg_info, name);
     if (funDecl) {
         TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
     } else {
@@ -535,9 +529,9 @@ node *CAid(node * arg_node, info * arg_info) {
     DBUG_ENTER("CAid");
 
     char *name = ID_NAME(arg_node);
-    struct SymbolTableEntry *varDecl = findVarDecl(arg_info, name);
+    node *varDecl = findVarDecl(arg_info, name);
     if (varDecl) {
-        ID_DECL(arg_node) = (node *)varDecl;
+        ID_DECL(arg_node) = varDecl;
     } else {
         CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
     }
