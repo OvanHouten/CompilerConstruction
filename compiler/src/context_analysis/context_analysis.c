@@ -80,6 +80,7 @@ struct SymbolTable *makeNewSymbolTable() {
 }
 
 struct SymbolTable* startNewScope(info *arg_info) {
+    DBUG_PRINT("CA", ("Starting new scope"));
     struct SymbolTable *newScope = makeNewSymbolTable();
     newScope->parent = INFO_CURRENTSCOPE(arg_info);
     INFO_CURRENTSCOPE(arg_info) = newScope;
@@ -87,6 +88,7 @@ struct SymbolTable* startNewScope(info *arg_info) {
 }
 
 void closeScope(info *arg_info) {
+    DBUG_PRINT("CA", ("Closing scope"));
     INFO_CURRENTSCOPE(arg_info) = INFO_CURRENTSCOPE(arg_info)->parent;
 }
 
