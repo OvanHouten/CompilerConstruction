@@ -79,9 +79,20 @@ struct SymbolTable *makeNewSymbolTable() {
     return st;
 }
 
+struct SymbolTable *freeSymbolTable(struct SymbolTable *symbolTable) {
+    symbolTable->parent = NULL;
+    LUTremoveContentLut(symbolTable->vardecls);
+    LUTremoveContentLut(symbolTable->fundecls);
+    symbolTable->vardecls = LUTremoveLut(symbolTable->vardecls);
+    symbolTable->fundecls = LUTremoveLut(symbolTable->fundecls);
+    symbolTable = MEMfree(symbolTable);
+    return symbolTable;
+}
+
 struct SymbolTable* startNewScope(info *arg_info) {
     DBUG_PRINT("CA", ("Starting new scope"));
     struct SymbolTable *newScope = makeNewSymbolTable();
+    // Create link to parent
     newScope->parent = INFO_CURRENTSCOPE(arg_info);
     INFO_CURRENTSCOPE(arg_info) = newScope;
     return newScope;
@@ -89,7 +100,9 @@ struct SymbolTable* startNewScope(info *arg_info) {
 
 void closeScope(info *arg_info) {
     DBUG_PRINT("CA", ("Closing scope"));
+    struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
     INFO_CURRENTSCOPE(arg_info) = INFO_CURRENTSCOPE(arg_info)->parent;
+    currentScope = freeSymbolTable(currentScope);
 }
 
 struct SymbolTableEntry *registerNewDecl(node *arg_node, char *typeName, lut_t* decls, char *name) {
@@ -158,7 +171,7 @@ struct SymbolTableEntry *findFunDecl(info *arg_info, char *name) {
 node *CAprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAprogram");
 
-    INFO_CURRENTSCOPE(arg_info) = makeNewSymbolTable();
+    startNewScope(arg_info);
 
     // Only register functions at this stage
     arg_info->registerOnly = TRUE;
@@ -167,7 +180,7 @@ node *CAprogram(node *arg_node, info *arg_info) {
     arg_info->registerOnly = FALSE;
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
 
-    INFO_CURRENTSCOPE(arg_info) = INFO_CURRENTSCOPE(arg_info)->parent;
+    closeScope(arg_info);
 
     DBUG_RETURN(arg_node);
 }
