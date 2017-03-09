@@ -110,7 +110,7 @@ struct SymbolTableEntry *registerNewDecl(node *arg_node, char *typeName, lut_t* 
     if (symbolTableEntry) {
         CTIerror(
                 "%s [%s] at line %d, column %d has already been declared at line %d, column %d.", typeName,
-                name, arg_node->lineno, arg_node->colno, symbolTableEntry->decl->lineno, symbolTableEntry->decl->colno);
+                name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(symbolTableEntry->decl), NODE_COL(symbolTableEntry->decl));
     } else {
         symbolTableEntry = MEMmalloc(sizeof(struct SymbolTableEntry));
         symbolTableEntry->decl = arg_node;
@@ -323,7 +323,7 @@ node *CAfuncall(node *arg_node, info *arg_info) {
     if (funDecl) {
         TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
     } else {
-        CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, arg_node->lineno, arg_node->colno);
+        CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     DBUG_RETURN(arg_node);
@@ -539,7 +539,7 @@ node *CAid(node * arg_node, info * arg_info) {
     if (varDecl) {
         ID_DECL(arg_node) = (node *)varDecl;
     } else {
-        CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", name, arg_node->lineno, arg_node->colno);
+        CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     DBUG_RETURN(arg_node);
