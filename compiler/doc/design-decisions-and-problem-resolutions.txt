@@ -51,3 +51,9 @@ We have four branches
 === TEST SUITE ===
 After integrating the provided test suite we found some bugs in our grammar, for example the dangling-else problem. Within each branch the appropriate tests have been added.
 Before every commit we should doe a 'make clean && make check' to ensure we only commit we behaving code.
+
+=== HANDLING FORWARD FUNCTION DECLARATIONS ===
+In order to handle forward declarations of functions (for now only tested at the program level) traversing de program node is done as a two-step process.
+Duing the first step only variable and function declarations and definitions are being traversed.
+During the second step the body of the functions is traversed.
+Technically this is implemented as a boolean flag (registerOnly) in the INFO structure. This solution should be able to handle the localfunctions as well, when the flag is set appropriate in the CAlocalfundef function.   
