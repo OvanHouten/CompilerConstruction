@@ -256,6 +256,35 @@ node *CAglobaldef(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *CAid(node * arg_node, info * arg_info) {
+    DBUG_ENTER("CAid");
+
+    char *name = ID_NAME(arg_node);
+    node *varDecl = findVarDecl(arg_info, name);
+    if (varDecl) {
+        ID_DECL(arg_node) = varDecl;
+    } else {
+        CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *CAfuncall(node *arg_node, info *arg_info) {
+    DBUG_ENTER("CAfuncall");
+
+    char *name = ID_NAME(FUNCALL_ID(arg_node));
+    node *funDecl = findFunDecl(arg_info, name);
+    if (funDecl) {
+        ID_DECL(FUNCALL_ID(arg_node)) = funDecl;
+        TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
+    } else {
+        CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
 node *CAint(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAint");
 
@@ -305,21 +334,6 @@ node *CAvardec(node *arg_node, info *arg_info) {
 
     TRAVopt(VARDEC_EXPR(arg_node), arg_info);
     registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEC_ID(arg_node)));
-
-    DBUG_RETURN(arg_node);
-}
-
-node *CAfuncall(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAfuncall");
-
-    char *name = ID_NAME(FUNCALL_ID(arg_node));
-    node *funDecl = findFunDecl(arg_info, name);
-    if (funDecl) {
-        ID_DECL(FUNCALL_ID(arg_node)) = funDecl;
-        TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
-    } else {
-        CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
-    }
 
     DBUG_RETURN(arg_node);
 }
@@ -522,20 +536,6 @@ node *CAstatements(node *arg_node, info *arg_info) {
 
     TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
     TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *CAid(node * arg_node, info * arg_info) {
-    DBUG_ENTER("CAid");
-
-    char *name = ID_NAME(arg_node);
-    node *varDecl = findVarDecl(arg_info, name);
-    if (varDecl) {
-        ID_DECL(arg_node) = varDecl;
-    } else {
-        CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
-    }
 
     DBUG_RETURN(arg_node);
 }
