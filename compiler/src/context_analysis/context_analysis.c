@@ -19,6 +19,7 @@ struct SymbolTable {
     struct SymbolTable *parent;
     lut_t *varDecls;
     lut_t *funDecls;
+    int funCount;
 };
 
 /*
@@ -72,6 +73,7 @@ struct SymbolTable *makeNewSymbolTable() {
     st->parent = NULL;
     st->varDecls = LUTgenerateLut();
     st->funDecls = LUTgenerateLut();
+    st->funCount = 0;
     return st;
 }
 
@@ -101,27 +103,30 @@ void closeScope(info *arg_info) {
     scopeToBeFreed = freeSymbolTable(scopeToBeFreed);
 }
 
-node *registerNewDecl(node *arg_node, char *typeName, lut_t* decls, char *name) {
+bool registerNewDecl(node *arg_node, char *typeName, lut_t* decls, char *name) {
     node *declaringNode = DEREF_IF_NOT_NULL(LUTsearchInLutS(decls, name));
     if (declaringNode) {
         CTIerror(
                 "%s [%s] at line %d, column %d has already been declared at line %d, column %d.", typeName,
                 name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(declaringNode), NODE_COL(declaringNode));
+        return FALSE;
     } else {
         LUTinsertIntoLutS(decls, name, arg_node);
+        return TRUE;
     }
-    DBUG_PRINT("CA", ("Registered at [%p]", declaringNode));
-    return declaringNode;
 }
 
-node *registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
+void registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
     DBUG_PRINT("CA", ("Registering function [%s]", name));
-    return registerNewDecl(arg_node, "Function", INFO_CURRENTSCOPE(arg_info)->funDecls, name);
+    if (registerNewDecl(arg_node, "Function", INFO_CURRENTSCOPE(arg_info)->funDecls, name)) {
+        // Only adjust the offset when the registration was successful
+        FUNDEF_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->funCount++;
+    }
 }
 
-node *registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
+void registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
     DBUG_PRINT("CA", ("Registering variable [%s]", name));
-    return registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->varDecls, name);
+    registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->varDecls, name);
 }
 
 node *findVarDecl(info *arg_info, char *name) {
@@ -141,7 +146,7 @@ node *findVarDecl(info *arg_info, char *name) {
     return NULL;
 }
 
-node *findFunDecl(info *arg_info, char *name) {
+node *findFunDecl(info *arg_info, char *name, int *distance) {
     DBUG_PRINT("CA", ("Looking for function [%s]", name));
     struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
     while (currentScope) {
@@ -151,6 +156,7 @@ node *findFunDecl(info *arg_info, char *name) {
             DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, declaringNode));
             return declaringNode;
         } else {
+            (*distance)++;
             currentScope = currentScope->parent;
         }
     }
@@ -256,9 +262,12 @@ node *CAfuncall(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAfuncall");
 
     char *name = ID_NAME(FUNCALL_ID(arg_node));
-    node *funDecl = findFunDecl(arg_info, name);
+    int distance = 0;
+    node *funDecl = findFunDecl(arg_info, name, &distance);
     if (funDecl) {
-        ID_DECL(FUNCALL_ID(arg_node)) = funDecl;
+        FUNCALL_DISTANCE(arg_node) = distance;
+        FUNCALL_OFFSET(arg_node) = FUNDEF_OFFSET(funDecl);
+        FUNCALL_DECL(arg_node) = funDecl;
         TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
     } else {
         CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));

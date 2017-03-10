@@ -269,6 +269,18 @@
 	        </targets>
           </type>
         </attribute>
+        <attribute name="Offset">
+            <description>Offset within the symboltable</description>
+            <type name="Bool">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
       </attributes>
     </node>
 
@@ -394,6 +406,18 @@
                     <!-- Set to mandatory so the TBmakeVardef funtion has parameters for it -->
                     <target mandatory="yes">
                         <phases><all /></phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="Offset">
+            <description>Offset within the symboltable</description>
+            <type name="Bool">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
                     </target>
                 </targets>
             </type>
