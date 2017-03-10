@@ -220,6 +220,11 @@ node *CAfunbody(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAfunbody");
 
     TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
+
+    arg_info->registerOnly = TRUE;
+    TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
+
+    arg_info->registerOnly = FALSE;
     TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
     TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
 
@@ -477,14 +482,28 @@ node *CAerror(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAlocalfundef(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAlocalfundef");
+node *CAlocalfundefs(node *arg_node, info *arg_info) {
+    DBUG_ENTER("CAlocalfundefs");
+
+    TRAVopt(LOCALFUNDEFS_NEXT(arg_node), arg_info);
+    TRAVdo(LOCALFUNDEFS_LOCALFUNDEF(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAlocalfundefs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAlocalfundefs");
+node *CAlocalfundef(node *arg_node, info *arg_info) {
+    DBUG_ENTER("CAlocalfundef");
+
+    if (arg_info->registerOnly) {
+        registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(LOCALFUNDEF_FUNHEADER(arg_node))));
+    } else {
+        startNewScope(arg_info);
+
+        TRAVdo(LOCALFUNDEF_FUNHEADER(arg_node), arg_info);
+        TRAVopt(LOCALFUNDEF_FUNBODY(arg_node), arg_info);
+
+        closeScope(arg_info);
+    }
 
     DBUG_RETURN(arg_node);
 }
