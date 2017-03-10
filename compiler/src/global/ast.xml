@@ -661,6 +661,43 @@
           </targets>
         </son>
       </sons>
+      <attributes>
+        <attribute name="Distance">
+          <description>Distance to symbol table</description>
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Offset">
+          <description>Offset into the symbol table</description>
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Decl">
+            <description>Reference back to the FunDef node</description>
+            <type name="Link"/>
+            <targets>
+                <target mandatory="yes">
+                    <phases>
+                        <phase from="Context Analysis"/>
+                    </phases>
+                </target>
+            </targets>
+        </attribute>
+      </attributes>
     </node>
 
 <!--
