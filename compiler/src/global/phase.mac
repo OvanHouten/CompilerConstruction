@@ -29,6 +29,13 @@ ENDPHASE( ld)
 
 /******************************************************************************/
 
+PHASE(ca, "Context Analysis", ALWAYS)
+
+SUBPHASE(sa, "Scope Analysis", CAdoScopeAnalysis, ALWAYS, ca)
+
+ENDPHASE(cc)
+
+/******************************************************************************/
 
 PHASE( pet,
        "Perform example transformations",

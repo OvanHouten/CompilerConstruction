@@ -6,10 +6,10 @@ void func()
     int [4,5,6] k;
     int[3, 3] l = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
 	int c;
-    int c = 5;
-    int[3] c;
+    int cc = 5;
+    int[3] ccc;
     int[3] bla = [1, 2, 3];
+    int a = i[3];
     i[3] = 3;
-    a = i[3];
 }
 

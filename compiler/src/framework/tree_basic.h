@@ -68,7 +68,7 @@
 struct NODE {
   nodetype             nodetype;       /* type of node */
   int                  lineno;         /* line of definition */
-  int                  colno;         /* line of definition */
+  int                  colno;          /* line of definition */
   node*                error;          /* error node */
   struct SONUNION      sons;           /* the sons */
   struct ATTRIBUNION   attribs;        /* the nodes attributes */

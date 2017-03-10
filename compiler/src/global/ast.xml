@@ -46,6 +46,8 @@
       <traversal id="FREE" name="Free Syntax Tree" default="user" include="free_node.h" />
       <traversal id="CHK" name="Check Syntax Tree" default="user" include="check.h" />
 
+      <traversal id="CA" name="Context Analysis" default="user" include="context_analysis.h" />
+
       <traversal id="RI" name="Rename identifiers" default="sons" include="rename_identifiers.h">
         <travuser>
           <node name="Id" />
@@ -63,11 +65,8 @@
   <nodesets>
      <nodeset name="Declaration">
       <target>
-        <node name="FunDec"/>
         <node name="FunDef"/>
-        <node name="GlobalDec"/>
-        <node name="GlobalVarDef"/>
-        <node name="GlobalArrDef"/>
+        <node name="VarDef"/>
       </target>
     </nodeset>
     
@@ -218,30 +217,10 @@
     </node>
 
 <!--
- Node FunDec:
--->
-    <node name="FunDec">
-      <description>Function Declaration</description>
-      <sons>
-        <son name="FunHeader">
-          <description>Function Header</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="FunHeader" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-      </sons>
-    </node>
-
-<!--
  Node FunDef:
 -->
     <node name="FunDef">
-      <description>Function Definition</description>
+      <description>Function Definition/Declaration</description>
       <sons>
         <son name="FunHeader">
           <description>Function Header</description>
@@ -257,7 +236,8 @@
         <son name="FunBody">
           <description>Function Body</description>
           <targets>
-            <target mandatory="yes">
+            <!-- Fundecs have no body and fundefs do -->
+            <target mandatory="no">
               <node name="FunBody" />
               <phases>
                 <all />
@@ -267,10 +247,22 @@
         </son>
       </sons>
       <attributes>
-        <attribute name="Export">
-          <description>Export keyword flag</description>
+        <attribute name="Extern">
+          <description>Extern keyword flag, only valid for fundecs</description>
           <type name="Bool">
             <targets>
+              <!-- Set to mandatory so the TBmakeFundef funtion has parameters for it -->
+              <target mandatory="yes">
+                <phases><all /></phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Export">
+          <description>Export keyword flag, only valid for fundefs</description>
+          <type name="Bool">
+            <targets>
+              <!-- Set to mandatory so the TBmakeFundef funtion has parameters for it -->
 	          <target mandatory="yes">
 	            <phases><all /></phases>
 	          </target>
@@ -323,26 +315,15 @@
     </node>
 
 <!--
- Node GlobalDec:
+  Node VarDef:
 -->
-    <node name="GlobalDec">
-      <sons>
+	<node name="VarDef">
+	  <sons>
         <son name="Type">
           <description>Type of variable</description>
           <targets>
             <target mandatory="yes">
               <set name="Type" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="ArraySize">
-          <description>Size of array</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Ids" />
               <phases>
                 <all />
               </phases>
@@ -360,10 +341,66 @@
             </target>
           </targets>
         </son>
+        <son name="Expr">
+          <description>Assignment of variable, only valid for globaldefs</description>
+          <targets>
+            <target mandatory="no">
+              <set name="Expr" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+        <son name="ArraySize">
+          <description>Size of array, only valid for globaldefs</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Ids" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+        <son name="ArrExprs">
+          <description>Assignment of array expression, only valid for globaldefs</description>
+          <targets>
+            <target mandatory="no">
+              <node name="ArrExprs" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
       </sons>
       <attributes>
+        <attribute name="Extern">
+            <description>Export keyword flag, only valid for globaldecs</description>
+            <type name="Bool">
+                <targets>
+                    <!-- Set to mandatory so the TBmakeVardef funtion has parameters for it -->
+                    <target mandatory="yes">
+                        <phases><all /></phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="Export">
+            <description>Export keyword flag, only valid for globaldefs</description>
+            <type name="Bool">
+                <targets>
+                    <!-- Set to mandatory so the TBmakeVardef funtion has parameters for it -->
+                    <target mandatory="yes">
+                        <phases><all /></phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
       </attributes>
-    </node>
+	</node>
+
 
 <!--
  Node Int:
@@ -1111,7 +1148,7 @@
       </sons>
       <attributes>
         <attribute name="Name">
-        <description>Identifier in character string representation</description>
+          <description>Identifier in character string representation</description>
           <type name="String">
             <targets>
               <target mandatory="yes">
@@ -1122,14 +1159,49 @@
             </targets>
           </type>
         </attribute>
+        <attribute name="Type">
+          <description>The type of the ID of function</description>
+          <type name="Type">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Distance">
+          <description>Distance to symbol table</description>
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Offset">
+          <description>Offset into the symbol table</description>
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
         <attribute name="Decl">
-          <description>Link to symbol table entry</description>
+          <description>Link to the declaring Vardef node</description>
           <type name="Link">
             <targets>
               <target mandatory="no">
-                <node name="SymbolTableEntry" />
                 <phases>
-                  <all />
+                  <phase from="Context Analysis"/>
                 </phases>
               </target>
             </targets>
@@ -1253,17 +1325,6 @@
     </node>
     
 <!--
- Node SymbolTableEntry:
--->
-    <node name="SymbolTableEntry">
-      <description>Represents symbol table entry</description>
-      <sons>
-      </sons>
-      <attributes>
-      </attributes>
-    </node>
-
-<!--
  Node Error:
 -->
     <node name="Error">
@@ -1384,123 +1445,6 @@
 <!--
   ===================== Extension 2 =====================
 -->
-
-<!--
-  Node GlobalVarDef:
--->
-	<node name="GlobalVarDef">
-	  <sons>
-        <son name="Type">
-          <description>Type of variable</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="Type" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="Id">
-          <description>Identifier of variable</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Id" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="Expr">
-          <description>Assignment of variable</description>
-          <targets>
-            <target mandatory="no">
-              <set name="Expr" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-        <attribute name="Export">
-            <description>Export keyword flag</description>
-            <type name="Bool">
-                <targets>
-                    <target mandatory="yes">
-                        <phases><all /></phases>
-                    </target>
-                </targets>
-            </type>
-        </attribute>
-      </attributes>
-	</node>
-
-<!--
-  Node GlobalArrDef:
--->	
-  	<node name="GlobalArrDef">
-      <sons>
-        <son name="Type">
-          <description>Type of variable</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="Type" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="ArraySize">
-          <description>Size of array, multidimensional</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Exprs" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="Id">
-          <description>Identifier of variable</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Id" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="ArrExprs">
-          <description>Assignment of array expression</description>
-          <targets>
-            <target mandatory="no">
-              <node name="ArrExprs" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-        <attribute name="Export">
-            <description>Export keyword flag</description>
-            <type name="Bool">
-                <targets>
-                    <target mandatory="yes">
-                        <phases><all /></phases>
-                    </target>
-                </targets>
-            </type>
-        </attribute>
-      </attributes>
-  	</node>
 
 <!--
   Node ArrayAssign:
