@@ -226,23 +226,13 @@ node *CAfunbody(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAglobaldec(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAglobaldec");
-
-    if (arg_info->registerOnly) {
-        registerNewVarDecl(arg_node, arg_info, ID_NAME(GLOBALDEC_ID(arg_node)));
-    }
-
-    DBUG_RETURN(arg_node);
-}
-
-node *CAglobaldef(node *arg_node, info *arg_info) {
+node *CAvardef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAglobaldef");
 
     if (arg_info->registerOnly) {
-        registerNewVarDecl(arg_node, arg_info, ID_NAME(GLOBALDEF_ID(arg_node)));
+        registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEF_ID(arg_node)));
     } else {
-        TRAVopt(GLOBALDEF_EXPR(arg_node), arg_info);
+        TRAVopt(VARDEF_EXPR(arg_node), arg_info);
     }
 
     DBUG_RETURN(arg_node);

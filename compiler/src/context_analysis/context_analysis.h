@@ -15,8 +15,7 @@ extern node *CAdeclarations(node *arg_node, info *arg_info);
 extern node *CAstatements(node *arg_node, info *arg_info);
 extern node *CAfundef(node *arg_node, info *arg_info);
 extern node *CAfunheader(node *arg_node, info *arg_info);
-extern node *CAglobaldec(node *arg_node, info *arg_info);
-extern node *CAglobaldef(node *arg_node, info *arg_info);
+extern node *CAvardef(node *arg_node, info *arg_info);
 extern node *CAint(node *arg_node, info *arg_info);
 extern node *CAfloat(node *arg_node, info *arg_info);
 extern node *CAbool(node *arg_node, info *arg_info);
@@ -53,7 +52,6 @@ extern node *CAids(node *arg_node, info *arg_info);
 extern node *CAarrexprs(node *arg_node, info *arg_info);
 
 extern node *CAstatements(node *arg_node, info *arg_info);
-extern node *CAvardec(node *arg_node, info *arg_info);
 extern node *CAid(node * arg_node, info * arg_info);
 
 extern node *CAdoScopeAnalysis( node *syntaxtree);

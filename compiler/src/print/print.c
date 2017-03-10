@@ -87,17 +87,6 @@ node *PRTfunheader(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTglobaldec(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTglobalDec");
-
-	printf("extern ");
-	TRAVdo(GLOBALDEC_TYPE(arg_node), arg_info);
-	TRAVdo(GLOBALDEC_ID(arg_node), arg_info);
-	printf(";\n");
-
-	DBUG_RETURN(arg_node);
-}
-
 node *PRTfundef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunDef");
 
@@ -161,17 +150,23 @@ node *PRTvardec(node * arg_node, info * arg_info) {
 }
 
 
-node *PRTglobaldef(node * arg_node, info * arg_info) {
-    DBUG_ENTER("PRTglobaldef");
+node *PRTvardef(node * arg_node, info * arg_info) {
+    DBUG_ENTER("PRTvarDef");
 
-    printf("%s", GLOBALDEF_EXPORT(arg_node) ? "export " : "");
-    TRAVdo(GLOBALDEF_TYPE(arg_node), arg_info);
-    TRAVdo(GLOBALDEF_ID(arg_node), arg_info);
-    if (GLOBALDEF_EXPR(arg_node)) {
-        printf(" = ");
-        TRAVdo(GLOBALDEF_EXPR(arg_node), arg_info);
+    if (VARDEF_EXTERN(arg_node)) {
+        printf("extern ");
     }
-    printf(";\n");
+    if (VARDEF_EXPORT(arg_node)) {
+        printf("export ");
+    }
+    TRAVdo(VARDEF_TYPE(arg_node), arg_info);
+    TRAVdo(VARDEF_ID(arg_node), arg_info);
+    if (VARDEF_EXPR(arg_node)) {
+        printf(" = ");
+        TRAVdo(VARDEF_EXPR(arg_node), arg_info);
+    } else {
+        printf(";\n");
+    }
 
     DBUG_RETURN(arg_node);
 }
