@@ -1,0 +1,8 @@
+// The reference compiler compiles this into a program that return -1. So there seem to be no checks for unreachable code?!?!
+export int main() {
+    return -1;
+    if (true) {
+        return 0;
+    }
+    return 13;
+}

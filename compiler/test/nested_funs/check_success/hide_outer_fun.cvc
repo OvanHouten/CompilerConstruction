@@ -1,0 +1,9 @@
+int main() {
+    int hidden(int a) {
+        void hidden() {
+        }
+        hidden();
+        return a;
+    }
+    return hidden(42);
+}

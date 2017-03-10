@@ -32,3 +32,28 @@ Currently we have two different AST nodes for the 'while' and the 'do-while' loo
 === FOR loop vs WHILE loops ===
 We can try to combine all the loops into a single AST node. For now we have not implemented this. Mainly because the differences between a for loop and the (do-)while loops.
 
+=== CLEANER GRAMMER ===
+We have rebuild the grammar file from scratch. Our grammar was very verbose. After rebuilding it is much move concise and clean. 
+
+=== DANGLING ELSE PROBLEM ===
+Introduced a 'bogus' token THEN
+%nonassoc THEN
+%nonassoc ELSE
+And added '%prec THEN' to our grammar rule that handles the if-only case.
+
+=== GIT BRANCHES ===
+We have four branches
+- master: for the core development
+- LocalFunction: for local function related development
+- Array: for single and multi dimensional arrays (we opted for developing multi dimensional arrays, it can always be downgraded to single dimensional array if we run out of time)
+- Combined: an integration branch for integration of the other three branches (and whish should contain our compiler at the and of the course) 
+
+=== TEST SUITE ===
+After integrating the provided test suite we found some bugs in our grammar, for example the dangling-else problem. Within each branch the appropriate tests have been added.
+Before every commit we should doe a 'make clean && make check' to ensure we only commit we behaving code.
+
+=== HANDLING FORWARD FUNCTION DECLARATIONS ===
+In order to handle forward declarations of functions (for now only tested at the program level) traversing de program node is done as a two-step process.
+Duing the first step only variable and function declarations and definitions are being traversed.
+During the second step the body of the functions is traversed.
+Technically this is implemented as a boolean flag (registerOnly) in the INFO structure. This solution should be able to handle the localfunctions as well, when the flag is set appropriate in the CAlocalfundef function.   

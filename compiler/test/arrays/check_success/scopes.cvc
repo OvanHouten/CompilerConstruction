@@ -11,6 +11,7 @@ extern int[m] d;
 int foo() {
     int a = a + b + 1;
     int m = m;
+    // This local function might cause the parser to fail since the local functions are not part of this branch
     int baz(int c, int[b] d) {
         int a = c + b;
         return a + d[c];

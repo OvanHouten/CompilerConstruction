@@ -1,0 +1,7 @@
+int main() {
+    int dupFun() {
+    }
+    void dupFun(bool allowed) {
+    }
+    return dupFun();
+}

@@ -1,0 +1,8 @@
+void fun(int a) {
+}
+void fun(float a) {
+}
+export int main() {
+    fun(1);
+    fun(1.0);
+}
