@@ -65,7 +65,6 @@
   <nodesets>
      <nodeset name="Declaration">
       <target>
-        <node name="FunDec"/>
         <node name="FunDef"/>
         <node name="GlobalDec"/>
         <node name="GlobalDef"/>
@@ -219,30 +218,10 @@
     </node>
 
 <!--
- Node FunDec:
--->
-    <node name="FunDec">
-      <description>Function Declaration</description>
-      <sons>
-        <son name="FunHeader">
-          <description>Function Header</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="FunHeader" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-      </sons>
-    </node>
-
-<!--
  Node FunDef:
 -->
     <node name="FunDef">
-      <description>Function Definition</description>
+      <description>Function Definition/Declaration</description>
       <sons>
         <son name="FunHeader">
           <description>Function Header</description>
@@ -258,7 +237,8 @@
         <son name="FunBody">
           <description>Function Body</description>
           <targets>
-            <target mandatory="yes">
+            <!-- Fundecs have no body and fundefs do -->
+            <target mandatory="no">
               <node name="FunBody" />
               <phases>
                 <all />
@@ -268,10 +248,22 @@
         </son>
       </sons>
       <attributes>
-        <attribute name="Export">
-          <description>Export keyword flag</description>
+        <attribute name="Extern">
+          <description>Extern keyword flag, only valid for fundecs</description>
           <type name="Bool">
             <targets>
+              <!-- Set to mandatory so the TBmakeFundef funtion has parameters for it -->
+              <target mandatory="yes">
+                <phases><all /></phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Export">
+          <description>Export keyword flag, only valid for fundefs</description>
+          <type name="Bool">
+            <targets>
+              <!-- Set to mandatory so the TBmakeFundef funtion has parameters for it -->
 	          <target mandatory="yes">
 	            <phases><all /></phases>
 	          </target>

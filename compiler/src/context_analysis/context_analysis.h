@@ -13,7 +13,6 @@
 extern node *CAprogram(node *arg_node, info *arg_info);
 extern node *CAdeclarations(node *arg_node, info *arg_info);
 extern node *CAstatements(node *arg_node, info *arg_info);
-extern node *CAfundec(node *arg_node, info *arg_info);
 extern node *CAfundef(node *arg_node, info *arg_info);
 extern node *CAfunheader(node *arg_node, info *arg_info);
 extern node *CAglobaldec(node *arg_node, info *arg_info);

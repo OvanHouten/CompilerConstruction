@@ -75,16 +75,6 @@ node *PRTdeclarations(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTfundec(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTfunDec");
-
-	printf("extern ");
-	TRAVopt(FUNDEC_FUNHEADER(arg_node), arg_info);
-	printf(";\n");
-
-	DBUG_RETURN(arg_node);
-}
-
 node *PRTfunheader(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunheader");
 
@@ -111,18 +101,25 @@ node *PRTglobaldec(node * arg_node, info * arg_info) {
 node *PRTfundef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunDef");
 
-	if (FUNDEF_EXPORT(arg_node) == TRUE) {
+    if (FUNDEF_EXTERN(arg_node)) {
+        printf("extern ");
+    }
+	if (FUNDEF_EXPORT(arg_node)) {
 		printf("export ");
 	}
 	TRAVdo(FUNDEF_FUNHEADER(arg_node), arg_info);
-	printf(" {\n");
-	INCREASE_INDENTATION(arg_info);
+	if (FUNDEF_FUNBODY(arg_node)) {
+        printf(" {\n");
+        INCREASE_INDENTATION(arg_info);
 
-	TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
+        TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
-	DECREASE_INDENTATION(arg_info);
-	printf("}\n");
-	INDENT_AT_NEWLINE(arg_info);
+        DECREASE_INDENTATION(arg_info);
+        printf("}\n");
+        INDENT_AT_NEWLINE(arg_info);
+	} else {
+	    printf(";\n");
+	}
 
 	DBUG_RETURN(arg_node);
 }

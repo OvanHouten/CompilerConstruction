@@ -84,10 +84,10 @@ globaldef: type ID SEMICOLON                 { $$ = TBmakeGlobaldef( FALSE, $1, 
          | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeGlobaldef( TRUE, $2, TBmakeId($3), $5, NULL); }
          ;
 
-fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundec( $2); }
+fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundef(TRUE, FALSE, $2, NULL); }
 
-fundef: funheader funbody                 { $$ = TBmakeFundef( FALSE, $1, $2); }
-      | EXPORT funheader funbody          { $$ = TBmakeFundef( TRUE, $2, $3); }
+fundef: funheader funbody                 { $$ = TBmakeFundef( FALSE, FALSE, $1, $2); }
+      | EXPORT funheader funbody          { $$ = TBmakeFundef( FALSE, TRUE, $2, $3); }
       ;
 
 funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $1, TBmakeId($2), NULL); }

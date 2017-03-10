@@ -188,28 +188,20 @@ node *CAdeclarations(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAfundec(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAfundec");
-
-    if (arg_info->registerOnly) {
-        registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEC_FUNHEADER(arg_node))));
-    }
-
-    DBUG_RETURN(arg_node);
-}
-
 node *CAfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAfundef");
 
     if (arg_info->registerOnly) {
         registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
     } else {
-        startNewScope(arg_info);
+        if (FUNDEF_FUNBODY(arg_node)) {
+            startNewScope(arg_info);
 
-        TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
-        TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
+            TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
+            TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
-        closeScope(arg_info);
+            closeScope(arg_info);
+        }
     }
 
     DBUG_RETURN(arg_node);
