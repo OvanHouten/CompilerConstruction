@@ -56,4 +56,8 @@ Before every commit we should doe a 'make clean && make check' to ensure we only
 In order to handle forward declarations of functions (for now only tested at the program level) traversing de program node is done as a two-step process.
 Duing the first step only variable and function declarations and definitions are being traversed.
 During the second step the body of the functions is traversed.
-Technically this is implemented as a boolean flag (registerOnly) in the INFO structure. This solution should be able to handle the localfunctions as well, when the flag is set appropriate in the CAlocalfundef function.   
+Technically this is implemented as a boolean flag (registerOnly) in the INFO structure. This solution should be able to handle the localfunctions as well, when the flag is set appropriate in the CAlocalfundef function.
+
+=== SYMBOL TABLE DISTANCE AND OFFSET ===
+For fundefs only the offset is determined since the distance is by definition 0.
+For funcalls the distance is determined and the offset is taken from its fundef.
