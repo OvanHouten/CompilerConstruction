@@ -12,6 +12,7 @@
 #include "ctinfo.h"
 #include "free.h"
 #include "globals.h"
+#include "numbers.h"
 
 static node *parseresult = NULL;
 extern int yylex();
@@ -23,7 +24,7 @@ static int yyerror( char *errname);
  nodetype            nodetype;
  char               *id;
  char               *cint;
- float               cflt;
+ char               *cflt;
  arithop             carithop;
  logicop             clogicop;
  relop               crelop;
@@ -76,18 +77,18 @@ declaration: globaldec { $$ = $1; }
            | fundef    { $$ = $1; }
            ;
            
-globaldec: EXTERN type ID SEMICOLON { $$ = TBmakeGlobaldec( $2, NULL, TBmakeId($3)); }
+globaldec: EXTERN type ID SEMICOLON { $$ = TBmakeVardef( TRUE, FALSE, $2, TBmakeId($3), NULL, NULL, NULL); }
 
-globaldef: type ID SEMICOLON                 { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), NULL); }
-         | type ID LET expr SEMICOLON        { $$ = TBmakeGlobalvardef( FALSE, $1, TBmakeId($2), $4); }
-         | EXPORT type ID SEMICOLON          { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), NULL); }
-         | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeGlobalvardef( TRUE, $2, TBmakeId($3), $5); }
+globaldef: type ID SEMICOLON                 { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($2), NULL, NULL, NULL); }
+         | type ID LET expr SEMICOLON        { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($2), $4, NULL, NULL); }
+         | EXPORT type ID SEMICOLON          { $$ = TBmakeVardef( FALSE, TRUE, $2, TBmakeId($3), NULL, NULL, NULL); }
+         | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeVardef( FALSE, TRUE, $2, TBmakeId($3), $5, NULL, NULL); }
          ;
 
-fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundec( $2); }
+fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundef(TRUE, FALSE, $2, NULL); }
 
-fundef: funheader funbody                 { $$ = TBmakeFundef( FALSE, $1, $2); }
-      | EXPORT funheader funbody          { $$ = TBmakeFundef( TRUE, $2, $3); }
+fundef: funheader funbody                 { $$ = TBmakeFundef( FALSE, FALSE, $1, $2); }
+      | EXPORT funheader funbody          { $$ = TBmakeFundef( FALSE, TRUE, $2, $3); }
       ;
 
 funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $1, TBmakeId($2), NULL); }
@@ -143,7 +144,7 @@ stmt: assign            { $$ = $1; }
 
 assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId( $1), $3); }
 
-if: IF BRACKET_L expr BRACKET_R block %prec THEN           { $$ = TBmakeIf( $3, $5, NULL ); }
+if: IF BRACKET_L expr BRACKET_R block %prec THEN { $$ = TBmakeIf( $3, $5, NULL ); }
   | IF BRACKET_L expr BRACKET_R block ELSE block { $$ = TBmakeIf( $3, $5, $7 ); }
   ;
 
@@ -193,17 +194,24 @@ constant: floatval { $$ = $1; }
         | boolval  { $$ = $1; }
         ;
  
-floatval: FLOAT { $$ = TBmakeFloatconst( $1, TBmakeFloat()); }
+floatval: FLOAT { float* value = strToFloat($1);
+                  MEMfree($1);
+                  if (value) {
+                      $$ = TBmakeFloatconst( *value, TBmakeFloat());
+                      free(value);
+                  } else {
+                      yyerror("Float value out of range.");
+                  }
+                }
 
-intval:   NUM { int intValue = atoi($1);
-                char* backAsString = STRitoa(intValue);
-                bool validInteger = STReq($1, backAsString);
-                MEMfree(backAsString);
-                if (!validInteger) {
+intval:   NUM { int* value = strToInt($1);
+                MEMfree($1);
+                if (value) {
+                    $$ = TBmakeIntconst( *value, TBmakeInt());
+                    free(value);
+                } else {
                     yyerror("Integer value out of range.");
                 }
-                $$ = TBmakeIntconst( intValue, TBmakeInt());
-                MEMfree($1);
               }
 
 boolval:  TRUEVAL  { $$ = TBmakeBoolconst( TRUE, TBmakeBool()); }
@@ -221,7 +229,7 @@ type: INT_TYPE   { $$ = TBmakeInt(); }
 static int yyerror( char *error)
 {
   CTIabort( "line %d, col %d\nError parsing source code: %s\n", 
-            global.line + 1, global.col, error);
+            global.line, global.col, error);
 
   return( 0);
 }

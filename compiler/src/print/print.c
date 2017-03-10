@@ -75,16 +75,6 @@ node *PRTdeclarations(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTfundec(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTfunDec");
-
-	printf("extern ");
-	TRAVopt(FUNDEC_FUNHEADER(arg_node), arg_info);
-	printf(";\n");
-
-	DBUG_RETURN(arg_node);
-}
-
 node *PRTfunheader(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunheader");
 
@@ -97,32 +87,28 @@ node *PRTfunheader(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTglobaldec(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTglobalDec");
-
-	printf("extern ");
-	TRAVdo(GLOBALDEC_TYPE(arg_node), arg_info);
-	TRAVdo(GLOBALDEC_ID(arg_node), arg_info);
-	printf(";\n");
-
-	DBUG_RETURN(arg_node);
-}
-
 node *PRTfundef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunDef");
 
-	if (FUNDEF_EXPORT(arg_node) == TRUE) {
+    if (FUNDEF_EXTERN(arg_node)) {
+        printf("extern ");
+    }
+	if (FUNDEF_EXPORT(arg_node)) {
 		printf("export ");
 	}
 	TRAVdo(FUNDEF_FUNHEADER(arg_node), arg_info);
-	printf(" {\n");
-	INCREASE_INDENTATION(arg_info);
+	if (FUNDEF_FUNBODY(arg_node)) {
+        printf(" {\n");
+        INCREASE_INDENTATION(arg_info);
 
-	TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
+        TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
-	DECREASE_INDENTATION(arg_info);
-	printf("}\n");
-	INDENT_AT_NEWLINE(arg_info);
+        DECREASE_INDENTATION(arg_info);
+        printf("}\n");
+        INDENT_AT_NEWLINE(arg_info);
+	} else {
+	    printf(";\n");
+	}
 
 	DBUG_RETURN(arg_node);
 }
@@ -164,17 +150,24 @@ node *PRTvardec(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTglobalvardef(node * arg_node, info * arg_info) {
-    DBUG_ENTER("PRTglobalvardef");
 
-    printf("%s", GLOBALVARDEF_EXPORT(arg_node) ? "export " : "");
-    TRAVdo(GLOBALVARDEF_TYPE(arg_node), arg_info);
-    TRAVdo(GLOBALVARDEF_ID(arg_node), arg_info);
-    if (GLOBALVARDEF_EXPR(arg_node)) {
-        printf(" = ");
-        TRAVdo(GLOBALVARDEF_EXPR(arg_node), arg_info);
+node *PRTvardef(node * arg_node, info * arg_info) {
+    DBUG_ENTER("PRTvarDef");
+
+    if (VARDEF_EXTERN(arg_node)) {
+        printf("extern ");
     }
-    printf(";\n");
+    if (VARDEF_EXPORT(arg_node)) {
+        printf("export ");
+    }
+    TRAVdo(VARDEF_TYPE(arg_node), arg_info);
+    TRAVdo(VARDEF_ID(arg_node), arg_info);
+    if (VARDEF_EXPR(arg_node)) {
+        printf(" = ");
+        TRAVdo(VARDEF_EXPR(arg_node), arg_info);
+    } else {
+        printf(";\n");
+    }
 
     DBUG_RETURN(arg_node);
 }
@@ -376,7 +369,7 @@ node *PRTrelop (node * arg_node, info * arg_info) {
 		op = "!=";
 		break;
 	case RO_ge:
-		op = ".=";
+		op = ">=";
 		break;
 	case RO_gt:
 		op = ">";
@@ -651,13 +644,6 @@ node *PRTdoPrint( node *syntaxtree)
   printf("\n//That's all folks....\n\n");
 
   DBUG_RETURN( syntaxtree);
-}
-
-
-node *PRTglobalarrdef(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTglobalarrdef");
-
-	DBUG_RETURN(arg_node);
 }
 
 node *PRTarrayassign(node * arg_node, info * arg_info) {

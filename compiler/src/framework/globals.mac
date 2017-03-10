@@ -115,7 +115,7 @@ GLOBAL( char*, outfile, NULL)
  * Scanner and parser globals
  */
 
-GLOBAL( int, line, 0)
+GLOBAL( int, line, 1)
 GLOBAL( int, col, 0)
 GLOBAL( int, cpp, FALSE)
 
