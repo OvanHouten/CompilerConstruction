@@ -3,7 +3,7 @@ void noParams() {
 void multipleParams(int a, float b, bool c) {
 }
 export int main() {
-    noParams();
+    noParams(1);
     multipleParams(1, 2.0, false);
     return 0;
 }

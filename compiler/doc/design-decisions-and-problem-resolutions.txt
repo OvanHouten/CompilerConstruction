@@ -61,3 +61,4 @@ Technically this is implemented as a boolean flag (registerOnly) in the INFO str
 === SYMBOL TABLE DISTANCE AND OFFSET ===
 For fundefs only the offset is determined since the distance is by definition 0.
 For funcalls the distance is determined and the offset is taken from its fundef.
+

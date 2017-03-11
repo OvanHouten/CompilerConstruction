@@ -15,6 +15,8 @@
 #include "lookup_table.h"
 #include "ctinfo.h"
 
+typedef enum { RegisterOnly, ProcessOnly, RegisterAndProcess } phase_phase;
+
 struct SymbolTable {
     struct SymbolTable *parent;
     lut_t *varDecls;
@@ -27,7 +29,7 @@ struct SymbolTable {
  */
 struct INFO {
   struct SymbolTable *currentScope;
-  bool registerOnly;
+  phase_phase processPhase;
 };
 
 /*
@@ -50,7 +52,7 @@ static info *MakeInfo(void)
 
   result = (info *)MEMmalloc(sizeof(info));
   result->currentScope = NULL;
-  result->registerOnly = FALSE;
+  result->processPhase = RegisterAndProcess;
 
   DBUG_RETURN( result);
 }
@@ -174,10 +176,10 @@ node *CAprogram(node *arg_node, info *arg_info) {
     startNewScope(arg_info);
 
     // Only register functions at this stage
-    arg_info->registerOnly = TRUE;
+    arg_info->processPhase = RegisterOnly;
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
     // No do it again and process the function bodies
-    arg_info->registerOnly = FALSE;
+    arg_info->processPhase = ProcessOnly;
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
 
     closeScope(arg_info);
@@ -197,16 +199,18 @@ node *CAdeclarations(node *arg_node, info *arg_info) {
 node *CAfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAfundef");
 
-    if (arg_info->registerOnly) {
+    if (arg_info->processPhase == RegisterOnly) {
         registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
     } else {
         if (FUNDEF_FUNBODY(arg_node)) {
+            arg_info->processPhase = RegisterAndProcess;
             startNewScope(arg_info);
 
             TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
             TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
             closeScope(arg_info);
+            arg_info->processPhase = ProcessOnly;
         }
     }
 
@@ -235,9 +239,10 @@ node *CAfunbody(node *arg_node, info *arg_info) {
 node *CAvardef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAglobaldef");
 
-    if (arg_info->registerOnly) {
+    if (arg_info->processPhase == RegisterOnly || arg_info->processPhase == RegisterAndProcess) {
         registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEF_ID(arg_node)));
-    } else {
+    }
+    if (arg_info->processPhase == RegisterAndProcess || arg_info->processPhase == ProcessOnly) {
         TRAVopt(VARDEF_EXPR(arg_node), arg_info);
     }
 
@@ -316,15 +321,6 @@ node *CAvardecs(node *arg_node, info *arg_info) {
 
     TRAVopt(VARDECS_NEXT(arg_node), arg_info);
     TRAVdo(VARDECS_VARDEC(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *CAvardec(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAvardec");
-
-    TRAVopt(VARDEC_EXPR(arg_node), arg_info);
-    registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEC_ID(arg_node)));
 
     DBUG_RETURN(arg_node);
 }

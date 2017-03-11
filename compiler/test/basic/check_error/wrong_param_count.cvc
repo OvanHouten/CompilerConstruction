@@ -4,6 +4,6 @@ void multipleParams(int a, float b, bool c) {
 }
 export int main() {
     noParams();
-    multipleParams(1, 2.0, false);
+    multipleParams(1, false);
     return 0;
 }

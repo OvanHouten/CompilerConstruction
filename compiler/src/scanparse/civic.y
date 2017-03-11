@@ -110,8 +110,8 @@ vardecs: vardecs vardec { $$ = TBmakeVardecs( $2, $1); }
        | vardec         { $$ = TBmakeVardecs( $1, NULL); }
        ;
        
-vardec: type ID SEMICOLON            { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), NULL); }
-      | type ID LET expr SEMICOLON   { $$ = TBmakeVardec( $1, NULL, TBmakeId( $2), $4); }
+vardec: type ID SEMICOLON            { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId( $2), NULL, NULL, NULL); }
+      | type ID LET expr SEMICOLON   { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId( $2), $4, NULL, NULL); }
       ;
 
 block: CURLY_L stmts CURLY_R { $$ = $2; }

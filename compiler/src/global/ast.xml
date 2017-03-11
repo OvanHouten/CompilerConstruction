@@ -51,7 +51,7 @@
       <traversal id="RI" name="Rename identifiers" default="sons" include="rename_identifiers.h">
         <travuser>
           <node name="Id" />
-          <node name="VarDec" />
+          <node name="VarDef" />
         </travuser>
       </traversal>
 
@@ -579,7 +579,7 @@
           <description>First VarDec in sequence</description>
           <targets>
             <target mandatory="yes">
-              <node name="VarDec" />
+              <node name="VarDef" />
                 <phases>
                   <all />
                 </phases>
@@ -591,61 +591,6 @@
           <targets>
             <target mandatory="no">
               <node name="VarDecs" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-      </attributes>
-    </node>
-
-<!--
- Node VarDec:
--->
-     <node name="VarDec">
-      <description>Variable declarations</description>
-      <sons>
-        <son name="Type">
-          <description>Type of variable declaration</description>
-          <targets>
-            <target mandatory="Yes">
-              <set name="Type" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="ArraySize">
-          <description>Arraysize, can be multidimensional</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Exprs" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="Id">
-          <description>Identifier</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Id" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="Expr">
-          <description>To be assigned expression</description>
-          <targets>
-            <target mandatory="no">
-              <set name="Expr" />
                 <phases>
                   <all />
                 </phases>

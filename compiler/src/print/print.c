@@ -134,22 +134,6 @@ node *PRTvardecs(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTvardec(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTvardec");
-
-	INDENT(arg_info);
-	TRAVdo(VARDEC_TYPE(arg_node), arg_info);
-	TRAVdo(VARDEC_ID(arg_node), arg_info);
-
-	if (VARDEC_EXPR(arg_node)) {
-		printf(" = ");
-		TRAVdo(VARDEC_EXPR(arg_node), arg_info);
-	}
-
-	DBUG_RETURN(arg_node);
-}
-
-
 node *PRTvardef(node * arg_node, info * arg_info) {
     DBUG_ENTER("PRTvarDef");
 
@@ -164,8 +148,6 @@ node *PRTvardef(node * arg_node, info * arg_info) {
     if (VARDEF_EXPR(arg_node)) {
         printf(" = ");
         TRAVdo(VARDEF_EXPR(arg_node), arg_info);
-    } else {
-        printf(";\n");
     }
 
     DBUG_RETURN(arg_node);
