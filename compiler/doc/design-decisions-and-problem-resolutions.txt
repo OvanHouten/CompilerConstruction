@@ -61,4 +61,9 @@ Technically this is implemented as a boolean flag (registerOnly) in the INFO str
 === SYMBOL TABLE DISTANCE AND OFFSET ===
 For fundefs only the offset is determined since the distance is by definition 0.
 For funcalls the distance is determined and the offset is taken from its fundef.
+For vardefs only the offset is determined since the distance is by definition 0.
+For IDs the distance is determined and the offset is taken from its vardef.
 
+=== PRINTING (GLOBAL) VARDEF/VARDEC ===
+Beacuse all forms of variabel declaration/definition are moddeled using a single AST node there is no way of knowing what kind of variabel it is any more. This knowledge is need during printing. Parameter definitions don't need a semicolon and next line while vardec, and the global vardeX do  need it.
+A nice solution would be to have a vardef that has two sons, a vardec (which only holds the typeinfo, name and offset) and an expression. A param is then just a vardec. When implented correctly the PRTvardef takes care of the semicolon and nextline while the vardec only prints type and name info. 

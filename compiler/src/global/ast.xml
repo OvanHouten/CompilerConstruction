@@ -422,6 +422,18 @@
                 </targets>
             </type>
         </attribute>
+        <attribute name="IsDeclaration">
+            <description>Currently needed for printing, restructuring the AST should make it possible to remove this attribute.</description>
+            <type name="Bool">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <all />
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
       </attributes>
 	</node>
 
@@ -458,7 +470,7 @@
           <description>First param in sequence</description>
           <targets>
             <target mandatory="yes">
-              <node name="Param" />
+              <node name="VarDef" />
                 <phases>
                   <all />
                 </phases>
@@ -849,22 +861,11 @@
      <node name="For">
       <description>Represents the for statement</description>
       <sons>
-        <son name="Id">
-          <description>The name of the counter variable</description>
+        <son name="VarDef">
+          <description>The name of the counter variable and the start value</description>
           <targets>
             <target mandatory="yes">
-              <node name="Id" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="Start">
-          <description>Represents the start value for the for-loop</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="Expr" />
+              <node name="VarDef" />
                 <phases>
                   <all />
                 </phases>
