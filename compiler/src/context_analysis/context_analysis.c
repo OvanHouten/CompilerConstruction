@@ -100,9 +100,14 @@ struct SymbolTable* startNewScope(info *arg_info) {
     return newScope;
 }
 
-void* printVardecls(void* lut_item) {
-	printf("currentScope\n");
+void* printVarDecls(void* lut_item) {
+//  	node* cur_item = (node*)lut_item;
+//  	printf("%s\n", ID_NAME(cur_item));
 	
+	return lut_item;
+}
+
+void* printFunDecls(void* lut_item) {
 //  	node* cur_item = (node*)lut_item;
 //  	printf("%s\n", ID_NAME(cur_item));
 	
@@ -114,10 +119,15 @@ void printScope(info* arg_info) {
 	
 	struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
 	lut_t* varDecls = currentScope->varDecls;
-	
+	lut_t* funDecls = currentScope->funDecls;
+		
+	if (funDecls) {
+		funDecls = LUTmapLutS(varDecls, printFunDecls);
+		printf("Total functions = %d\n", currentScope->funCount); // Temp check
+	}
 	if (varDecls) {
-		varDecls = LUTmapLutS(varDecls, printVardecls);
-		printf("%d\n", currentScope->varCount);
+		varDecls = LUTmapLutS(varDecls, printVarDecls);
+		printf("Total variables = %d\n", currentScope->varCount); // Temp check
 	}
 }
 
