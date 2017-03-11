@@ -44,7 +44,7 @@ int main() {
     int bb = 1;
     float q = 2 + 3 * -4;
     int c;
-    bool b = printb(4 && -8);
+    bool b_ = main7(4 && -8);
     float l = 9.0 / 0.00;
     a = 2 + 3 * 4;
     a = b;
@@ -59,19 +59,19 @@ int main() {
         bb = bb + 1;
     }
     do {
-        aaa = bbb;
+        aa = bb;
         for (int q = 4, aa) {
             bb = c;
         }
         return a - 1;
     } while (a != c && c > d);
-    printi();
-    printi(a);
-    printi(a, 3 > 4);
-    b = printb();
-    b = printb(4 && !8);
-    b = printb(printi(4));
-    d = printing(a, b);
+    main1();
+    main2(a);
+    main3(a, 3 > 4);
+    b = main();
+    b = main1(4 && !8);
+    b = main2(main3(4));
+    d = main4(a, b);
 }
 int typecast() {
     int a = -4;
