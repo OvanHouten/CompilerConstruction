@@ -100,6 +100,27 @@ struct SymbolTable* startNewScope(info *arg_info) {
     return newScope;
 }
 
+void* printVardecls(void* lut_item) {
+	printf("currentScope\n");
+	
+//  	node* cur_item = (node*)lut_item;
+//  	printf("%s\n", ID_NAME(cur_item));
+	
+	return lut_item;
+}
+
+void printScope(info* arg_info) {
+	DBUG_PRINT("CA", ("Printing current scope"));
+	
+	struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
+	lut_t* varDecls = currentScope->varDecls;
+	
+	if (varDecls) {
+		varDecls = LUTmapLutS(varDecls, printVardecls);
+		printf("%d\n", currentScope->varCount);
+	}
+}
+
 void closeScope(info *arg_info) {
     DBUG_PRINT("CA", ("Closing scope"));
     struct SymbolTable *scopeToBeFreed = INFO_CURRENTSCOPE(arg_info);
@@ -188,7 +209,7 @@ node *CAprogram(node *arg_node, info *arg_info) {
     // No do it again and process the function bodies
     arg_info->processPhase = ProcessOnly;
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
-
+	printScope(arg_info);
     closeScope(arg_info);
 
     DBUG_RETURN(arg_node);
