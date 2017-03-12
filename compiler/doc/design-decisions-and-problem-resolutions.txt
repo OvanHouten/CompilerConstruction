@@ -58,12 +58,22 @@ Duing the first step only variable and function declarations and definitions are
 During the second step the body of the functions is traversed.
 Technically this is implemented as a boolean flag (registerOnly) in the INFO structure. This solution should be able to handle the localfunctions as well, when the flag is set appropriate in the CAlocalfundef function.
 
+=== SYMBOL TABLE IMPLEMENTATION ===
+After long consideration and discussion we opted for linking every ID node (funcall or usage of a variable) to the ID node where the function or the variable was declared.
+While implementiting the scope check however it turned out to be a bad decision. Our original implementation stored the fundec of fundef node in the symboltable. That meant that we had to check for the exact node type in order to use the proper marco (FUNDEF_ID or FUNDEC_ID for example) before we could get the information from the node that we wanted. The milestone document mentioned the usage of a single AST node for FUNDEC's and FUNDEF's as a solution for that problem. Since exactly the same was mentioned during the lab when the AST from the course was presented using a single AST node for both FUNDEF and FUNDEC.
+
 === SYMBOL TABLE DISTANCE AND OFFSET ===
 For fundefs only the offset is determined since the distance is by definition 0.
 For funcalls the distance is determined and the offset is taken from its fundef.
 For vardefs only the offset is determined since the distance is by definition 0.
 For IDs the distance is determined and the offset is taken from its vardef.
 
+=== COMBINING VARDEF, GLOBALDEC, GLOBALDEF, PARAM NODES ===
+What seemed like a good decision for the FUNDEF and FUNDEC nodes also applies to all forms of variabel declarations, wheter it be global, local or parameter declarations. So at first we switched to using a single VARDEF node that is capable of handling all the variation.
+
 === PRINTING (GLOBAL) VARDEF/VARDEC ===
-Beacuse all forms of variabel declaration/definition are moddeled using a single AST node there is no way of knowing what kind of variabel it is any more. This knowledge is need during printing. Parameter definitions don't need a semicolon and next line while vardec, and the global vardeX do  need it.
+Beacuse all forms of variable declaration/definition are moddeled using a single AST node there is no way of knowing what kind of variable it is any more. This knowledge is need during printing. Parameter definitions don't need a semicolon and next line while vardec, and the global vardeX do  need it.
 A nice solution would be to have a vardef that has two sons, a vardec (which only holds the typeinfo, name and offset) and an expression. A param is then just a vardec. When implented correctly the PRTvardef takes care of the semicolon and nextline while the vardec only prints type and name info. 
+
+=== REDEFINE VARDEC AND VARDEF NODES ===
+Combining all the hints from the milestone document and the experience with FUNDEC and FUNDEF it seems like a good idea to redefine the definitions of the VARDEC and VARDEF nodes in the AST. A VARDEC is a node that only holds the name and type information and a VARDEF is node holding a reference to a VARDEC node and the expressions that used to initialized the variable. This will make the transformation from variable declarations into separate declaration and initialization (aka a simple assign statement) easy. This last transformation is mentioned in the last paragraph of milestone 5 and in milestone 6 (the part about the __init function for example).
