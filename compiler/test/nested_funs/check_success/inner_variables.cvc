@@ -1,9 +1,9 @@
 export int main() {
-    int out;
+    int outer;
     void reachingout() {
         int a = outer;
         void inner() {
-            int b = 0;
+            int b = a;
             int c = outer;
         }
     }
