@@ -242,14 +242,14 @@ node *CAfundef(node *arg_node, info *arg_info) {
         registerNewFunDecl(FUNDEF_FUNHEADER(arg_node), arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
     } else {
         if (FUNDEF_FUNBODY(arg_node)) {
-            arg_info->processPhase = RegisterAndProcess;
             startNewScope(arg_info);
+            arg_info->processPhase = RegisterAndProcess;
 
             TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
             TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
-            closeScope(arg_info);
             arg_info->processPhase = ProcessOnly;
+            closeScope(arg_info);
         }
     }
 
