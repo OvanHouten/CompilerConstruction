@@ -269,18 +269,6 @@
 	        </targets>
           </type>
         </attribute>
-        <attribute name="Offset">
-            <description>Offset within the symboltable</description>
-            <type name="Bool">
-                <targets>
-                    <target mandatory="no">
-                        <phases>
-                            <phase from="Context Analysis"/>
-                        </phases>
-                    </target>
-                </targets>
-            </type>
-        </attribute>
       </attributes>
     </node>
 
@@ -324,6 +312,20 @@
           </targets>
         </son>
       </sons>
+      <attributes>
+        <attribute name="Offset">
+          <description>Offset within the symboltable</description>
+          <type name="Bool">
+            <targets>
+              <target mandatory="no">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
     </node>
 
 <!--

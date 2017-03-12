@@ -155,7 +155,8 @@ void registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
     DBUG_PRINT("CA", ("Registering function [%s]", name));
     if (registerNewDecl(arg_node, "Function", INFO_CURRENTSCOPE(arg_info)->funDecls, name)) {
         // Only adjust the offset when the registration was successful
-        FUNDEF_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->funCount++;
+        FUNHEADER_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->funCount++;
+        DBUG_PRINT("CA", ("Registered function [%s]", name));
     }
 }
 
@@ -164,7 +165,7 @@ void registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
     if (registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->varDecls, name)) {
         // Only adjust the offset when the registration was successful
         VARDEF_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->varCount++;
-        DBUG_PRINT("CA", ("Registered"));
+        DBUG_PRINT("CA", ("Registered variable [%s]", name));
     }
 }
 
@@ -238,7 +239,7 @@ node *CAfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAfundef");
 
     if (arg_info->processPhase == RegisterOnly) {
-        registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
+        registerNewFunDecl(FUNDEF_FUNHEADER(arg_node), arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
     } else {
         if (FUNDEF_FUNBODY(arg_node)) {
             arg_info->processPhase = RegisterAndProcess;
@@ -313,7 +314,7 @@ node *CAfuncall(node *arg_node, info *arg_info) {
     if (funDef) {
         FUNCALL_DECL(arg_node) = funDef;
         FUNCALL_DISTANCE(arg_node) = distance;
-        FUNCALL_OFFSET(arg_node) = FUNDEF_OFFSET(funDef);
+        FUNCALL_OFFSET(arg_node) = FUNHEADER_OFFSET(funDef);
 
         TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
     } else {
