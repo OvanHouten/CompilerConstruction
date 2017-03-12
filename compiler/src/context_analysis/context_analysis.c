@@ -156,7 +156,7 @@ void registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
     if (registerNewDecl(arg_node, "Function", INFO_CURRENTSCOPE(arg_info)->funDecls, name)) {
         // Only adjust the offset when the registration was successful
         FUNHEADER_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->funCount++;
-        DBUG_PRINT("CA", ("Registered function [%s]", name));
+        DBUG_PRINT("CA", ("Registered function [%s] at offset [%d].", name, FUNHEADER_OFFSET(arg_node)));
     }
 }
 
@@ -165,7 +165,7 @@ void registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
     if (registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->varDecls, name)) {
         // Only adjust the offset when the registration was successful
         VARDEF_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->varCount++;
-        DBUG_PRINT("CA", ("Registered variable [%s]", name));
+        DBUG_PRINT("CA", ("Registered variable [%s] at offset [%d].", name, VARDEF_OFFSET(arg_node)));
     }
 }
 
@@ -176,7 +176,7 @@ node *findVarDecl(info *arg_info, char *name, int *distance) {
         lut_t* varDecls = currentScope->varDecls;
         node* declaringNode = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
         if (declaringNode) {
-            DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, declaringNode));
+            DBUG_PRINT("CA", ("Found [%s] at distace [%d] and offset [%d]", name, *distance, VARDEF_OFFSET(declaringNode)));
             return declaringNode;
         } else {
             (*distance)++;
@@ -194,7 +194,7 @@ node *findFunDecl(info *arg_info, char *name, int *distance) {
         lut_t* funDecls = currentScope->funDecls;
         node* declaringNode = DEREF_IF_NOT_NULL(LUTsearchInLutS(funDecls, name));
         if (declaringNode) {
-            DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, declaringNode));
+            DBUG_PRINT("CA", ("Found [%s] at distace [%d] and offset [%d]", name, *distance, FUNHEADER_OFFSET(declaringNode)));
             return declaringNode;
         } else {
             (*distance)++;
@@ -328,6 +328,24 @@ node *CAfuncall(node *arg_node, info *arg_info) {
         FUNCALL_OFFSET(arg_node) = FUNHEADER_OFFSET(funDef);
 
         TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
+
+        DBUG_PRINT("CA", ("Performing param-count check..."));
+        int exprCount = 0;
+        node *exprs = FUNCALL_PARAMS(arg_node);
+        while (exprs) {
+            exprCount++;
+            exprs = EXPRS_NEXT(exprs);
+        }
+        int paramCount = 0;
+        node *params = FUNHEADER_PARAMS(funDef);
+        while (params) {
+            paramCount++;
+            params = PARAMS_NEXT(params);
+        }
+        DBUG_PRINT("CA", ("The function as [%d] params and there are [%d] expressions.", paramCount, exprCount));
+        if (paramCount != exprCount) {
+            CTIerror("Param count is wrong!");
+        }
     } else {
         CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
     }
