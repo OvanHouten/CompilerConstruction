@@ -383,9 +383,7 @@ node *CAparams(node *arg_node, info *arg_info) {
 node *CAparam(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAparam");
 
-    DBUG_PRINT("CA", ("Param enter"));
     registerNewVarDecl(arg_node, arg_info, ID_NAME(PARAM_ID(arg_node)));
-    DBUG_PRINT("CA", ("Param exit"));
 
     DBUG_RETURN(arg_node);
 }
