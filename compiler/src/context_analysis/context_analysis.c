@@ -15,7 +15,7 @@
 #include "lookup_table.h"
 #include "ctinfo.h"
 
-typedef enum { RegisterOnly, ProcessOnly, RegisterAndProcess } phase_phase;
+typedef enum { RegisterOnly, ProcessOnly, RegisterAndProcess } process_phase;
 
 struct SymbolTable {
     struct SymbolTable *parent;
@@ -30,7 +30,7 @@ struct SymbolTable {
  */
 struct INFO {
   struct SymbolTable *currentScope;
-  phase_phase processPhase;
+  process_phase processPhase;
 };
 
 /*
