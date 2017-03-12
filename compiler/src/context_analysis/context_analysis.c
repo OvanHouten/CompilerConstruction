@@ -15,10 +15,14 @@
 #include "lookup_table.h"
 #include "ctinfo.h"
 
+typedef enum { RegisterOnly, ProcessOnly, RegisterAndProcess } process_phase;
+
 struct SymbolTable {
     struct SymbolTable *parent;
     lut_t *varDecls;
     lut_t *funDecls;
+    int funCount; // Needed for determining the offset within the ST
+    int varCount; // Needed for determining the offset within the ST
 };
 
 /*
@@ -26,7 +30,7 @@ struct SymbolTable {
  */
 struct INFO {
   struct SymbolTable *currentScope;
-  bool registerOnly;
+  process_phase processPhase;
 };
 
 /*
@@ -49,7 +53,7 @@ static info *MakeInfo(void)
 
   result = (info *)MEMmalloc(sizeof(info));
   result->currentScope = NULL;
-  result->registerOnly = FALSE;
+  result->processPhase = RegisterAndProcess;
 
   DBUG_RETURN( result);
 }
@@ -72,6 +76,8 @@ struct SymbolTable *makeNewSymbolTable() {
     st->parent = NULL;
     st->varDecls = LUTgenerateLut();
     st->funDecls = LUTgenerateLut();
+    st->funCount = 0;
+    st->varCount = 0;
     return st;
 }
 
@@ -94,6 +100,37 @@ struct SymbolTable* startNewScope(info *arg_info) {
     return newScope;
 }
 
+void* printVarDecls(void* lut_item) {
+//  	node* cur_item = (node*)lut_item;
+//  	printf("%s\n", ID_NAME(cur_item));
+	
+	return lut_item;
+}
+
+void* printFunDecls(void* lut_item) {
+//  	node* cur_item = (node*)lut_item;
+//  	printf("%s\n", ID_NAME(cur_item));
+	
+	return lut_item;
+}
+
+void printScope(info* arg_info) {
+	DBUG_PRINT("CA", ("Printing current scope"));
+	
+	struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
+	lut_t* varDecls = currentScope->varDecls;
+	lut_t* funDecls = currentScope->funDecls;
+		
+	if (funDecls) {
+		funDecls = LUTmapLutS(varDecls, printFunDecls);
+		printf("Total functions = %d\n", currentScope->funCount); // Temp check
+	}
+	if (varDecls) {
+		varDecls = LUTmapLutS(varDecls, printVarDecls);
+		printf("Total variables = %d\n", currentScope->varCount); // Temp check
+	}
+}
+
 void closeScope(info *arg_info) {
     DBUG_PRINT("CA", ("Closing scope"));
     struct SymbolTable *scopeToBeFreed = INFO_CURRENTSCOPE(arg_info);
@@ -101,30 +138,38 @@ void closeScope(info *arg_info) {
     scopeToBeFreed = freeSymbolTable(scopeToBeFreed);
 }
 
-node *registerNewDecl(node *arg_node, char *typeName, lut_t* decls, char *name) {
+bool registerNewDecl(node *arg_node, char *typeName, lut_t* decls, char *name) {
     node *declaringNode = DEREF_IF_NOT_NULL(LUTsearchInLutS(decls, name));
     if (declaringNode) {
         CTIerror(
                 "%s [%s] at line %d, column %d has already been declared at line %d, column %d.", typeName,
                 name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(declaringNode), NODE_COL(declaringNode));
+        return FALSE;
     } else {
         LUTinsertIntoLutS(decls, name, arg_node);
+        return TRUE;
     }
-    DBUG_PRINT("CA", ("Registered at [%p]", declaringNode));
-    return declaringNode;
 }
 
-node *registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
+void registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
     DBUG_PRINT("CA", ("Registering function [%s]", name));
-    return registerNewDecl(arg_node, "Function", INFO_CURRENTSCOPE(arg_info)->funDecls, name);
+    if (registerNewDecl(arg_node, "Function", INFO_CURRENTSCOPE(arg_info)->funDecls, name)) {
+        // Only adjust the offset when the registration was successful
+        FUNHEADER_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->funCount++;
+        DBUG_PRINT("CA", ("Registered function [%s]", name));
+    }
 }
 
-node *registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
+void registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
     DBUG_PRINT("CA", ("Registering variable [%s]", name));
-    return registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->varDecls, name);
+    if (registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->varDecls, name)) {
+        // Only adjust the offset when the registration was successful
+        VARDEF_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->varCount++;
+        DBUG_PRINT("CA", ("Registered variable [%s]", name));
+    }
 }
 
-node *findVarDecl(info *arg_info, char *name) {
+node *findVarDecl(info *arg_info, char *name, int *distance) {
     DBUG_PRINT("CA", ("Looking for variable [%s]", name));
     struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
     while (currentScope) {
@@ -134,6 +179,7 @@ node *findVarDecl(info *arg_info, char *name) {
             DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, declaringNode));
             return declaringNode;
         } else {
+            (*distance)++;
             currentScope = currentScope->parent;
         }
     }
@@ -141,7 +187,7 @@ node *findVarDecl(info *arg_info, char *name) {
     return NULL;
 }
 
-node *findFunDecl(info *arg_info, char *name) {
+node *findFunDecl(info *arg_info, char *name, int *distance) {
     DBUG_PRINT("CA", ("Looking for function [%s]", name));
     struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
     while (currentScope) {
@@ -151,6 +197,7 @@ node *findFunDecl(info *arg_info, char *name) {
             DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, declaringNode));
             return declaringNode;
         } else {
+            (*distance)++;
             currentScope = currentScope->parent;
         }
     }
@@ -168,12 +215,12 @@ node *CAprogram(node *arg_node, info *arg_info) {
     startNewScope(arg_info);
 
     // Only register functions at this stage
-    arg_info->registerOnly = TRUE;
+    arg_info->processPhase = RegisterOnly;
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
     // No do it again and process the function bodies
-    arg_info->registerOnly = FALSE;
+    arg_info->processPhase = ProcessOnly;
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
-
+	printScope(arg_info);
     closeScope(arg_info);
 
     DBUG_RETURN(arg_node);
@@ -191,15 +238,17 @@ node *CAdeclarations(node *arg_node, info *arg_info) {
 node *CAfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAfundef");
 
-    if (arg_info->registerOnly) {
-        registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
+    if (arg_info->processPhase == RegisterOnly) {
+        registerNewFunDecl(FUNDEF_FUNHEADER(arg_node), arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
     } else {
         if (FUNDEF_FUNBODY(arg_node)) {
             startNewScope(arg_info);
+            arg_info->processPhase = RegisterAndProcess;
 
             TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
             TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
+            arg_info->processPhase = ProcessOnly;
             closeScope(arg_info);
         }
     }
@@ -234,9 +283,10 @@ node *CAfunbody(node *arg_node, info *arg_info) {
 node *CAvardef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAglobaldef");
 
-    if (arg_info->registerOnly) {
+    if (arg_info->processPhase == RegisterOnly || arg_info->processPhase == RegisterAndProcess) {
         registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEF_ID(arg_node)));
-    } else {
+    }
+    if (arg_info->processPhase == RegisterAndProcess || arg_info->processPhase == ProcessOnly) {
         TRAVopt(VARDEF_EXPR(arg_node), arg_info);
     }
 
@@ -247,9 +297,12 @@ node *CAid(node * arg_node, info * arg_info) {
     DBUG_ENTER("CAid");
 
     char *name = ID_NAME(arg_node);
-    node *varDecl = findVarDecl(arg_info, name);
-    if (varDecl) {
-        ID_DECL(arg_node) = varDecl;
+    int distance = 0;
+    node *varDef = findVarDecl(arg_info, name, &distance);
+    if (varDef) {
+        ID_DECL(arg_node) = varDef;
+        ID_DISTANCE(arg_node) = distance;
+        ID_OFFSET(arg_node) = VARDEF_OFFSET(varDef);
     } else {
         CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
     }
@@ -261,9 +314,13 @@ node *CAfuncall(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAfuncall");
 
     char *name = ID_NAME(FUNCALL_ID(arg_node));
-    node *funDecl = findFunDecl(arg_info, name);
-    if (funDecl) {
-        ID_DECL(FUNCALL_ID(arg_node)) = funDecl;
+    int distance = 0;
+    node *funDef = findFunDecl(arg_info, name, &distance);
+    if (funDef) {
+        FUNCALL_DECL(arg_node) = funDef;
+        FUNCALL_DISTANCE(arg_node) = distance;
+        FUNCALL_OFFSET(arg_node) = FUNHEADER_OFFSET(funDef);
+
         TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
     } else {
         CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
@@ -302,7 +359,9 @@ node *CAparams(node *arg_node, info *arg_info) {
 node *CAparam(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAparam");
 
+    DBUG_PRINT("CA", ("Param enter"));
     registerNewVarDecl(arg_node, arg_info, ID_NAME(PARAM_ID(arg_node)));
+    DBUG_PRINT("CA", ("Param exit"));
 
     DBUG_RETURN(arg_node);
 }
@@ -312,15 +371,6 @@ node *CAvardecs(node *arg_node, info *arg_info) {
 
     TRAVopt(VARDECS_NEXT(arg_node), arg_info);
     TRAVdo(VARDECS_VARDEC(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *CAvardec(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAvardec");
-
-    TRAVopt(VARDEC_EXPR(arg_node), arg_info);
-    registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEC_ID(arg_node)));
 
     DBUG_RETURN(arg_node);
 }
@@ -384,8 +434,8 @@ node *CAfor(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAfor");
 
     startNewScope(arg_info);
-    registerNewVarDecl(arg_node, arg_info, ID_NAME(FOR_ID(arg_node)));
-    TRAVdo(FOR_START(arg_node), arg_info);
+    registerNewVarDecl(FOR_VARDEF(arg_node), arg_info, ID_NAME(VARDEF_ID(FOR_VARDEF(arg_node))));
+    TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
     TRAVdo(FOR_FINISH(arg_node), arg_info);
     TRAVopt(FOR_STEP(arg_node), arg_info);
     TRAVopt(FOR_BLOCK(arg_node), arg_info);
