@@ -23,7 +23,6 @@ extern node *CAparams(node *arg_node, info *arg_info);
 extern node *CAparam(node *arg_node, info *arg_info);
 extern node *CAfunbody(node *arg_node, info *arg_info);
 extern node *CAvardecs(node *arg_node, info *arg_info);
-extern node *CAvardec(node *arg_node, info *arg_info);
 extern node *CAfuncall(node *arg_node, info *arg_info);
 extern node *CAtypecast(node *arg_node, info *arg_info);
 extern node *CAassign(node *arg_node, info *arg_info);

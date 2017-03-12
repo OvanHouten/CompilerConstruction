@@ -20,7 +20,6 @@ extern node *PRTfundef(node * arg_node, info * arg_info);
 extern node *PRTfunbody(node * arg_node, info * arg_info);
 
 extern node *PRTvardecs(node * arg_node, info * arg_info);
-extern node *PRTvardec(node * arg_node, info * arg_info);
 
 extern node *PRTvardef(node * arg_node, info * arg_info);
 

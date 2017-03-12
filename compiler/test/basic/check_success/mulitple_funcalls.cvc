@@ -1,0 +1,21 @@
+void fun1() {
+}
+void fun2() {
+    fun1();
+}
+void fun3() {
+    fun1();
+    fun2();
+}
+void fun4() {
+    fun1();
+    fun2();
+    fun3();
+}
+export int main() {
+    fun1();
+    fun2();
+    fun3();
+    fun4();
+    return 0;
+}
