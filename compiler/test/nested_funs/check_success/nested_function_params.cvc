@@ -1,0 +1,10 @@
+export int main() {
+    int a = 1;
+    void inner(int b) {
+        void inner_inner(int c) {
+            a = c;
+            c = b;
+        }
+    }
+    return 0;
+}
