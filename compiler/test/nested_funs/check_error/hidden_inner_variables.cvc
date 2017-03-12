@@ -1,0 +1,11 @@
+export int main() {
+    void inner() {
+        int unreachable;
+        void private() {
+            void private;
+        }
+    }
+    unreachable = 0;
+    private = 0;
+    return 0;
+}

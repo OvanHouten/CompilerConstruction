@@ -1,0 +1,11 @@
+export int main() {
+    int out;
+    void reachingout() {
+        int a = outer;
+        void inner() {
+            int b = 0;
+            int c = outer;
+        }
+    }
+    return 0;
+}
