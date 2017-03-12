@@ -51,7 +51,7 @@
       <traversal id="RI" name="Rename identifiers" default="sons" include="rename_identifiers.h">
         <travuser>
           <node name="Id" />
-          <node name="VarDec" />
+          <node name="VarDef" />
         </travuser>
       </traversal>
 
@@ -312,6 +312,20 @@
           </targets>
         </son>
       </sons>
+      <attributes>
+        <attribute name="Offset">
+          <description>Offset within the symboltable</description>
+          <type name="Bool">
+            <targets>
+              <target mandatory="no">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
     </node>
 
 <!--
@@ -398,6 +412,30 @@
                 </targets>
             </type>
         </attribute>
+        <attribute name="Offset">
+            <description>Offset within the symboltable</description>
+            <type name="Bool">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="IsDeclaration">
+            <description>Currently needed for printing, restructuring the AST should make it possible to remove this attribute.</description>
+            <type name="Bool">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <all />
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
       </attributes>
 	</node>
 
@@ -434,7 +472,7 @@
           <description>First param in sequence</description>
           <targets>
             <target mandatory="yes">
-              <node name="Param" />
+              <node name="VarDef" />
                 <phases>
                   <all />
                 </phases>
@@ -555,7 +593,7 @@
           <description>First VarDec in sequence</description>
           <targets>
             <target mandatory="yes">
-              <node name="VarDec" />
+              <node name="VarDef" />
                 <phases>
                   <all />
                 </phases>
@@ -567,72 +605,6 @@
           <targets>
             <target mandatory="no">
               <node name="VarDecs" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-      </attributes>
-    </node>
-
-<!--
- Node VarDec:
--->
-     <node name="VarDec">
-      <description>Variable declarations</description>
-      <sons>
-        <son name="Type">
-          <description>Type of variable declaration</description>
-          <targets>
-            <target mandatory="Yes">
-              <set name="Type" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="ArraySize">
-          <description>Arraysize, can be multidimensional</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Exprs" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="Id">
-          <description>Identifier</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Id" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="Expr">
-          <description>To be assigned expression</description>
-          <targets>
-            <target mandatory="no">
-              <set name="Expr" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="ArrExpr">
-          <description>To be assigned expression</description>
-          <targets>
-            <target mandatory="no">
-              <set name="ArrExpr" />
                 <phases>
                   <all />
                 </phases>
@@ -672,6 +644,43 @@
           </targets>
         </son>
       </sons>
+      <attributes>
+        <attribute name="Distance">
+          <description>Distance to symbol table</description>
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Offset">
+          <description>Offset into the symbol table</description>
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Decl">
+            <description>Reference back to the FunDef node</description>
+            <type name="Link"/>
+            <targets>
+                <target mandatory="yes">
+                    <phases>
+                        <phase from="Context Analysis"/>
+                    </phases>
+                </target>
+            </targets>
+        </attribute>
+      </attributes>
     </node>
 
 <!--
@@ -854,22 +863,11 @@
      <node name="For">
       <description>Represents the for statement</description>
       <sons>
-        <son name="Id">
-          <description>The name of the counter variable</description>
+        <son name="VarDef">
+          <description>The name of the counter variable and the start value</description>
           <targets>
             <target mandatory="yes">
-              <node name="Id" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="Start">
-          <description>Represents the start value for the for-loop</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="Expr" />
+              <node name="VarDef" />
                 <phases>
                   <all />
                 </phases>

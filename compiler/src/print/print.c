@@ -18,9 +18,9 @@
  * INFO structure
  */
 struct INFO {
-	bool firsterror;
-	int indent;
-	bool isNewLine;
+  bool firsterror;
+  int indent;
+  bool isNewLine;
 };
 
 #define INFO_FIRSTERROR(n)	((n)->firsterror)
@@ -132,34 +132,6 @@ node *PRTvardecs(node* arg_node, info* arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTvardec(node* arg_node, info* arg_info) {
-	DBUG_ENTER("PRTvardec");
-
-	INDENT(arg_info);
-	TRAVdo(VARDEC_TYPE(arg_node), arg_info);
-	
-	if(VARDEC_ARRAYSIZE(arg_node)) {
-		printf("[");
-		TRAVdo(VARDEC_ARRAYSIZE(arg_node), arg_info);
-		printf("] ");
-	}
-	
-	TRAVdo(VARDEC_ID(arg_node), arg_info);
-	
-	if (VARDEC_EXPR(arg_node)) {
-		printf(" = ");
-		TRAVdo(VARDEC_EXPR(arg_node), arg_info);
-	}
-
-	if (VARDEC_ARREXPR(arg_node)) {
-		printf(" = [");
-		TRAVdo(VARDEC_ARREXPR(arg_node), arg_info);
-		printf("]");
-	}
-
-	DBUG_RETURN(arg_node);
-}
-
 node *PRTvardef(node * arg_node, info * arg_info) {
     DBUG_ENTER("PRTvarDef");
 
@@ -183,8 +155,10 @@ node *PRTvardef(node * arg_node, info * arg_info) {
         // Lets be lazy and let the TRAV opt decide which to print, there are exclusive so no need to check...
         TRAVopt(VARDEF_EXPR(arg_node), arg_info);
         TRAVopt(VARDEF_ARREXPRS(arg_node), arg_info);
-    } else {
+    }
+    if(VARDEF_ISDECLARATION(arg_node)) {
         printf(";\n");
+        INDENT_AT_NEWLINE(arg_info);
     }
 
     DBUG_RETURN(arg_node);
@@ -332,9 +306,9 @@ node *PRTfor(node* arg_node, info* arg_info) {
 
 	INDENT(arg_info);
 	printf("for ( int ");
-	TRAVdo( FOR_ID(arg_node), arg_info);
+	TRAVdo( VARDEF_ID(FOR_VARDEF(arg_node)), arg_info);
 	printf(" = ");
-	TRAVdo( FOR_START(arg_node), arg_info);
+	TRAVdo( VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
 	printf(", ");
 	TRAVdo( FOR_FINISH(arg_node), arg_info);
 	printf(" ) {\n");
@@ -486,7 +460,7 @@ node *PRTid(node* arg_node, info* arg_info) {
 	DBUG_ENTER("PRTid");
 
 	INDENT(arg_info);
-	printf("%s", ID_NAME(arg_node));
+    printf("%s", ID_NAME(arg_node));
 
 	DBUG_RETURN(arg_node);
 }
