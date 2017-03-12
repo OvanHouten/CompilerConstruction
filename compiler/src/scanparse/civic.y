@@ -107,7 +107,6 @@ params: params COMMA param { $$ = TBmakeParams( $3, $1); }
 param: type ID                       { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($2), NULL, NULL, NULL); }
      | type SQUARE_L ids SQUARE_R ID { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($5), $3, NULL, NULL); }
      ;
-param: type ID { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($2), NULL, NULL, NULL); }
 
 funbody: CURLY_L vardecs stmts CURLY_R { $$ = TBmakeFunbody($2, NULL, $3); } 
        | CURLY_L vardecs CURLY_R       { $$ = TBmakeFunbody($2, NULL, NULL); } 
