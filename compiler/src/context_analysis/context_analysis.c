@@ -240,6 +240,12 @@ node *CAfundef(node *arg_node, info *arg_info) {
 
     if (arg_info->processPhase == RegisterOnly) {
         registerNewFunDecl(FUNDEF_FUNHEADER(arg_node), arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
+        // TODO check if this is realy needed and useful.
+        node *funHeader = FUNDEF_FUNHEADER(arg_node);
+        node *id = FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node));
+        ID_DECL(id) = funHeader;
+        ID_DISTANCE(id) = 0; // Just to make it explicit that each function is defined in the current scope and hence has an offset of 0.
+        ID_OFFSET(id) = FUNHEADER_OFFSET(funHeader);
     } else {
         if (FUNDEF_FUNBODY(arg_node)) {
             startNewScope(arg_info);
@@ -280,6 +286,11 @@ node *CAvardef(node *arg_node, info *arg_info) {
 
     if (arg_info->processPhase == RegisterOnly || arg_info->processPhase == RegisterAndProcess) {
         registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEF_ID(arg_node)));
+        // TODO check if this is realy needed and useful.
+        node *id = VARDEF_ID(arg_node);
+        ID_DECL(id) = arg_node;
+        ID_DISTANCE(id) = 0;
+        ID_OFFSET(id) = VARDEF_OFFSET(arg_node);
     }
     if (arg_info->processPhase == RegisterAndProcess || arg_info->processPhase == ProcessOnly) {
         TRAVopt(VARDEF_EXPR(arg_node), arg_info);
