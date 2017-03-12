@@ -544,14 +544,16 @@ node *CAlocalfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAlocalfundef");
 
     if (arg_info->processPhase == RegisterOnly) {
-        registerNewFunDecl(arg_node, arg_info, ID_NAME(FUNHEADER_ID(LOCALFUNDEF_FUNHEADER(arg_node))));
+        registerNewFunDecl(LOCALFUNDEF_FUNHEADER(arg_node), arg_info, ID_NAME(FUNHEADER_ID(LOCALFUNDEF_FUNHEADER(arg_node))));
     } else {
+        arg_info->processPhase = RegisterAndProcess;
         startNewScope(arg_info);
 
-        TRAVdo(LOCALFUNDEF_FUNHEADER(arg_node), arg_info);
+        TRAVopt(FUNHEADER_PARAMS(LOCALFUNDEF_FUNHEADER(arg_node)), arg_info);
         TRAVopt(LOCALFUNDEF_FUNBODY(arg_node), arg_info);
 
         closeScope(arg_info);
+        arg_info->processPhase = ProcessOnly;
     }
 
     DBUG_RETURN(arg_node);
