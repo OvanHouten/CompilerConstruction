@@ -58,6 +58,33 @@ static info *FreeInfo( info *info)
   return info;
 }
 
+void printSymbolTable(node* arg_node) {
+	arg_node = VARDEF_ID(arg_node);
+	char* type;
+	
+	switch(ID_TYPE(arg_node)) {
+		case TY_bool:
+			type = "bool";
+			break;
+		case TY_int:
+			type = "int";
+			break;
+		case TY_float:
+			type = "float";
+			break;
+		case TY_unknown:
+			type = "unknown";
+		default:
+			break;
+	}
+	
+	printf("/* %s %s %d %d */", ID_NAME(arg_node), type, ID_DISTANCE(arg_node), ID_OFFSET(arg_node));
+}
+
+/*
+ * Traversal code starts here
+ */
+
 node *PRTprogram(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTprogram");
 
@@ -150,7 +177,13 @@ node *PRTvardef(node * arg_node, info * arg_info) {
         TRAVdo(VARDEF_EXPR(arg_node), arg_info);
     }
     if(VARDEF_ISDECLARATION(arg_node)) {
-        printf(";\n");
+        printf(";");
+    }
+    
+    printSymbolTable(arg_node);
+    
+    if(VARDEF_ISDECLARATION(arg_node)) {
+        printf("\n");
         INDENT_AT_NEWLINE(arg_info);
     }
 
