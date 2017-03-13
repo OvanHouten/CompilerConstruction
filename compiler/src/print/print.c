@@ -302,16 +302,23 @@ node *PRTfor (node * arg_node, info * arg_info)
   DBUG_ENTER ("PRTfor");
 
   INDENT(arg_info);
-  printf("for ( int ");
-  TRAVdo( VARDEF_ID(FOR_VARDEF(arg_node)), arg_info);
-  printf(" = ");
-  TRAVdo( VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
+  printf("for ( ");
+  if (FOR_VARDEF(arg_node)) {
+      printf("int ");
+      TRAVdo(VARDEF_ID(FOR_VARDEF(arg_node)), arg_info);
+      printf(" = ");
+      TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
+  }
   printf(", ");
   TRAVdo( FOR_FINISH(arg_node), arg_info);
+  if (FOR_STEP(arg_node)) {
+      printf(", ");
+      TRAVdo(FOR_STEP(arg_node), arg_info);
+  }
   printf(" ) {\n");
   INCREASE_INDENTATION(arg_info);
 
-  TRAVdo( FOR_BLOCK( arg_node), arg_info);
+  TRAVdo(FOR_BLOCK( arg_node), arg_info);
 
   DECREASE_INDENTATION(arg_info);
   INDENT(arg_info);
