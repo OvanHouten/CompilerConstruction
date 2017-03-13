@@ -48,6 +48,14 @@
 
       <traversal id="CA" name="Context Analysis" default="user" include="context_analysis.h" />
 
+      <traversal id="FL" name="For-loop transformation" default="sons" include="forloop.h">
+        <travuser>
+          <node name="For" />
+          <node name="FunDef" />
+          <node name="LocalFunDef" />
+        </travuser>
+      </traversal>
+
       <traversal id="RI" name="Rename identifiers" default="sons" include="rename_identifiers.h">
         <travuser>
           <node name="Id" />
