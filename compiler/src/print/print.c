@@ -58,8 +58,7 @@ static info *FreeInfo( info *info)
   return info;
 }
 
-void printSymbolTable(node* arg_node) {
-	arg_node = VARDEF_ID(arg_node);
+void printSymbolTableEntry(node* arg_node) {
 	char* type;
 	
 	switch(ID_TYPE(arg_node)) {
@@ -177,13 +176,7 @@ node *PRTvardef(node * arg_node, info * arg_info) {
         TRAVdo(VARDEF_EXPR(arg_node), arg_info);
     }
     if(VARDEF_ISDECLARATION(arg_node)) {
-        printf(";");
-    }
-    
-    printSymbolTable(arg_node);
-    
-    if(VARDEF_ISDECLARATION(arg_node)) {
-        printf("\n");
+        printf(";\n");
         INDENT_AT_NEWLINE(arg_info);
     }
 
@@ -492,11 +485,10 @@ node *PRTid(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTid");
 
 	INDENT(arg_info);
+	printf("%s", ID_NAME(arg_node));
 	if (global.pst) {
 	    // Just handy at the moment to have this possibility while debugging the context checks.
-	    printf("%s /* %d %d */", ID_NAME(arg_node), ID_DISTANCE(arg_node), ID_OFFSET(arg_node));
-	} else {
-	    printf("%s", ID_NAME(arg_node));
+	    printSymbolTableEntry(arg_node);
 	}
 
 	DBUG_RETURN(arg_node);
