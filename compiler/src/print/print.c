@@ -58,6 +58,32 @@ static info *FreeInfo( info *info)
   return info;
 }
 
+void printSymbolTableEntry(node* arg_node) {
+	char* type;
+	
+	switch(ID_TYPE(arg_node)) {
+		case TY_bool:
+			type = "bool";
+			break;
+		case TY_int:
+			type = "int";
+			break;
+		case TY_float:
+			type = "float";
+			break;
+		case TY_unknown:
+			type = "unknown";
+		default:
+			break;
+	}
+	
+	printf("/* %s %s %d %d */", ID_NAME(arg_node), type, ID_DISTANCE(arg_node), ID_OFFSET(arg_node));
+}
+
+/*
+ * Traversal code starts here
+ */
+
 node *PRTprogram(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTprogram");
 
@@ -466,11 +492,10 @@ node *PRTid(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTid");
 
 	INDENT(arg_info);
+	printf("%s", ID_NAME(arg_node));
 	if (global.pst) {
 	    // Just handy at the moment to have this possibility while debugging the context checks.
-	    printf("%s /* %d %d */", ID_NAME(arg_node), ID_DISTANCE(arg_node), ID_OFFSET(arg_node));
-	} else {
-	    printf("%s", ID_NAME(arg_node));
+	    printSymbolTableEntry(arg_node);
 	}
 
 	DBUG_RETURN(arg_node);
