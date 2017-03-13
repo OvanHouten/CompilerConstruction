@@ -344,7 +344,7 @@ node *CAfuncall(node *arg_node, info *arg_info) {
         }
         DBUG_PRINT("CA", ("The function as [%d] params and there are [%d] expressions.", paramCount, exprCount));
         if (paramCount != exprCount) {
-            CTIerror("Param count is wrong!");
+            CTIerror("The number of parameters [%d] as used at line [%d] and column [%d] do not match the number of parameters [%d] to the function %s as defined at line [%d].", exprCount, NODE_LINE(arg_node), NODE_COL(arg_node), paramCount, name, NODE_LINE(funDef));
         }
     } else {
         CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
@@ -433,8 +433,8 @@ node *CAif(node *arg_node, info *arg_info) {
 node *CAwhile(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAwhile");
 
-    startNewScope(arg_info);
     TRAVdo(WHILE_CONDITION(arg_node), arg_info);
+    startNewScope(arg_info);
     TRAVopt(WHILE_BLOCK(arg_node), arg_info);
     closeScope(arg_info);
 
