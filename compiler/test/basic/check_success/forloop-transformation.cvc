@@ -1,0 +1,12 @@
+void globalFunction() {
+    int a = 0;
+    int b;
+    for (int i = 0, 50) {
+        a = i;
+    }
+    if (a > 3) {
+        for (int i = 10, 50, 10) {
+            b = i + a;
+        }
+    }
+}

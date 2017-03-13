@@ -282,7 +282,7 @@ node *SAfunbody(node *arg_node, info *arg_info) {
 }
 
 node *SAvardef(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAglobaldef");
+    DBUG_ENTER("SAvardef");
 
     if (arg_info->processPhase == RegisterOnly || arg_info->processPhase == RegisterAndProcess) {
         registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEF_ID(arg_node)));

@@ -53,6 +53,7 @@
           <node name="For" />
           <node name="FunDef" />
           <node name="LocalFunDef" />
+          <node name="Id" />
         </travuser>
       </traversal>
 
@@ -877,7 +878,7 @@
             <target mandatory="yes">
               <node name="VarDef" />
                 <phases>
-                  <all />
+                  <phase to="For-loop transformation" />
                 </phases>
              </target>
           </targets>

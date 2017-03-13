@@ -11,6 +11,7 @@
 #include "traverse.h"
 #include "dbug.h"
 #include "memory.h"
+#include "ctinfo.h"
 
 #include "forloop.h"
 
@@ -18,13 +19,13 @@
  * INFO structure
  */
 struct INFO {
-  struct node *currentScope;
+  node *fundef;
 };
 
 /*
  * INFO macros
  */
-#define FOR_CURRENTSCOPE(n)  ((n)->currentScope)
+#define INFO_FUNDEF(n)  ((n)->fundef)
 
 /*
  * INFO functions
@@ -36,7 +37,7 @@ static info *MakeInfo(void)
   DBUG_ENTER( "MakeInfo");
 
   result = (info *)MEMmalloc(sizeof(info));
-  result->currentScope = NULL;
+  INFO_FUNDEF(result) = NULL;
 
   DBUG_RETURN( result);
 }
@@ -45,23 +46,67 @@ static info *FreeInfo( info *info)
 {
   DBUG_ENTER ("FreeInfo");
 
-  info->currentScope = NULL;
+  INFO_FUNDEF(info) = NULL;
   info = MEMfree( info);
 
   DBUG_RETURN( info);
 }
+
 node *FLfor(node *arg_node, info *arg_info) {
     DBUG_ENTER("FLfor");
 
     DBUG_PRINT("FL", ("For"));
+    DBUG_ASSERT(INFO_FUNDEF(arg_info) != NULL, "A for loop can't exist outside a function!");
 
+    node *funBody = NULL;
+    if (NODE_TYPE(INFO_FUNDEF(arg_info)) == N_fundef) {
+        DBUG_PRINT("FL", ("For loop inside function."));
+        funBody = FUNDEF_FUNBODY(INFO_FUNDEF(arg_info));
+    } else if (NODE_TYPE(INFO_FUNDEF(arg_info)) == N_localfundef) {
+        DBUG_PRINT("FL", ("For loop inside localfunction."));
+        funBody = LOCALFUNDEF_FUNBODY(INFO_FUNDEF(arg_info));
+    }
+
+    if (funBody) {
+        node *lastVarDec = FUNBODY_VARDECS(funBody);
+        node *loopVar = FOR_VARDEF(arg_node);
+        FUNBODY_VARDECS(funBody) = TBmakeVardecs(loopVar, lastVarDec);
+        FOR_VARDEF(arg_node) = NULL;
+        if (lastVarDec) {
+            VARDEF_OFFSET(loopVar) = VARDEF_OFFSET(VARDECS_VARDEC(lastVarDec)) + 1;
+            ID_OFFSET(VARDEF_ID(loopVar)) = VARDEF_OFFSET(loopVar);
+        }
+        TRAVopt(FOR_BLOCK(arg_node), arg_info);
+    } else {
+        CTIerror("A for-loop without a surrounding (local)function!");
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *FLid(node *arg_node, info *arg_info) {
+    DBUG_ENTER("FLid");
+
+    // Make sure the ID belongs to a vardef and not a fundef
+    if (ID_DECL(arg_node) != NULL && NODE_TYPE(ID_DECL(arg_node)) == N_vardef) {
+        // If the offset changed it must belong to a ID that referenced the loop variable
+        if (ID_OFFSET(arg_node) != VARDEF_OFFSET(ID_DECL(arg_node))) {
+            ID_OFFSET(arg_node) = VARDEF_OFFSET(ID_DECL(arg_node));
+            ID_DISTANCE(arg_node)++;
+        }
+    }
     DBUG_RETURN(arg_node);
 }
 
 node *FLfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("FLfundef");
 
-    DBUG_PRINT("FL", ("FunDef"));
+    node *previousScope = INFO_FUNDEF(arg_info);
+    INFO_FUNDEF(arg_info) = arg_node;
+
+    TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
+
+    INFO_FUNDEF(arg_info) = previousScope;
 
     DBUG_RETURN(arg_node);
 }
@@ -69,11 +114,15 @@ node *FLfundef(node *arg_node, info *arg_info) {
 node *FLlocalfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("FLlocalfundef");
 
-    DBUG_PRINT("FL", ("LocalFunDef"));
+    node *previousScope = INFO_FUNDEF(arg_info);
+    INFO_FUNDEF(arg_info) = arg_node;
+
+    TRAVopt(LOCALFUNDEF_FUNBODY(arg_node), arg_info);
+
+    INFO_FUNDEF(arg_info) = previousScope;
 
     DBUG_RETURN(arg_node);
 }
-
 
 node *FLdoForLoop(node *syntaxtree) {
     DBUG_ENTER("FLdoForloop");
