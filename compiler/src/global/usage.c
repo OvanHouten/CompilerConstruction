@@ -33,7 +33,7 @@ void PrintGeneralInfo(void)
           "                    Supported tags are:\n\n"
           
           "                    MAKE - prints debug information of tree constructors.\n"
-          "                    CA   - prints debug information of context analysis.\n"
+          "                    SA   - prints debug information of scope analysis.\n"
           "                    FREE - prints debug information of tree destructors.\n",
           global.verbosity);
 

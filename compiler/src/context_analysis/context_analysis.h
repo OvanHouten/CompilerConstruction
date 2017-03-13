@@ -10,50 +10,50 @@
 
 #include "types.h"
 
-extern node *CAprogram(node *arg_node, info *arg_info);
-extern node *CAdeclarations(node *arg_node, info *arg_info);
-extern node *CAstatements(node *arg_node, info *arg_info);
-extern node *CAfundef(node *arg_node, info *arg_info);
-extern node *CAfunheader(node *arg_node, info *arg_info);
-extern node *CAvardef(node *arg_node, info *arg_info);
-extern node *CAint(node *arg_node, info *arg_info);
-extern node *CAfloat(node *arg_node, info *arg_info);
-extern node *CAbool(node *arg_node, info *arg_info);
-extern node *CAparams(node *arg_node, info *arg_info);
-extern node *CAparam(node *arg_node, info *arg_info);
-extern node *CAfunbody(node *arg_node, info *arg_info);
-extern node *CAvardecs(node *arg_node, info *arg_info);
-extern node *CAfuncall(node *arg_node, info *arg_info);
-extern node *CAtypecast(node *arg_node, info *arg_info);
-extern node *CAassign(node *arg_node, info *arg_info);
-extern node *CAif(node *arg_node, info *arg_info);
-extern node *CAwhile(node *arg_node, info *arg_info);
-extern node *CAdo(node *arg_node, info *arg_info);
-extern node *CAfor(node *arg_node, info *arg_info);
-extern node *CAreturn(node *arg_node, info *arg_info);
-extern node *CAexprs(node *arg_node, info *arg_info);
-extern node *CAarithop(node *arg_node, info *arg_info);
-extern node *CArelop(node *arg_node, info *arg_info);
-extern node *CAlogicop(node *arg_node, info *arg_info);
-extern node *CAunop(node *arg_node, info *arg_info);
-extern node *CAid(node *arg_node, info *arg_info);
-extern node *CAvoid(node *arg_node, info *arg_info);
-extern node *CAintconst(node *arg_node, info *arg_info);
-extern node *CAfloatconst(node *arg_node, info *arg_info);
-extern node *CAboolconst(node *arg_node, info *arg_info);
-extern node *CAsymboltableentry(node *arg_node, info *arg_info);
-extern node *CAerror(node *arg_node, info *arg_info);
-extern node *CAlocalfundef(node *arg_node, info *arg_info);
-extern node *CAlocalfundefs(node *arg_node, info *arg_info);
-extern node *CAarrayassign(node *arg_node, info *arg_info);
-extern node *CAarray(node *arg_node, info *arg_info);
-extern node *CAids(node *arg_node, info *arg_info);
-extern node *CAarrexprs(node *arg_node, info *arg_info);
+extern node *SAprogram(node *arg_node, info *arg_info);
+extern node *SAdeclarations(node *arg_node, info *arg_info);
+extern node *SAstatements(node *arg_node, info *arg_info);
+extern node *SAfundef(node *arg_node, info *arg_info);
+extern node *SAfunheader(node *arg_node, info *arg_info);
+extern node *SAvardef(node *arg_node, info *arg_info);
+extern node *SAint(node *arg_node, info *arg_info);
+extern node *SAfloat(node *arg_node, info *arg_info);
+extern node *SAbool(node *arg_node, info *arg_info);
+extern node *SAparams(node *arg_node, info *arg_info);
+extern node *SAparam(node *arg_node, info *arg_info);
+extern node *SAfunbody(node *arg_node, info *arg_info);
+extern node *SAvardecs(node *arg_node, info *arg_info);
+extern node *SAfuncall(node *arg_node, info *arg_info);
+extern node *SAtypecast(node *arg_node, info *arg_info);
+extern node *SAassign(node *arg_node, info *arg_info);
+extern node *SAif(node *arg_node, info *arg_info);
+extern node *SAwhile(node *arg_node, info *arg_info);
+extern node *SAdo(node *arg_node, info *arg_info);
+extern node *SAfor(node *arg_node, info *arg_info);
+extern node *SAreturn(node *arg_node, info *arg_info);
+extern node *SAexprs(node *arg_node, info *arg_info);
+extern node *SAarithop(node *arg_node, info *arg_info);
+extern node *SArelop(node *arg_node, info *arg_info);
+extern node *SAlogicop(node *arg_node, info *arg_info);
+extern node *SAunop(node *arg_node, info *arg_info);
+extern node *SAid(node *arg_node, info *arg_info);
+extern node *SAvoid(node *arg_node, info *arg_info);
+extern node *SAintconst(node *arg_node, info *arg_info);
+extern node *SAfloatconst(node *arg_node, info *arg_info);
+extern node *SAboolconst(node *arg_node, info *arg_info);
+extern node *SAsymboltableentry(node *arg_node, info *arg_info);
+extern node *SAerror(node *arg_node, info *arg_info);
+extern node *SAlocalfundef(node *arg_node, info *arg_info);
+extern node *SAlocalfundefs(node *arg_node, info *arg_info);
+extern node *SAarrayassign(node *arg_node, info *arg_info);
+extern node *SAarray(node *arg_node, info *arg_info);
+extern node *SAids(node *arg_node, info *arg_info);
+extern node *SAarrexprs(node *arg_node, info *arg_info);
 
-extern node *CAstatements(node *arg_node, info *arg_info);
-extern node *CAid(node * arg_node, info * arg_info);
+extern node *SAstatements(node *arg_node, info *arg_info);
+extern node *SAid(node * arg_node, info * arg_info);
 
-extern node *CAdoScopeAnalysis( node *syntaxtree);
+extern node *SAdoScopeAnalysis( node *syntaxtree);
 
 
 #endif /* SRC_CONTEXT_CHECKS_CONTEXT_CHECK_H_ */
