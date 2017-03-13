@@ -459,7 +459,12 @@ node *PRTid(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTid");
 
 	INDENT(arg_info);
-    printf("%s", ID_NAME(arg_node));
+	if (global.pst) {
+	    // Just handy at the moment to have this possibility while debugging the context checks.
+	    printf("%s /* %d %d */", ID_NAME(arg_node), ID_DISTANCE(arg_node), ID_OFFSET(arg_node));
+	} else {
+	    printf("%s", ID_NAME(arg_node));
+	}
 
 	DBUG_RETURN(arg_node);
 }

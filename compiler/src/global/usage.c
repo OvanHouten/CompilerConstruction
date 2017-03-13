@@ -28,6 +28,7 @@ void PrintGeneralInfo(void)
           "    -o <filename>   Name of output file.\n\n"
           "    -v <n>          Verbosity level (default: %d).\n\n"
           "    -tc             Apply syntax tree consistency checks.\n\n"
+          "    -pst            Print Symbol Table entry info.\n\n"
           "    -#d,<id>        Print debugging information for tag <id>.\n"
           "                    Supported tags are:\n\n"
           
