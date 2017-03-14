@@ -18,9 +18,8 @@
  * CiviCC specific global variables
  */
 
-#if 0
-GLOBAL( type, name, init)
-#endif
+GLOBAL( char*, includedir, NULL)
+GLOBAL( bool, preprocessor_enabled, FALSE)
 
 #undef GLOBALtype
 #undef GLOBALname

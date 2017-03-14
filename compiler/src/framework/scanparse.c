@@ -48,6 +48,7 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "scanparse.h"
 #include "dbug.h"
@@ -55,6 +56,7 @@
 #include "ctinfo.h"
 #include "str.h"
 #include "memory.h"
+#include "myglobals.h"
 
 
 /*
@@ -108,22 +110,36 @@ node *SPdoRunPreProcessor( node *syntax_tree)
   
   DBUG_ENTER("SPdoRunPreProcessor");
 
-  cppcallstr = STRcatn( 5, 
-                        "gcc -E ",
-                        global.infile,
-                        " > .",
-                        global.infile,
-                        ".cpp");
-  
-  err = system( cppcallstr);
+  if (myglobal.preprocessor_enabled) {
+      DBUG_PRINT("SP", ("Enabling then pre-processor."));
+      if (myglobal.includedir) {
+          printf("Using [%s] as include folder.\n", myglobal.includedir);
+          setenv("C_INCLUDE_PATH", myglobal.includedir, 1);
+      }
 
-  cppcallstr = MEMfree( cppcallstr);
+      if (getenv("C_INCLUDE_PATH") == NULL) {
+          CTIabort("The 'civic.h' system header file can't be found. Please specify the correct location with the '-I' option or make sure the environment variable C_INCLUDE_PATH is set correctly!");
+      }
 
-  if ( err) {
-    CTIabort( "Unable to run C preprocessor");
+      cppcallstr = STRcatn( 5,
+                            "gcc -E -x c ",
+                            global.infile,
+                            " > .",
+                            global.infile,
+                            ".cpp");
+
+      err = system( cppcallstr);
+
+      cppcallstr = MEMfree( cppcallstr);
+
+      if ( err) {
+        CTIabort( "Unable to run C preprocessor, did you use the '-I' switch correctly?");
+      }
+
+      global.cpp = TRUE;
+  } else {
+      DBUG_PRINT("SP", ("Pre-processor is disabled."));
   }
-  
-  global.cpp = TRUE;
   
   DBUG_RETURN( syntax_tree);
 }

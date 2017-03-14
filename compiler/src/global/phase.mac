@@ -15,7 +15,7 @@ PHASE( ld,
 SUBPHASE( cpp,
           "Running C preprocessor",
           SPdoRunPreProcessor, 
-          NEVER,
+          ALWAYS,
           ld)
 
 SUBPHASE( scp,
