@@ -11,9 +11,8 @@
 
 #include "types.h"
 
-extern node *SVfundef(node *arg_node, info *arg_info);
-extern node *SVlocalfundef(node *arg_node, info *arg_info);
-extern node *SVvardef(node *arg_node, info *arg_info);
+extern node *SVfunbody(node *arg_node, info *arg_info);
+extern node *SVvardecs(node *arg_node, info *arg_info);
 
 extern node *SVdoSplitVarDefs(node *syntaxtree);
 
