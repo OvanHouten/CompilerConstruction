@@ -107,5 +107,4 @@
                            }
 
 [ \t]                      { global.col += yyleng;
-                           } 
-
+                           }

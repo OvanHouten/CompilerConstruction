@@ -243,7 +243,6 @@ static int yyerror( char *error)
 {
   CTIabort( "line %d, col %d\nError parsing source code: %s\n", 
             global.line, global.col, error);
-
   return( 0);
 }
 
