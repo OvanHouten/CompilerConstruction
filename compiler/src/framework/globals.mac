@@ -120,12 +120,6 @@ GLOBAL( int, col, 0)
 GLOBAL( int, cpp, FALSE)
 
 
-/*
- * Print global
- */
-GLOBAL( int, pst, FALSE)
-
-
 #undef GLOBALtype
 #undef GLOBALname
 #undef GLOBALinit

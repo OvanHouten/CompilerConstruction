@@ -12,6 +12,7 @@
 #include "dbug.h"
 #include "memory.h"
 #include "globals.h"
+#include "myglobals.h"
 
 
 /*
@@ -498,7 +499,7 @@ node *PRTid(node * arg_node, info * arg_info) {
 	} else {
 	    printf("%s", ID_NAME(arg_node));
 	}
-	if (global.pst) {
+	if (myglobal.pst) {
 	    // Just handy at the moment to have this possibility while debugging the context checks.
 	    printSymbolTableEntry(arg_node);
 	}
