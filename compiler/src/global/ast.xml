@@ -423,7 +423,7 @@
         </attribute>
         <attribute name="Offset">
             <description>Offset within the symboltable</description>
-            <type name="Bool">
+            <type name="Int">
                 <targets>
                     <target mandatory="no">
                         <phases>

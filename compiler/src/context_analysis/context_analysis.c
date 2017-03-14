@@ -15,8 +15,6 @@
 #include "lookup_table.h"
 #include "ctinfo.h"
 
-typedef enum { RegisterOnly, ProcessOnly, RegisterAndProcess } process_phase;
-
 struct SymbolTable {
     struct SymbolTable *parent;
     lut_t *varDecls;
@@ -30,7 +28,6 @@ struct SymbolTable {
  */
 struct INFO {
   struct SymbolTable *currentScope;
-  process_phase processPhase;
 };
 
 /*
@@ -53,7 +50,6 @@ static info *MakeInfo(void)
 
   result = (info *)MEMmalloc(sizeof(info));
   result->currentScope = NULL;
-  result->processPhase = RegisterAndProcess;
 
   DBUG_RETURN( result);
 }
@@ -133,7 +129,8 @@ void registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
     DBUG_PRINT("SA", ("Registering variable [%s]", name));
     if (registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->varDecls, name)) {
         // Only adjust the offset when the registration was successful
-        VARDEF_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->varCount++;
+        INFO_CURRENTSCOPE(arg_info)->varCount++;
+        VARDEF_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->varCount;
         DBUG_PRINT("SA", ("Registered variable [%s] at offset [%d].", name, VARDEF_OFFSET(arg_node)));
     }
 }
@@ -183,12 +180,8 @@ node *SAprogram(node *arg_node, info *arg_info) {
 
     startNewScope(arg_info);
 
-    // Only register functions at this stage
-    arg_info->processPhase = RegisterOnly;
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
-    // No do it again and process the function bodies
-    arg_info->processPhase = ProcessOnly;
-    TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
+
     closeScope(arg_info);
 
     DBUG_RETURN(arg_node);
@@ -197,7 +190,22 @@ node *SAprogram(node *arg_node, info *arg_info) {
 node *SAdeclarations(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAdeclarations");
 
+    // Just register the name of the function or variable
+    if (NODE_TYPE(DECLARATIONS_DECLARATION(arg_node)) == N_fundef) {
+        node *funDef = DECLARATIONS_DECLARATION(arg_node);
+        registerNewFunDecl(FUNDEF_FUNHEADER(funDef), arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(funDef))));
+        // TODO check if this is realy needed and useful.
+        node *funHeader = FUNDEF_FUNHEADER(funDef);
+        node *id = FUNHEADER_ID(FUNDEF_FUNHEADER(funDef));
+        ID_DECL(id) = funHeader;
+        ID_DISTANCE(id) = 0; // Just to make it explicit that each function is defined in the current scope and hence has an offset of 0.
+        ID_OFFSET(id) = FUNHEADER_OFFSET(funHeader);
+    }
+
+    // Continue to register function and variable names
     TRAVopt(DECLARATIONS_NEXT(arg_node), arg_info);
+
+    // Now process the body of the function or the expression of the variable
     TRAVdo(DECLARATIONS_DECLARATION(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
@@ -206,25 +214,13 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
 node *SAfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAfundef");
 
-    if (arg_info->processPhase == RegisterOnly) {
-        registerNewFunDecl(FUNDEF_FUNHEADER(arg_node), arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
-        // TODO check if this is realy needed and useful.
-        node *funHeader = FUNDEF_FUNHEADER(arg_node);
-        node *id = FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node));
-        ID_DECL(id) = funHeader;
-        ID_DISTANCE(id) = 0; // Just to make it explicit that each function is defined in the current scope and hence has an offset of 0.
-        ID_OFFSET(id) = FUNHEADER_OFFSET(funHeader);
-    } else {
-        if (FUNDEF_FUNBODY(arg_node)) {
-            startNewScope(arg_info);
-            arg_info->processPhase = RegisterAndProcess;
+    if (FUNDEF_FUNBODY(arg_node)) {
+        startNewScope(arg_info);
 
-            TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
-            TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
+        TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
+        TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
-            arg_info->processPhase = ProcessOnly;
-            closeScope(arg_info);
-        }
+        closeScope(arg_info);
     }
 
     DBUG_RETURN(arg_node);
@@ -252,17 +248,17 @@ node *SAfunbody(node *arg_node, info *arg_info) {
 node *SAvardef(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAvardef");
 
-    if (arg_info->processPhase == RegisterOnly || arg_info->processPhase == RegisterAndProcess) {
-        registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEF_ID(arg_node)));
-        // TODO check if this is realy needed and useful.
-        node *id = VARDEF_ID(arg_node);
-        ID_DECL(id) = arg_node;
-        ID_DISTANCE(id) = 0;
-        ID_OFFSET(id) = VARDEF_OFFSET(arg_node);
-    }
-    if (arg_info->processPhase == RegisterAndProcess || arg_info->processPhase == ProcessOnly) {
-        TRAVopt(VARDEF_EXPR(arg_node), arg_info);
-    }
+    // First go right
+    TRAVopt(VARDEF_EXPR(arg_node), arg_info);
+
+    // And now we van register the variable name
+    registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEF_ID(arg_node)));
+    // TODO check if this is really needed and useful.
+    node *id = VARDEF_ID(arg_node);
+    ID_DECL(id) = arg_node;
+    ID_DISTANCE(id) = 0;
+    ID_OFFSET(id) = VARDEF_OFFSET(arg_node);
+
 
     DBUG_RETURN(arg_node);
 }
