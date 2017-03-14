@@ -5,6 +5,7 @@
 #include "usage.h"
 #include "ctinfo.h"
 #include "phase_options.h"
+#include "myglobals.h"
 
 
 void OPTcheckOptions( int argc, char **argv)
@@ -16,6 +17,8 @@ void OPTcheckOptions( int argc, char **argv)
   ARGS_OPTION( "b", PHOinterpretBreakOption( ARG)) 
 
   ARGS_FLAG( "h", USGprintUsage(); exit(0););
+
+  ARGS_OPTION( "I", myglobal.includedir = STRcpy( ARG));
 
   ARGS_OPTION( "o", global.outfile = STRcpy( ARG));
 

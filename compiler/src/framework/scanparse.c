@@ -56,6 +56,7 @@
 #include "ctinfo.h"
 #include "str.h"
 #include "memory.h"
+#include "myglobals.h"
 
 
 /*
@@ -78,10 +79,6 @@ node *SPdoScanParse( node *syntax_tree)
   DBUG_ASSERT( syntax_tree == NULL, 
                "SPdoScanParse() called with existing syntax tree.");
   
-  if (getenv("C_INCLUDE_PATH") == NULL) {
-      CTIabort("Please make sure the environment variable C_INCLUDE_PATH points to a directory where the 'civic.h' header file can be found!");
-  }
-
   if (global.cpp) {
     filename = STRcatn( 3,
                         ".",
@@ -113,6 +110,16 @@ node *SPdoRunPreProcessor( node *syntax_tree)
   
   DBUG_ENTER("SPdoRunPreProcessor");
 
+  DBUG_PRINT("SP", ("Finding the header files."));
+  if (myglobal.includedir) {
+      printf("Using [%s] as include folder.\n", myglobal.includedir);
+      setenv("C_INCLUDE_PATH", myglobal.includedir, 1);
+  }
+
+  if (getenv("C_INCLUDE_PATH") == NULL) {
+      CTIabort("The 'civic.h' system header file can't be found. Please specify the correct location with the '-I' option or make sure the environment variable C_INCLUDE_PATH is set correctly!");
+  }
+
   cppcallstr = STRcatn( 5, 
                         "gcc -E -x c ",
                         global.infile,
@@ -125,7 +132,7 @@ node *SPdoRunPreProcessor( node *syntax_tree)
   cppcallstr = MEMfree( cppcallstr);
 
   if ( err) {
-    CTIabort( "Unable to run C preprocessor");
+    CTIabort( "Unable to run C preprocessor, did you use the '-I' switch correctly?");
   }
   
   global.cpp = TRUE;
