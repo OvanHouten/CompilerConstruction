@@ -493,7 +493,12 @@ node *PRTid(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTid");
 
 	INDENT(arg_info);
-	printf("%s", ID_NAME(arg_node));
+	// TODO Ugly if-statement, is caused by the fact that ID's are used for functioncalls and variables.
+	if (ID_DECL(arg_node) && NODE_TYPE(ID_DECL(arg_node)) == N_vardef) {
+        printf("%s", ID_NAME(VARDEF_ID(ID_DECL(arg_node))));
+	} else {
+	    printf("%s", ID_NAME(arg_node));
+	}
 	if (global.pst) {
 	    // Just handy at the moment to have this possibility while debugging the context checks.
 	    printSymbolTableEntry(arg_node);

@@ -53,10 +53,7 @@ After integrating the provided test suite we found some bugs in our grammar, for
 Before every commit we should doe a 'make clean && make check' to ensure we only commit we behaving code.
 
 === HANDLING FORWARD FUNCTION DECLARATIONS ===
-In order to handle forward declarations of functions (for now only tested at the program level) traversing de program node is done as a two-step process.
-Duing the first step only variable and function declarations and definitions are being traversed.
-During the second step the body of the functions is traversed.
-Technically this is implemented as a boolean flag (registerOnly) in the INFO structure. This solution should be able to handle the localfunctions as well, when the flag is set appropriate in the CAlocalfundef function.
+This is handled during the traversal. Function names are registered when before the the next (local)defs node is being travered. Only when the last function name has been registered the functionbody is traversed.
 
 === SYMBOL TABLE IMPLEMENTATION ===
 After long consideration and discussion we opted for linking every ID node (funcall or usage of a variable) to the ID node where the function or the variable was declared.
