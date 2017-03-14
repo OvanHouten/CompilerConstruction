@@ -75,6 +75,12 @@ int main() {
     b = main1();
     b = main2();
     d = main4();
+    for (int i = 0, 10) {
+        a = b;
+    }
+    for (int i = 100, 0) {
+        b = a;
+    }
 }
 int typecast() {
     int a = -4;
