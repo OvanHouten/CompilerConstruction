@@ -5,12 +5,15 @@
  *      Author: nico
  */
 
+#include <math.h>
+
 #include "types.h"
 #include "node_basic.h"
 #include "tree_basic.h"
 #include "traverse.h"
 #include "dbug.h"
 #include "memory.h"
+#include "str.h"
 #include "ctinfo.h"
 
 #include "forloop.h"
@@ -52,6 +55,32 @@ static info *FreeInfo( info *info)
   DBUG_RETURN( info);
 }
 
+bool isUnique(node *varDecs, char *name) {
+    while (varDecs) {
+        if (STReq(name, ID_NAME(VARDEF_ID(VARDECS_VARDEC(varDecs))))) {
+            return FALSE;
+        }
+        varDecs = VARDECS_NEXT(varDecs);
+    }
+    return TRUE;
+}
+
+char *createUniqueName(node *varDecs, char *name) {
+    int duplicates = 0;
+    char *newName = NULL;
+    do {
+        int numberOfDigits = duplicates == 0 ? 1 : 1 + log10(duplicates);
+        // 8 is the number of character in out pattern + room for the trailing zero
+        newName = MEMmalloc(8 + STRlen(name) + numberOfDigits);
+        sprintf(newName, "__for_%s_%d", name, duplicates);
+        if (!isUnique(varDecs, newName)) {
+            duplicates++;
+            newName = MEMfree(newName);
+        }
+    } while (newName == NULL);
+    MEMfree(name);
+    return newName;
+}
 node *FLfor(node *arg_node, info *arg_info) {
     DBUG_ENTER("FLfor");
 
@@ -68,12 +97,13 @@ node *FLfor(node *arg_node, info *arg_info) {
     }
 
     if (funBody) {
-        node *lastVarDec = FUNBODY_VARDECS(funBody);
+        node *varDecs = FUNBODY_VARDECS(funBody);
         node *loopVar = FOR_VARDEF(arg_node);
-        FUNBODY_VARDECS(funBody) = TBmakeVardecs(loopVar, lastVarDec);
+        ID_NAME(VARDEF_ID(loopVar)) = createUniqueName(varDecs, ID_NAME(VARDEF_ID(loopVar)));
+        FUNBODY_VARDECS(funBody) = TBmakeVardecs(loopVar, varDecs);
         FOR_VARDEF(arg_node) = NULL;
-        if (lastVarDec) {
-            VARDEF_OFFSET(loopVar) = VARDEF_OFFSET(VARDECS_VARDEC(lastVarDec)) + 1;
+        if (varDecs) {
+            VARDEF_OFFSET(loopVar) = VARDEF_OFFSET(VARDECS_VARDEC(varDecs)) + 1;
             ID_OFFSET(VARDEF_ID(loopVar)) = VARDEF_OFFSET(loopVar);
         }
         TRAVopt(FOR_BLOCK(arg_node), arg_info);
