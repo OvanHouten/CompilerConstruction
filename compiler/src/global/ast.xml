@@ -59,9 +59,8 @@
 
       <traversal id="SV" name="Split VarDefs" default="sons" include="split_vardefs.h">
         <travuser>
-          <node name="FunDef" />
-          <node name="LocalFunDef" />
-          <node name="VarDef" />
+          <node name="FunBody" />
+          <node name="VarDecs" />
         </travuser>
       </traversal>
 
