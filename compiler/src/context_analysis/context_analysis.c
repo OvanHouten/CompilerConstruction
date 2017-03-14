@@ -15,8 +15,6 @@
 #include "lookup_table.h"
 #include "ctinfo.h"
 
-typedef enum { RegisterOnly, ProcessOnly, RegisterAndProcess } process_phase;
-
 struct SymbolTable {
     struct SymbolTable *parent;
     lut_t *varDecls;
@@ -30,7 +28,6 @@ struct SymbolTable {
  */
 struct INFO {
   struct SymbolTable *currentScope;
-  process_phase processPhase;
 };
 
 /*
@@ -53,7 +50,6 @@ static info *MakeInfo(void)
 
   result = (info *)MEMmalloc(sizeof(info));
   result->currentScope = NULL;
-  result->processPhase = RegisterAndProcess;
 
   DBUG_RETURN( result);
 }
@@ -92,7 +88,7 @@ struct SymbolTable *freeSymbolTable(struct SymbolTable *symbolTable) {
 }
 
 struct SymbolTable* startNewScope(info *arg_info) {
-    DBUG_PRINT("CA", ("Starting new scope"));
+    DBUG_PRINT("SA", ("Starting new scope"));
     struct SymbolTable *newScope = makeNewSymbolTable();
     // Create link to parent
     newScope->parent = INFO_CURRENTSCOPE(arg_info);
@@ -100,39 +96,8 @@ struct SymbolTable* startNewScope(info *arg_info) {
     return newScope;
 }
 
-void* printVarDecls(void* lut_item) {
-//  	node* cur_item = (node*)lut_item;
-//  	printf("%s\n", ID_NAME(cur_item));
-	
-	return lut_item;
-}
-
-void* printFunDecls(void* lut_item) {
-//  	node* cur_item = (node*)lut_item;
-//  	printf("%s\n", ID_NAME(cur_item));
-	
-	return lut_item;
-}
-
-void printScope(info* arg_info) {
-	DBUG_PRINT("CA", ("Printing current scope"));
-	
-	struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
-	lut_t* varDecls = currentScope->varDecls;
-	lut_t* funDecls = currentScope->funDecls;
-		
-	if (funDecls) {
-		funDecls = LUTmapLutS(varDecls, printFunDecls);
-		printf("Total functions = %d\n", currentScope->funCount); // Temp check
-	}
-	if (varDecls) {
-		varDecls = LUTmapLutS(varDecls, printVarDecls);
-		printf("Total variables = %d\n", currentScope->varCount); // Temp check
-	}
-}
-
 void closeScope(info *arg_info) {
-    DBUG_PRINT("CA", ("Closing scope"));
+    DBUG_PRINT("SA", ("Closing scope"));
     struct SymbolTable *scopeToBeFreed = INFO_CURRENTSCOPE(arg_info);
     INFO_CURRENTSCOPE(arg_info) = INFO_CURRENTSCOPE(arg_info)->parent;
     scopeToBeFreed = freeSymbolTable(scopeToBeFreed);
@@ -152,56 +117,57 @@ bool registerNewDecl(node *arg_node, char *typeName, lut_t* decls, char *name) {
 }
 
 void registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
-    DBUG_PRINT("CA", ("Registering function [%s]", name));
+    DBUG_PRINT("SA", ("Registering function [%s]", name));
     if (registerNewDecl(arg_node, "Function", INFO_CURRENTSCOPE(arg_info)->funDecls, name)) {
         // Only adjust the offset when the registration was successful
         FUNHEADER_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->funCount++;
-        DBUG_PRINT("CA", ("Registered function [%s]", name));
+        DBUG_PRINT("SA", ("Registered function [%s] at offset [%d].", name, FUNHEADER_OFFSET(arg_node)));
     }
 }
 
 void registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
-    DBUG_PRINT("CA", ("Registering variable [%s]", name));
+    DBUG_PRINT("SA", ("Registering variable [%s]", name));
     if (registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->varDecls, name)) {
         // Only adjust the offset when the registration was successful
-        VARDEF_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->varCount++;
-        DBUG_PRINT("CA", ("Registered variable [%s]", name));
+        INFO_CURRENTSCOPE(arg_info)->varCount++;
+        VARDEF_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->varCount;
+        DBUG_PRINT("SA", ("Registered variable [%s] at offset [%d].", name, VARDEF_OFFSET(arg_node)));
     }
 }
 
 node *findVarDecl(info *arg_info, char *name, int *distance) {
-    DBUG_PRINT("CA", ("Looking for variable [%s]", name));
+    DBUG_PRINT("SA", ("Looking for variable [%s]", name));
     struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
     while (currentScope) {
         lut_t* varDecls = currentScope->varDecls;
         node* declaringNode = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
         if (declaringNode) {
-            DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, declaringNode));
+            DBUG_PRINT("SA", ("Found [%s] at distace [%d] and offset [%d]", name, *distance, VARDEF_OFFSET(declaringNode)));
             return declaringNode;
         } else {
             (*distance)++;
             currentScope = currentScope->parent;
         }
     }
-    DBUG_PRINT("CA", ("[%s] not found", name));
+    DBUG_PRINT("SA", ("[%s] not found", name));
     return NULL;
 }
 
 node *findFunDecl(info *arg_info, char *name, int *distance) {
-    DBUG_PRINT("CA", ("Looking for function [%s]", name));
+    DBUG_PRINT("SA", ("Looking for function [%s]", name));
     struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
     while (currentScope) {
         lut_t* funDecls = currentScope->funDecls;
         node* declaringNode = DEREF_IF_NOT_NULL(LUTsearchInLutS(funDecls, name));
         if (declaringNode) {
-            DBUG_PRINT("CA", ("Found [%s] it at [%p]", name, declaringNode));
+            DBUG_PRINT("SA", ("Found [%s] at distace [%d] and offset [%d]", name, *distance, FUNHEADER_OFFSET(declaringNode)));
             return declaringNode;
         } else {
             (*distance)++;
             currentScope = currentScope->parent;
         }
     }
-    DBUG_PRINT("CA", ("[%s] not found", name));
+    DBUG_PRINT("SA", ("[%s] not found", name));
     return NULL;
 }
 
@@ -209,64 +175,68 @@ node *findFunDecl(info *arg_info, char *name, int *distance) {
 // Traversal code starts here
 // =============================================
 
-node *CAprogram(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAprogram");
+node *SAprogram(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAprogram");
 
     startNewScope(arg_info);
 
-    // Only register functions at this stage
-    arg_info->processPhase = RegisterOnly;
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
-    // No do it again and process the function bodies
-    arg_info->processPhase = ProcessOnly;
-    TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
-	printScope(arg_info);
+
     closeScope(arg_info);
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAdeclarations(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAdeclarations");
+node *SAdeclarations(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAdeclarations");
 
+    // Just register the name of the function or variable
+    if (NODE_TYPE(DECLARATIONS_DECLARATION(arg_node)) == N_fundef) {
+        node *funDef = DECLARATIONS_DECLARATION(arg_node);
+        registerNewFunDecl(FUNDEF_FUNHEADER(funDef), arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(funDef))));
+        // TODO check if this is realy needed and useful.
+        node *funHeader = FUNDEF_FUNHEADER(funDef);
+        node *id = FUNHEADER_ID(FUNDEF_FUNHEADER(funDef));
+        ID_DECL(id) = funHeader;
+        ID_DISTANCE(id) = 0; // Just to make it explicit that each function is defined in the current scope and hence has an offset of 0.
+        ID_OFFSET(id) = FUNHEADER_OFFSET(funHeader);
+    }
+
+    // Continue to register function and variable names
     TRAVopt(DECLARATIONS_NEXT(arg_node), arg_info);
+
+    // Now process the body of the function or the expression of the variable
     TRAVdo(DECLARATIONS_DECLARATION(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAfundef(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAfundef");
+node *SAfundef(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAfundef");
 
-    if (arg_info->processPhase == RegisterOnly) {
-        registerNewFunDecl(FUNDEF_FUNHEADER(arg_node), arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
-    } else {
-        if (FUNDEF_FUNBODY(arg_node)) {
-            startNewScope(arg_info);
-            arg_info->processPhase = RegisterAndProcess;
+    if (FUNDEF_FUNBODY(arg_node)) {
+        startNewScope(arg_info);
 
-            TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
-            TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
+        TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
+        TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
-            arg_info->processPhase = ProcessOnly;
-            closeScope(arg_info);
-        }
+        closeScope(arg_info);
     }
 
     DBUG_RETURN(arg_node);
 }
 
 
-node *CAfunheader(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAfunheader");
+node *SAfunheader(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAfunheader");
 
     TRAVopt(FUNHEADER_PARAMS(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAfunbody(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAfunbody");
+node *SAfunbody(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAfunbody");
 
     TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
     TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
@@ -275,21 +245,26 @@ node *CAfunbody(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAvardef(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAglobaldef");
+node *SAvardef(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAvardef");
 
-    if (arg_info->processPhase == RegisterOnly || arg_info->processPhase == RegisterAndProcess) {
-        registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEF_ID(arg_node)));
-    }
-    if (arg_info->processPhase == RegisterAndProcess || arg_info->processPhase == ProcessOnly) {
-        TRAVopt(VARDEF_EXPR(arg_node), arg_info);
-    }
+    // First go right
+    TRAVopt(VARDEF_EXPR(arg_node), arg_info);
+
+    // And now we van register the variable name
+    registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEF_ID(arg_node)));
+    // TODO check if this is really needed and useful.
+    node *id = VARDEF_ID(arg_node);
+    ID_DECL(id) = arg_node;
+    ID_DISTANCE(id) = 0;
+    ID_OFFSET(id) = VARDEF_OFFSET(arg_node);
+
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAid(node * arg_node, info * arg_info) {
-    DBUG_ENTER("CAid");
+node *SAid(node * arg_node, info * arg_info) {
+    DBUG_ENTER("SAid");
 
     char *name = ID_NAME(arg_node);
     int distance = 0;
@@ -305,8 +280,8 @@ node *CAid(node * arg_node, info * arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAfuncall(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAfuncall");
+node *SAfuncall(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAfuncall");
 
     char *name = ID_NAME(FUNCALL_ID(arg_node));
     int distance = 0;
@@ -317,6 +292,24 @@ node *CAfuncall(node *arg_node, info *arg_info) {
         FUNCALL_OFFSET(arg_node) = FUNHEADER_OFFSET(funDef);
 
         TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
+
+        DBUG_PRINT("SA", ("Performing param-count check..."));
+        int exprCount = 0;
+        node *exprs = FUNCALL_PARAMS(arg_node);
+        while (exprs) {
+            exprCount++;
+            exprs = EXPRS_NEXT(exprs);
+        }
+        int paramCount = 0;
+        node *params = FUNHEADER_PARAMS(funDef);
+        while (params) {
+            paramCount++;
+            params = PARAMS_NEXT(params);
+        }
+        DBUG_PRINT("SA", ("The function as [%d] params and there are [%d] expressions.", paramCount, exprCount));
+        if (paramCount != exprCount) {
+            CTIerror("The number of parameters [%d] as used at line [%d] and column [%d] do not match the number of parameters [%d] to the function %s as defined at line [%d].", exprCount, NODE_LINE(arg_node), NODE_COL(arg_node), paramCount, name, NODE_LINE(funDef));
+        }
     } else {
         CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
     }
@@ -324,26 +317,26 @@ node *CAfuncall(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAint(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAint");
+node *SAint(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAint");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAfloat(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAfloat");
+node *SAfloat(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAfloat");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAbool(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAbool");
+node *SAbool(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAbool");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAparams(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAparams");
+node *SAparams(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAparams");
 
     TRAVopt(PARAMS_NEXT(arg_node), arg_info);
     TRAVdo(PARAMS_PARAM(arg_node), arg_info);
@@ -351,18 +344,16 @@ node *CAparams(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAparam(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAparam");
+node *SAparam(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAparam");
 
-    DBUG_PRINT("CA", ("Param enter"));
     registerNewVarDecl(arg_node, arg_info, ID_NAME(PARAM_ID(arg_node)));
-    DBUG_PRINT("CA", ("Param exit"));
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAvardecs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAvardecs");
+node *SAvardecs(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAvardecs");
 
     TRAVopt(VARDECS_NEXT(arg_node), arg_info);
     TRAVdo(VARDECS_VARDEC(arg_node), arg_info);
@@ -370,16 +361,16 @@ node *CAvardecs(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAtypecast(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAtypecast");
+node *SAtypecast(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAtypecast");
 
     TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAassign(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAassign");
+node *SAassign(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAassign");
 
     TRAVopt(ASSIGN_EXPR(arg_node), arg_info);
     TRAVdo(ASSIGN_LET(arg_node), arg_info);
@@ -387,8 +378,8 @@ node *CAassign(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAif(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAif");
+node *SAif(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAif");
 
     TRAVdo(IF_CONDITION(arg_node), arg_info);
 
@@ -403,19 +394,19 @@ node *CAif(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAwhile(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAwhile");
+node *SAwhile(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAwhile");
 
-    startNewScope(arg_info);
     TRAVdo(WHILE_CONDITION(arg_node), arg_info);
+    startNewScope(arg_info);
     TRAVopt(WHILE_BLOCK(arg_node), arg_info);
     closeScope(arg_info);
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAdo(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAdo");
+node *SAdo(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAdo");
 
     startNewScope(arg_info);
     TRAVopt(DO_BLOCK(arg_node), arg_info);
@@ -425,8 +416,8 @@ node *CAdo(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAfor(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAfor");
+node *SAfor(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAfor");
 
     startNewScope(arg_info);
     registerNewVarDecl(FOR_VARDEF(arg_node), arg_info, ID_NAME(VARDEF_ID(FOR_VARDEF(arg_node))));
@@ -439,16 +430,16 @@ node *CAfor(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAreturn(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAreturn");
+node *SAreturn(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAreturn");
 
     TRAVopt(RETURN_EXPR(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAexprs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAexprs");
+node *SAexprs(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAexprs");
 
     TRAVopt(EXPRS_NEXT(arg_node), arg_info);
     TRAVdo(EXPRS_EXPR(arg_node), arg_info);
@@ -456,8 +447,8 @@ node *CAexprs(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAarithop(node *arg_node, info *arg_info) {
-   DBUG_ENTER("CAarithop");
+node *SAarithop(node *arg_node, info *arg_info) {
+   DBUG_ENTER("SAarithop");
 
    TRAVdo(ARITHOP_LEFT(arg_node), arg_info);
    TRAVdo(ARITHOP_RIGHT(arg_node), arg_info);
@@ -465,8 +456,8 @@ node *CAarithop(node *arg_node, info *arg_info) {
    DBUG_RETURN(arg_node);
 }
 
-node *CArelop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CArelop");
+node *SArelop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SArelop");
 
     TRAVdo(RELOP_LEFT(arg_node), arg_info);
     TRAVdo(RELOP_RIGHT(arg_node), arg_info);
@@ -474,8 +465,8 @@ node *CArelop(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAlogicop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAlogicop");
+node *SAlogicop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAlogicop");
 
     TRAVdo(LOGICOP_LEFT(arg_node), arg_info);
     TRAVdo(LOGICOP_RIGHT(arg_node), arg_info);
@@ -483,88 +474,88 @@ node *CAlogicop(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAunop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAunop");
+node *SAunop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAunop");
 
     TRAVdo(UNOP_RIGHT(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAvoid(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAvoid");
+node *SAvoid(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAvoid");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAintconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAintconst");
+node *SAintconst(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAintconst");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAfloatconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAfloatconst");
+node *SAfloatconst(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAfloatconst");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAboolconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAboolconst");
+node *SAboolconst(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAboolconst");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAsymboltableentry(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAsymboltableentry");
+node *SAsymboltableentry(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAsymboltableentry");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAerror(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAerror");
+node *SAerror(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAerror");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAlocalfundef(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAlocalfundef");
+node *SAlocalfundef(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAlocalfundef");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAlocalfundefs(node *arg_node, info *arg_info) {
+node *SAlocalfundefs(node *arg_node, info *arg_info) {
     DBUG_ENTER("CAlocalfundefs");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAarrayassign(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAarrayassign");
+node *SAarrayassign(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAarrayassign");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAarray(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAarray");
+node *SAarray(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAarray");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAids(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAids");
+node *SAids(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAids");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAarrexprs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAarrexprs");
+node *SAarrexprs(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAarrexprs");
 
     DBUG_RETURN(arg_node);
 }
 
-node *CAstatements(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAstatements");
+node *SAstatements(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAstatements");
 
     TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
     TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
@@ -572,12 +563,12 @@ node *CAstatements(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *CAdoScopeAnalysis( node *syntaxtree) {
-    DBUG_ENTER("CAdoScopeAnslysis");
+node *SAdoScopeAnalysis( node *syntaxtree) {
+    DBUG_ENTER("SAdoScopeAnslysis");
 
     info *arg_info = MakeInfo();
 
-    TRAVpush(TR_ca);
+    TRAVpush(TR_sa);
 
     TRAVdo(syntaxtree, arg_info);
 

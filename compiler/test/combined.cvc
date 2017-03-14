@@ -69,12 +69,12 @@ int main() {
         return a - 1;
     } while (a != c && c > d);
     main1();
-    main2(a);
-    main3(a, 3 > 4);
+    main2();
+    main3();
     b = main();
-    b = main1(4 && !8);
-    b = main2(main3(4));
-    d = main4(a, b);
+    b = main1();
+    b = main2();
+    d = main4();
 }
 int typecast() {
     int a = -4;
