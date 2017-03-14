@@ -39,7 +39,9 @@ ENDPHASE(ca)
 
 PHASE(tf, "Transformations", ALWAYS)
 
-SUBPHASE(fl, "For-loop transformation", FLdoForLoop, ALWAYS, tf)
+SUBPHASE(fl, "For-loop", FLdoForLoop, ALWAYS, tf)
+
+SUBPHASE(gi, "Global Init", GIdoGlobalInit, ALWAYS, tf)
 
 ENDPHASE(tf)
 

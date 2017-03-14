@@ -48,12 +48,18 @@
 
       <traversal id="SA" name="Context Analysis" default="user" include="context_analysis.h" />
 
-      <traversal id="FL" name="For-loop transformation" default="sons" include="forloop.h">
+      <traversal id="FL" name="For-loop" default="sons" include="forloop.h">
         <travuser>
           <node name="For" />
           <node name="FunDef" />
           <node name="LocalFunDef" />
           <node name="Id" />
+        </travuser>
+      </traversal>
+
+      <traversal id="GI" name="Global Init" default="sons" include="global_init.h">
+        <travuser>
+          <node name="Program" />
         </travuser>
       </traversal>
 
@@ -878,7 +884,7 @@
             <target mandatory="yes">
               <node name="VarDef" />
                 <phases>
-                  <phase to="For-loop transformation" />
+                  <phase to="For-loop" />
                 </phases>
              </target>
           </targets>
