@@ -26,10 +26,14 @@ export float c;
 export float d = 13.1;
 
 int empty() {
+	int a;
+	int d;
 }
-void singleParam(int a) {
+void singleParam() {
+	int b;
 }
 export void multipleParams(int a, float b) {
+	int c;
 }
 int onlyDecs(int a, int b) {
     int c;

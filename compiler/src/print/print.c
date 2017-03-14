@@ -58,6 +58,13 @@ static info *FreeInfo( info *info)
   return info;
 }
 
+void printSymbolTable(node* STE_node) {	
+	while(STE_node) {
+		printf("//%s %s %d %d\n", SYMBOLTABLEENTRY_NAME(STE_node), SYMBOLTABLEENTRY_TYPE(STE_node), SYMBOLTABLEENTRY_DISTANCE(STE_node), SYMBOLTABLEENTRY_OFFSET(STE_node));
+		STE_node = SYMBOLTABLEENTRY_NEXT(STE_node);
+	}
+}
+
 void printSymbolTableEntry(node* arg_node) {
 	char* type;
 	
@@ -87,13 +94,8 @@ void printSymbolTableEntry(node* arg_node) {
 node *PRTprogram(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTprogram");
 	
-	node* temp = PROGRAM_SYMBOLTABLE(arg_node);	
-
-	while(temp) {
-		printf("//%s %s\n", SYMBOLTABLEENTRY_NAME(temp), SYMBOLTABLEENTRY_TYPE(temp));
-		temp = SYMBOLTABLEENTRY_NEXT(temp);
-	}
-	
+	// Print symbol table
+	printSymbolTable(PROGRAM_SYMBOLTABLE(arg_node));
 	TRAVdo(PROGRAM_DECLARATIONS(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
@@ -122,7 +124,9 @@ node *PRTfunheader(node * arg_node, info * arg_info) {
 
 node *PRTfundef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunDef");
-
+	
+	// Print symbol table
+	printSymbolTable(FUNDEF_SYMBOLTABLE(arg_node));
     if (FUNDEF_EXTERN(arg_node)) {
         printf("extern ");
     }

@@ -32,13 +32,15 @@ struct INFO {
   struct SymbolTable *currentScope;
   process_phase processPhase;
   node* curScope;
+  node* prevScope;
 };
 
 /*
  * INFO macros
  */
 #define INFO_CURRENTSCOPE(n)  ((n)->currentScope)
-#define INFO_CURSCOPE(n)  ((n)->curScope)
+#define INFO_CURSCOPE(n)      ((n)->curScope)
+#define INFO_PREVSCOPE(n)     ((n)->prevScope)
 
 // The Lookup table (lut) returns a pointer to the original pointer that was provided while inserting
 // the new value. By using this macro we can get the original pointer back without any hassle.
@@ -57,6 +59,7 @@ static info *MakeInfo(void)
   result->currentScope = NULL;
   result->processPhase = RegisterAndProcess;
   result->curScope = NULL;
+  result->prevScope = NULL;
 
   DBUG_RETURN( result);
 }
@@ -186,7 +189,7 @@ node *SAprogram(node *arg_node, info *arg_info) {
 
     startNewScope(arg_info);
 	
-	PROGRAM_SYMBOLTABLE(arg_node) = NULL;
+	// Start new scope, change curscope, prevscope stays NULL;
 	INFO_CURSCOPE(arg_info) = PROGRAM_SYMBOLTABLE(arg_node);
 	
     // Only register functions at this stage
@@ -196,8 +199,6 @@ node *SAprogram(node *arg_node, info *arg_info) {
     arg_info->processPhase = ProcessOnly;
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
     closeScope(arg_info);
-	
-	PROGRAM_SYMBOLTABLE(arg_node) = INFO_CURSCOPE(arg_info);
 	
     DBUG_RETURN(arg_node);
 }
@@ -213,7 +214,7 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
 
 node *SAfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAfundef");
-
+	
     if (arg_info->processPhase == RegisterOnly) {
         registerNewFunDecl(FUNDEF_FUNHEADER(arg_node), arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))));
         // TODO check if this is realy needed and useful.
@@ -226,7 +227,10 @@ node *SAfundef(node *arg_node, info *arg_info) {
         if (FUNDEF_FUNBODY(arg_node)) {
             startNewScope(arg_info);
             arg_info->processPhase = RegisterAndProcess;
-
+			
+			// 	Start new scope, change curscope and prevscope;
+			//INFO_CURSCOPE(arg_info) = FUNDEF_SYMBOLTABLE(arg_node);
+			
             TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
             TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
@@ -234,7 +238,7 @@ node *SAfundef(node *arg_node, info *arg_info) {
             closeScope(arg_info);
         }
     }
-
+	
     DBUG_RETURN(arg_node);
 }
 
@@ -249,7 +253,7 @@ node *SAfunheader(node *arg_node, info *arg_info) {
 
 node *SAfunbody(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAfunbody");
-
+		
     TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
     TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
     TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
@@ -263,18 +267,19 @@ node *SAvardef(node *arg_node, info *arg_info) {
 	bool found_entry = FALSE;
 	node* temp = INFO_CURSCOPE(arg_info);
 	node* id = VARDEF_ID(arg_node);
-	node* new_node = TBmakeSymboltableentry(NULL);
+	node* new_node = TBmakeSymboltableentry();
 	
 	SYMBOLTABLEENTRY_NEXT(new_node) = NULL;
+	SYMBOLTABLEENTRY_NEXT(new_node) = INFO_PREVSCOPE(arg_info);
 	SYMBOLTABLEENTRY_NAME(new_node) = ID_NAME(id);
 	SYMBOLTABLEENTRY_TYPE(new_node) = "TY_unknown";
 	SYMBOLTABLEENTRY_DISTANCE(new_node) = 0;
 	SYMBOLTABLEENTRY_OFFSET(new_node) = VARDEF_OFFSET(arg_node);
-	printf("TEST123: %s\n", ID_NAME(id));
 	
 	if(!temp) {
 		INFO_CURSCOPE(arg_info) = new_node;
-	} else {
+	}
+	else {
 		while(temp && !found_entry) {
 			if(SYMBOLTABLEENTRY_NAME(temp) == SYMBOLTABLEENTRY_NAME(new_node) && SYMBOLTABLEENTRY_TYPE(temp) == SYMBOLTABLEENTRY_TYPE(new_node)) {
 				found_entry = TRUE;
@@ -288,6 +293,9 @@ node *SAvardef(node *arg_node, info *arg_info) {
 				temp = SYMBOLTABLEENTRY_NEXT(temp);
 			}
 			SYMBOLTABLEENTRY_NEXT(temp) = new_node;
+		}
+		else {
+			//free node
 		}
 	}
 	
