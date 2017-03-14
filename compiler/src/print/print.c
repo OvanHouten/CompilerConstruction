@@ -86,7 +86,14 @@ void printSymbolTableEntry(node* arg_node) {
 
 node *PRTprogram(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTprogram");
+	
+	node* temp = PROGRAM_SYMBOLTABLE(arg_node);	
 
+	while(temp) {
+		printf("//%s %s\n", SYMBOLTABLEENTRY_NAME(temp), SYMBOLTABLEENTRY_TYPE(temp));
+		temp = SYMBOLTABLEENTRY_NEXT(temp);
+	}
+	
 	TRAVdo(PROGRAM_DECLARATIONS(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);

@@ -141,7 +141,7 @@
 <!--
  Node Program:
 -->
-     <node name="Program">
+    <node name="Program">
       <description>Represenst the program</description>
       <sons>
         <son name="Declarations">
@@ -155,8 +155,101 @@
              </target>
           </targets>
         </son>
+<!--    <son name="SymbolTable">
+          <description>SymbolTable for the program scope</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="SymbolTableEntry" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+-->   </sons>
+      <attributes>
+        <attribute name="SymbolTable">
+          <description>SymbolTable for the program scope</description>
+          <type name="Link">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
+    </node>
+
+<!--
+ Node SymbolTableEntry:
+-->
+     <node name="SymbolTableEntry">
+      <description>Represensts the Symboltable for each scope in a linked list </description>
+      <sons>
+        <son name="Next">
+          <description>Next STE in linked list</description>
+          <targets>
+            <target mandatory="No">
+              <node name="SymbolTableEntry" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
       </sons>
       <attributes>
+        <attribute name="Name">
+            <description>Name within the symboltable</description>
+            <type name="String">
+                <targets>
+                    <target mandatory="Yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="Type">
+            <description>Type within the symboltable</description>
+            <type name="String">
+                <targets>
+                    <target mandatory="yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="Distance">
+            <description>Distance within the symboltable</description>
+            <type name="Int">
+                <targets>
+                    <target mandatory="yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="Offset">
+            <description>Offset within the symboltable</description>
+            <type name="Int">
+                <targets>
+                    <target mandatory="yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
       </attributes>
     </node>
 
