@@ -188,7 +188,6 @@ node *SAprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAprogram");
 
     startNewScope(arg_info);
-	
 	// Start new scope, change curscope, prevscope stays NULL;
 	INFO_CURSCOPE(arg_info) = PROGRAM_SYMBOLTABLE(arg_node);
 	
@@ -198,7 +197,9 @@ node *SAprogram(node *arg_node, info *arg_info) {
     // Now do it again and process the function bodies
     arg_info->processPhase = ProcessOnly;
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
+    
     closeScope(arg_info);
+    PROGRAM_SYMBOLTABLE(arg_node) = INFO_CURSCOPE(arg_info);
 	
     DBUG_RETURN(arg_node);
 }
