@@ -25,7 +25,8 @@ void PrintGeneralInfo(void)
   printf( "\n\nGENERAL OPTIONS:\n\n"
           
           "    <filename>      Name of program file to compile.\n\n"
-          "    -I <dirame>     Name of the directory containing the CiviC system header files.\n\n"
+          "    -ep             Enable pre-processor.\n\n"
+          "    -I <dirame>     Name of the directory containing the CiviC system header files. Use in conjunstion with the '-ep' flag.\n\n"
           "    -o <filename>   Name of output file.\n\n"
           "    -v <n>          Verbosity level (default: %d).\n\n"
           "    -tc             Apply syntax tree consistency checks.\n\n"

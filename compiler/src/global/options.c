@@ -18,6 +18,8 @@ void OPTcheckOptions( int argc, char **argv)
 
   ARGS_FLAG( "h", USGprintUsage(); exit(0););
 
+  ARGS_FLAG( "ep", myglobal.preprocessor_enabled = TRUE);
+
   ARGS_OPTION( "I", myglobal.includedir = STRcpy( ARG));
 
   ARGS_OPTION( "o", global.outfile = STRcpy( ARG));

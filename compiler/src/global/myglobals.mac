@@ -19,6 +19,7 @@
  */
 
 GLOBAL( char*, includedir, NULL)
+GLOBAL( bool, preprocessor_enabled, FALSE)
 
 #undef GLOBALtype
 #undef GLOBALname

@@ -110,32 +110,36 @@ node *SPdoRunPreProcessor( node *syntax_tree)
   
   DBUG_ENTER("SPdoRunPreProcessor");
 
-  DBUG_PRINT("SP", ("Finding the header files."));
-  if (myglobal.includedir) {
-      printf("Using [%s] as include folder.\n", myglobal.includedir);
-      setenv("C_INCLUDE_PATH", myglobal.includedir, 1);
+  if (myglobal.preprocessor_enabled) {
+      DBUG_PRINT("SP", ("Enabling then pre-processor."));
+      if (myglobal.includedir) {
+          printf("Using [%s] as include folder.\n", myglobal.includedir);
+          setenv("C_INCLUDE_PATH", myglobal.includedir, 1);
+      }
+
+      if (getenv("C_INCLUDE_PATH") == NULL) {
+          CTIabort("The 'civic.h' system header file can't be found. Please specify the correct location with the '-I' option or make sure the environment variable C_INCLUDE_PATH is set correctly!");
+      }
+
+      cppcallstr = STRcatn( 5,
+                            "gcc -E -x c ",
+                            global.infile,
+                            " > .",
+                            global.infile,
+                            ".cpp");
+
+      err = system( cppcallstr);
+
+      cppcallstr = MEMfree( cppcallstr);
+
+      if ( err) {
+        CTIabort( "Unable to run C preprocessor, did you use the '-I' switch correctly?");
+      }
+
+      global.cpp = TRUE;
+  } else {
+      DBUG_PRINT("SP", ("Pre-processor is disabled."));
   }
-
-  if (getenv("C_INCLUDE_PATH") == NULL) {
-      CTIabort("The 'civic.h' system header file can't be found. Please specify the correct location with the '-I' option or make sure the environment variable C_INCLUDE_PATH is set correctly!");
-  }
-
-  cppcallstr = STRcatn( 5, 
-                        "gcc -E -x c ",
-                        global.infile,
-                        " > .",
-                        global.infile,
-                        ".cpp");
-  
-  err = system( cppcallstr);
-
-  cppcallstr = MEMfree( cppcallstr);
-
-  if ( err) {
-    CTIabort( "Unable to run C preprocessor, did you use the '-I' switch correctly?");
-  }
-  
-  global.cpp = TRUE;
   
   DBUG_RETURN( syntax_tree);
 }
