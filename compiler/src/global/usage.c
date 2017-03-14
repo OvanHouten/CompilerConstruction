@@ -28,11 +28,12 @@ void PrintGeneralInfo(void)
           "    -o <filename>   Name of output file.\n\n"
           "    -v <n>          Verbosity level (default: %d).\n\n"
           "    -tc             Apply syntax tree consistency checks.\n\n"
+          "    -pst            Print Symbol Table entry info.\n\n"
           "    -#d,<id>        Print debugging information for tag <id>.\n"
           "                    Supported tags are:\n\n"
           
           "                    MAKE - prints debug information of tree constructors.\n"
-          "                    CA   - prints debug information of context analysis.\n"
+          "                    SA   - prints debug information of scope analysis.\n"
           "                    FREE - prints debug information of tree destructors.\n",
           global.verbosity);
 

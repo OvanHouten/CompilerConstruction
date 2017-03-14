@@ -1,9 +1,12 @@
 void noParams() {
 }
+void singleParam(int a) {
+}
 void multipleParams(int a, float b, bool c) {
 }
 export int main() {
-    noParams(1);
+    noParams();
+    singleParam(1);
     multipleParams(1, 2.0, false);
     return 0;
 }

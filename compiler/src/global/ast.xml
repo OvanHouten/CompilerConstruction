@@ -46,7 +46,16 @@
       <traversal id="FREE" name="Free Syntax Tree" default="user" include="free_node.h" />
       <traversal id="CHK" name="Check Syntax Tree" default="user" include="check.h" />
 
-      <traversal id="CA" name="Context Analysis" default="user" include="context_analysis.h" />
+      <traversal id="SA" name="Context Analysis" default="user" include="context_analysis.h" />
+
+      <traversal id="FL" name="For-loop transformation" default="sons" include="forloop.h">
+        <travuser>
+          <node name="For" />
+          <node name="FunDef" />
+          <node name="LocalFunDef" />
+          <node name="Id" />
+        </travuser>
+      </traversal>
 
       <traversal id="RI" name="Rename identifiers" default="sons" include="rename_identifiers.h">
         <travuser>
@@ -414,7 +423,7 @@
         </attribute>
         <attribute name="Offset">
             <description>Offset within the symboltable</description>
-            <type name="Bool">
+            <type name="Int">
                 <targets>
                     <target mandatory="no">
                         <phases>
@@ -869,7 +878,7 @@
             <target mandatory="yes">
               <node name="VarDef" />
                 <phases>
-                  <all />
+                  <phase to="For-loop transformation" />
                 </phases>
              </target>
           </targets>
