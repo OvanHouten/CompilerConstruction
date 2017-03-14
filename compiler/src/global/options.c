@@ -5,6 +5,7 @@
 #include "usage.h"
 #include "ctinfo.h"
 #include "phase_options.h"
+#include "myglobals.h"
 
 
 void OPTcheckOptions( int argc, char **argv)
@@ -17,13 +18,17 @@ void OPTcheckOptions( int argc, char **argv)
 
   ARGS_FLAG( "h", USGprintUsage(); exit(0););
 
+  ARGS_FLAG( "ep", myglobal.preprocessor_enabled = TRUE);
+
+  ARGS_OPTION( "I", myglobal.includedir = STRcpy( ARG));
+
   ARGS_OPTION( "o", global.outfile = STRcpy( ARG));
 
   ARGS_OPTION( "v", ARG_RANGE(global.verbosity, 0, 3));
 
   ARGS_FLAG( "tc", global.treecheck = TRUE);
 
-  ARGS_FLAG( "pst", global.pst = TRUE);
+  ARGS_FLAG( "pst", myglobal.pst = TRUE);
 
   ARGS_OPTION( "#", DBUG_PUSH( STRcpy( ARG)));
 

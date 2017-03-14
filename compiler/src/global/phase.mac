@@ -15,7 +15,7 @@ PHASE( ld,
 SUBPHASE( cpp,
           "Running C preprocessor",
           SPdoRunPreProcessor, 
-          NEVER,
+          ALWAYS,
           ld)
 
 SUBPHASE( scp,
@@ -39,7 +39,11 @@ ENDPHASE(ca)
 
 PHASE(tf, "Transformations", ALWAYS)
 
-SUBPHASE(fl, "For-loop transformation", FLdoForLoop, ALWAYS, tf)
+SUBPHASE(fl, "For-loop", FLdoForLoop, ALWAYS, tf)
+
+SUBPHASE(sv, "Split VarDefs", SVdoSplitVarDefs, ALWAYS, tf)
+
+SUBPHASE(gi, "Global Init", GIdoGlobalInit, ALWAYS, tf)
 
 ENDPHASE(tf)
 
