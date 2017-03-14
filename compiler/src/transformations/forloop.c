@@ -122,6 +122,8 @@ node *FLid(node *arg_node, info *arg_info) {
         // If the offset changed it must belong to a ID that referenced the loop variable
         if (ID_OFFSET(arg_node) != VARDEF_OFFSET(ID_DECL(arg_node))) {
             ID_OFFSET(arg_node) = VARDEF_OFFSET(ID_DECL(arg_node));
+            // TODO use the SymbolTable AST nodes for determining the real distance
+            // The distance is incorrect if the for-loop is currently within any other block.
             ID_DISTANCE(arg_node)++;
         }
     }

@@ -85,7 +85,7 @@ utils       = numbers.o
 
 context_analysis = context_analysis.o
 
-transformations = forloop.o global_init.o
+transformations = forloop.o global_init.o split_vardefs.o
 
 
 ###############################################################################

@@ -57,6 +57,14 @@
         </travuser>
       </traversal>
 
+      <traversal id="SV" name="Split VarDefs" default="sons" include="split_vardefs.h">
+        <travuser>
+          <node name="FunDef" />
+          <node name="LocalFunDef" />
+          <node name="VarDef" />
+        </travuser>
+      </traversal>
+
       <traversal id="GI" name="Global Init" default="sons" include="global_init.h">
         <travuser>
           <node name="Program" />

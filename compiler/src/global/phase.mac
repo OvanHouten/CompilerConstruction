@@ -41,6 +41,8 @@ PHASE(tf, "Transformations", ALWAYS)
 
 SUBPHASE(fl, "For-loop", FLdoForLoop, ALWAYS, tf)
 
+SUBPHASE(sv, "Split VarDefs", SVdoSplitVarDefs, ALWAYS, tf)
+
 SUBPHASE(gi, "Global Init", GIdoGlobalInit, ALWAYS, tf)
 
 ENDPHASE(tf)
