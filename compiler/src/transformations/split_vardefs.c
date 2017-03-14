@@ -78,6 +78,8 @@ node *SVfunbody(node *arg_node, info *arg_info) {
 
     INFO_FUNBODY(arg_info) = previousFunBody;
 
+    TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
+
     DBUG_RETURN(arg_node);
 }
 

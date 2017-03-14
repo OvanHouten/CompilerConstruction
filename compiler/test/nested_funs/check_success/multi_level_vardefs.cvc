@@ -1,0 +1,20 @@
+void outer() {
+    int a = 0;
+    int b = 1;
+    int c;
+    int d = a;
+    void inner() {
+        int k;
+        int l = 10;
+        int m = k;
+        int n;
+        void innermost() {
+            float aa = 1.0;
+            bool fail = false;
+            float bb;
+            bb = aa;
+        }
+        n = k;
+    }
+    c = b;
+}
