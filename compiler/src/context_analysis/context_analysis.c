@@ -226,13 +226,14 @@ node *SAfundef(node *arg_node, info *arg_info) {
     if (FUNDEF_FUNBODY(arg_node)) {
         startNewScope(arg_info);
 			
-			// 	Start new scope, change curscope and prevscope;
-			//INFO_CURSCOPE(arg_info) = FUNDEF_SYMBOLTABLE(arg_node);
+		// 	Start new scope, change curscope and prevscope;
+		INFO_CURSCOPE(arg_info) = FUNDEF_SYMBOLTABLE(arg_node);
 			
         TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
         TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
-
+		
         closeScope(arg_info);
+        FUNDEF_SYMBOLTABLE(arg_node) = INFO_CURSCOPE(arg_info) ;
     }
 	
     DBUG_RETURN(arg_node);

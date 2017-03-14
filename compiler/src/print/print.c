@@ -126,8 +126,6 @@ node *PRTfunheader(node * arg_node, info * arg_info) {
 node *PRTfundef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunDef");
 	
-	// Print symbol table
-	printSymbolTable(FUNDEF_SYMBOLTABLE(arg_node));
     if (FUNDEF_EXTERN(arg_node)) {
         printf("extern ");
     }
@@ -138,7 +136,10 @@ node *PRTfundef(node * arg_node, info * arg_info) {
 	if (FUNDEF_FUNBODY(arg_node)) {
         printf(" {\n");
         INCREASE_INDENTATION(arg_info);
-
+		
+		// Print symbol table
+		printSymbolTable(FUNDEF_SYMBOLTABLE(arg_node));
+	
         TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
         DECREASE_INDENTATION(arg_info);
