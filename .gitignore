@@ -6,6 +6,7 @@ bin/
 *.out
 *.o
 *.output
+\.*.cpp
 
 # Generated documentation
 compiler/doc/ast.html

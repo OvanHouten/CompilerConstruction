@@ -12,6 +12,7 @@
 #include "dbug.h"
 #include "memory.h"
 #include "globals.h"
+#include "myglobals.h"
 
 
 /*
@@ -339,16 +340,23 @@ node *PRTfor (node * arg_node, info * arg_info)
   DBUG_ENTER ("PRTfor");
 
   INDENT(arg_info);
-  printf("for ( int ");
-  TRAVdo( VARDEF_ID(FOR_VARDEF(arg_node)), arg_info);
-  printf(" = ");
-  TRAVdo( VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
+  printf("for ( ");
+  if (FOR_VARDEF(arg_node)) {
+      printf("int ");
+      TRAVdo(VARDEF_ID(FOR_VARDEF(arg_node)), arg_info);
+      printf(" = ");
+      TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
+  }
   printf(", ");
   TRAVdo( FOR_FINISH(arg_node), arg_info);
+  if (FOR_STEP(arg_node)) {
+      printf(", ");
+      TRAVdo(FOR_STEP(arg_node), arg_info);
+  }
   printf(" ) {\n");
   INCREASE_INDENTATION(arg_info);
 
-  TRAVdo( FOR_BLOCK( arg_node), arg_info);
+  TRAVdo(FOR_BLOCK( arg_node), arg_info);
 
   DECREASE_INDENTATION(arg_info);
   INDENT(arg_info);
@@ -496,8 +504,13 @@ node *PRTid(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTid");
 
 	INDENT(arg_info);
-	printf("%s", ID_NAME(arg_node));
-	if (global.pst) {
+	// TODO Ugly if-statement, is caused by the fact that ID's are used for functioncalls and variables.
+	if (ID_DECL(arg_node) && NODE_TYPE(ID_DECL(arg_node)) == N_vardef) {
+        printf("%s", ID_NAME(VARDEF_ID(ID_DECL(arg_node))));
+	} else {
+	    printf("%s", ID_NAME(arg_node));
+	}
+	if (myglobal.pst) {
 	    // Just handy at the moment to have this possibility while debugging the context checks.
 	    printSymbolTableEntry(arg_node);
 	}

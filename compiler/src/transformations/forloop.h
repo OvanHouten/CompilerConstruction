@@ -11,6 +11,7 @@
 #include "types.h"
 
 extern node *FLfor(node *arg_node, info *arg_info);
+extern node *FLid(node *arg_node, info *arg_info);
 extern node *FLfundef(node *arg_node, info *arg_info);
 extern node *FLlocalfundef(node *arg_node, info *arg_info);
 

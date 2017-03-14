@@ -53,10 +53,7 @@ After integrating the provided test suite we found some bugs in our grammar, for
 Before every commit we should doe a 'make clean && make check' to ensure we only commit we behaving code.
 
 === HANDLING FORWARD FUNCTION DECLARATIONS ===
-In order to handle forward declarations of functions (for now only tested at the program level) traversing de program node is done as a two-step process.
-Duing the first step only variable and function declarations and definitions are being traversed.
-During the second step the body of the functions is traversed.
-Technically this is implemented as a boolean flag (registerOnly) in the INFO structure. This solution should be able to handle the localfunctions as well, when the flag is set appropriate in the CAlocalfundef function.
+This is handled during the traversal. Function names are registered when before the the next (local)defs node is being travered. Only when the last function name has been registered the functionbody is traversed.
 
 === SYMBOL TABLE IMPLEMENTATION ===
 After long consideration and discussion we opted for linking every ID node (funcall or usage of a variable) to the ID node where the function or the variable was declared.
@@ -74,3 +71,9 @@ What seemed like a good decision for the FUNDEF and FUNDEC nodes also applies to
 === PRINTING (GLOBAL) VARDEF/VARDEC ===
 Beacuse all forms of variable declaration/definition are moddeled using a single AST node there is no way of knowing what kind of variable it is any more. This knowledge is need during printing. Parameter definitions don't need a semicolon and next line while vardec, and the global vardeX do  need it.
 A nice solution would be to have a vardef that has two sons, a vardec (which only holds the typeinfo, name and offset) and an expression. A param is then just a vardec. When implented correctly the PRTvardef takes care of the semicolon and nextline while the vardec only prints type and name info. 
+
+=== TRANSFORM FOR-LOOP VARIABLE ===
+There is no real need for renaming the name of the var-loop variable when it is moved to the vardecs section of the enclosing function. It is not needed because the offset within the symbol table will be unique. Since we have the offset available since the context analysis phase any duplicate in variable naming has been signaled. Variables can be identified by their offset, so introducing duplicate names is no problem anymore.
+
+=== NEED TO KEEP DISTANCE ===
+Is there realy a need keep the distance for all the symbols? Keeping track of the offset seems logical when taking into account that the targetlanguage is for a stack based VM. So for every variable it is needed to know the relative distance from the top of the stack.

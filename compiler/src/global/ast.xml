@@ -48,11 +48,26 @@
 
       <traversal id="SA" name="Context Analysis" default="user" include="context_analysis.h" />
 
-      <traversal id="FL" name="For-loop transformation" default="sons" include="forloop.h">
+      <traversal id="FL" name="For-loop" default="sons" include="forloop.h">
         <travuser>
           <node name="For" />
           <node name="FunDef" />
           <node name="LocalFunDef" />
+          <node name="Id" />
+        </travuser>
+      </traversal>
+
+      <traversal id="SV" name="Split VarDefs" default="sons" include="split_vardefs.h">
+        <travuser>
+          <node name="FunDef" />
+          <node name="LocalFunDef" />
+          <node name="VarDef" />
+        </travuser>
+      </traversal>
+
+      <traversal id="GI" name="Global Init" default="sons" include="global_init.h">
+        <travuser>
+          <node name="Program" />
         </travuser>
       </traversal>
 
@@ -529,7 +544,7 @@
         </attribute>
         <attribute name="Offset">
             <description>Offset within the symboltable</description>
-            <type name="Bool">
+            <type name="Int">
                 <targets>
                     <target mandatory="no">
                         <phases>
@@ -1020,7 +1035,7 @@
             <target mandatory="yes">
               <node name="VarDef" />
                 <phases>
-                  <all />
+                  <phase to="For-loop" />
                 </phases>
              </target>
           </targets>
