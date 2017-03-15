@@ -525,15 +525,6 @@ node *PRTparams(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTparam(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTparam");
-
-	TRAVdo(PARAM_TYPE(arg_node), arg_info);
-	TRAVdo(PARAM_ID(arg_node), arg_info);
-
-	DBUG_RETURN(arg_node);
-}
-
 // TYPES
 
 node *PRTint(node * arg_node, info * arg_info) {

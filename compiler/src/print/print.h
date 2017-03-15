@@ -44,7 +44,6 @@ extern node *PRTunop (node * arg_node, info * arg_info);
 extern node *PRTid(node * arg_node, info * arg_info);
 
 extern node *PRTparams(node * arg_node, info * arg_info);
-extern node *PRTparam(node * arg_node, info * arg_info);
 
 extern node *PRTint(node * arg_node, info * arg_info);
 extern node *PRTfloat (node * arg_node, info * arg_info);

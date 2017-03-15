@@ -344,14 +344,6 @@ node *SAparams(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *SAparam(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAparam");
-
-    registerNewVarDecl(arg_node, arg_info, ID_NAME(PARAM_ID(arg_node)));
-
-    DBUG_RETURN(arg_node);
-}
-
 node *SAvardecs(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAvardecs");
 
