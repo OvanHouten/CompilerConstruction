@@ -302,6 +302,40 @@
     </node>
 
 <!--
+ Node Block:
+-->
+    <node name="Block">
+      <description>Represents (sequence of) statements</description>
+      <sons>
+        <son name="Statements">
+          <description>First statement in sequence</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Statements" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <attribute name="SymbolTable">
+          <description>SymbolTable for the program scope</description>
+          <type name="Link">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <phase from="Context Analysis"/>
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
+    </node>
+
+<!--
  Node Statements:
 -->
      <node name="Statements">
@@ -898,7 +932,7 @@
           <description>To be excuted if the condition is true</description>
           <targets>
             <target mandatory="yes">
-              <node name="Statements" />
+              <node name="Block" />
                 <phases>
                   <all />
                 </phases>
@@ -909,7 +943,7 @@
           <description>Right hand side expression</description>
           <targets>
             <target mandatory="no">
-              <node name="Statements" />
+              <node name="Block" />
                 <phases>
                   <all />
                 </phases>
@@ -918,18 +952,6 @@
         </son>
       </sons>
       <attributes>
-        <attribute name="SymbolTable">
-          <description>SymbolTable for the program scope</description>
-          <type name="Link">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
       </attributes>
     </node>
 
@@ -954,7 +976,7 @@
           <description>To be excuted while the condition is true</description>
           <targets>
             <target mandatory="yes">
-              <node name="Statements" />
+              <node name="Block" />
                 <phases>
                   <all />
                 </phases>
@@ -963,18 +985,6 @@
         </son>
       </sons>
       <attributes>
-        <attribute name="SymbolTable">
-          <description>SymbolTable for the program scope</description>
-          <type name="Link">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
       </attributes>
     </node>
 
@@ -999,7 +1009,7 @@
           <description>To be excuted until the condition becomes false</description>
           <targets>
             <target mandatory="yes">
-              <node name="Statements" />
+              <node name="Block" />
                 <phases>
                   <all />
                 </phases>
@@ -1008,18 +1018,6 @@
         </son>
       </sons>
       <attributes>
-        <attribute name="SymbolTable">
-          <description>SymbolTable for the program scope</description>
-          <type name="Link">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
       </attributes>
     </node>
 
@@ -1066,7 +1064,7 @@
           <description>To be excuted until the condition becomes false</description>
           <targets>
             <target mandatory="yes">
-              <node name="Statements" />
+              <node name="Block" />
                 <phases>
                   <all />
                 </phases>
@@ -1075,18 +1073,6 @@
         </son>
       </sons>
       <attributes>
-        <attribute name="SymbolTable">
-          <description>SymbolTable for the program scope</description>
-          <type name="Link">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
       </attributes>
     </node>
 

@@ -427,13 +427,29 @@ node *SAassign(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *SAblock(node *arg_node, info *arg_info) {
+	DBUG_ENTER("SAblock");
+	
+	node* previousScope = INFO_CURSCOPE(arg_info);
+	INFO_CURSCOPE(arg_info) = BLOCK_SYMBOLTABLE(arg_node);
+	
+	TRAVopt(BLOCK_STATEMENTS(arg_node), arg_info);
+	
+	BLOCK_SYMBOLTABLE(arg_node) = INFO_CURSCOPE(arg_info);
+	INFO_CURSCOPE(arg_info) = previousScope;
+	
+	DBUG_RETURN(arg_node);
+}
+
 node *SAif(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAif");
 
     TRAVdo(IF_CONDITION(arg_node), arg_info);
 
     startNewScope(arg_info);
+    
     TRAVdo(IF_IFBLOCK(arg_node), arg_info);
+    
     closeScope(arg_info);
 
     startNewScope(arg_info);

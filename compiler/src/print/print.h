@@ -23,6 +23,7 @@ extern node *PRTvardecs(node * arg_node, info * arg_info);
 
 extern node *PRTvardef(node * arg_node, info * arg_info);
 
+extern node *PRTblock(node *arg_node, info *arg_info);
 extern node *PRTstatements(node * arg_node, info * arg_info);
 extern node *PRTassign (node * arg_node, info * arg_info);
 extern node *PRTtypecast(node * arg_node, info * arg_info);

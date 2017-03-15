@@ -266,6 +266,14 @@ node *PRTreturn (node * arg_node, info * arg_info)
   DBUG_RETURN (arg_node);
 }
 
+node *PRTblock(node *arg_node, info *arg_info) {
+	DBUG_ENTER("PRTblock");
+	
+	TRAVopt(BLOCK_STATEMENTS(arg_node), arg_info);
+	
+	DBUG_RETURN(arg_node);
+}
+
 node *PRTif (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTif");
@@ -275,7 +283,7 @@ node *PRTif (node * arg_node, info * arg_info)
   TRAVdo( IF_CONDITION( arg_node), arg_info);
   printf(") {\n");
   INCREASE_INDENTATION(arg_info);
-
+  
   TRAVdo( IF_IFBLOCK( arg_node), arg_info);
 
   if (IF_ELSEBLOCK( arg_node) != NULL) {
