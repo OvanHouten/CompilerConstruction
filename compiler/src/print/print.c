@@ -95,11 +95,41 @@ void printSymbolTableEntry(node* arg_node) {
 node *PRTprogram(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTprogram");
 	
-	// Print symbol table
-	printSymbolTable(PROGRAM_SYMBOLTABLE(arg_node));
+	TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
 	TRAVdo(PROGRAM_DECLARATIONS(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
+}
+
+node* PRTsymboltable(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTsymboltable");
+	
+	TRAVopt(SYMBOLTABLE_SYMBOLTABLEENTRY(arg_node), arg_info);
+	
+	DBUG_RETURN(arg_node);
+}
+
+/*************************************************************************
+ *
+ * @fn PRTsymboltableentry
+ *
+ * @brief Prints the node and its sons/attributes
+ *
+ * @param arg_node letrec node to process
+ * @param arg_info pointer to info structure
+ *
+ * @return processed node
+ *
+ ***************************************************************************/
+
+node *PRTsymboltableentry (node * arg_node, info * arg_info) {
+	DBUG_ENTER ("PRTsymboltableentry");
+	
+	TRAVopt(SYMBOLTABLEENTRY_NEXT(arg_node), arg_info);
+	
+	printf("//%s %s %d %d\n", SYMBOLTABLEENTRY_NAME(arg_node), SYMBOLTABLEENTRY_TYPE(arg_node), SYMBOLTABLEENTRY_DISTANCE(arg_node), SYMBOLTABLEENTRY_OFFSET(arg_node));
+	
+	DBUG_RETURN (arg_node);
 }
 
 node *PRTdeclarations(node * arg_node, info * arg_info) {
@@ -137,9 +167,7 @@ node *PRTfundef(node * arg_node, info * arg_info) {
         printf(" {\n");
         INCREASE_INDENTATION(arg_info);
 		
-		// Print symbol table
-		printSymbolTable(FUNDEF_SYMBOLTABLE(arg_node));
-	
+		TRAVopt(FUNDEF_SYMBOLTABLE(arg_node), arg_info);
         TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
         DECREASE_INDENTATION(arg_info);
@@ -729,24 +757,4 @@ node *PRTlocalfundefs(node * arg_node, info * arg_info)
 	DBUG_ENTER("PRTlocalfundefs");
 
 	DBUG_RETURN(arg_node);
-}
-
-/*************************************************************************
- *
- * @fn PRTsymboltableentry
- *
- * @brief Prints the node and its sons/attributes
- *
- * @param arg_node letrec node to process
- * @param arg_info pointer to info structure
- *
- * @return processed node
- *
- ***************************************************************************/
-
-node *PRTsymboltableentry (node * arg_node, info * arg_info)
-{
-  DBUG_ENTER ("PRTsymboltableentry");
-
-  DBUG_RETURN (arg_node);
 }

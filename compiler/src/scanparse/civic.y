@@ -64,7 +64,7 @@ static int yyerror( char *errname);
 
 %%
 
-program: declarations { parseresult = TBmakeProgram( $1); }
+program: declarations { parseresult = TBmakeProgram( $1, TBmakeSymboltable(NULL)); }
 
 declarations: declarations declaration { $$ = TBmakeDeclarations( $2, $1); }
             | declaration              { $$ = TBmakeDeclarations( $1, NULL); }
@@ -84,10 +84,10 @@ globaldef: type ID SEMICOLON                 { $$ = TBmakeVardef( FALSE, FALSE, 
          | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeVardef( FALSE, TRUE, $2, TBmakeId($3), $5, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE;}
          ;
 
-fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundef(TRUE, FALSE, $2, NULL); }
+fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundef(TRUE, FALSE, $2, NULL, NULL); }
 
-fundef: funheader funbody                 { $$ = TBmakeFundef( FALSE, FALSE, $1, $2); }
-      | EXPORT funheader funbody          { $$ = TBmakeFundef( FALSE, TRUE, $2, $3); }
+fundef: funheader funbody                 { $$ = TBmakeFundef( FALSE, FALSE, $1, $2, NULL); }
+      | EXPORT funheader funbody          { $$ = TBmakeFundef( FALSE, TRUE, $2, $3, NULL); }
       ;
 
 funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $1, TBmakeId($2), NULL); }

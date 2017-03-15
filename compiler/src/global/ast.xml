@@ -170,19 +170,51 @@
              </target>
           </targets>
         </son>
+        <son name="SymbolTable">
+          <description>SymbolTable node</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="SymbolTable" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
       </sons>
       <attributes>
-        <attribute name="SymbolTable">
-          <description>SymbolTable for the program scope</description>
-          <type name="Link">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
+      </attributes>
+    </node>
+
+<!--
+ Node SymbolTable:
+-->
+    <node name="SymbolTable">
+      <sons>
+        <son name="SymbolTableEntry">
+          <description>Function Header</description>
+          <targets>
+            <target mandatory="no">
+              <node name="SymbolTableEntry" />
+              <phases>
+                <phase from="Context Analysis"/>
+              </phases>
+            </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <attribute name="Parent">
+            <description>Offset within the symboltable</description>
+            <type name="Link">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
         </attribute>
       </attributes>
     </node>
@@ -193,35 +225,22 @@
      <node name="SymbolTableEntry">
       <description>Represensts the Symboltable for each scope in a linked list </description>
       <sons>
+        <son name="Next">
+          <description>Function Header</description>
+          <targets>
+            <target mandatory="no">
+              <node name="SymbolTableEntry" />
+              <phases>
+                <phase from="Context Analysis"/>
+              </phases>
+            </target>
+          </targets>
+        </son>
       </sons>
       <attributes>
         <attribute name="Name">
             <description>Name within the symboltable</description>
             <type name="String">
-                <targets>
-                    <target mandatory="Yes">
-                        <phases>
-                            <phase from="Context Analysis"/>
-                        </phases>
-                    </target>
-                </targets>
-            </type>
-        </attribute>
-        <attribute name="Next">
-            <description>Next STE in linked list</description>
-            <type name="Link">
-                <targets>
-                    <target mandatory="No">
-                        <phases>
-                            <phase from="Context Analysis"/>
-                        </phases>
-                    </target>
-                </targets>
-            </type>
-        </attribute>
-        <attribute name="PrevScope">
-            <description>Previous linked list of previous scope</description>
-            <type name="Link">
                 <targets>
                     <target mandatory="Yes">
                         <phases>
@@ -363,6 +382,17 @@
             </target>
           </targets>
         </son>
+        <son name="SymbolTable">
+          <description>SymbolTable node</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="SymbolTable" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
       </sons>
       <attributes>
         <attribute name="Extern">
@@ -385,18 +415,6 @@
 	            <phases><all /></phases>
 	          </target>
 	        </targets>
-          </type>
-        </attribute>
-        <attribute name="SymbolTable">
-          <description>SymbolTable for the program scope</description>
-          <type name="Link">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
           </type>
         </attribute>
       </attributes>

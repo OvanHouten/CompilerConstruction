@@ -38,7 +38,6 @@ struct INFO {
  */
 #define INFO_CURRENTSCOPE(n)  ((n)->currentScope)
 #define INFO_CURSCOPE(n)      ((n)->curScope)
-#define INFO_PREVSCOPE(n)     ((n)->prevScope)
 
 // The Lookup table (lut) returns a pointer to the original pointer that was provided while inserting
 // the new value. By using this macro we can get the original pointer back without any hassle.
@@ -56,7 +55,6 @@ static info *MakeInfo(void)
   result = (info *)MEMmalloc(sizeof(info));
   result->currentScope = NULL;
   result->curScope = NULL;
-  result->prevScope = NULL;
 
   DBUG_RETURN( result);
 }
@@ -197,6 +195,12 @@ node *SAprogram(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *SAsymboltable(node *arg_node, info *arg_info) {
+	DBUG_ENTER("SASymbolTable");
+		
+	DBUG_RETURN(arg_node);
+}
+
 node *SAdeclarations(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAdeclarations");
 
@@ -229,6 +233,8 @@ node *SAfundef(node *arg_node, info *arg_info) {
 			
 		// 	Start new scope, change curscope and prevscope;
 		node* previousScope = INFO_CURSCOPE(arg_info);
+		FUNDEF_SYMBOLTABLE(arg_node) = TBmakeSymboltable(NULL);
+		SYMBOLTABLE_PARENT(FUNDEF_SYMBOLTABLE(arg_node)) = INFO_CURSCOPE(arg_info);
 		INFO_CURSCOPE(arg_info) = FUNDEF_SYMBOLTABLE(arg_node);
 			
         TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
@@ -268,44 +274,42 @@ node *SAvardef(node *arg_node, info *arg_info) {
     TRAVopt(VARDEF_EXPR(arg_node), arg_info);
 
     // And now we van register the variable name
-    registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEF_ID(arg_node)));
+	registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEF_ID(arg_node)));
     // TODO check if this is really needed and useful.
     node *id = VARDEF_ID(arg_node);
     ID_DECL(id) = arg_node;
     ID_DISTANCE(id) = 0;
     ID_OFFSET(id) = VARDEF_OFFSET(arg_node);
-	
-	node* varDeclEntry = INFO_CURSCOPE(arg_info);
-	while(varDeclEntry) {
-		if(STReq(ID_NAME(id), SYMBOLTABLEENTRY_NAME(varDeclEntry))) {
+
+	node* temp = SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info));
+	while(temp) {
+		if(STReq(ID_NAME(id), SYMBOLTABLEENTRY_NAME(temp))) {
 			break;
 		}
 		
-		varDeclEntry = SYMBOLTABLEENTRY_NEXT(varDeclEntry);
+		temp = SYMBOLTABLEENTRY_NEXT(temp);
 	}
 	
-	if(!varDeclEntry) {
-		node* new_node = TBmakeSymboltableentry();
+ 	if(!temp) {
+		node* new_node = TBmakeSymboltableentry(NULL);
 		
-		varDeclEntry = INFO_CURSCOPE(arg_info);
-		INFO_CURSCOPE(arg_info) = new_node;
+		temp = SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info));
+		SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)) = new_node;
 		
-		SYMBOLTABLEENTRY_NEXT(new_node) = varDeclEntry;
-		SYMBOLTABLEENTRY_PREVSCOPE(new_node) = INFO_PREVSCOPE(arg_info);
-		SYMBOLTABLEENTRY_NAME(new_node) = ID_NAME(id);
-		SYMBOLTABLEENTRY_TYPE(new_node) = "TY_unknown";
+		SYMBOLTABLEENTRY_NEXT(new_node) = temp;
+		SYMBOLTABLEENTRY_NAME(new_node) = STRcpy(ID_NAME(id));
+		SYMBOLTABLEENTRY_TYPE(new_node) = STRcpy("TY_unknown");
 		NODE_LINE(new_node) = NODE_LINE(arg_node);
 		NODE_COL(new_node) = NODE_COL(arg_node);
 		
-		if(varDeclEntry) {
-			SYMBOLTABLEENTRY_OFFSET(new_node) = SYMBOLTABLEENTRY_OFFSET(varDeclEntry) + 1;
-		}
-		
+		if(temp) {
+			SYMBOLTABLEENTRY_OFFSET(new_node) = SYMBOLTABLEENTRY_OFFSET(temp) + 1;
+ 		}
 	}
 	else {
 		CTIerror(
                 "Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
-                ID_NAME(id), NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDeclEntry), NODE_COL(varDeclEntry));
+                ID_NAME(id), NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(temp), NODE_COL(temp));
 	}
 	
     DBUG_RETURN(arg_node);
@@ -323,6 +327,42 @@ node *SAid(node * arg_node, info * arg_info) {
         ID_OFFSET(arg_node) = VARDEF_OFFSET(varDef);
     } else {
         CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
+    }
+    
+    node* cur_scope = INFO_CURSCOPE(arg_info);
+    node* temp = SYMBOLTABLE_SYMBOLTABLEENTRY(cur_scope);
+    distance = 0;
+    while(temp) {
+    	if(STReq(ID_NAME(arg_node), SYMBOLTABLEENTRY_NAME(temp))) {
+			break;
+		}
+		
+		if(SYMBOLTABLEENTRY_NEXT(temp)) {
+			temp = SYMBOLTABLEENTRY_NEXT(temp);
+		}
+		else {
+			cur_scope = SYMBOLTABLE_PARENT(cur_scope);
+			temp = SYMBOLTABLE_SYMBOLTABLEENTRY(cur_scope);
+			distance++;
+		}
+    }
+    
+    if(temp && distance > 0) {
+    	node* new_node = TBmakeSymboltableentry(NULL);
+    	temp = SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info));
+    	SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)) = new_node;
+    	
+    	SYMBOLTABLEENTRY_NEXT(new_node) = temp;
+		SYMBOLTABLEENTRY_NAME(new_node) = STRcpy(ID_NAME(arg_node));
+		SYMBOLTABLEENTRY_TYPE(new_node) = STRcpy("TY_unknown");
+		SYMBOLTABLEENTRY_DISTANCE(new_node) = distance;
+		SYMBOLTABLEENTRY_OFFSET(new_node) = SYMBOLTABLEENTRY_OFFSET(temp);
+		
+		NODE_LINE(new_node) = NODE_LINE(arg_node);
+		NODE_COL(new_node) = NODE_COL(arg_node);
+    }
+    else if(!temp) {
+    	CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     DBUG_RETURN(arg_node);
@@ -558,7 +598,7 @@ node *SAboolconst(node *arg_node, info *arg_info) {
 
 node *SAsymboltableentry(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAsymboltableentry");
-
+	
     DBUG_RETURN(arg_node);
 }
 
