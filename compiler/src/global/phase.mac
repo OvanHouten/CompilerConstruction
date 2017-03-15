@@ -33,6 +33,8 @@ PHASE(ca, "Context Analysis", ALWAYS)
 
 SUBPHASE(sa, "Scope Analysis", SAdoScopeAnalysis, ALWAYS, ca)
 
+SUBPHASE(rc, "Return Check", RCdoReturnCheck, NEVER, ca)
+
 ENDPHASE(ca)
 
 /******************************************************************************/

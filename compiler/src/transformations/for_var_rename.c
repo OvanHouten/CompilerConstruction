@@ -5,6 +5,8 @@
  *      Author: nico
  */
 
+#include "for_var_rename.h"
+
 #include <math.h>
 
 #include "types.h"
@@ -16,7 +18,6 @@
 #include "str.h"
 #include "ctinfo.h"
 
-#include "forloop.h"
 
 /*
  * INFO structure
@@ -70,9 +71,9 @@ char *createUniqueName(node *varDecs, char *name) {
     char *newName = NULL;
     do {
         int numberOfDigits = duplicates == 0 ? 1 : 1 + log10(duplicates);
-        // 8 is the number of character in out pattern + room for the trailing zero
-        newName = MEMmalloc(8 + STRlen(name) + numberOfDigits);
-        sprintf(newName, "__for_%s_%d", name, duplicates);
+        // 3 is the number of character in out pattern + room for the trailing zero
+        newName = MEMmalloc(3 + STRlen(name) + numberOfDigits);
+        sprintf(newName, "_%s_%d", name, duplicates);
         if (!isUnique(varDecs, newName)) {
             duplicates++;
             newName = MEMfree(newName);
@@ -96,20 +97,17 @@ node *FLfor(node *arg_node, info *arg_info) {
         funBody = LOCALFUNDEF_FUNBODY(INFO_FUNDEF(arg_info));
     }
 
-    if (funBody) {
-        node *varDecs = FUNBODY_VARDECS(funBody);
-        node *loopVar = FOR_VARDEF(arg_node);
-        ID_NAME(VARDEF_ID(loopVar)) = createUniqueName(varDecs, ID_NAME(VARDEF_ID(loopVar)));
-        FUNBODY_VARDECS(funBody) = TBmakeVardecs(loopVar, varDecs);
-        FOR_VARDEF(arg_node) = NULL;
-        if (varDecs) {
-            VARDEF_OFFSET(loopVar) = VARDEF_OFFSET(VARDECS_VARDEC(varDecs)) + 1;
-            ID_OFFSET(VARDEF_ID(loopVar)) = VARDEF_OFFSET(loopVar);
-        }
-        TRAVopt(FOR_BLOCK(arg_node), arg_info);
-    } else {
-        CTIerror("A for-loop without a surrounding (local)function!");
+    node *varDecs = FUNBODY_VARDECS(funBody);
+    node *loopVar = FOR_VARDEF(arg_node);
+    ID_NAME(VARDEF_ID(loopVar)) = createUniqueName(varDecs, ID_NAME(VARDEF_ID(loopVar)));
+    FUNBODY_VARDECS(funBody) = TBmakeVardecs(loopVar, varDecs);
+    FOR_VARDEF(arg_node) = TBmakeVardef(FALSE, FALSE, NULL, TBmakeId(STRcpy(ID_NAME(VARDEF_ID(loopVar)))), NULL, NULL, NULL);
+    // Only renumber if there is something to renumber.
+    if (varDecs) {
+        VARDEF_OFFSET(loopVar) = VARDEF_OFFSET(VARDECS_VARDEC(varDecs)) + 1;
+        ID_OFFSET(VARDEF_ID(loopVar)) = VARDEF_OFFSET(loopVar);
     }
+    TRAVopt(FOR_BLOCK(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }

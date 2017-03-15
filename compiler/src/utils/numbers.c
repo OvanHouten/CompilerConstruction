@@ -10,10 +10,13 @@
 #include <string.h>
 #include <limits.h>
 #include <float.h>
+#include "dbug.h"
 
 #include"numbers.h"
 
 int *strToInt(char * s) {
+    DBUG_ENTER("strToInt");
+
     // Lets convert it into a long
     long value = atol(s);
     // and check if it is a legal integer value
@@ -27,16 +30,17 @@ int *strToInt(char * s) {
             // Now allocate space for the actual value
             int* integer = malloc(sizeof(int));
             *integer = (int)value;
-            return integer;
+            DBUG_RETURN(integer);
         } else {
             // Not the same
             free(asString);
         }
     }
-    return NULL;
+    DBUG_RETURN(NULL);
 }
 
 float *strToFloat(char * s) {
+    DBUG_ENTER("strToFloat");
     // Lets convert it into a long
     double value = 0;
     sscanf(s, "%lf", &value);
@@ -52,11 +56,11 @@ float *strToFloat(char * s) {
             // Now allocate space for the actual value
             float* floatNumber = malloc(sizeof(float));
             *floatNumber = (float)value;
-            return floatNumber;
+            DBUG_RETURN(floatNumber);
         } else {
             // Not the same
             free(asString);
         }
     }
-    return NULL;
+    DBUG_RETURN(NULL);
 }

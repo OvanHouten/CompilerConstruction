@@ -8,6 +8,7 @@
 #include "types.h"
 #include "node_basic.h"
 #include "tree_basic.h"
+#include "copy_node.h"
 #include "traverse.h"
 #include "dbug.h"
 #include "memory.h"
@@ -15,6 +16,7 @@
 #include "ctinfo.h"
 
 #include "global_init.h"
+#include "list_utils.h"
 
 /*
  * INFO structure
@@ -52,9 +54,39 @@ static info *FreeInfo( info *info)
   DBUG_RETURN( info);
 }
 
-
 node *GIprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("GIprogram");
+
+    DBUG_PRINT("GI", ("Finding global variable definitions."));
+    node *funBody = TBmakeFunbody(NULL, NULL, NULL);
+    node *declarations = PROGRAM_DECLARATIONS(arg_node);
+
+    // Find all globaldefs (vardefs with an expr)
+    while (declarations) {
+        if (NODE_TYPE(DECLARATIONS_DECLARATION(declarations)) == N_vardef) {
+            node *varDef = DECLARATIONS_DECLARATION(declarations);
+            DBUG_PRINT("GI", ("Found [%s]",ID_NAME(VARDEF_ID(varDef))));
+            if (VARDEF_EXPR(varDef)) {
+                DBUG_PRINT("GI", ("Creating assignment."));
+                // Pull out the expression
+                node *expr = VARDEF_EXPR(varDef);
+                VARDEF_EXPR(varDef) = NULL;
+                // And create a list of assignment statements
+                appendToStatements(funBody, TBmakeStatements(TBmakeAssign(COPYid(VARDEF_ID(varDef), arg_info), expr), NULL));
+            }
+        }
+        declarations = DECLARATIONS_NEXT(declarations);
+    }
+
+    // If we have assignments create the spacial 'init' method.
+    if (FUNBODY_STATEMENTS(funBody)) {
+        DBUG_PRINT("GI", ("Creating '__init' function for globladefs."));
+        node *initMethod = TBmakeFundef( FALSE, TRUE, TBmakeFunheader(TBmakeVoid(), TBmakeId(STRcpy("__init")), NULL), funBody);
+        PROGRAM_DECLARATIONS(arg_node) = TBmakeDeclarations(initMethod, PROGRAM_DECLARATIONS(arg_node));
+    } else {
+        // Cleanup
+        funBody = MEMfree(funBody);
+    }
 
     DBUG_RETURN(arg_node);
 }
@@ -66,7 +98,7 @@ node *GIdoGlobalInit(node *syntaxtree) {
 
     TRAVpush(TR_gi);
 
-    TRAVdo(syntaxtree, arg_info);
+    syntaxtree = TRAVdo(syntaxtree, arg_info);
 
     TRAVpop();
 

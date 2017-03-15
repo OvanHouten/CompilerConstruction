@@ -20,7 +20,6 @@ extern node *SAint(node *arg_node, info *arg_info);
 extern node *SAfloat(node *arg_node, info *arg_info);
 extern node *SAbool(node *arg_node, info *arg_info);
 extern node *SAparams(node *arg_node, info *arg_info);
-extern node *SAparam(node *arg_node, info *arg_info);
 extern node *SAfunbody(node *arg_node, info *arg_info);
 extern node *SAvardecs(node *arg_node, info *arg_info);
 extern node *SAfuncall(node *arg_node, info *arg_info);
