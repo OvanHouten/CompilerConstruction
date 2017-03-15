@@ -5,8 +5,8 @@
  *      Author: nico
  */
 
-#ifndef SRC_TRANSFORMATIONS_FORLOOP_H_
-#define SRC_TRANSFORMATIONS_FORLOOP_H_
+#ifndef SRC_TRANSFORMATIONS_FOR_VAR_RENAME_H_
+#define SRC_TRANSFORMATIONS_FOR_VAR_RENAME_H_
 
 #include "types.h"
 
@@ -17,4 +17,4 @@ extern node *FLlocalfundef(node *arg_node, info *arg_info);
 
 extern node *FLdoForLoop(node *syntaxtree);
 
-#endif /* SRC_TRANSFORMATIONS_FORLOOP_H_ */
+#endif /* SRC_TRANSFORMATIONS_FOR_VAR_RENAME_H_ */

@@ -81,11 +81,11 @@ codegen     = gen_byte_code.o
 
 demo        = rename_identifiers.o
 
-utils       = numbers.o
+utils       = numbers.o list_utils.o
 
 context_analysis = context_analysis.o
 
-transformations = forloop.o global_init.o split_vardefs.o
+transformations = for_var_rename.o global_init.o split_vardefs.o
 
 
 ###############################################################################

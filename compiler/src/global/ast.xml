@@ -48,7 +48,7 @@
 
       <traversal id="SA" name="Context Analysis" default="user" include="context_analysis.h" />
 
-      <traversal id="FL" name="For-loop" default="sons" include="forloop.h">
+      <traversal id="FL" name="For-loop" default="sons" include="for_var_rename.h">
         <travuser>
           <node name="For" />
           <node name="FunDef" />
@@ -59,9 +59,8 @@
 
       <traversal id="SV" name="Split VarDefs" default="sons" include="split_vardefs.h">
         <travuser>
-          <node name="FunDef" />
-          <node name="LocalFunDef" />
-          <node name="VarDef" />
+          <node name="FunBody" />
+          <node name="VarDecs" />
         </travuser>
       </traversal>
 
@@ -632,50 +631,6 @@
           <targets>
             <target mandatory="no">
               <node name="Params" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-      </attributes>
-    </node>
-
-<!--
- Node Param:
--->
-     <node name="Param">
-      <description>Represents a parameter</description>
-      <sons>
-        <son name="Type">
-          <description>Type of parameter</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="Type" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="ArraySize">
-          <description>Size of array, if Param is an array, can be multidimensional</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Ids" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="Id">
-          <description>Identifier of the parameter</description>
-          <targets>
-            <target mandatory="Yes">
-              <node name="Id" />
                 <phases>
                   <all />
                 </phases>
