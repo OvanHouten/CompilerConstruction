@@ -26,7 +26,6 @@ extern node *SAvardecs(node *arg_node, info *arg_info);
 extern node *SAfuncall(node *arg_node, info *arg_info);
 extern node *SAtypecast(node *arg_node, info *arg_info);
 extern node *SAassign(node *arg_node, info *arg_info);
-extern node *SAblock(node *arg_node, info *arg_info);
 extern node *SAif(node *arg_node, info *arg_info);
 extern node *SAwhile(node *arg_node, info *arg_info);
 extern node *SAdo(node *arg_node, info *arg_info);

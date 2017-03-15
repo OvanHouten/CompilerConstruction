@@ -114,8 +114,8 @@ vardec: type ID SEMICOLON            { $$ = TBmakeVardef( FALSE, FALSE, $1, TBma
       | type ID LET expr SEMICOLON   { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId( $2), $4, NULL, NULL); }
       ;
 
-block: CURLY_L stmts CURLY_R { $$ = TBmakeBlock($2); }
-     | stmt                  { $$ = TBmakeBlock($1); }
+block: CURLY_L stmts CURLY_R { $$ = $2; }
+     | stmt                  { $$ = TBmakeStatements($1, NULL); }
      ;
 
 stmts: stmts stmt { $$ = TBmakeStatements( $2, $1); }

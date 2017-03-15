@@ -266,14 +266,6 @@ node *PRTreturn (node * arg_node, info * arg_info)
   DBUG_RETURN (arg_node);
 }
 
-node *PRTblock(node *arg_node, info *arg_info) {
-	DBUG_ENTER("PRTblock");
-	
-	TRAVopt(BLOCK_STATEMENTS(arg_node), arg_info);
-	
-	DBUG_RETURN(arg_node);
-}
-
 node *PRTif (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTif");

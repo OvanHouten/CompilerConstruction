@@ -305,7 +305,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
 			SYMBOLTABLEENTRY_NEXT(temp) = new_node;
 		}
 		else {
-			//free node
+			//free node, variable has been declared in this scope;
 		}
 	}
 	
@@ -425,20 +425,6 @@ node *SAassign(node *arg_node, info *arg_info) {
     TRAVdo(ASSIGN_LET(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
-}
-
-node *SAblock(node *arg_node, info *arg_info) {
-	DBUG_ENTER("SAblock");
-	
-	node* previousScope = INFO_CURSCOPE(arg_info);
-	INFO_CURSCOPE(arg_info) = BLOCK_SYMBOLTABLE(arg_node);
-	
-	TRAVopt(BLOCK_STATEMENTS(arg_node), arg_info);
-	
-	BLOCK_SYMBOLTABLE(arg_node) = INFO_CURSCOPE(arg_info);
-	INFO_CURSCOPE(arg_info) = previousScope;
-	
-	DBUG_RETURN(arg_node);
 }
 
 node *SAif(node *arg_node, info *arg_info) {
