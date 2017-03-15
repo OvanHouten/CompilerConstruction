@@ -51,59 +51,60 @@ static info *FreeInfo( info *info)
   DBUG_RETURN( info);
 }
 
-node *RCfunbody(node *arg_node, info *arg_info) {
-    DBUG_ENTER("RCfunbody");
-
-    TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
+char *toString(nodetype typeInfo) {
+    switch (typeInfo) {
+        case N_int:
+            return "int";
+        case N_float:
+            return "float";
+        case N_bool:
+            return "bool";
+        case N_void :
+            return "void";
+        default:
+            return "<<TBD>>";
+    }
 }
 
-node *RCif(node *arg_node, info *arg_info) {
-    DBUG_ENTER("RCif");
+node *RCfundef(node *arg_node, info *arg_info) {
+    DBUG_ENTER("RCfundef");
 
-    TRAVopt(IF_IFBLOCK(arg_node), arg_info);
-    TRAVopt(IF_ELSEBLOCK(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *RCfor(node *arg_node, info *arg_info) {
-    DBUG_ENTER("RCfor");
-
-    TRAVopt(FOR_BLOCK(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *RCwhile(node *arg_node, info *arg_info) {
-    DBUG_ENTER("RCwhile");
-
-    TRAVopt(WHILE_BLOCK(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *RCdo(node *arg_node, info *arg_info) {
-    DBUG_ENTER("RCdo");
-
-    TRAVopt(DO_BLOCK(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *RCstatements(node *arg_node, info *arg_info) {
-    DBUG_ENTER("RCstatements");
-
-    node *statements = arg_node;
-    while (statements) {
-        if (NODE_TYPE(statements) == N_return) {
-            if (STATEMENTS_NEXT(statements)) {
-                CTIerror("The return statement at line [%d] and column [%d] must be the last statement.", NODE_LINE(statements), NODE_COL(statements));
+    if (!FUNDEF_EXTERN(arg_node)) {
+        nodetype returnType = NODE_TYPE(FUNHEADER_RETTYPE(FUNDEF_FUNHEADER(arg_node)));
+        node *returnStatement = NULL;
+        node *funBody = FUNDEF_FUNBODY(arg_node);
+        if (funBody) {
+            if (FUNBODY_STATEMENTS(funBody)) {
+                returnStatement = STATEMENTS_STATEMENT(FUNBODY_STATEMENTS(funBody));
             }
         }
-        statements = STATEMENTS_NEXT(statements);
+        if (returnStatement) {
+            nodetype returningType = N_undefined;
+            if (NODE_TYPE(returnStatement) == N_return) {
+                if (RETURN_EXPR(returnStatement)) {
+                    returningType = NODE_TYPE(RETURN_EXPR(returnStatement));
+                } else {
+                    returningType = N_void;
+                }
+            }
+            if (returnType != returningType) {
+                CTIerror("The function [%s] at line [%d] must end with a '%s' returning statement.", ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))), NODE_LINE(arg_node), toString(returningType));
+            }
+        } else {
+            // Looks like an empty function
+            if (returnType != N_void) {
+                CTIerror("The function [%s] at line [%d] must end with a '%s' returning statement.", ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))), NODE_LINE(arg_node), toString(returnType));
+            }
+        }
     }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *RClocalfundef(node *arg_node, info *arg_info) {
+    DBUG_ENTER("RClocalfundef");
+
+    TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
