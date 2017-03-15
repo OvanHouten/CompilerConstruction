@@ -5,6 +5,7 @@
  *      Author: nico
  */
 
+#include "str.h"
 #include "types.h"
 #include "node_basic.h"
 #include "tree_basic.h"
@@ -274,39 +275,37 @@ node *SAvardef(node *arg_node, info *arg_info) {
     ID_DISTANCE(id) = 0;
     ID_OFFSET(id) = VARDEF_OFFSET(arg_node);
 	
-	bool found_entry = FALSE;
-	node* temp = INFO_CURSCOPE(arg_info);
-//	node* id = VARDEF_ID(arg_node);
-	node* new_node = TBmakeSymboltableentry();
+	node* varDeclEntry = INFO_CURSCOPE(arg_info);
+	while(varDeclEntry) {
+		if(STReq(ID_NAME(id), SYMBOLTABLEENTRY_NAME(varDeclEntry))) {
+			break;
+		}
+		
+		varDeclEntry = SYMBOLTABLEENTRY_NEXT(varDeclEntry);
+	}
 	
-	SYMBOLTABLEENTRY_NEXT(new_node) = NULL;
-	SYMBOLTABLEENTRY_NEXT(new_node) = INFO_PREVSCOPE(arg_info);
-	SYMBOLTABLEENTRY_NAME(new_node) = ID_NAME(id);
-	SYMBOLTABLEENTRY_TYPE(new_node) = "TY_unknown";
-	SYMBOLTABLEENTRY_DISTANCE(new_node) = 0;
-	SYMBOLTABLEENTRY_OFFSET(new_node) = VARDEF_OFFSET(arg_node);
-	
-	if(!temp) {
+	if(!varDeclEntry) {
+		node* new_node = TBmakeSymboltableentry();
+		
+		varDeclEntry = INFO_CURSCOPE(arg_info);
 		INFO_CURSCOPE(arg_info) = new_node;
+		
+		SYMBOLTABLEENTRY_NEXT(new_node) = varDeclEntry;
+		SYMBOLTABLEENTRY_PREVSCOPE(new_node) = INFO_PREVSCOPE(arg_info);
+		SYMBOLTABLEENTRY_NAME(new_node) = ID_NAME(id);
+		SYMBOLTABLEENTRY_TYPE(new_node) = "TY_unknown";
+		NODE_LINE(new_node) = NODE_LINE(arg_node);
+		NODE_COL(new_node) = NODE_COL(arg_node);
+		
+		if(varDeclEntry) {
+			SYMBOLTABLEENTRY_OFFSET(new_node) = SYMBOLTABLEENTRY_OFFSET(varDeclEntry) + 1;
+		}
+		
 	}
 	else {
-		while(temp && !found_entry) {
-			if(SYMBOLTABLEENTRY_NAME(temp) == SYMBOLTABLEENTRY_NAME(new_node) && SYMBOLTABLEENTRY_TYPE(temp) == SYMBOLTABLEENTRY_TYPE(new_node)) {
-				found_entry = TRUE;
-			}
-			temp = SYMBOLTABLEENTRY_NEXT(temp);
-		}
-	
-		if(!found_entry) {
-			temp = INFO_CURSCOPE(arg_info);
-			while(SYMBOLTABLEENTRY_NEXT(temp)) {
-				temp = SYMBOLTABLEENTRY_NEXT(temp);
-			}
-			SYMBOLTABLEENTRY_NEXT(temp) = new_node;
-		}
-		else {
-			//free node, variable has been declared in this scope;
-		}
+		CTIerror(
+                "Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
+                ID_NAME(id), NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDeclEntry), NODE_COL(varDeclEntry));
 	}
 	
     DBUG_RETURN(arg_node);

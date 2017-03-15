@@ -28,6 +28,7 @@ export float d = 13.1;
 int empty() {
 	int a;
 	int d;
+	int d;
 }
 void singleParam() {
 	int b;
