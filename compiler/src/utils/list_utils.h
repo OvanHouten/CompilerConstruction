@@ -13,5 +13,6 @@
 #define SRC_UTILS_LIST_UTILS_H_
 
 node *appendToStatements(node *funBody, node* newStatements);
+node *appendToSymbolTableEntries(node *symbolTable, node *symbolTableEntry);
 
 #endif /* SRC_UTILS_LIST_UTILS_H_ */

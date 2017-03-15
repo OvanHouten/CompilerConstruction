@@ -59,6 +59,7 @@ node *GIprogram(node *arg_node, info *arg_info) {
 
     DBUG_PRINT("GI", ("Finding global variable definitions."));
     node *funBody = TBmakeFunbody(NULL, NULL, NULL);
+    node *initSymbolTable = TBmakeSymboltable(NULL);
     node *declarations = PROGRAM_DECLARATIONS(arg_node);
 
     // Find all globaldefs (vardefs with an expr)
@@ -73,6 +74,15 @@ node *GIprogram(node *arg_node, info *arg_info) {
                 VARDEF_EXPR(varDef) = NULL;
                 // And create a list of assignment statements
                 appendToStatements(funBody, TBmakeStatements(TBmakeAssign(COPYid(VARDEF_ID(varDef), arg_info), expr), NULL));
+                // And add it to the symboltable
+                node *symbolTableEntry = TBmakeSymboltableentry(NULL);
+                // FIXME The type in STE should be 'type' not 'string'!
+//                SYMBOLTABLEENTRY_TYPE(symbolTableEntry) = VARDEF_TYPE(varDef);
+                SYMBOLTABLEENTRY_NAME(symbolTableEntry) = STRcpy(ID_NAME(VARDEF_ID(varDef)));
+                SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry) = 1;
+                // FIXME There is a 'off by 1' error with the offsets!
+                SYMBOLTABLEENTRY_OFFSET(symbolTableEntry) = VARDEF_OFFSET(varDef);
+                appendToSymbolTableEntries(initSymbolTable, symbolTableEntry);
             }
         }
         declarations = DECLARATIONS_NEXT(declarations);
@@ -81,10 +91,11 @@ node *GIprogram(node *arg_node, info *arg_info) {
     // If we have assignments create the spacial 'init' method.
     if (FUNBODY_STATEMENTS(funBody)) {
         DBUG_PRINT("GI", ("Creating '__init' function for globladefs."));
-        node *initMethod = TBmakeFundef( FALSE, TRUE, TBmakeFunheader(TBmakeVoid(), TBmakeId(STRcpy("__init")), NULL), funBody, NULL); // TODO: SymbolTable moet niet NULL zijn uiteindelijk (Laatste NULL parameter)
+        node *initMethod = TBmakeFundef( FALSE, TRUE, TBmakeFunheader(TBmakeVoid(), TBmakeId(STRcpy("__init")), NULL), funBody, initSymbolTable);
         PROGRAM_DECLARATIONS(arg_node) = TBmakeDeclarations(initMethod, PROGRAM_DECLARATIONS(arg_node));
     } else {
         // Cleanup
+        initSymbolTable = MEMfree(initSymbolTable);
         funBody = MEMfree(funBody);
     }
 
