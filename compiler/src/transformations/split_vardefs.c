@@ -84,6 +84,7 @@ node *SVvardecs(node *arg_node, info *arg_info) {
         node *expr = VARDEF_EXPR(varDef);
         VARDEF_EXPR(varDef)  = NULL;
         // Create new assign statement
+        // FIXME For some mysterious reason using COPYid fails while it works in global_init.c........
         node *id = TBmakeId(STRcpy(ID_NAME(VARDEF_ID(varDef))));
         ID_DECL(id) = varDef;
         ID_DISTANCE(id) = ID_DISTANCE(VARDEF_ID(varDef));
