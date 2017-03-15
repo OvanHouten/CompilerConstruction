@@ -420,10 +420,10 @@ node *SAfor(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAfor");
 
     startNewScope(arg_info);
-    registerNewVarDecl(FOR_VARDEF(arg_node), arg_info, ID_NAME(VARDEF_ID(FOR_VARDEF(arg_node))));
     TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
     TRAVdo(FOR_FINISH(arg_node), arg_info);
     TRAVopt(FOR_STEP(arg_node), arg_info);
+    registerNewVarDecl(FOR_VARDEF(arg_node), arg_info, ID_NAME(VARDEF_ID(FOR_VARDEF(arg_node))));
     TRAVopt(FOR_BLOCK(arg_node), arg_info);
     closeScope(arg_info);
 
