@@ -48,6 +48,17 @@
 
       <traversal id="SA" name="Context Analysis" default="user" include="context_analysis.h" />
 
+       <traversal id="RC" name="Return Check" default="sons" include="return_check.h">
+        <travuser>
+          <node name="FunBody" />
+          <node name="If" />
+          <node name="For" />
+          <node name="While" />
+          <node name="Do" />
+          <node name="Statements" />
+        </travuser>
+      </traversal>
+
       <traversal id="FL" name="For-loop" default="sons" include="for_var_rename.h">
         <travuser>
           <node name="For" />
