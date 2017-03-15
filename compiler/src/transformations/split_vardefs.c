@@ -5,8 +5,6 @@
  *      Author: nico
  */
 
-#include "split_vardefs.h"
-
 #include "types.h"
 #include "node_basic.h"
 #include "tree_basic.h"
@@ -16,7 +14,8 @@
 #include "str.h"
 #include "ctinfo.h"
 
-#include "global_init.h"
+#include "list_utils.h"
+#include "split_vardefs.h"
 
 /*
  * INFO structure
@@ -65,15 +64,7 @@ node *SVfunbody(node *arg_node, info *arg_info) {
 
     TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
 
-    if (FUNBODY_STATEMENTS(arg_node)) {
-        node *statements = FUNBODY_STATEMENTS(arg_node);
-        while (STATEMENTS_NEXT(statements)) {
-            statements = STATEMENTS_NEXT(statements);
-        }
-        STATEMENTS_NEXT(statements) = INFO_VARINITS(arg_info);
-    } else {
-        FUNBODY_STATEMENTS(arg_node) = INFO_VARINITS(arg_info);
-    }
+    arg_node = appendToStatements(arg_node, INFO_VARINITS(arg_info));
     INFO_VARINITS(arg_info) = NULL;
 
     INFO_FUNBODY(arg_info) = previousFunBody;
