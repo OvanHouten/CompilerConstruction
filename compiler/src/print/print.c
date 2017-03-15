@@ -331,10 +331,14 @@ node *PRTfor (node * arg_node, info * arg_info)
   INDENT(arg_info);
   printf("for ( ");
   if (FOR_VARDEF(arg_node)) {
-      printf("int ");
+      if (VARDEF_TYPE(FOR_VARDEF(arg_node))) {
+          printf("int ");
+      }
       TRAVdo(VARDEF_ID(FOR_VARDEF(arg_node)), arg_info);
-      printf(" = ");
-      TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
+      if (VARDEF_EXPR(FOR_VARDEF(arg_node))) {
+          printf(" = ");
+          TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
+      }
   }
   printf(", ");
   TRAVdo( FOR_FINISH(arg_node), arg_info);

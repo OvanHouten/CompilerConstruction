@@ -86,6 +86,8 @@ node *SVvardecs(node *arg_node, info *arg_info) {
         // Create new assign statement
         node *id = TBmakeId(STRcpy(ID_NAME(VARDEF_ID(varDef))));
         ID_DECL(id) = varDef;
+        ID_DISTANCE(id) = ID_DISTANCE(VARDEF_ID(varDef));
+        ID_OFFSET(id) = ID_OFFSET(VARDEF_ID(varDef));
         node *assignment = TBmakeAssign(id, expr);
         INFO_VARINITS(arg_info) = TBmakeStatements( assignment, INFO_VARINITS(arg_info));
     }
