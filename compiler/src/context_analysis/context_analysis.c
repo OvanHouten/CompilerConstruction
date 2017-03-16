@@ -142,6 +142,35 @@ node *findFunDecl(info *arg_info, char *name, int *distance) {
     return NULL;
 }
 
+node* findVarDefWithinScope(info* arg_info, char* name) {
+    DBUG_ENTER("findVarDefWithinScope");
+    node* varDefSTE = SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info));
+    while (varDefSTE) {
+        if (STReq(name, SYMBOLTABLEENTRY_NAME(varDefSTE))) {
+            break;
+        }
+        varDefSTE = SYMBOLTABLEENTRY_NEXT(varDefSTE);
+    }
+    DBUG_RETURN(varDefSTE);
+}
+
+node *registerVarDefWithinScope(node* arg_node, info* arg_info, char* name) {
+    DBUG_ENTER("registerVarDefWithinScope");
+    // Add the vardef to the ST
+    node* varDefSTE = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)));
+    SYMBOLTABLEENTRY_NAME(varDefSTE) = STRcpy(name);
+    SYMBOLTABLEENTRY_TYPE(varDefSTE) = TY_unknown;
+    NODE_LINE(varDefSTE) = NODE_LINE(arg_node);
+    NODE_COL(varDefSTE) = NODE_COL(arg_node);
+
+    if (SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info))) {
+        SYMBOLTABLEENTRY_OFFSET(varDefSTE) = SYMBOLTABLEENTRY_OFFSET(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info))) + 1;
+    }
+    SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)) = varDefSTE;
+
+    DBUG_RETURN(varDefSTE);
+}
+
 // =============================================
 // Traversal code starts here
 // =============================================
@@ -208,7 +237,6 @@ node *SAfundef(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-
 node *SAfunheader(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAfunheader");
 
@@ -233,35 +261,40 @@ node *SAvardef(node *arg_node, info *arg_info) {
     // First go right
     TRAVopt(VARDEF_EXPR(arg_node), arg_info);
 
-	node* varDefSTE = SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info));
-	while(varDefSTE) {
-		if(STReq(VARDEF_NAME(arg_node), SYMBOLTABLEENTRY_NAME(varDefSTE))) {
-			break;
-		}
-		
-		varDefSTE = SYMBOLTABLEENTRY_NEXT(varDefSTE);
-	}
-	
- 	if(varDefSTE) {
+    // Make it does not exist within the current scope
+    char *name = VARDEF_NAME(arg_node);
+    node* varDefSTE = findVarDefWithinScope(arg_info, name);
+    if(varDefSTE) {
         CTIerror("Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
-                VARDEF_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
+                name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
 	} else {
-	    // Add the vardef to the ST
-		varDefSTE = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)));
-		
-		SYMBOLTABLEENTRY_NAME(varDefSTE) = STRcpy(VARDEF_NAME(arg_node));
-		SYMBOLTABLEENTRY_TYPE(varDefSTE) = TY_unknown;
-		NODE_LINE(varDefSTE) = NODE_LINE(arg_node);
-		NODE_COL(varDefSTE) = NODE_COL(arg_node);
-		
-		if(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info))) {
-			SYMBOLTABLEENTRY_OFFSET(varDefSTE) = SYMBOLTABLEENTRY_OFFSET(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info))) + 1;
- 		}
-		SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)) = varDefSTE;
+	    varDefSTE = registerVarDefWithinScope(arg_node, arg_info, name);
 	}
- 	VARDEF_DECL(arg_node) = varDefSTE;
+    // Make sure we have a reference at hand to the STE
+    VARDEF_DECL(arg_node) = varDefSTE;
 	
     DBUG_RETURN(arg_node);
+}
+
+node* findVarDefInAnyScope(char *name, info* arg_info, int* distance) {
+    // Used for traversing to outer ST/scopes
+    node* lookupST = INFO_CURSCOPE(arg_info);
+    node* varDefSTE = SYMBOLTABLE_SYMBOLTABLEENTRY(lookupST);
+    while (varDefSTE) {
+        if (STReq(name, SYMBOLTABLEENTRY_NAME(varDefSTE))) {
+            break;
+        }
+        // Try next entry
+        if (SYMBOLTABLEENTRY_NEXT(varDefSTE)) {
+            varDefSTE = SYMBOLTABLEENTRY_NEXT(varDefSTE);
+        } else {
+            // Try next ST
+            lookupST = SYMBOLTABLE_PARENT(lookupST);
+            varDefSTE = SYMBOLTABLE_SYMBOLTABLEENTRY(lookupST);
+            (*distance)++;
+        }
+    }
+    return varDefSTE;
 }
 
 node *SAid(node * arg_node, info * arg_info) {
@@ -269,41 +302,21 @@ node *SAid(node * arg_node, info * arg_info) {
 
     int distance = 0;
     // Used for traversing to outer ST/scopes
-    node* lookupST = INFO_CURSCOPE(arg_info);
-    node* varDefSTE = SYMBOLTABLE_SYMBOLTABLEENTRY(lookupST);
-    while(varDefSTE) {
-    	if(STReq(ID_NAME(arg_node), SYMBOLTABLEENTRY_NAME(varDefSTE))) {
-			break;
-		}
-		// Try next entry
-		if(SYMBOLTABLEENTRY_NEXT(varDefSTE)) {
-			varDefSTE = SYMBOLTABLEENTRY_NEXT(varDefSTE);
-		} else {
-		    // Try next ST
-			lookupST = SYMBOLTABLE_PARENT(lookupST);
-			varDefSTE = SYMBOLTABLE_SYMBOLTABLEENTRY(lookupST);
-			distance++;
-		}
-    }
-    
+    node* varDefSTE = findVarDefInAnyScope(ID_NAME(arg_node), arg_info, &distance);
+
     if(varDefSTE == NULL) {
         CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
     } else {
         if(distance > 0) {
             // Defined in a outer scope, create new STE in current scope
-            node* localSTE = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)));
-
-            SYMBOLTABLEENTRY_NAME(localSTE) = STRcpy(ID_NAME(arg_node));
-            SYMBOLTABLEENTRY_TYPE(localSTE) = TY_unknown;
-            SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
+            node* localSTE = registerVarDefWithinScope(arg_node, arg_info, ID_NAME(arg_node));
+            // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
+            SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
 
-            NODE_LINE(localSTE) = NODE_LINE(arg_node);
-            NODE_COL(localSTE) = NODE_COL(arg_node);
-
-            SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)) = localSTE;
             varDefSTE = localSTE;
         }
+        // Make sure we can referene the out STE
         ID_DECL(arg_node) = varDefSTE;
     }
 
@@ -435,6 +448,7 @@ node *SAfor(node *arg_node, info *arg_info) {
     TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
     TRAVdo(FOR_FINISH(arg_node), arg_info);
     TRAVopt(FOR_STEP(arg_node), arg_info);
+    // Register vardef
     TRAVopt(FOR_BLOCK(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
