@@ -270,30 +270,31 @@ node *SAvardef(node *arg_node, info *arg_info) {
     // And now we van register the variable name
 	registerNewVarDecl(arg_node, arg_info, VARDEF_NAME(arg_node));
 
-	node* varDef = SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info));
-	while(varDef) {
-		if(STReq(VARDEF_NAME(arg_node), SYMBOLTABLEENTRY_NAME(varDef))) {
+	node* varDefSTE = SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info));
+	while(varDefSTE) {
+		if(STReq(VARDEF_NAME(arg_node), SYMBOLTABLEENTRY_NAME(varDefSTE))) {
 			break;
 		}
 		
-		varDef = SYMBOLTABLEENTRY_NEXT(varDef);
+		varDefSTE = SYMBOLTABLEENTRY_NEXT(varDefSTE);
 	}
 	
- 	if(varDef) {
+ 	if(varDefSTE) {
         CTIerror("Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
-                VARDEF_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDef), NODE_COL(varDef));
+                VARDEF_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
 	} else {
-		node* varDef = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)));
+	    // Add the vardef to the ST
+		varDefSTE = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)));
 		
-		SYMBOLTABLEENTRY_NAME(varDef) = STRcpy(VARDEF_NAME(arg_node));
-		SYMBOLTABLEENTRY_TYPE(varDef) = TY_unknown;
-		NODE_LINE(varDef) = NODE_LINE(arg_node);
-		NODE_COL(varDef) = NODE_COL(arg_node);
+		SYMBOLTABLEENTRY_NAME(varDefSTE) = STRcpy(VARDEF_NAME(arg_node));
+		SYMBOLTABLEENTRY_TYPE(varDefSTE) = TY_unknown;
+		NODE_LINE(varDefSTE) = NODE_LINE(arg_node);
+		NODE_COL(varDefSTE) = NODE_COL(arg_node);
 		
 		if(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info))) {
-			SYMBOLTABLEENTRY_OFFSET(varDef) = SYMBOLTABLEENTRY_OFFSET(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info))) + 1;
+			SYMBOLTABLEENTRY_OFFSET(varDefSTE) = SYMBOLTABLEENTRY_OFFSET(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info))) + 1;
  		}
-		SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)) = varDef;
+		SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)) = varDefSTE;
 	}
 	
     DBUG_RETURN(arg_node);
