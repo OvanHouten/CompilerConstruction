@@ -366,7 +366,7 @@ node *SAid(node * arg_node, info * arg_info) {
 node *SAfuncall(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAfuncall");
 
-    char *name = ID_NAME(FUNCALL_ID(arg_node));
+    char *name = FUNCALL_NAME(arg_node);
     int distance = 0;
     node *funDef = findFunDecl(arg_info, name, &distance);
     if (funDef) {

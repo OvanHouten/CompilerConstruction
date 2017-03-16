@@ -731,17 +731,6 @@
  -->
     <node name="Funcall" >
       <sons>
-        <son name="Id">
-          <description>The name of the method to be called</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Id" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
         <son name="Params">
           <description>The parameters for the function call</description>
           <targets>
@@ -755,6 +744,18 @@
         </son>
       </sons>
       <attributes>
+        <attribute name="Name">
+          <description>Distance to symbol table</description>
+          <type name="String">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
         <attribute name="Distance">
           <description>Distance to symbol table</description>
           <type name="Int">

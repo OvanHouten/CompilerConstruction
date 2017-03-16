@@ -145,8 +145,8 @@ for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R block             {
    | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R block  { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TBmakeInt(), $6, NULL, NULL), $8, $10, $12); }
    ;
    
-funcall: ID BRACKET_L BRACKET_R       { $$ = TBmakeFuncall( TBmakeId($1), NULL); }
-       | ID BRACKET_L exprs BRACKET_R { $$ = TBmakeFuncall( TBmakeId($1), $3); }
+funcall: ID BRACKET_L BRACKET_R       { $$ = TBmakeFuncall( $1, NULL); }
+       | ID BRACKET_L exprs BRACKET_R { $$ = TBmakeFuncall( $1, $3); }
 
 return: RETURN SEMICOLON      { $$ = TBmakeReturn(NULL); }
       | RETURN expr SEMICOLON { $$ = TBmakeReturn( $2); }
