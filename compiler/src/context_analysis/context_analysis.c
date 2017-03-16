@@ -18,10 +18,8 @@
 
 struct SymbolTable {
     struct SymbolTable *parent;
-    lut_t *varDecls;
     lut_t *funDecls;
     int funCount; // Needed for determining the offset within the ST
-    int varCount; // Needed for determining the offset within the ST
 };
 
 /*
@@ -75,18 +73,14 @@ static info *FreeInfo( info *info)
 struct SymbolTable *makeNewSymbolTable() {
     struct SymbolTable *st = MEMmalloc(sizeof(struct SymbolTable));
     st->parent = NULL;
-    st->varDecls = LUTgenerateLut();
     st->funDecls = LUTgenerateLut();
     st->funCount = 0;
-    st->varCount = 0;
     return st;
 }
 
 struct SymbolTable *freeSymbolTable(struct SymbolTable *symbolTable) {
     symbolTable->parent = NULL;
-    LUTremoveContentLut(symbolTable->varDecls);
     LUTremoveContentLut(symbolTable->funDecls);
-    symbolTable->varDecls = LUTremoveLut(symbolTable->varDecls);
     symbolTable->funDecls = LUTremoveLut(symbolTable->funDecls);
     symbolTable = MEMfree(symbolTable);
     return symbolTable;
@@ -128,31 +122,6 @@ void registerNewFunDecl(node* arg_node, info* arg_info, char* name) {
         FUNHEADER_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->funCount++;
         DBUG_PRINT("SA", ("Registered function [%s] at offset [%d].", name, FUNHEADER_OFFSET(arg_node)));
     }
-}
-
-void registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
-    DBUG_PRINT("SA", ("Registering variable [%s]", name));
-    if (registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->varDecls, name)) {
-        // Only adjust the offset when the registration was successful
-        DBUG_PRINT("SA", ("Registered variable [%s].", name));
-    }
-}
-
-node *findVarDecl(info *arg_info, char *name) {
-    DBUG_PRINT("SA", ("Looking for variable [%s]", name));
-    struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
-    while (currentScope) {
-        lut_t* varDecls = currentScope->varDecls;
-        node* declaringNode = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
-        if (declaringNode) {
-            DBUG_PRINT("SA", ("Found [%s]", name));
-            return declaringNode;
-        } else {
-            currentScope = currentScope->parent;
-        }
-    }
-    DBUG_PRINT("SA", ("[%s] not found", name));
-    return NULL;
 }
 
 node *findFunDecl(info *arg_info, char *name, int *distance) {
@@ -264,9 +233,6 @@ node *SAvardef(node *arg_node, info *arg_info) {
     // First go right
     TRAVopt(VARDEF_EXPR(arg_node), arg_info);
 
-    // And now we van register the variable name
-	registerNewVarDecl(arg_node, arg_info, VARDEF_NAME(arg_node));
-
 	node* varDefSTE = SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info));
 	while(varDefSTE) {
 		if(STReq(VARDEF_NAME(arg_node), SYMBOLTABLEENTRY_NAME(varDefSTE))) {
@@ -301,14 +267,6 @@ node *SAvardef(node *arg_node, info *arg_info) {
 node *SAid(node * arg_node, info * arg_info) {
     DBUG_ENTER("SAid");
 
-    char *name = ID_NAME(arg_node);
-    node *varDef = findVarDecl(arg_info, name);
-    if (varDef) {
-        ID_DECL(arg_node) = varDef;
-    } else {
-        CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
-    }
-    
     int distance = 0;
     // Used for traversing to outer ST/scopes
     node* lookupST = INFO_CURSCOPE(arg_info);
@@ -489,7 +447,6 @@ node *SAfor(node *arg_node, info *arg_info) {
     TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
     TRAVdo(FOR_FINISH(arg_node), arg_info);
     TRAVopt(FOR_STEP(arg_node), arg_info);
-    registerNewVarDecl(FOR_VARDEF(arg_node), arg_info, VARDEF_NAME(FOR_VARDEF(arg_node)));
     TRAVopt(FOR_BLOCK(arg_node), arg_info);
     closeScope(arg_info);
 
