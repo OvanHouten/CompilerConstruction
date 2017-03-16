@@ -90,8 +90,8 @@ fundef: funheader funbody                 { $$ = TBmakeFundef( FALSE, FALSE, $1,
       | EXPORT funheader funbody          { $$ = TBmakeFundef( FALSE, TRUE, $2, $3, NULL); }
       ;
 
-funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $1, TBmakeId($2), NULL); }
-         | type ID BRACKET_L params BRACKET_R { $$ = TBmakeFunheader( $1, TBmakeId($2), $4); }
+funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $2, $1, NULL); }
+         | type ID BRACKET_L params BRACKET_R { $$ = TBmakeFunheader( $2, $1, $4); }
          ;
          
 params: params COMMA param { $$ = TBmakeParams( $3, $1); }

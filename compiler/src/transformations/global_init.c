@@ -91,7 +91,7 @@ node *GIprogram(node *arg_node, info *arg_info) {
     // If we have assignments create the spacial 'init' method.
     if (FUNBODY_STATEMENTS(funBody)) {
         DBUG_PRINT("GI", ("Creating '__init' function for globladefs."));
-        node *initMethod = TBmakeFundef( FALSE, TRUE, TBmakeFunheader(TBmakeVoid(), TBmakeId(STRcpy("__init")), NULL), funBody, initSymbolTable);
+        node *initMethod = TBmakeFundef( FALSE, TRUE, TBmakeFunheader(STRcpy("__init"), TBmakeVoid(), NULL), funBody, initSymbolTable);
         PROGRAM_DECLARATIONS(arg_node) = TBmakeDeclarations(initMethod, PROGRAM_DECLARATIONS(arg_node));
     } else {
         // Cleanup

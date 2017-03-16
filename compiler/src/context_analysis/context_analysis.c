@@ -207,13 +207,7 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
     // Just register the name of the function or variable
     if (NODE_TYPE(DECLARATIONS_DECLARATION(arg_node)) == N_fundef) {
         node *funDef = DECLARATIONS_DECLARATION(arg_node);
-        registerNewFunDecl(FUNDEF_FUNHEADER(funDef), arg_info, ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(funDef))));
-        // TODO check if this is realy needed and useful.
-        node *funHeader = FUNDEF_FUNHEADER(funDef);
-        node *id = FUNHEADER_ID(FUNDEF_FUNHEADER(funDef));
-        ID_DECL(id) = funHeader;
-        ID_DISTANCE(id) = 0; // Just to make it explicit that each function is defined in the current scope and hence has an offset of 0.
-        ID_OFFSET(id) = FUNHEADER_OFFSET(funHeader);
+        registerNewFunDecl(FUNDEF_FUNHEADER(funDef), arg_info, FUNHEADER_NAME(FUNDEF_FUNHEADER(funDef)));
     }
 
     // Continue to register function and variable names

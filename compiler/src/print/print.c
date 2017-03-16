@@ -133,7 +133,7 @@ node *PRTfunheader(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunheader");
 
 	TRAVdo(FUNHEADER_RETTYPE(arg_node), arg_info);
-	TRAVdo(FUNHEADER_ID(arg_node), arg_info);
+	printf(FUNHEADER_NAME(arg_node));
 	printf("(");
 	TRAVopt(FUNHEADER_PARAMS(arg_node), arg_info);
 	printf(")");
@@ -258,6 +258,7 @@ node *PRTtypecast(node * arg_node, info * arg_info) {
 node *PRTfuncall(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfuncall");
 
+    INDENT(arg_info);
 	printf(FUNCALL_NAME(arg_node));
 	printf("(");
 	TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
