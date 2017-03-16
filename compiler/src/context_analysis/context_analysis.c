@@ -405,15 +405,8 @@ node *SAif(node *arg_node, info *arg_info) {
 
     TRAVdo(IF_CONDITION(arg_node), arg_info);
 
-    startNewScope(arg_info);
-    
     TRAVdo(IF_IFBLOCK(arg_node), arg_info);
-    
-    closeScope(arg_info);
-
-    startNewScope(arg_info);
     TRAVopt(IF_ELSEBLOCK(arg_node), arg_info);
-    closeScope(arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -422,9 +415,7 @@ node *SAwhile(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAwhile");
 
     TRAVdo(WHILE_CONDITION(arg_node), arg_info);
-    startNewScope(arg_info);
     TRAVopt(WHILE_BLOCK(arg_node), arg_info);
-    closeScope(arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -432,9 +423,7 @@ node *SAwhile(node *arg_node, info *arg_info) {
 node *SAdo(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAdo");
 
-    startNewScope(arg_info);
     TRAVopt(DO_BLOCK(arg_node), arg_info);
-    closeScope(arg_info);
     TRAVdo(DO_CONDITION(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
@@ -443,12 +432,10 @@ node *SAdo(node *arg_node, info *arg_info) {
 node *SAfor(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAfor");
 
-    startNewScope(arg_info);
     TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
     TRAVdo(FOR_FINISH(arg_node), arg_info);
     TRAVopt(FOR_STEP(arg_node), arg_info);
     TRAVopt(FOR_BLOCK(arg_node), arg_info);
-    closeScope(arg_info);
 
     DBUG_RETURN(arg_node);
 }

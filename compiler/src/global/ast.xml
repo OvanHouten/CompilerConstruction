@@ -211,7 +211,7 @@
       </sons>
       <attributes>
         <attribute name="Parent">
-            <description>Offset within the symboltable</description>
+            <description>The symboltable of the outer scope</description>
             <type name="Link">
                 <targets>
                     <target mandatory="no">
