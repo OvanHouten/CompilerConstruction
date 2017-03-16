@@ -357,7 +357,11 @@ node *PRTfor (node * arg_node, info * arg_info)
       if (VARDEF_TYPE(FOR_VARDEF(arg_node))) {
           printf("int ");
       }
-      printf(VARDEF_NAME(FOR_VARDEF(arg_node)));
+      if (VARDEF_DECL(FOR_VARDEF(arg_node))) {
+          printf(SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))));
+      } else {
+          printf(VARDEF_NAME(FOR_VARDEF(arg_node)));
+      }
       if (VARDEF_EXPR(FOR_VARDEF(arg_node))) {
           printf(" = ");
           TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
@@ -520,7 +524,11 @@ node *PRTid(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTid");
 
 	INDENT(arg_info);
-	printf(ID_NAME(arg_node));
+	if (ID_DECL(arg_node)) {
+    printf(SYMBOLTABLEENTRY_NAME(ID_DECL(arg_node)));
+	} else {
+	    printf(ID_NAME(arg_node));
+	}
 
 	DBUG_RETURN(arg_node);
 }

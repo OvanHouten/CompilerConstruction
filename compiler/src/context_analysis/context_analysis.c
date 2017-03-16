@@ -15,6 +15,7 @@
 #include "context_analysis.h"
 #include "lookup_table.h"
 #include "ctinfo.h"
+#include "math.h"
 
 struct SymbolTable {
     struct SymbolTable *parent;
@@ -171,6 +172,33 @@ node *registerVarDefWithinScope(node* arg_node, info* arg_info, char* name) {
     DBUG_RETURN(varDefSTE);
 }
 
+bool isUniqueInSymbolTable(node *symbolTableEntry, char *name) {
+    while (symbolTableEntry) {
+        if (STReq(name, SYMBOLTABLEENTRY_NAME(symbolTableEntry))) {
+            return FALSE;
+        }
+        symbolTableEntry = SYMBOLTABLEENTRY_NEXT(symbolTableEntry);
+    }
+    return TRUE;
+}
+
+char *createUniqueNameForSymbolTable(node *symbolTable, char *name) {
+    DBUG_ENTER("createUniqueNameForSymbolTable");
+    int duplicates = 0;
+    char *newName = NULL;
+    do {
+        int numberOfDigits = duplicates == 0 ? 1 : 1 + log10(duplicates);
+        // 3 is the number of character in out pattern + room for the trailing zero
+        newName = MEMmalloc(3 + STRlen(name) + numberOfDigits);
+        sprintf(newName, "_%s_%d", name, duplicates);
+        if (!isUniqueInSymbolTable(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable), newName)) {
+            duplicates++;
+            newName = MEMfree(newName);
+        }
+    } while (newName == NULL);
+    DBUG_RETURN(newName);
+}
+
 // =============================================
 // Traversal code starts here
 // =============================================
@@ -276,7 +304,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node* findVarDefInAnyScope(char *name, info* arg_info, int* distance) {
+node* findVarDefInAnyScope(info* arg_info, char *name, int* distance) {
     // Used for traversing to outer ST/scopes
     node* lookupST = INFO_CURSCOPE(arg_info);
     node* varDefSTE = SYMBOLTABLE_SYMBOLTABLEENTRY(lookupST);
@@ -302,7 +330,7 @@ node *SAid(node * arg_node, info * arg_info) {
 
     int distance = 0;
     // Used for traversing to outer ST/scopes
-    node* varDefSTE = findVarDefInAnyScope(ID_NAME(arg_node), arg_info, &distance);
+    node* varDefSTE = findVarDefInAnyScope(arg_info, ID_NAME(arg_node), &distance);
 
     if(varDefSTE == NULL) {
         CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
@@ -445,11 +473,40 @@ node *SAdo(node *arg_node, info *arg_info) {
 node *SAfor(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAfor");
 
+    DBUG_PRINT("SA", ("Processing the start, stop and step expressions."));
     TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
     TRAVdo(FOR_FINISH(arg_node), arg_info);
     TRAVopt(FOR_STEP(arg_node), arg_info);
-    // Register vardef
-    TRAVopt(FOR_BLOCK(arg_node), arg_info);
+
+    // Only go through the trouble if it is really useful
+    if (FOR_BLOCK(arg_node)) {
+        DBUG_PRINT("SA", ("Looking for existing name."));
+        char *name = VARDEF_NAME(FOR_VARDEF(arg_node));
+        node *existingVarDef = findVarDefWithinScope(arg_info, name);
+
+        char *originalName = NULL;
+        if (existingVarDef) {
+            DBUG_PRINT("SA", ("Hiding the existing name in the symboltable for now."));
+            // Remember the name and remove it from the ST
+            originalName = SYMBOLTABLEENTRY_NAME(existingVarDef);
+            SYMBOLTABLEENTRY_NAME(existingVarDef) = "";
+        }
+
+        // Register the variable
+        node *forVarEntry = registerVarDefWithinScope(FOR_VARDEF(arg_node), arg_info, name);
+        VARDEF_DECL(FOR_VARDEF(arg_node)) = forVarEntry;
+        // Process the block
+        DBUG_PRINT("SA", ("Processing the block."));
+        TRAVdo(FOR_BLOCK(arg_node), arg_info);
+
+        // And now replace our name with the generated one and restore the original
+        if (existingVarDef) {
+            DBUG_PRINT("SA", ("Restoring the original name and generating a unique name."));
+            SYMBOLTABLEENTRY_NAME(existingVarDef) = originalName;
+            // If the name exists within the current scope generate a new unique name.
+            SYMBOLTABLEENTRY_NAME(forVarEntry) = createUniqueNameForSymbolTable(INFO_CURSCOPE(arg_info), name);
+        }
+    }
 
     DBUG_RETURN(arg_node);
 }
