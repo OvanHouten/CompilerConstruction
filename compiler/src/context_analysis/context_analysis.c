@@ -134,23 +134,20 @@ void registerNewVarDecl(node* arg_node, info* arg_info, char* name) {
     DBUG_PRINT("SA", ("Registering variable [%s]", name));
     if (registerNewDecl(arg_node, "Variable", INFO_CURRENTSCOPE(arg_info)->varDecls, name)) {
         // Only adjust the offset when the registration was successful
-        INFO_CURRENTSCOPE(arg_info)->varCount++;
-        VARDEF_OFFSET(arg_node) = INFO_CURRENTSCOPE(arg_info)->varCount;
-        DBUG_PRINT("SA", ("Registered variable [%s] at offset [%d].", name, VARDEF_OFFSET(arg_node)));
+        DBUG_PRINT("SA", ("Registered variable [%s].", name));
     }
 }
 
-node *findVarDecl(info *arg_info, char *name, int *distance) {
+node *findVarDecl(info *arg_info, char *name) {
     DBUG_PRINT("SA", ("Looking for variable [%s]", name));
     struct SymbolTable *currentScope = INFO_CURRENTSCOPE(arg_info);
     while (currentScope) {
         lut_t* varDecls = currentScope->varDecls;
         node* declaringNode = DEREF_IF_NOT_NULL(LUTsearchInLutS(varDecls, name));
         if (declaringNode) {
-            DBUG_PRINT("SA", ("Found [%s] at distace [%d] and offset [%d]", name, *distance, VARDEF_OFFSET(declaringNode)));
+            DBUG_PRINT("SA", ("Found [%s]", name));
             return declaringNode;
         } else {
-            (*distance)++;
             currentScope = currentScope->parent;
         }
     }
@@ -296,6 +293,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
  		}
 		SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)) = varDefSTE;
 	}
+ 	VARDEF_DECL(arg_node) = varDefSTE;
 	
     DBUG_RETURN(arg_node);
 }
@@ -304,50 +302,51 @@ node *SAid(node * arg_node, info * arg_info) {
     DBUG_ENTER("SAid");
 
     char *name = ID_NAME(arg_node);
-    int distance = 0;
-    node *varDef = findVarDecl(arg_info, name, &distance);
+    node *varDef = findVarDecl(arg_info, name);
     if (varDef) {
         ID_DECL(arg_node) = varDef;
-        ID_DISTANCE(arg_node) = distance;
-        ID_OFFSET(arg_node) = VARDEF_OFFSET(varDef);
     } else {
         CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
     }
     
-    node* cur_scope = INFO_CURSCOPE(arg_info);
-    node* temp = SYMBOLTABLE_SYMBOLTABLEENTRY(cur_scope);
-    distance = 0;
-    while(temp) {
-    	if(STReq(ID_NAME(arg_node), SYMBOLTABLEENTRY_NAME(temp))) {
+    int distance = 0;
+    // Used for traversing to outer ST/scopes
+    node* lookupST = INFO_CURSCOPE(arg_info);
+    node* varDefSTE = SYMBOLTABLE_SYMBOLTABLEENTRY(lookupST);
+    while(varDefSTE) {
+    	if(STReq(ID_NAME(arg_node), SYMBOLTABLEENTRY_NAME(varDefSTE))) {
 			break;
 		}
-		
-		if(SYMBOLTABLEENTRY_NEXT(temp)) {
-			temp = SYMBOLTABLEENTRY_NEXT(temp);
-		}
-		else {
-			cur_scope = SYMBOLTABLE_PARENT(cur_scope);
-			temp = SYMBOLTABLE_SYMBOLTABLEENTRY(cur_scope);
+		// Try next entry
+		if(SYMBOLTABLEENTRY_NEXT(varDefSTE)) {
+			varDefSTE = SYMBOLTABLEENTRY_NEXT(varDefSTE);
+		} else {
+		    // Try next ST
+			lookupST = SYMBOLTABLE_PARENT(lookupST);
+			varDefSTE = SYMBOLTABLE_SYMBOLTABLEENTRY(lookupST);
 			distance++;
 		}
     }
     
-    if(temp && distance > 0) {
-    	node* new_node = TBmakeSymboltableentry(NULL);
-    	temp = SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info));
-    	SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)) = new_node;
-    	
-    	SYMBOLTABLEENTRY_NEXT(new_node) = temp;
-		SYMBOLTABLEENTRY_NAME(new_node) = STRcpy(ID_NAME(arg_node));
-		SYMBOLTABLEENTRY_TYPE(new_node) = TY_unknown;
-		SYMBOLTABLEENTRY_DISTANCE(new_node) = distance;
-		SYMBOLTABLEENTRY_OFFSET(new_node) = SYMBOLTABLEENTRY_OFFSET(temp);
-		
-		NODE_LINE(new_node) = NODE_LINE(arg_node);
-		NODE_COL(new_node) = NODE_COL(arg_node);
-    }
-    else if(!temp) {
-    	CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+    if(varDefSTE == NULL) {
+        CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+    } else {
+        if(distance > 0) {
+            // Defined in a outer scope, create new STE in current scope
+            node* localSTE = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)));
+
+            SYMBOLTABLEENTRY_NAME(localSTE) = STRcpy(ID_NAME(arg_node));
+            SYMBOLTABLEENTRY_TYPE(localSTE) = TY_unknown;
+            SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
+            SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
+
+            NODE_LINE(localSTE) = NODE_LINE(arg_node);
+            NODE_COL(localSTE) = NODE_COL(arg_node);
+
+            SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)) = localSTE;
+            varDefSTE = localSTE;
+        }
+        ID_DECL(arg_node) = varDefSTE;
     }
 
     DBUG_RETURN(arg_node);

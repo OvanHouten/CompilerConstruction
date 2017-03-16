@@ -69,12 +69,6 @@ void printSymbolTable(node* STE_node, info *arg_info) {
 	}
 }
 
-void printSymbolTableEntry(node* arg_node, info *arg_info) {
-    INDENT(arg_info);
-	printf("/* %s %s %d %d */", ID_NAME(arg_node), nodeTypeToString(ID_TYPE(arg_node)), ID_DISTANCE(arg_node), ID_OFFSET(arg_node));
-    INDENT_AT_NEWLINE(arg_info);
-}
-
 /*
  * Traversal code starts here
  */
@@ -527,10 +521,6 @@ node *PRTid(node * arg_node, info * arg_info) {
 
 	INDENT(arg_info);
 	printf(ID_NAME(arg_node));
-	if (myglobal.pst) {
-	    // Just handy at the moment to have this possibility while debugging the context checks.
-	    printSymbolTableEntry(arg_node, arg_info);
-	}
 
 	DBUG_RETURN(arg_node);
 }

@@ -567,9 +567,9 @@
                 </targets>
             </type>
         </attribute>
-        <attribute name="Offset">
-            <description>Offset within the symboltable</description>
-            <type name="Int">
+        <attribute name="Decl">
+            <description>Link to its STE</description>
+            <type name="Link">
                 <targets>
                     <target mandatory="no">
                         <phases>
@@ -1283,32 +1283,8 @@
             </targets>
           </type>
         </attribute>
-        <attribute name="Distance">
-          <description>Distance to symbol table</description>
-          <type name="Int">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
-        <attribute name="Offset">
-          <description>Offset into the symbol table</description>
-          <type name="Int">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
         <attribute name="Decl">
-          <description>Link to the declaring Vardef node</description>
+          <description>Link to its STE</description>
           <type name="Link">
             <targets>
               <target mandatory="no">

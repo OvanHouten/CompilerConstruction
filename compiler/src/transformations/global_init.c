@@ -81,7 +81,7 @@ node *GIprogram(node *arg_node, info *arg_info) {
                 SYMBOLTABLEENTRY_NAME(symbolTableEntry) = STRcpy(VARDEF_NAME(varDef));
                 SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry) = 1;
                 // FIXME There is a 'off by 1' error with the offsets!
-                SYMBOLTABLEENTRY_OFFSET(symbolTableEntry) = VARDEF_OFFSET(varDef);
+                SYMBOLTABLEENTRY_OFFSET(symbolTableEntry) = SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(varDef));
                 appendToSymbolTableEntries(initSymbolTable, symbolTableEntry);
             }
         }

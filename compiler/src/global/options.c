@@ -28,8 +28,6 @@ void OPTcheckOptions( int argc, char **argv)
 
   ARGS_FLAG( "tc", global.treecheck = TRUE);
 
-  ARGS_FLAG( "pst", myglobal.pst = TRUE);
-
   ARGS_OPTION( "#", DBUG_PUSH( STRcpy( ARG)));
 
   ARGS_ARGUMENT( global.infile = STRcpy( ARG); );
