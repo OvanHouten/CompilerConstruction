@@ -41,11 +41,9 @@ ENDPHASE(ca)
 
 PHASE(tf, "Transformations", ALWAYS)
 
-SUBPHASE(fl, "For-loop", FLdoForLoop, NEVER, tf)
+SUBPHASE(sv, "Split VarDefs", SVdoSplitVarDefs, ALWAYS, tf)
 
-SUBPHASE(sv, "Split VarDefs", SVdoSplitVarDefs, NEVER, tf)
-
-SUBPHASE(gi, "Global Init", GIdoGlobalInit, NEVER, tf)
+SUBPHASE(gi, "Global Init", GIdoGlobalInit, ALWAYS, tf)
 
 ENDPHASE(tf)
 

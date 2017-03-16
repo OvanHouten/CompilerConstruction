@@ -85,7 +85,7 @@ utils       = numbers.o list_utils.o type_utils.o
 
 context_analysis = context_analysis.o return_check.o
 
-transformations = for_var_rename.o global_init.o split_vardefs.o
+transformations = global_init.o split_vardefs.o
 
 
 ###############################################################################
