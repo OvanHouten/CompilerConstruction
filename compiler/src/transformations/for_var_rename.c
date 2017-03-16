@@ -88,15 +88,7 @@ node *FLfor(node *arg_node, info *arg_info) {
     DBUG_PRINT("FL", ("For"));
     DBUG_ASSERT(INFO_FUNDEF(arg_info) != NULL, "A for loop can't exist outside a function!");
 
-    node *funBody = NULL;
-    if (NODE_TYPE(INFO_FUNDEF(arg_info)) == N_fundef) {
-        DBUG_PRINT("FL", ("For loop inside function."));
-        funBody = FUNDEF_FUNBODY(INFO_FUNDEF(arg_info));
-    } else if (NODE_TYPE(INFO_FUNDEF(arg_info)) == N_localfundef) {
-        DBUG_PRINT("FL", ("For loop inside localfunction."));
-        funBody = LOCALFUNDEF_FUNBODY(INFO_FUNDEF(arg_info));
-    }
-
+    node *funBody = FUNDEF_FUNBODY(INFO_FUNDEF(arg_info));
     node *varDecs = FUNBODY_VARDECS(funBody);
     node *loopVar = FOR_VARDEF(arg_node);
     VARDEF_NAME(loopVar) = createUniqueName(varDecs, VARDEF_NAME(loopVar));
@@ -132,19 +124,6 @@ node *FLfundef(node *arg_node, info *arg_info) {
     INFO_FUNDEF(arg_info) = arg_node;
 
     TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
-
-    INFO_FUNDEF(arg_info) = previousScope;
-
-    DBUG_RETURN(arg_node);
-}
-
-node *FLlocalfundef(node *arg_node, info *arg_info) {
-    DBUG_ENTER("FLlocalfundef");
-
-    node *previousScope = INFO_FUNDEF(arg_info);
-    INFO_FUNDEF(arg_info) = arg_node;
-
-    TRAVopt(LOCALFUNDEF_FUNBODY(arg_node), arg_info);
 
     INFO_FUNDEF(arg_info) = previousScope;
 

@@ -51,7 +51,6 @@
        <traversal id="RC" name="Return Check" default="sons" include="return_check.h">
         <travuser>
           <node name="FunDef" />
-          <node name="LocalFunDef" />
         </travuser>
       </traversal>
 
@@ -59,7 +58,6 @@
         <travuser>
           <node name="For" />
           <node name="FunDef" />
-          <node name="LocalFunDef" />
           <node name="Id" />
         </travuser>
       </traversal>
@@ -1459,42 +1457,6 @@
 <!--
   ===================== Extension 1 =====================
 -->
-
-<!--
-  Node LocalFunDef:
--->
-	<node name="LocalFunDef">
-	  <description>Represents local function definition</description>
-      <sons>
-        <son name="FunHeader">
-          <description>FunHeader</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="FunHeader">
-                <phases>
-                  <all />
-                </phases>
-              </node>
-            </target>
-          </targets>
-        </son>
-        <son name="FunBody">
-          <description>Fun Body</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="FunBody">
-                <phases>
-                  <all />
-                </phases>
-              </node>
-            </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-      </attributes>
-	</node>
-
 <!--
   Node LocalFunDefs:
 -->
@@ -1505,7 +1467,7 @@
           <description>Represents local function definition</description>
           <targets>
             <target mandatory="no">
-              <node name="LocalFunDef">
+              <node name="FunDef">
                 <phases>
                   <all />
                 </phases>
