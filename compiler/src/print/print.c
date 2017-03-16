@@ -14,6 +14,7 @@
 #include "globals.h"
 #include "myglobals.h"
 
+#include "type_utils.h"
 
 /*
  * INFO structure
@@ -59,33 +60,19 @@ static info *FreeInfo( info *info)
   return info;
 }
 
-void printSymbolTable(node* STE_node) {	
+void printSymbolTable(node* STE_node, info *arg_info) {
 	while(STE_node) {
-		printf("//%s %s %d %d\n", SYMBOLTABLEENTRY_NAME(STE_node), SYMBOLTABLEENTRY_TYPE(STE_node), SYMBOLTABLEENTRY_DISTANCE(STE_node), SYMBOLTABLEENTRY_OFFSET(STE_node));
+	    INDENT(arg_info);
+		printf("// %s %s %d %d\n", SYMBOLTABLEENTRY_NAME(STE_node), typeToString(SYMBOLTABLEENTRY_TYPE(STE_node)), SYMBOLTABLEENTRY_DISTANCE(STE_node), SYMBOLTABLEENTRY_OFFSET(STE_node));
+		INDENT_AT_NEWLINE(arg_info);
 		STE_node = SYMBOLTABLEENTRY_NEXT(STE_node);
 	}
 }
 
-void printSymbolTableEntry(node* arg_node) {
-	char* type;
-	
-	switch(ID_TYPE(arg_node)) {
-		case TY_bool:
-			type = "bool";
-			break;
-		case TY_int:
-			type = "int";
-			break;
-		case TY_float:
-			type = "float";
-			break;
-		case TY_unknown:
-			type = "unknown";
-		default:
-			break;
-	}
-	
-	printf("/* %s %s %d %d */", ID_NAME(arg_node), type, ID_DISTANCE(arg_node), ID_OFFSET(arg_node));
+void printSymbolTableEntry(node* arg_node, info *arg_info) {
+    INDENT(arg_info);
+	printf("/* %s %s %d %d */", ID_NAME(arg_node), nodeTypeToString(ID_TYPE(arg_node)), ID_DISTANCE(arg_node), ID_OFFSET(arg_node));
+    INDENT_AT_NEWLINE(arg_info);
 }
 
 /*
@@ -126,8 +113,9 @@ node *PRTsymboltableentry (node * arg_node, info * arg_info) {
 	DBUG_ENTER ("PRTsymboltableentry");
 	
 	TRAVopt(SYMBOLTABLEENTRY_NEXT(arg_node), arg_info);
-	
-	printf("//%s %s %d %d\n", SYMBOLTABLEENTRY_NAME(arg_node), SYMBOLTABLEENTRY_TYPE(arg_node), SYMBOLTABLEENTRY_DISTANCE(arg_node), SYMBOLTABLEENTRY_OFFSET(arg_node));
+	INDENT(arg_info);
+	printf("// %s %s %d %d\n", SYMBOLTABLEENTRY_NAME(arg_node), typeToString(SYMBOLTABLEENTRY_TYPE(arg_node)), SYMBOLTABLEENTRY_DISTANCE(arg_node), SYMBOLTABLEENTRY_OFFSET(arg_node));
+    INDENT_AT_NEWLINE(arg_info);
 	
 	DBUG_RETURN (arg_node);
 }
@@ -545,7 +533,7 @@ node *PRTid(node * arg_node, info * arg_info) {
 	}
 	if (myglobal.pst) {
 	    // Just handy at the moment to have this possibility while debugging the context checks.
-	    printSymbolTableEntry(arg_node);
+	    printSymbolTableEntry(arg_node, arg_info);
 	}
 
 	DBUG_RETURN(arg_node);

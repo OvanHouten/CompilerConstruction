@@ -298,7 +298,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
 		
 		SYMBOLTABLEENTRY_NEXT(new_node) = temp;
 		SYMBOLTABLEENTRY_NAME(new_node) = STRcpy(ID_NAME(id));
-		SYMBOLTABLEENTRY_TYPE(new_node) = STRcpy("TY_unknown");
+		SYMBOLTABLEENTRY_TYPE(new_node) = TY_unknown;
 		NODE_LINE(new_node) = NODE_LINE(arg_node);
 		NODE_COL(new_node) = NODE_COL(arg_node);
 		
@@ -354,7 +354,7 @@ node *SAid(node * arg_node, info * arg_info) {
     	
     	SYMBOLTABLEENTRY_NEXT(new_node) = temp;
 		SYMBOLTABLEENTRY_NAME(new_node) = STRcpy(ID_NAME(arg_node));
-		SYMBOLTABLEENTRY_TYPE(new_node) = STRcpy("TY_unknown");
+		SYMBOLTABLEENTRY_TYPE(new_node) = TY_unknown;
 		SYMBOLTABLEENTRY_DISTANCE(new_node) = distance;
 		SYMBOLTABLEENTRY_OFFSET(new_node) = SYMBOLTABLEENTRY_OFFSET(temp);
 		

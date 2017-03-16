@@ -258,7 +258,7 @@
         </attribute>
         <attribute name="Type">
             <description>Type within the symboltable</description>
-            <type name="String">
+            <type name="Type">
                 <targets>
                     <target mandatory="yes">
                         <phases>
