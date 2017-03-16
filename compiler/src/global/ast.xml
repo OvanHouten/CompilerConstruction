@@ -498,17 +498,6 @@
             </target>
           </targets>
         </son>
-        <son name="Id">
-          <description>Identifier of variable</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Id" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
         <son name="Expr">
           <description>Assignment of variable, only valid for globaldefs</description>
           <targets>
@@ -558,6 +547,17 @@
         <attribute name="Export">
             <description>Export keyword flag, only valid for globaldefs</description>
             <type name="Bool">
+                <targets>
+                    <!-- Set to mandatory so the TBmakeVardef funtion has parameters for it -->
+                    <target mandatory="yes">
+                        <phases><all /></phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="Name">
+            <description>The name of the variable</description>
+            <type name="String">
                 <targets>
                     <!-- Set to mandatory so the TBmakeVardef funtion has parameters for it -->
                     <target mandatory="yes">

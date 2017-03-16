@@ -79,17 +79,12 @@ node *SVvardecs(node *arg_node, info *arg_info) {
 
     node *varDef = VARDECS_VARDEC(arg_node);
     if (VARDEF_EXPR(varDef)) {
-        DBUG_PRINT("SV", ("Splitting [%s] from line [%d]", ID_NAME(VARDEF_ID(varDef)), NODE_LINE(arg_node)));
+        DBUG_PRINT("SV", ("Splitting [%s] from line [%d]", VARDEF_NAME(varDef), NODE_LINE(arg_node)));
         // Remove the expression from the vardef
         node *expr = VARDEF_EXPR(varDef);
         VARDEF_EXPR(varDef)  = NULL;
         // Create new assign statement
-        // FIXME For some mysterious reason using COPYid fails while it works in global_init.c........
-        node *id = TBmakeId(STRcpy(ID_NAME(VARDEF_ID(varDef))));
-        ID_DECL(id) = varDef;
-        ID_DISTANCE(id) = ID_DISTANCE(VARDEF_ID(varDef));
-        ID_OFFSET(id) = ID_OFFSET(VARDEF_ID(varDef));
-        node *assignment = TBmakeAssign(id, expr);
+        node *assignment = TBmakeAssign(TBmakeId(STRcpy(VARDEF_NAME(varDef))), expr);
         INFO_VARINITS(arg_info) = TBmakeStatements( assignment, INFO_VARINITS(arg_info));
     }
 

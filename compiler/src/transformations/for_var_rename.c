@@ -58,7 +58,7 @@ static info *FreeInfo( info *info)
 
 bool isUnique(node *varDecs, char *name) {
     while (varDecs) {
-        if (STReq(name, ID_NAME(VARDEF_ID(VARDECS_VARDEC(varDecs))))) {
+        if (STReq(name, VARDEF_NAME(VARDECS_VARDEC(varDecs)))) {
             return FALSE;
         }
         varDecs = VARDECS_NEXT(varDecs);
@@ -99,14 +99,10 @@ node *FLfor(node *arg_node, info *arg_info) {
 
     node *varDecs = FUNBODY_VARDECS(funBody);
     node *loopVar = FOR_VARDEF(arg_node);
-    ID_NAME(VARDEF_ID(loopVar)) = createUniqueName(varDecs, ID_NAME(VARDEF_ID(loopVar)));
+    VARDEF_NAME(loopVar) = createUniqueName(varDecs, VARDEF_NAME(loopVar));
     FUNBODY_VARDECS(funBody) = TBmakeVardecs(loopVar, varDecs);
-    FOR_VARDEF(arg_node) = TBmakeVardef(FALSE, FALSE, NULL, TBmakeId(STRcpy(ID_NAME(VARDEF_ID(loopVar)))), NULL, NULL, NULL);
-    // Only renumber if there is something to renumber.
-    if (varDecs) {
-        VARDEF_OFFSET(loopVar) = VARDEF_OFFSET(VARDECS_VARDEC(varDecs)) + 1;
-        ID_OFFSET(VARDEF_ID(loopVar)) = VARDEF_OFFSET(loopVar);
-    }
+    FOR_VARDEF(arg_node) = TBmakeVardef(FALSE, FALSE, STRcpy(VARDEF_NAME(loopVar)), TBmakeInt(), NULL, NULL, NULL);
+
     TRAVopt(FOR_BLOCK(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
@@ -115,16 +111,17 @@ node *FLfor(node *arg_node, info *arg_info) {
 node *FLid(node *arg_node, info *arg_info) {
     DBUG_ENTER("FLid");
 
-    // Make sure the ID belongs to a vardef and not a fundef
-    if (ID_DECL(arg_node) != NULL && NODE_TYPE(ID_DECL(arg_node)) == N_vardef) {
-        // If the offset changed it must belong to a ID that referenced the loop variable
-        if (ID_OFFSET(arg_node) != VARDEF_OFFSET(ID_DECL(arg_node))) {
-            ID_OFFSET(arg_node) = VARDEF_OFFSET(ID_DECL(arg_node));
-            // TODO use the SymbolTable AST nodes for determining the real distance
-            // The distance is incorrect if the for-loop is currently within any other block.
-            ID_DISTANCE(arg_node)++;
-        }
-    }
+//    // Make sure the ID belongs to a vardef and not a fundef
+//    if (ID_DECL(arg_node) != NULL && NODE_TYPE(ID_DECL(arg_node)) == N_vardef) {
+//        // If the offset changed it must belong to a ID that referenced the loop variable
+//        if (ID_OFFSET(arg_node) != VARDEF_OFFSET(ID_DECL(arg_node))) {
+//            ID_OFFSET(arg_node) = VARDEF_OFFSET(ID_DECL(arg_node));
+//            // TODO use the SymbolTable AST nodes for determining the real distance
+//            // The distance is incorrect if the for-loop is currently within any other block.
+//            ID_DISTANCE(arg_node)++;
+//        }
+//    }
+
     DBUG_RETURN(arg_node);
 }
 

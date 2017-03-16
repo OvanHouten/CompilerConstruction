@@ -199,7 +199,7 @@ node *PRTvardef(node * arg_node, info * arg_info) {
         printf("export ");
     }
     TRAVdo(VARDEF_TYPE(arg_node), arg_info);
-    TRAVdo(VARDEF_ID(arg_node), arg_info);
+    printf(VARDEF_NAME(arg_node));
     if (VARDEF_EXPR(arg_node)) {
         printf(" = ");
         TRAVdo(VARDEF_EXPR(arg_node), arg_info);
@@ -362,7 +362,7 @@ node *PRTfor (node * arg_node, info * arg_info)
       if (VARDEF_TYPE(FOR_VARDEF(arg_node))) {
           printf("int ");
       }
-      TRAVdo(VARDEF_ID(FOR_VARDEF(arg_node)), arg_info);
+      printf(VARDEF_NAME(FOR_VARDEF(arg_node)));
       if (VARDEF_EXPR(FOR_VARDEF(arg_node))) {
           printf(" = ");
           TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
@@ -525,12 +525,7 @@ node *PRTid(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTid");
 
 	INDENT(arg_info);
-	// TODO Ugly if-statement, is caused by the fact that ID's are used for functioncalls and variables.
-	if (ID_DECL(arg_node) && NODE_TYPE(ID_DECL(arg_node)) == N_vardef) {
-        printf("%s", ID_NAME(VARDEF_ID(ID_DECL(arg_node))));
-	} else {
-	    printf("%s", ID_NAME(arg_node));
-	}
+	printf(ID_NAME(arg_node));
 	if (myglobal.pst) {
 	    // Just handy at the moment to have this possibility while debugging the context checks.
 	    printSymbolTableEntry(arg_node, arg_info);

@@ -76,12 +76,12 @@ declaration: globaldec { $$ = $1; }
            | fundef    { $$ = $1; }
            ;
            
-globaldec: EXTERN type ID SEMICOLON { $$ = TBmakeVardef( TRUE, FALSE, $2, TBmakeId($3), NULL, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
+globaldec: EXTERN type ID SEMICOLON { $$ = TBmakeVardef( TRUE, FALSE, $3, $2, NULL, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
 
-globaldef: type ID SEMICOLON                 { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($2), NULL, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
-         | type ID LET expr SEMICOLON        { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($2), $4, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE;}
-         | EXPORT type ID SEMICOLON          { $$ = TBmakeVardef( FALSE, TRUE, $2, TBmakeId($3), NULL, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
-         | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeVardef( FALSE, TRUE, $2, TBmakeId($3), $5, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE;}
+globaldef: type ID SEMICOLON                 { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, NULL, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
+         | type ID LET expr SEMICOLON        { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, $4, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE;}
+         | EXPORT type ID SEMICOLON          { $$ = TBmakeVardef( FALSE, TRUE, $3, $2, NULL, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
+         | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeVardef( FALSE, TRUE, $3, $2, $5, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE;}
          ;
 
 fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundef(TRUE, FALSE, $2, NULL, NULL); }
@@ -98,7 +98,7 @@ params: params COMMA param { $$ = TBmakeParams( $3, $1); }
       | param              { $$ = TBmakeParams( $1, NULL); }
       ;
       
-param: type ID { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($2), NULL, NULL, NULL); }
+param: type ID { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, NULL, NULL, NULL); }
 
 funbody: CURLY_L vardecs stmts CURLY_R { $$ = TBmakeFunbody($2, NULL, $3); } 
        | CURLY_L vardecs CURLY_R       { $$ = TBmakeFunbody($2, NULL, NULL); } 
@@ -110,8 +110,8 @@ vardecs: vardecs vardec { $$ = TBmakeVardecs( $2, $1); }
        | vardec         { $$ = TBmakeVardecs( $1, NULL); }
        ;
        
-vardec: type ID SEMICOLON            { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId( $2), NULL, NULL, NULL); }
-      | type ID LET expr SEMICOLON   { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId( $2), $4, NULL, NULL); }
+vardec: type ID SEMICOLON            { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, NULL, NULL, NULL); }
+      | type ID LET expr SEMICOLON   { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, $4, NULL, NULL); }
       ;
 
 block: CURLY_L stmts CURLY_R { $$ = $2; }
@@ -141,8 +141,8 @@ do: DO block WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = TBmakeDo($5, $2); }
 
 while: WHILE BRACKET_L expr BRACKET_R block { $$ = TBmakeWhile($3, $5); }
 
-for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R block             { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, TBmakeInt(), TBmakeId( $4), $6, NULL, NULL), $8, NULL, $10); }
-   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R block  { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, TBmakeInt(), TBmakeId( $4), $6, NULL, NULL), $8, $10, $12); }
+for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R block             { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TBmakeInt(), $6, NULL, NULL), $8, NULL, $10); }
+   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R block  { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TBmakeInt(), $6, NULL, NULL), $8, $10, $12); }
    ;
    
 funcall: ID BRACKET_L BRACKET_R       { $$ = TBmakeFuncall( TBmakeId($1), NULL); }

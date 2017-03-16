@@ -66,19 +66,19 @@ node *GIprogram(node *arg_node, info *arg_info) {
     while (declarations) {
         if (NODE_TYPE(DECLARATIONS_DECLARATION(declarations)) == N_vardef) {
             node *varDef = DECLARATIONS_DECLARATION(declarations);
-            DBUG_PRINT("GI", ("Found [%s]",ID_NAME(VARDEF_ID(varDef))));
+            DBUG_PRINT("GI", ("Found [%s]", VARDEF_NAME(varDef)));
             if (VARDEF_EXPR(varDef)) {
                 DBUG_PRINT("GI", ("Creating assignment."));
                 // Pull out the expression
                 node *expr = VARDEF_EXPR(varDef);
                 VARDEF_EXPR(varDef) = NULL;
                 // And create a list of assignment statements
-                appendToStatements(funBody, TBmakeStatements(TBmakeAssign(COPYid(VARDEF_ID(varDef), arg_info), expr), NULL));
+                appendToStatements(funBody, TBmakeStatements(TBmakeAssign(TBmakeId(STRcpy(VARDEF_NAME(varDef))), expr), NULL));
                 // And add it to the symboltable
                 node *symbolTableEntry = TBmakeSymboltableentry(NULL);
                 // FIXME The type in STE should be 'type' not 'string'!
 //                SYMBOLTABLEENTRY_TYPE(symbolTableEntry) = VARDEF_TYPE(varDef);
-                SYMBOLTABLEENTRY_NAME(symbolTableEntry) = STRcpy(ID_NAME(VARDEF_ID(varDef)));
+                SYMBOLTABLEENTRY_NAME(symbolTableEntry) = STRcpy(VARDEF_NAME(varDef));
                 SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry) = 1;
                 // FIXME There is a 'off by 1' error with the offsets!
                 SYMBOLTABLEENTRY_OFFSET(symbolTableEntry) = VARDEF_OFFSET(varDef);

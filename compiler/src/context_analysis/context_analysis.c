@@ -274,16 +274,11 @@ node *SAvardef(node *arg_node, info *arg_info) {
     TRAVopt(VARDEF_EXPR(arg_node), arg_info);
 
     // And now we van register the variable name
-	registerNewVarDecl(arg_node, arg_info, ID_NAME(VARDEF_ID(arg_node)));
-    // TODO check if this is really needed and useful.
-    node *id = VARDEF_ID(arg_node);
-    ID_DECL(id) = arg_node;
-    ID_DISTANCE(id) = 0;
-    ID_OFFSET(id) = VARDEF_OFFSET(arg_node);
+	registerNewVarDecl(arg_node, arg_info, VARDEF_NAME(arg_node));
 
 	node* temp = SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info));
 	while(temp) {
-		if(STReq(ID_NAME(id), SYMBOLTABLEENTRY_NAME(temp))) {
+		if(STReq(VARDEF_NAME(arg_node), SYMBOLTABLEENTRY_NAME(temp))) {
 			break;
 		}
 		
@@ -297,7 +292,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
 		SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)) = new_node;
 		
 		SYMBOLTABLEENTRY_NEXT(new_node) = temp;
-		SYMBOLTABLEENTRY_NAME(new_node) = STRcpy(ID_NAME(id));
+		SYMBOLTABLEENTRY_NAME(new_node) = STRcpy(VARDEF_NAME(arg_node));
 		SYMBOLTABLEENTRY_TYPE(new_node) = TY_unknown;
 		NODE_LINE(new_node) = NODE_LINE(arg_node);
 		NODE_COL(new_node) = NODE_COL(arg_node);
@@ -309,7 +304,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
 	else {
 		CTIerror(
                 "Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
-                ID_NAME(id), NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(temp), NODE_COL(temp));
+                VARDEF_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(temp), NODE_COL(temp));
 	}
 	
     DBUG_RETURN(arg_node);
@@ -505,7 +500,7 @@ node *SAfor(node *arg_node, info *arg_info) {
     TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
     TRAVdo(FOR_FINISH(arg_node), arg_info);
     TRAVopt(FOR_STEP(arg_node), arg_info);
-    registerNewVarDecl(FOR_VARDEF(arg_node), arg_info, ID_NAME(VARDEF_ID(FOR_VARDEF(arg_node))));
+    registerNewVarDecl(FOR_VARDEF(arg_node), arg_info, VARDEF_NAME(FOR_VARDEF(arg_node)));
     TRAVopt(FOR_BLOCK(arg_node), arg_info);
     closeScope(arg_info);
 
