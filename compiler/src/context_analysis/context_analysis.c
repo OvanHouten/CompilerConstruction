@@ -318,6 +318,7 @@ node *SAfuncall(node *arg_node, info *arg_info) {
             DBUG_PRINT("SA", ("Function defined in outer scope registering at local ST."));
             // Defined in a outer scope, create new STE in current scope
             node* localSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_fundef);
+            SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(funDefSTE);
             // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(funDefSTE);
             SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
@@ -328,24 +329,25 @@ node *SAfuncall(node *arg_node, info *arg_info) {
 
         TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
 
-//        DBUG_PRINT("SA", ("Performing param-count check..."));
-//        int exprCount = 0;
-//        node *exprs = FUNCALL_PARAMS(arg_node);
-//        while (exprs) {
-//            exprCount++;
-//            exprs = EXPRS_NEXT(exprs);
-//        }
-//        node *funHeader = SYMBOLTABLEENTRY_DECL(funDefSTE);
-//        int paramCount = 0;
-//        node *params = FUNHEADER_PARAMS(funHeader);
-//        while (params) {
-//            paramCount++;
-//            params = PARAMS_NEXT(params);
-//        }
-//        DBUG_PRINT("SA", ("The function as [%d] params and there are [%d] expressions.", paramCount, exprCount));
-//        if (paramCount != exprCount) {
-//            CTIerror("The number of parameters [%d] as used at line [%d] and column [%d] do not match the number of parameters [%d] to the function %s as defined at line [%d].", exprCount, NODE_LINE(arg_node), NODE_COL(arg_node), paramCount, name, NODE_LINE(funHeader));
-//        }
+        DBUG_PRINT("SA", ("Performing param-count check..."));
+        int exprCount = 0;
+        node *exprs = FUNCALL_PARAMS(arg_node);
+        while (exprs) {
+            exprCount++;
+            exprs = EXPRS_NEXT(exprs);
+        }
+        DBUG_PRINT("SA", ("Parameters counted."));
+        node *funHeader = SYMBOLTABLEENTRY_DECL(funDefSTE);
+        int paramCount = 0;
+        node *params = FUNHEADER_PARAMS(funHeader);
+        while (params) {
+            paramCount++;
+            params = PARAMS_NEXT(params);
+        }
+        DBUG_PRINT("SA", ("The function as [%d] params and there are [%d] expressions.", paramCount, exprCount));
+        if (paramCount != exprCount) {
+            CTIerror("The number of parameters [%d] as used at line [%d] and column [%d] do not match the number of parameters [%d] to the function [%s] as defined at line [%d].", exprCount, NODE_LINE(arg_node), NODE_COL(arg_node), paramCount, name, NODE_LINE(funHeader));
+        }
     } else {
         CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
     }
