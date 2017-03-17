@@ -60,15 +60,6 @@ static info *FreeInfo( info *info)
   return info;
 }
 
-void printSymbolTable(node* STE_node, info *arg_info) {
-	while(STE_node) {
-	    INDENT(arg_info);
-		printf("// %s %s %d %d\n", SYMBOLTABLEENTRY_NAME(STE_node), typeToString(SYMBOLTABLEENTRY_TYPE(STE_node)), SYMBOLTABLEENTRY_DISTANCE(STE_node), SYMBOLTABLEENTRY_OFFSET(STE_node));
-		INDENT_AT_NEWLINE(arg_info);
-		STE_node = SYMBOLTABLEENTRY_NEXT(STE_node);
-	}
-}
-
 /*
  * Traversal code starts here
  */
@@ -84,9 +75,23 @@ node *PRTprogram(node * arg_node, info * arg_info) {
 
 node* PRTsymboltable(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTsymboltable");
-	
+
+    INDENT(arg_info);
+    printf("/*\n");
+    INDENT_AT_NEWLINE(arg_info);
+    INDENT(arg_info);
+    printf(" * Variabele Symbol Table\n");
+    INDENT_AT_NEWLINE(arg_info);
+    INDENT(arg_info);
+    printf(" *\n");
+    INDENT_AT_NEWLINE(arg_info);
+
 	TRAVopt(SYMBOLTABLE_SYMBOLTABLEENTRY(arg_node), arg_info);
-	
+
+    INDENT(arg_info);
+    printf(" */\n");
+    INDENT_AT_NEWLINE(arg_info);
+
 	DBUG_RETURN(arg_node);
 }
 
@@ -108,7 +113,7 @@ node *PRTsymboltableentry (node * arg_node, info * arg_info) {
 	
 	TRAVopt(SYMBOLTABLEENTRY_NEXT(arg_node), arg_info);
 	INDENT(arg_info);
-	printf("// %s %s %d %d\n", SYMBOLTABLEENTRY_NAME(arg_node), typeToString(SYMBOLTABLEENTRY_TYPE(arg_node)), SYMBOLTABLEENTRY_DISTANCE(arg_node), SYMBOLTABLEENTRY_OFFSET(arg_node));
+	printf(" * %d %d %-7s %s\n", SYMBOLTABLEENTRY_DISTANCE(arg_node), SYMBOLTABLEENTRY_OFFSET(arg_node), typeToString(SYMBOLTABLEENTRY_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(arg_node));
     INDENT_AT_NEWLINE(arg_info);
 	
 	DBUG_RETURN (arg_node);
