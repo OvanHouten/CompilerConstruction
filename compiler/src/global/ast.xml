@@ -68,13 +68,6 @@
         </travuser>
       </traversal>
 
-      <traversal id="RI" name="Rename identifiers" default="sons" include="rename_identifiers.h">
-        <travuser>
-          <node name="Id" />
-          <node name="VarDef" />
-        </travuser>
-      </traversal>
-
     </general>
   </phases>
 

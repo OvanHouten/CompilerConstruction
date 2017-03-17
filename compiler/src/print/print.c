@@ -85,7 +85,7 @@ node* PRTsymboltable(node * arg_node, info * arg_info) {
     INDENT_AT_NEWLINE(arg_info);
 
     INDENT(arg_info);
-    printf(" * D V Type    Name\n");
+    printf(" * D O Type    Name\n");
     INDENT_AT_NEWLINE(arg_info);
 
     INDENT(arg_info);
