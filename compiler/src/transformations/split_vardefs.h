@@ -13,6 +13,8 @@
 
 extern node *SVfunbody(node *arg_node, info *arg_info);
 extern node *SVvardecs(node *arg_node, info *arg_info);
+extern node *SVfor(node *arg_node, info *arg_info);
+extern node *SVstatements(node *arg_node, info *arg_info);
 
 extern node *SVdoSplitVarDefs(node *syntaxtree);
 

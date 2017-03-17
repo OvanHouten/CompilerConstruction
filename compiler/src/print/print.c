@@ -14,6 +14,7 @@
 #include "globals.h"
 #include "myglobals.h"
 
+#include "type_utils.h"
 
 /*
  * INFO structure
@@ -59,38 +60,69 @@ static info *FreeInfo( info *info)
   return info;
 }
 
-void printSymbolTableEntry(node* arg_node) {
-	char* type;
-	
-	switch(ID_TYPE(arg_node)) {
-		case TY_bool:
-			type = "bool";
-			break;
-		case TY_int:
-			type = "int";
-			break;
-		case TY_float:
-			type = "float";
-			break;
-		case TY_unknown:
-			type = "unknown";
-		default:
-			break;
-	}
-	
-	printf("/* %s %s %d %d */", ID_NAME(arg_node), type, ID_DISTANCE(arg_node), ID_OFFSET(arg_node));
-}
-
 /*
  * Traversal code starts here
  */
 
 node *PRTprogram(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTprogram");
-
+	
+	TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
 	TRAVdo(PROGRAM_DECLARATIONS(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
+}
+
+node* PRTsymboltable(node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTsymboltable");
+
+    INDENT(arg_info);
+    printf("/*\n");
+    INDENT_AT_NEWLINE(arg_info);
+
+    INDENT(arg_info);
+    printf(" * Symbol Table\n");
+    INDENT_AT_NEWLINE(arg_info);
+
+    INDENT(arg_info);
+    printf(" * D O Type    Name\n");
+    INDENT_AT_NEWLINE(arg_info);
+
+    INDENT(arg_info);
+    printf(" * -------------------------------\n");
+    INDENT_AT_NEWLINE(arg_info);
+
+	TRAVopt(SYMBOLTABLE_SYMBOLTABLEENTRY(arg_node), arg_info);
+
+    INDENT(arg_info);
+    printf(" */\n");
+    INDENT_AT_NEWLINE(arg_info);
+
+	DBUG_RETURN(arg_node);
+}
+
+/*************************************************************************
+ *
+ * @fn PRTsymboltableentry
+ *
+ * @brief Prints the node and its sons/attributes
+ *
+ * @param arg_node letrec node to process
+ * @param arg_info pointer to info structure
+ *
+ * @return processed node
+ *
+ ***************************************************************************/
+
+node *PRTsymboltableentry (node * arg_node, info * arg_info) {
+	DBUG_ENTER ("PRTsymboltableentry");
+	
+	TRAVopt(SYMBOLTABLEENTRY_NEXT(arg_node), arg_info);
+	INDENT(arg_info);
+	printf(" * %d %d %-7s %s%s\n", SYMBOLTABLEENTRY_DISTANCE(arg_node), SYMBOLTABLEENTRY_OFFSET(arg_node), typeToString(SYMBOLTABLEENTRY_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(arg_node), SYMBOLTABLEENTRY_ENTRYTYPE(arg_node) == STE_fundef ? "()" : "");
+    INDENT_AT_NEWLINE(arg_info);
+	
+	DBUG_RETURN (arg_node);
 }
 
 node *PRTdeclarations(node * arg_node, info * arg_info) {
@@ -106,7 +138,7 @@ node *PRTfunheader(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunheader");
 
 	TRAVdo(FUNHEADER_RETTYPE(arg_node), arg_info);
-	TRAVdo(FUNHEADER_ID(arg_node), arg_info);
+	printf(FUNHEADER_NAME(arg_node));
 	printf("(");
 	TRAVopt(FUNHEADER_PARAMS(arg_node), arg_info);
 	printf(")");
@@ -116,7 +148,7 @@ node *PRTfunheader(node * arg_node, info * arg_info) {
 
 node *PRTfundef(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunDef");
-
+	
     if (FUNDEF_EXTERN(arg_node)) {
         printf("extern ");
     }
@@ -127,10 +159,12 @@ node *PRTfundef(node * arg_node, info * arg_info) {
 	if (FUNDEF_FUNBODY(arg_node)) {
         printf(" {\n");
         INCREASE_INDENTATION(arg_info);
-
+		
+		TRAVopt(FUNDEF_SYMBOLTABLE(arg_node), arg_info);
         TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
         DECREASE_INDENTATION(arg_info);
+        INDENT(arg_info);
         printf("}\n");
         INDENT_AT_NEWLINE(arg_info);
 	} else {
@@ -172,7 +206,7 @@ node *PRTvardef(node * arg_node, info * arg_info) {
         printf("export ");
     }
     TRAVdo(VARDEF_TYPE(arg_node), arg_info);
-    TRAVdo(VARDEF_ID(arg_node), arg_info);
+    printf(VARDEF_NAME(arg_node));
     if (VARDEF_EXPR(arg_node)) {
         printf(" = ");
         TRAVdo(VARDEF_EXPR(arg_node), arg_info);
@@ -231,7 +265,8 @@ node *PRTtypecast(node * arg_node, info * arg_info) {
 node *PRTfuncall(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfuncall");
 
-	TRAVdo(FUNCALL_ID(arg_node), arg_info);
+    INDENT(arg_info);
+	printf(FUNCALL_NAME(arg_node));
 	printf("(");
 	TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
 	printf(")");
@@ -264,7 +299,7 @@ node *PRTif (node * arg_node, info * arg_info)
   TRAVdo( IF_CONDITION( arg_node), arg_info);
   printf(") {\n");
   INCREASE_INDENTATION(arg_info);
-
+  
   TRAVdo( IF_IFBLOCK( arg_node), arg_info);
 
   if (IF_ELSEBLOCK( arg_node) != NULL) {
@@ -335,7 +370,11 @@ node *PRTfor (node * arg_node, info * arg_info)
       if (VARDEF_TYPE(FOR_VARDEF(arg_node))) {
           printf("int ");
       }
-      TRAVdo(VARDEF_ID(FOR_VARDEF(arg_node)), arg_info);
+      if (VARDEF_DECL(FOR_VARDEF(arg_node))) {
+          printf(SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))));
+      } else {
+          printf(VARDEF_NAME(FOR_VARDEF(arg_node)));
+      }
       if (VARDEF_EXPR(FOR_VARDEF(arg_node))) {
           printf(" = ");
           TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
@@ -498,15 +537,10 @@ node *PRTid(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTid");
 
 	INDENT(arg_info);
-	// TODO Ugly if-statement, is caused by the fact that ID's are used for functioncalls and variables.
-	if (ID_DECL(arg_node) && NODE_TYPE(ID_DECL(arg_node)) == N_vardef) {
-        printf("%s", ID_NAME(VARDEF_ID(ID_DECL(arg_node))));
+	if (ID_DECL(arg_node)) {
+    printf(SYMBOLTABLEENTRY_NAME(ID_DECL(arg_node)));
 	} else {
-	    printf("%s", ID_NAME(arg_node));
-	}
-	if (myglobal.pst) {
-	    // Just handy at the moment to have this possibility while debugging the context checks.
-	    printSymbolTableEntry(arg_node);
+	    printf(ID_NAME(arg_node));
 	}
 
 	DBUG_RETURN(arg_node);
@@ -701,24 +735,6 @@ node *PRTarrexprs(node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTlocalfundef(node * arg_node, info * arg_info)
-{
-	DBUG_ENTER("PRTlocalfundef");
-    
-	TRAVdo(LOCALFUNDEF_FUNHEADER(arg_node), arg_info);
-	printf(" {\n");
-	INCREASE_INDENTATION(arg_info);
-
-	TRAVopt(LOCALFUNDEF_FUNBODY(arg_node), arg_info);
-	
-	DECREASE_INDENTATION(arg_info);
-	INDENT(arg_info);
-	printf("}\n");
-	INDENT_AT_NEWLINE(arg_info);
-	
-	DBUG_RETURN(arg_node);
-}
-
 node *PRTlocalfundefs(node * arg_node, info * arg_info)
 {
 	DBUG_ENTER("PRTlocalfundefs");
@@ -729,24 +745,4 @@ node *PRTlocalfundefs(node * arg_node, info * arg_info)
 	INDENT_AT_NEWLINE(arg_info);
 	
 	DBUG_RETURN(arg_node);
-}
-
-/*************************************************************************
- *
- * @fn PRTsymboltableentry
- *
- * @brief Prints the node and its sons/attributes
- *
- * @param arg_node letrec node to process
- * @param arg_info pointer to info structure
- *
- * @return processed node
- *
- ***************************************************************************/
-
-node *PRTsymboltableentry (node * arg_node, info * arg_info)
-{
-  DBUG_ENTER ("PRTsymboltableentry");
-
-  DBUG_RETURN (arg_node);
 }

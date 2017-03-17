@@ -20,7 +20,6 @@
 
 GLOBAL( char*, includedir, NULL)
 GLOBAL( bool, preprocessor_enabled, FALSE)
-GLOBAL( int, pst, FALSE)
 
 #undef GLOBALtype
 #undef GLOBALname

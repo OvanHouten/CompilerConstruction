@@ -88,12 +88,12 @@ node *RCfundef(node *arg_node, info *arg_info) {
                 }
             }
             if (returnType != returningType) {
-                CTIerror("The function [%s] at line [%d] must end with a '%s' returning statement.", ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))), NODE_LINE(arg_node), toString(returningType));
+                CTIerror("The function [%s] at line [%d] must end with a '%s' returning statement.", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)), NODE_LINE(arg_node), toString(returningType));
             }
         } else {
             // Looks like an empty function
             if (returnType != N_void) {
-                CTIerror("The function [%s] at line [%d] must end with a '%s' returning statement.", ID_NAME(FUNHEADER_ID(FUNDEF_FUNHEADER(arg_node))), NODE_LINE(arg_node), toString(returnType));
+                CTIerror("The function [%s] at line [%d] must end with a '%s' returning statement.", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)), NODE_LINE(arg_node), toString(returnType));
             }
         }
     }

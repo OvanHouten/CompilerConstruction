@@ -41,8 +41,6 @@ ENDPHASE(ca)
 
 PHASE(tf, "Transformations", ALWAYS)
 
-SUBPHASE(fl, "For-loop", FLdoForLoop, ALWAYS, tf)
-
 SUBPHASE(sv, "Split VarDefs", SVdoSplitVarDefs, ALWAYS, tf)
 
 SUBPHASE(gi, "Global Init", GIdoGlobalInit, ALWAYS, tf)
@@ -50,34 +48,6 @@ SUBPHASE(gi, "Global Init", GIdoGlobalInit, ALWAYS, tf)
 ENDPHASE(tf)
 
 /******************************************************************************/
-
-PHASE( pet,
-       "Perform example transformations",
-       ALWAYS)
-
-//SUBPHASE( ri, 
-//          "Rename identifiers",
-//          RIdoRenameIdentifiers, 
-//          ALWAYS,
-//          pet)      
-
-//SUBPHASE( si, 
-//          "Sum Integers",
-//          SIdoSumInts, 
-//          ALWAYS,
-//          pet)   
-   
-//SUBPHASE( os, 
-//          "Optimise subtraction",
-//          OSdoOptSub, 
-//          ALWAYS,
-//          pet)   
-      
-ENDPHASE( pet) 
-
-
-/******************************************************************************/
-
 
 PHASE( cg,
        "Generating Code",

@@ -3,6 +3,11 @@
 
 
 /*
+ * This enumeration defines two different Symbol Table Entry types
+ */
+typedef enum { STE_vardef, STE_fundef } ste_type;
+
+/*
  * This enumeration defines all unary operations
  */
 typedef enum { UO_not, UO_neg, UO_unknown } unop;

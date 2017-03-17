@@ -21,6 +21,7 @@
     <type name="ArithOp" ctype="arithop" init="AO_unknown" copy="literal" />
     <type name="UnOp" ctype="unop" init="UO_unknown" copy="literal" />
     <type name="Type" ctype="type" init="TY_unknown" copy="literal" />
+    <type name="EntryType" ctype="ste_type" init="STE_vardef" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
     <type name="Void" ctype="void*" init="NULL" copy="lookup" /> <!-- Not sure this is how we want it, but for now it works. -->
     <type name="CompilerPhase" ctype="compiler_phase_t" init="PH_initial" copy="literal" />
@@ -51,16 +52,6 @@
        <traversal id="RC" name="Return Check" default="sons" include="return_check.h">
         <travuser>
           <node name="FunDef" />
-          <node name="LocalFunDef" />
-        </travuser>
-      </traversal>
-
-      <traversal id="FL" name="For-loop" default="sons" include="for_var_rename.h">
-        <travuser>
-          <node name="For" />
-          <node name="FunDef" />
-          <node name="LocalFunDef" />
-          <node name="Id" />
         </travuser>
       </traversal>
 
@@ -68,19 +59,13 @@
         <travuser>
           <node name="FunBody" />
           <node name="VarDecs" />
+          <node name="Statements" />
         </travuser>
       </traversal>
 
       <traversal id="GI" name="Global Init" default="sons" include="global_init.h">
         <travuser>
           <node name="Program" />
-        </travuser>
-      </traversal>
-
-      <traversal id="RI" name="Rename identifiers" default="sons" include="rename_identifiers.h">
-        <travuser>
-          <node name="Id" />
-          <node name="VarDef" />
         </travuser>
       </traversal>
 
@@ -162,7 +147,7 @@
 <!--
  Node Program:
 -->
-     <node name="Program">
+    <node name="Program">
       <description>Represenst the program</description>
       <sons>
         <son name="Declarations">
@@ -176,8 +161,146 @@
              </target>
           </targets>
         </son>
+        <son name="SymbolTable">
+          <description>SymbolTable node</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="SymbolTable" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
       </sons>
       <attributes>
+      </attributes>
+    </node>
+
+<!--
+ Node SymbolTable:
+-->
+    <node name="SymbolTable">
+      <sons>
+        <son name="SymbolTableEntry">
+          <description>Function Header</description>
+          <targets>
+            <target mandatory="no">
+              <node name="SymbolTableEntry" />
+              <phases>
+                <phase from="Context Analysis"/>
+              </phases>
+            </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <attribute name="Parent">
+            <description>The symboltable of the outer scope</description>
+            <type name="Link">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+      </attributes>
+    </node>
+
+<!--
+ Node SymbolTableEntry:
+-->
+     <node name="SymbolTableEntry">
+      <description>Represensts the Symboltable for each scope in a linked list </description>
+      <sons>
+        <son name="Next">
+          <description>Function Header</description>
+          <targets>
+            <target mandatory="no">
+              <node name="SymbolTableEntry" />
+              <phases>
+                <phase from="Context Analysis"/>
+              </phases>
+            </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <attribute name="Name">
+            <description>Name within the symboltable</description>
+            <type name="String">
+                <targets>
+                    <target mandatory="Yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="Type">
+            <description>The datatype for variables and the return type for functions</description>
+            <type name="Type">
+                <targets>
+                    <target mandatory="yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="EntryType">
+            <description>The datatype for variables and the return type for functions</description>
+            <type name="EntryType">
+                <targets>
+                    <target mandatory="yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="Decl">
+            <description>The original declaration node</description>
+            <type name="Link">
+                <targets>
+                    <target mandatory="yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="Distance">
+            <description>Distance within the symboltable</description>
+            <type name="Int">
+                <targets>
+                    <target mandatory="yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="Offset">
+            <description>Offset within the symboltable</description>
+            <type name="Int">
+                <targets>
+                    <target mandatory="yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
       </attributes>
     </node>
 
@@ -274,6 +397,17 @@
             </target>
           </targets>
         </son>
+        <son name="SymbolTable">
+          <description>SymbolTable node</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="SymbolTable" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
       </sons>
       <attributes>
         <attribute name="Extern">
@@ -318,17 +452,6 @@
             </target>
           </targets>
         </son>
-        <son name="Id">
-          <description>Identifier of Function</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Id" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
         <son name="Params">
           <description>Parameters of the function, can be 0 or more</description>
           <targets>
@@ -342,17 +465,29 @@
         </son>
       </sons>
       <attributes>
-        <attribute name="Offset">
-          <description>Offset within the symboltable</description>
-          <type name="Bool">
+        <attribute name="Name">
+          <description>The name of the function</description>
+          <type name="String">
             <targets>
-              <target mandatory="no">
+              <target mandatory="yes">
                 <phases>
-                  <phase from="Context Analysis"/>
+                  <all />
                 </phases>
               </target>
             </targets>
           </type>
+        </attribute>
+        <attribute name="Decl">
+            <description>Link to its STE</description>
+            <type name="Link">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
         </attribute>
       </attributes>
     </node>
@@ -367,17 +502,6 @@
           <targets>
             <target mandatory="yes">
               <set name="Type" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="Id">
-          <description>Identifier of variable</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Id" />
               <phases>
                 <all />
               </phases>
@@ -441,9 +565,20 @@
                 </targets>
             </type>
         </attribute>
-        <attribute name="Offset">
-            <description>Offset within the symboltable</description>
-            <type name="Int">
+        <attribute name="Name">
+            <description>The name of the variable</description>
+            <type name="String">
+                <targets>
+                    <!-- Set to mandatory so the TBmakeVardef funtion has parameters for it -->
+                    <target mandatory="yes">
+                        <phases><all /></phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="Decl">
+            <description>Link to its STE</description>
+            <type name="Link">
                 <targets>
                     <target mandatory="no">
                         <phases>
@@ -606,17 +741,6 @@
  -->
     <node name="Funcall" >
       <sons>
-        <son name="Id">
-          <description>The name of the method to be called</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Id" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
         <son name="Params">
           <description>The parameters for the function call</description>
           <targets>
@@ -630,25 +754,13 @@
         </son>
       </sons>
       <attributes>
-        <attribute name="Distance">
-          <description>Distance to symbol table</description>
-          <type name="Int">
+        <attribute name="Name">
+          <description>The name of the function to be called</description>
+          <type name="String">
             <targets>
               <target mandatory="yes">
                 <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
-        <attribute name="Offset">
-          <description>Offset into the symbol table</description>
-          <type name="Int">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
+                  <all />
                 </phases>
               </target>
             </targets>
@@ -893,6 +1005,8 @@
           </targets>
         </son>
       </sons>
+      <attributes>
+      </attributes>
     </node>
 
 <!--
@@ -1154,32 +1268,8 @@
             </targets>
           </type>
         </attribute>
-        <attribute name="Distance">
-          <description>Distance to symbol table</description>
-          <type name="Int">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
-        <attribute name="Offset">
-          <description>Offset into the symbol table</description>
-          <type name="Int">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
         <attribute name="Decl">
-          <description>Link to the declaring Vardef node</description>
+          <description>Link to its STE</description>
           <type name="Link">
             <targets>
               <target mandatory="no">
@@ -1353,42 +1443,6 @@
 <!--
   ===================== Extension 1 =====================
 -->
-
-<!--
-  Node LocalFunDef:
--->
-	<node name="LocalFunDef">
-	  <description>Represents local function definition</description>
-      <sons>
-        <son name="FunHeader">
-          <description>FunHeader</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="FunHeader">
-                <phases>
-                  <all />
-                </phases>
-              </node>
-            </target>
-          </targets>
-        </son>
-        <son name="FunBody">
-          <description>Fun Body</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="FunBody">
-                <phases>
-                  <all />
-                </phases>
-              </node>
-            </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-      </attributes>
-	</node>
-
 <!--
   Node LocalFunDefs:
 -->
@@ -1399,7 +1453,7 @@
           <description>Represents local function definition</description>
           <targets>
             <target mandatory="no">
-              <node name="LocalFunDef">
+              <node name="FunDef">
                 <phases>
                   <all />
                 </phases>

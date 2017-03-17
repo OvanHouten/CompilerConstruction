@@ -1,0 +1,10 @@
+int i = 33;
+export int main() {
+    int a = i;
+    for (int i = i, 99, 33) {
+        for (int j = i, 1000, i) {
+            i = j;
+        }
+    }
+    return 66;
+}

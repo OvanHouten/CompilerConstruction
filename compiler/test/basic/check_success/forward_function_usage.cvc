@@ -1,6 +1,10 @@
 export int main() {
+    int i = 13;
+    for (int a = 13, 99) {
+        i = a;
+    }
     shouldBePossible();
-    return 0;
+    return i;
 }
 void shouldBePossible() {
 }

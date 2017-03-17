@@ -31,3 +31,22 @@ node *appendToStatements(node *funBody, node* newStatements) {
 
     DBUG_RETURN(funBody);
 }
+
+node *appendToSymbolTableEntries(node *symbolTable, node *symbolTableEntry) {
+    DBUG_ENTER("appendToSymbolTableEntries");
+
+    if (SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) {
+        DBUG_PRINT("UTIL", ("Appending to the end of the existing list."));
+        node *entries = SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable);
+        while (SYMBOLTABLEENTRY_NEXT(entries)) {
+            entries = SYMBOLTABLEENTRY_NEXT(entries);
+        }
+        SYMBOLTABLEENTRY_NEXT(entries) = symbolTableEntry;
+    } else {
+        DBUG_PRINT("UTIL", ("Setting the entries."));
+        SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable) = symbolTableEntry;
+    }
+
+    DBUG_RETURN(symbolTable);
+}
+
