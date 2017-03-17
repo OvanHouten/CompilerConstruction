@@ -352,7 +352,7 @@ node *SAid(node * arg_node, info * arg_info) {
 
             varDefSTE = localSTE;
         }
-        // Make sure we can referene the out STE
+        // Make sure we can reference the STE
         ID_DECL(arg_node) = varDefSTE;
     }
 
@@ -495,17 +495,17 @@ node *SAfor(node *arg_node, info *arg_info) {
         char *originalName = NULL;
         if (existingVarDef) {
             DBUG_PRINT("SA", ("Hiding the existing name in the symboltable for now."));
-            // Remember the name and remove it from the ST
+            // Remember the name and remove it (by giving it a different name) from the ST
             originalName = SYMBOLTABLEENTRY_NAME(existingVarDef);
             SYMBOLTABLEENTRY_NAME(existingVarDef) = "";
         }
 
-        // Register the variable
+        // Register the variable, now all occurrences of our vardef name will get a STE entry to us
         node *forVarEntry = registerVarWithinCurrentScope(FOR_VARDEF(arg_node), arg_info, name);
         VARDEF_DECL(FOR_VARDEF(arg_node)) = forVarEntry;
         // Process the block
         DBUG_PRINT("SA", ("Processing the block."));
-        TRAVdo(FOR_BLOCK(arg_node), arg_info);
+        FOR_BLOCK(arg_node) = TRAVdo(FOR_BLOCK(arg_node), arg_info);
 
         // And now replace our name with the generated one and restore the original
         if (existingVarDef) {

@@ -58,6 +58,7 @@
         <travuser>
           <node name="FunBody" />
           <node name="VarDecs" />
+          <node name="Statements" />
         </travuser>
       </traversal>
 

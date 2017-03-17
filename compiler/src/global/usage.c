@@ -35,6 +35,9 @@ void PrintGeneralInfo(void)
           
           "                    MAKE - prints debug information of tree constructors.\n"
           "                    SA   - prints debug information of scope analysis.\n"
+          "                    SV   - prints debug information of Split VarDef transformation.\n"
+          "                    GI   - prints debug information of Global Init transformation.\n"
+          "                    UTIL - prints debug information of miscellaneous utils.\n"
           "                    FREE - prints debug information of tree destructors.\n",
           global.verbosity);
 

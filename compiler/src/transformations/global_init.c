@@ -14,6 +14,7 @@
 #include "memory.h"
 #include "str.h"
 #include "ctinfo.h"
+#include "myglobals.h"
 
 #include "global_init.h"
 #include "list_utils.h"
@@ -79,8 +80,9 @@ node *GIprogram(node *arg_node, info *arg_info) {
                 // FIXME The type in STE should be 'type' not 'string'!
 //                SYMBOLTABLEENTRY_TYPE(symbolTableEntry) = VARDEF_TYPE(varDef);
                 SYMBOLTABLEENTRY_NAME(symbolTableEntry) = STRcpy(VARDEF_NAME(varDef));
+
+                // By design the global variables will be at distance 1 from the calling '__init' function.
                 SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry) = 1;
-                // FIXME There is a 'off by 1' error with the offsets!
                 SYMBOLTABLEENTRY_OFFSET(symbolTableEntry) = SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(varDef));
                 appendToSymbolTableEntries(initSymbolTable, symbolTableEntry);
             }

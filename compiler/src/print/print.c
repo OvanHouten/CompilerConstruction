@@ -79,11 +79,17 @@ node* PRTsymboltable(node * arg_node, info * arg_info) {
     INDENT(arg_info);
     printf("/*\n");
     INDENT_AT_NEWLINE(arg_info);
+
     INDENT(arg_info);
-    printf(" * Variabele Symbol Table\n");
+    printf(" * Symbol Table\n");
     INDENT_AT_NEWLINE(arg_info);
+
     INDENT(arg_info);
-    printf(" *\n");
+    printf(" * D V Type    Name\n");
+    INDENT_AT_NEWLINE(arg_info);
+
+    INDENT(arg_info);
+    printf(" * -------------------------------\n");
     INDENT_AT_NEWLINE(arg_info);
 
 	TRAVopt(SYMBOLTABLE_SYMBOLTABLEENTRY(arg_node), arg_info);

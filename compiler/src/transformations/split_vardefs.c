@@ -13,6 +13,7 @@
 #include "memory.h"
 #include "str.h"
 #include "ctinfo.h"
+#include "myglobals.h"
 
 #include "list_utils.h"
 #include "split_vardefs.h"
@@ -67,6 +68,8 @@ node *SVfunbody(node *arg_node, info *arg_info) {
     arg_node = appendToStatements(arg_node, INFO_VARINITS(arg_info));
     INFO_VARINITS(arg_info) = NULL;
 
+    arg_node = TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
+
     INFO_FUNBODY(arg_info) = previousFunBody;
 
     DBUG_RETURN(arg_node);
@@ -86,6 +89,35 @@ node *SVvardecs(node *arg_node, info *arg_info) {
         // Create new assign statement
         node *assignment = TBmakeAssign(TBmakeId(STRcpy(VARDEF_NAME(varDef))), expr);
         INFO_VARINITS(arg_info) = TBmakeStatements( assignment, INFO_VARINITS(arg_info));
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *SVstatements(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SVstatements");
+
+    node *statements = arg_node;
+    while (statements) {
+        if (NODE_TYPE(STATEMENTS_STATEMENT(statements)) == N_for) {
+            DBUG_PRINT("SV", ("Processing a for statement."));
+            node *forNode = STATEMENTS_STATEMENT(statements);
+            node *varDef = FOR_VARDEF(forNode);
+
+            DBUG_PRINT("SV", ("Splitting [%s] from line [%d]", VARDEF_NAME(varDef), NODE_LINE(forNode)));
+            // Remove the expression from the vardef
+            node *expr = VARDEF_EXPR(varDef);
+            VARDEF_EXPR(varDef)  = NULL;
+
+            node *id = TBmakeId(STRcpy(VARDEF_NAME(varDef)));
+            ID_DECL(id) = VARDEF_DECL(varDef);
+            node *assignment = TBmakeAssign(id, expr);
+            STATEMENTS_NEXT(statements) = TBmakeStatements(assignment, STATEMENTS_NEXT(statements));
+            statements = STATEMENTS_NEXT(statements);
+
+            TRAVopt(FOR_BLOCK(forNode), arg_info);
+        }
+        statements = STATEMENTS_NEXT(statements);
     }
 
     DBUG_RETURN(arg_node);
