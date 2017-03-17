@@ -63,12 +63,14 @@ node *SVfunbody(node *arg_node, info *arg_info) {
     node *previousFunBody = INFO_FUNBODY(arg_info);
     INFO_FUNBODY(arg_info) = arg_node;
 
+    // Start with a clean slate
+    INFO_VARINITS(arg_info) = NULL;
     TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
 
     arg_node = appendToStatements(arg_node, INFO_VARINITS(arg_info));
     INFO_VARINITS(arg_info) = NULL;
 
-    arg_node = TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
+    TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
 
     INFO_FUNBODY(arg_info) = previousFunBody;
 
