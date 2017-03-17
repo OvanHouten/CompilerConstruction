@@ -43,7 +43,6 @@ extern node *SAfloatconst(node *arg_node, info *arg_info);
 extern node *SAboolconst(node *arg_node, info *arg_info);
 extern node *SAsymboltableentry(node *arg_node, info *arg_info);
 extern node *SAerror(node *arg_node, info *arg_info);
-extern node *SAlocalfundef(node *arg_node, info *arg_info);
 extern node *SAlocalfundefs(node *arg_node, info *arg_info);
 extern node *SAarrayassign(node *arg_node, info *arg_info);
 extern node *SAarray(node *arg_node, info *arg_info);

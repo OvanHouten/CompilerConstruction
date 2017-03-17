@@ -119,7 +119,7 @@ node *PRTsymboltableentry (node * arg_node, info * arg_info) {
 	
 	TRAVopt(SYMBOLTABLEENTRY_NEXT(arg_node), arg_info);
 	INDENT(arg_info);
-	printf(" * %d %d %-7s %s\n", SYMBOLTABLEENTRY_DISTANCE(arg_node), SYMBOLTABLEENTRY_OFFSET(arg_node), typeToString(SYMBOLTABLEENTRY_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(arg_node));
+	printf(" * %d %d %-7s %s%s\n", SYMBOLTABLEENTRY_DISTANCE(arg_node), SYMBOLTABLEENTRY_OFFSET(arg_node), typeToString(SYMBOLTABLEENTRY_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(arg_node), SYMBOLTABLEENTRY_ENTRYTYPE(arg_node) == STE_fundef ? "()" : "");
     INDENT_AT_NEWLINE(arg_info);
 	
 	DBUG_RETURN (arg_node);

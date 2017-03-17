@@ -21,6 +21,7 @@
     <type name="ArithOp" ctype="arithop" init="AO_unknown" copy="literal" />
     <type name="UnOp" ctype="unop" init="UO_unknown" copy="literal" />
     <type name="Type" ctype="type" init="TY_unknown" copy="literal" />
+    <type name="EntryType" ctype="ste_type" init="STE_vardef" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
     <type name="Void" ctype="void*" init="NULL" copy="lookup" /> <!-- Not sure this is how we want it, but for now it works. -->
     <type name="CompilerPhase" ctype="compiler_phase_t" init="PH_initial" copy="literal" />
@@ -241,8 +242,32 @@
             </type>
         </attribute>
         <attribute name="Type">
-            <description>Type within the symboltable</description>
+            <description>The datatype for variables and the return type for functions</description>
             <type name="Type">
+                <targets>
+                    <target mandatory="yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="EntryType">
+            <description>The datatype for variables and the return type for functions</description>
+            <type name="EntryType">
+                <targets>
+                    <target mandatory="yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="Decl">
+            <description>The original declaration node</description>
+            <type name="Link">
                 <targets>
                     <target mandatory="yes">
                         <phases>
@@ -441,7 +466,7 @@
       </sons>
       <attributes>
         <attribute name="Name">
-          <description>Offset within the symboltable</description>
+          <description>The name of the function</description>
           <type name="String">
             <targets>
               <target mandatory="yes">
@@ -452,17 +477,17 @@
             </targets>
           </type>
         </attribute>
-        <attribute name="Offset">
-          <description>Offset within the symboltable</description>
-          <type name="Bool">
-            <targets>
-              <target mandatory="no">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
+        <attribute name="Decl">
+            <description>Link to its STE</description>
+            <type name="Link">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
         </attribute>
       </attributes>
     </node>
@@ -730,36 +755,12 @@
       </sons>
       <attributes>
         <attribute name="Name">
-          <description>Distance to symbol table</description>
+          <description>The name of the function to be called</description>
           <type name="String">
             <targets>
               <target mandatory="yes">
                 <phases>
                   <all />
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
-        <attribute name="Distance">
-          <description>Distance to symbol table</description>
-          <type name="Int">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
-        <attribute name="Offset">
-          <description>Offset into the symbol table</description>
-          <type name="Int">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
                 </phases>
               </target>
             </targets>
