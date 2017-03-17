@@ -197,7 +197,7 @@ char *createUniqueNameForSymbolTable(node *symbolTable, char *name) {
     char *newName = NULL;
     do {
         int numberOfDigits = duplicates == 0 ? 1 : 1 + log10(duplicates);
-        // 3 is the number of character in out pattern + room for the trailing zero
+        // 3 is the number of character in our pattern + room for the trailing zero
         newName = MEMmalloc(3 + STRlen(name) + numberOfDigits);
         sprintf(newName, "_%s_%d", name, duplicates);
         if (!isUniqueInSymbolTable(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable), newName)) {
@@ -257,17 +257,13 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
     if (NODE_TYPE(DECLARATIONS_DECLARATION(arg_node)) == N_fundef) {
         node *funDef = DECLARATIONS_DECLARATION(arg_node);
         registerNewFunDecl(FUNDEF_FUNHEADER(funDef), arg_info, FUNHEADER_NAME(FUNDEF_FUNHEADER(funDef)));
-    } else if (NODE_TYPE(DECLARATIONS_DECLARATION(arg_node)) == N_vardef) {
-        TRAVdo(DECLARATIONS_DECLARATION(arg_node), arg_info);
     }
 
-    // Continue to register function and variable names
+    // Continue to register
     TRAVopt(DECLARATIONS_NEXT(arg_node), arg_info);
 
-    if (NODE_TYPE(DECLARATIONS_DECLARATION(arg_node)) == N_fundef) {
-        // Now process the body of the function or the expression of the variable
-        TRAVdo(DECLARATIONS_DECLARATION(arg_node), arg_info);
-    }
+    // Now process the body of the function or the whole vardef
+    TRAVdo(DECLARATIONS_DECLARATION(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
