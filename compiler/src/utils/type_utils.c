@@ -24,6 +24,6 @@ char *typeToString(type typeInfo) {
             return "unknown";
         default:
             // Just a precaution for future expansion
-            return "<<TBD t>>";
+            return "<<TBD>>";
     }
 }

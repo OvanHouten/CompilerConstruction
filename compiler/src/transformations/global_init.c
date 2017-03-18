@@ -77,8 +77,7 @@ node *GIprogram(node *arg_node, info *arg_info) {
                 appendToStatements(funBody, TBmakeStatements(TBmakeAssign(TBmakeId(STRcpy(VARDEF_NAME(varDef))), expr), NULL));
                 // And add it to the symboltable
                 node *symbolTableEntry = TBmakeSymboltableentry(NULL);
-                // FIXME The type in STE should be 'type' not 'string'!
-//                SYMBOLTABLEENTRY_TYPE(symbolTableEntry) = VARDEF_TYPE(varDef);
+                SYMBOLTABLEENTRY_TYPE(symbolTableEntry) = VARDEF_TYPE(varDef);
                 SYMBOLTABLEENTRY_NAME(symbolTableEntry) = STRcpy(VARDEF_NAME(varDef));
 
                 // By design the global variables will be at distance 1 from the calling '__init' function.

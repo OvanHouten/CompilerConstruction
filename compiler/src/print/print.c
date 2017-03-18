@@ -556,42 +556,6 @@ node *PRTparams(node * arg_node, info * arg_info) {
 
 // TYPES
 
-node *PRTint(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTint");
-
-	INDENT(arg_info);
-	printf("int ");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTfloat (node * arg_node, info * arg_info) {
-  DBUG_ENTER ("PRTfloat");
-
-  INDENT(arg_info);
-  printf( "float ");
-
-  DBUG_RETURN (arg_node);
-}
-
-node *PRTbool (node * arg_node, info * arg_info) {
-  DBUG_ENTER ("PRTbool");
-
-  INDENT(arg_info);
-  printf("bool ");
-
-  DBUG_RETURN (arg_node);
-}
-
-node *PRTvoid(node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTvoid");
-
-	INDENT(arg_info);
-	printf("void ");
-
-	DBUG_RETURN(arg_node);
-}
-
 node *PRTintconst(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTintconst");
 
@@ -725,13 +689,6 @@ node *PRTids(node * arg_node, info * arg_info) {
 
 node *PRTarrexprs(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTarrexprs");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTlocalfundef(node * arg_node, info * arg_info)
-{
-	DBUG_ENTER("PRTlocalfundef");
 
 	DBUG_RETURN(arg_node);
 }

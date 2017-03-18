@@ -186,7 +186,6 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
             CTIerror("Function [%s] at line %d, column %d has already been declared at line %d, column %d.",
                     name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
         } else {
-            // FIXME
             funDefSTE = registerWithinCurrentScope(funHeader, arg_info, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
         }
         // Make sure we have a reference at hand to the STE
@@ -269,7 +268,6 @@ node *SAvardef(node *arg_node, info *arg_info) {
         CTIerror("Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
                 name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
 	} else {
-	    // FIXME
         varDefSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_vardef, VARDEF_TYPE(arg_node));
 	}
     // Make sure we have a reference at hand to the STE
@@ -356,24 +354,6 @@ node *SAfuncall(node *arg_node, info *arg_info) {
         CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
     }
     DBUG_PRINT("SA", ("FunCall is processed."));
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAint(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAint");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAfloat(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAfloat");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAbool(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAbool");
 
     DBUG_RETURN(arg_node);
 }
@@ -531,12 +511,6 @@ node *SAunop(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAunop");
 
     TRAVdo(UNOP_RIGHT(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAvoid(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAvoid");
 
     DBUG_RETURN(arg_node);
 }
