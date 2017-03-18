@@ -25,6 +25,7 @@ static int yyerror( char *errname);
  char               *id;
  char               *cint;
  char               *cflt;
+ type                type;
  arithop             carithop;
  logicop             clogicop;
  relop               crelop;
@@ -55,10 +56,12 @@ static int yyerror( char *errname);
 %token <cflt> FLOAT
 %token <id> ID
 
+%type <type> type
+
 %type <node> program declarations declaration globaldec globaldef fundec fundef 
 %type <node> funheader params param funbody vardecs vardec block stmts stmt exprs expr
 %type <node> assign if while do for typecast return funcall
-%type <node> type constant floatval intval boolval
+%type <node> constant floatval intval boolval
 
 %start program
 
@@ -90,8 +93,8 @@ fundef: funheader funbody                 { $$ = TBmakeFundef( FALSE, FALSE, $1,
       | EXPORT funheader funbody          { $$ = TBmakeFundef( FALSE, TRUE, $2, $3, NULL); }
       ;
 
-funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $2, $1, NULL); }
-         | type ID BRACKET_L params BRACKET_R { $$ = TBmakeFunheader( $2, $1, $4); }
+funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $1, $2, NULL); }
+         | type ID BRACKET_L params BRACKET_R { $$ = TBmakeFunheader( $1, $2, $4); }
          ;
          
 params: params COMMA param { $$ = TBmakeParams( $3, $1); }
@@ -141,8 +144,8 @@ do: DO block WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = TBmakeDo($5, $2); }
 
 while: WHILE BRACKET_L expr BRACKET_R block { $$ = TBmakeWhile($3, $5); }
 
-for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R block             { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TBmakeInt(), $6, NULL, NULL), $8, NULL, $10); }
-   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R block  { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TBmakeInt(), $6, NULL, NULL), $8, $10, $12); }
+for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R block             { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TY_int, $6, NULL, NULL), $8, NULL, $10); }
+   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R block  { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TY_int, $6, NULL, NULL), $8, $10, $12); }
    ;
    
 funcall: ID BRACKET_L BRACKET_R       { $$ = TBmakeFuncall( $1, NULL); }
@@ -186,7 +189,7 @@ constant: floatval { $$ = $1; }
 floatval: FLOAT { float* value = strToFloat($1);
                   MEMfree($1);
                   if (value) {
-                      $$ = TBmakeFloatconst( *value, TBmakeFloat());
+                      $$ = TBmakeFloatconst( TY_float, *value);
                       free(value);
                   } else {
                       yyerror("Float value out of range.");
@@ -196,21 +199,21 @@ floatval: FLOAT { float* value = strToFloat($1);
 intval:   NUM { int* value = strToInt($1);
                 MEMfree($1);
                 if (value) {
-                    $$ = TBmakeIntconst( *value, TBmakeInt());
+                    $$ = TBmakeIntconst( TY_int, *value);
                     free(value);
                 } else {
                     yyerror("Integer value out of range.");
                 }
               }
 
-boolval:  TRUEVAL  { $$ = TBmakeBoolconst( TRUE, TBmakeBool()); }
-       |  FALSEVAL { $$ = TBmakeBoolconst( FALSE, TBmakeBool()); }
+boolval:  TRUEVAL  { $$ = TBmakeBoolconst( TY_bool, TRUE); }
+       |  FALSEVAL { $$ = TBmakeBoolconst( TY_bool, FALSE); }
        ;
 
-type: INT_TYPE   { $$ = TBmakeInt(); }
-    | FLOAT_TYPE { $$ = TBmakeFloat(); }
-    | BOOL_TYPE  { $$ = TBmakeBool(); }
-    | VOID       { $$ = TBmakeVoid(); }
+type: INT_TYPE   { $$ = TY_int; }
+    | FLOAT_TYPE { $$ = TY_float; }
+    | BOOL_TYPE  { $$ = TY_bool; }
+    | VOID       { $$ = TY_void; }
     ;
 
 %%

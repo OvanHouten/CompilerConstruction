@@ -187,7 +187,7 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
                     name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
         } else {
             // FIXME
-            funDefSTE = registerWithinCurrentScope(funHeader, arg_info, name, STE_fundef, NODE_TYPE(FUNHEADER_RETTYPE(funHeader)));
+            funDefSTE = registerWithinCurrentScope(funHeader, arg_info, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
         }
         // Make sure we have a reference at hand to the STE
         FUNHEADER_DECL(funHeader) = funDefSTE;
@@ -270,7 +270,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
                 name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
 	} else {
 	    // FIXME
-        varDefSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_vardef, NODE_TYPE(VARDEF_TYPE(arg_node)));
+        varDefSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_vardef, VARDEF_TYPE(arg_node));
 	}
     // Make sure we have a reference at hand to the STE
     VARDEF_DECL(arg_node) = varDefSTE;

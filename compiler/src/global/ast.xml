@@ -84,23 +84,6 @@
       </target>
     </nodeset>
     
-    <nodeset name="RetType">
-  	  <target>
-  	    <node name="Void"/>
-        <node name="Bool"/>
-        <node name="Int"/>
-        <node name="Float"/>
-  	  </target>
-  	</nodeset>
-  	
-  	<nodeset name="Type">
-  	  <target>
-        <node name="Bool"/>
-        <node name="Int"/>
-        <node name="Float"/>
-  	  </target>
-  	</nodeset>
-  	
   	<nodeset name="Statement">
       <target>
         <node name="Assign" />
@@ -173,8 +156,6 @@
           </targets>
         </son>
       </sons>
-      <attributes>
-      </attributes>
     </node>
 
 <!--
@@ -254,7 +235,7 @@
             </type>
         </attribute>
         <attribute name="EntryType">
-            <description>The datatype for variables and the return type for functions</description>
+            <description>Defined the type of the STE, function or variable</description>
             <type name="EntryType">
                 <targets>
                     <target mandatory="yes">
@@ -441,17 +422,6 @@
     <node name="FunHeader">
       <description>Function Header</description>
       <sons>
-        <son name="RetType">
-          <description>Returntype of function</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="RetType" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
         <son name="Params">
           <description>Parameters of the function, can be 0 or more</description>
           <targets>
@@ -465,6 +435,18 @@
         </son>
       </sons>
       <attributes>
+        <attribute name="ReturnType">
+          <description>The returntype of the function</description>
+          <type name="Type">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
         <attribute name="Name">
           <description>The name of the function</description>
           <type name="String">
@@ -497,17 +479,6 @@
 -->
 	<node name="VarDef">
 	  <sons>
-        <son name="Type">
-          <description>Type of variable</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="Type" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
         <son name="Expr">
           <description>Assignment of variable, only valid for globaldefs</description>
           <targets>
@@ -576,6 +547,18 @@
                 </targets>
             </type>
         </attribute>
+        <attribute name="Type">
+          <description>The datatype of the variable</description>
+          <type name="Type">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
         <attribute name="Decl">
             <description>Link to its STE</description>
             <type name="Link">
@@ -603,29 +586,6 @@
       </attributes>
 	</node>
 
-
-<!--
- Node Int:
--->
-    <node name="Int">
-      <description>Int</description>
-    </node>
-    
-<!--
- Node Float:
--->
-    <node name="Float">
-      <description>Float</description>
-    </node>
-    
-<!--
- Node Bool:
--->
-    <node name="Bool">
-      <description>Bool</description>
-    </node>
-    
-    
 <!--
  Node Params:
 -->
@@ -655,8 +615,6 @@
           </targets>
         </son>
       </sons>
-      <attributes>
-      </attributes>
     </node>
 
 <!--
@@ -786,17 +744,6 @@
     <node name="Typecast" >
       <description>Typecast</description>
       <sons>
-        <son name="Type">
-          <description>The type the expression must be typecasted to</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="Type" />
-              <phase>
-                <all />
-              </phase>
-            </target>
-          </targets>
-        </son>
         <son name="Expr">
           <description>The expression that must be typecasted</description>
           <targets>
@@ -809,6 +756,20 @@
           </targets>
         </son>
       </sons>
+      <attributes>
+        <attribute name="Type">
+          <description>The datatype to cast to</description>
+          <type name="Type">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
     </node>
 
 <!--
@@ -966,7 +927,7 @@
             <target mandatory="yes">
               <node name="VarDef" />
                 <phases>
-                  <phase to="For-loop" />
+                  <all />
                 </phases>
              </target>
           </targets>
@@ -1257,7 +1218,7 @@
           </type>
         </attribute>
         <attribute name="Type">
-          <description>The type of the ID of function</description>
+          <description>The datatype of the variable</description>
           <type name="Type">
             <targets>
               <target mandatory="yes">
@@ -1283,37 +1244,27 @@
       </attributes>
     </node>
 
-<!--
- Node Void:
--->
-    <node name="Void">
-      <description>Represents void return type</description>
-      <sons>
-      </sons>
-      <attributes>
-      </attributes>
-    </node>
-    
+<!-- The next three nodes need to be merged into a single 'constant' node! -->
 <!--
  Node Int:
 -->
    <node name="IntConst">
       <description>Represents integer constant</description>
       <sons>
-        <son name="Int">
-          <description>Integer constant</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Int">
+      </sons>
+      <attributes>
+        <attribute name="Type">
+          <description>The datatype of the constant</description>
+          <type name="Type">
+            <targets>
+              <target mandatory="yes">
                 <phases>
                   <all />
                 </phases>
-              </node>
-            </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
+              </target>
+            </targets>
+          </type>
+        </attribute>
         <attribute name="Value">
           <description>Value of integer</description>
           <type name="Int">
@@ -1334,20 +1285,20 @@
     <node name="FloatConst">
       <description>Represents floating point constant</description>
       <sons>
-        <son name="Float">
-          <description>Float constant</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Float">
+      </sons>
+      <attributes>
+        <attribute name="Type">
+          <description>The datatype of the </description>
+          <type name="Type">
+            <targets>
+              <target mandatory="yes">
                 <phases>
                   <all />
                 </phases>
-              </node>
-            </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
+              </target>
+            </targets>
+          </type>
+        </attribute>
         <attribute name="Value">
           <description>Value of Boolean</description>
           <type name="Float">
@@ -1368,20 +1319,20 @@
     <node name="BoolConst">
       <description>Represents Boolean constant (true/false)</description>
       <sons>
-        <son name="Bool">
-          <description>Bool constant</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Bool">
+      </sons>
+      <attributes>
+        <attribute name="Type">
+          <description>The datatype of the constant</description>
+          <type name="Type">
+            <targets>
+              <target mandatory="yes">
                 <phases>
                   <all />
                 </phases>
-              </node>
-            </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
+              </target>
+            </targets>
+          </type>
+        </attribute>
         <attribute name="Value">
           <description>Value of Boolean</description>
           <type name="Bool">

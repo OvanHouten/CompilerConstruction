@@ -137,8 +137,7 @@ node *PRTdeclarations(node * arg_node, info * arg_info) {
 node *PRTfunheader(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunheader");
 
-	TRAVdo(FUNHEADER_RETTYPE(arg_node), arg_info);
-	printf("%s", FUNHEADER_NAME(arg_node));
+	printf("%s %s",typeToString(FUNHEADER_RETURNTYPE(arg_node)), FUNHEADER_NAME(arg_node));
 	printf("(");
 	TRAVopt(FUNHEADER_PARAMS(arg_node), arg_info);
 	printf(")");
@@ -203,8 +202,7 @@ node *PRTvardef(node * arg_node, info * arg_info) {
     if (VARDEF_EXPORT(arg_node)) {
         printf("export ");
     }
-    TRAVdo(VARDEF_TYPE(arg_node), arg_info);
-    printf("%s", VARDEF_NAME(arg_node));
+    printf("%s %s", typeToString(VARDEF_TYPE(arg_node)),VARDEF_NAME(arg_node));
     if (VARDEF_EXPR(arg_node)) {
         printf(" = ");
         TRAVdo(VARDEF_EXPR(arg_node), arg_info);
@@ -251,9 +249,7 @@ node *PRTassign (node * arg_node, info * arg_info)
 node *PRTtypecast(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTtypecast");
 
-	printf("( ");
-	TRAVdo(TYPECAST_TYPE(arg_node), arg_info);
-	printf(") ");
+	printf("(%s)", typeToString(TYPECAST_TYPE(arg_node)));
 	TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
 
 	DBUG_RETURN(arg_node);
