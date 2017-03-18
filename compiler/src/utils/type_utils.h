@@ -13,5 +13,6 @@
 
 extern char *nodeTypeToString(nodetype typeInfo);
 extern char *typeToString(type typeInfo);
+extern type nodeTypeToType(nodetype typeInfo);
 
 #endif /* SRC_UTILS_TYPE_UTILS_H_ */

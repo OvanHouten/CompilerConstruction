@@ -12,10 +12,12 @@
 #include "traverse.h"
 #include "dbug.h"
 #include "memory.h"
-#include "context_analysis.h"
 #include "lookup_table.h"
 #include "ctinfo.h"
 #include "math.h"
+#include "type_utils.h"
+
+#include "context_analysis.h"
 
 /*
  * INFO structure
@@ -127,13 +129,13 @@ char *createUniqueNameForSymbolTable(node *symbolTable, char *name, ste_type typ
     DBUG_RETURN(newName);
 }
 
-node *registerWithinCurrentScope(node* arg_node, info* arg_info, char* name, ste_type type) {
+node *registerWithinCurrentScope(node* arg_node, info* arg_info, char* name, ste_type entryType, type returnType) {
     DBUG_ENTER("registerWithinCurrentScope");
     // Add the vardef to the ST
     node* varDefSTE = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)));
-    SYMBOLTABLEENTRY_ENTRYTYPE(varDefSTE) = type;
+    SYMBOLTABLEENTRY_ENTRYTYPE(varDefSTE) = entryType;
     SYMBOLTABLEENTRY_NAME(varDefSTE) = STRcpy(name);
-    SYMBOLTABLEENTRY_TYPE(varDefSTE) = TY_unknown;
+    SYMBOLTABLEENTRY_TYPE(varDefSTE) = returnType;
     NODE_LINE(varDefSTE) = NODE_LINE(arg_node);
     NODE_COL(varDefSTE) = NODE_COL(arg_node);
 
@@ -184,7 +186,8 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
             CTIerror("Function [%s] at line %d, column %d has already been declared at line %d, column %d.",
                     name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
         } else {
-            funDefSTE = registerWithinCurrentScope(funHeader, arg_info, name, STE_fundef);
+            // FIXME
+            funDefSTE = registerWithinCurrentScope(funHeader, arg_info, name, STE_fundef, NODE_TYPE(FUNHEADER_RETTYPE(funHeader)));
         }
         // Make sure we have a reference at hand to the STE
         FUNHEADER_DECL(funHeader) = funDefSTE;
@@ -266,7 +269,8 @@ node *SAvardef(node *arg_node, info *arg_info) {
         CTIerror("Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
                 name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
 	} else {
-	    varDefSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_vardef);
+	    // FIXME
+        varDefSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_vardef, NODE_TYPE(VARDEF_TYPE(arg_node)));
 	}
     // Make sure we have a reference at hand to the STE
     VARDEF_DECL(arg_node) = varDefSTE;
@@ -290,7 +294,7 @@ node *SAid(node * arg_node, info * arg_info) {
     } else {
         if(distance > 0) {
             // Defined in a outer scope, create new STE in current scope
-            node* localSTE = registerWithinCurrentScope(arg_node, arg_info, ID_NAME(arg_node), STE_vardef);
+            node* localSTE = registerWithinCurrentScope(arg_node, arg_info, ID_NAME(arg_node), STE_vardef, SYMBOLTABLEENTRY_TYPE(varDefSTE));
             // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
             SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
@@ -317,7 +321,7 @@ node *SAfuncall(node *arg_node, info *arg_info) {
         if (distance > 0) {
             DBUG_PRINT("SA", ("Function defined in outer scope registering at local ST."));
             // Defined in a outer scope, create new STE in current scope
-            node* localSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_fundef);
+            node* localSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_fundef, SYMBOLTABLEENTRY_TYPE(funDefSTE));
             SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(funDefSTE);
             // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(funDefSTE);
@@ -461,7 +465,7 @@ node *SAfor(node *arg_node, info *arg_info) {
         }
 
         // Register the variable, now all occurrences of our vardef name will get a STE entry to us
-        node *forVarEntry = registerWithinCurrentScope(FOR_VARDEF(arg_node), arg_info, name, STE_vardef);
+        node *forVarEntry = registerWithinCurrentScope(FOR_VARDEF(arg_node), arg_info, name, STE_vardef, TY_int);
         VARDEF_DECL(FOR_VARDEF(arg_node)) = forVarEntry;
         // Process the block
         DBUG_PRINT("SA", ("Processing the block."));
