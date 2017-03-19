@@ -76,27 +76,29 @@ node *PRTprogram(node * arg_node, info * arg_info) {
 node* PRTsymboltable(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTsymboltable");
 
-    INDENT(arg_info);
-    printf("/*\n");
-    INDENT_AT_NEWLINE(arg_info);
+	if (myglobal.print_st) {
+        INDENT(arg_info);
+        printf("/*\n");
+        INDENT_AT_NEWLINE(arg_info);
 
-    INDENT(arg_info);
-    printf(" * Symbol Table\n");
-    INDENT_AT_NEWLINE(arg_info);
+        INDENT(arg_info);
+        printf(" * Symbol Table\n");
+        INDENT_AT_NEWLINE(arg_info);
 
-    INDENT(arg_info);
-    printf(" * D O Type    Name\n");
-    INDENT_AT_NEWLINE(arg_info);
+        INDENT(arg_info);
+        printf(" * D O Type    Name\n");
+        INDENT_AT_NEWLINE(arg_info);
 
-    INDENT(arg_info);
-    printf(" * -------------------------------\n");
-    INDENT_AT_NEWLINE(arg_info);
+        INDENT(arg_info);
+        printf(" * -------------------------------\n");
+        INDENT_AT_NEWLINE(arg_info);
 
-	TRAVopt(SYMBOLTABLE_SYMBOLTABLEENTRY(arg_node), arg_info);
+        TRAVopt(SYMBOLTABLE_SYMBOLTABLEENTRY(arg_node), arg_info);
 
-    INDENT(arg_info);
-    printf(" */\n");
-    INDENT_AT_NEWLINE(arg_info);
+        INDENT(arg_info);
+        printf(" */\n");
+        INDENT_AT_NEWLINE(arg_info);
+	}
 
 	DBUG_RETURN(arg_node);
 }
@@ -130,6 +132,10 @@ node *PRTdeclarations(node * arg_node, info * arg_info) {
 
 	TRAVopt(DECLARATIONS_NEXT(arg_node), arg_info);
 	TRAVopt(DECLARATIONS_DECLARATION(arg_node), arg_info);
+	if (NODE_TYPE(DECLARATIONS_DECLARATION(arg_node)) == N_vardef) {
+	    printf(";\n");
+	    INDENT_AT_NEWLINE(arg_info);
+	}
 
 	DBUG_RETURN(arg_node);
 }
@@ -196,6 +202,7 @@ node *PRTvardecs(node * arg_node, info * arg_info) {
 node *PRTvardef(node * arg_node, info * arg_info) {
     DBUG_ENTER("PRTvarDef");
 
+    INDENT(arg_info);
     if (VARDEF_EXTERN(arg_node)) {
         printf("extern ");
     }
@@ -206,10 +213,6 @@ node *PRTvardef(node * arg_node, info * arg_info) {
     if (VARDEF_EXPR(arg_node)) {
         printf(" = ");
         TRAVdo(VARDEF_EXPR(arg_node), arg_info);
-    }
-    if(VARDEF_ISDECLARATION(arg_node)) {
-        printf(";\n");
-        INDENT_AT_NEWLINE(arg_info);
     }
 
     DBUG_RETURN(arg_node);
@@ -532,7 +535,7 @@ node *PRTid(node * arg_node, info * arg_info) {
 
 	INDENT(arg_info);
 	if (ID_DECL(arg_node)) {
-    printf("%s", SYMBOLTABLEENTRY_NAME(ID_DECL(arg_node)));
+	    printf("%s", SYMBOLTABLEENTRY_NAME(ID_DECL(arg_node)));
 	} else {
 	    printf("%s", ID_NAME(arg_node));
 	}

@@ -103,7 +103,7 @@
         <node name="RelOp" />
         <node name="LogicOp" />
         <node name="UnOp" />
-        <node name="TypeCast" />
+        <node name="Typecast" />
         <node name="Funcall" />
         <node name="Id" />
         <node name="Array" />
@@ -566,18 +566,6 @@
                     <target mandatory="no">
                         <phases>
                             <phase from="Context Analysis"/>
-                        </phases>
-                    </target>
-                </targets>
-            </type>
-        </attribute>
-        <attribute name="IsDeclaration">
-            <description>Currently needed for printing, restructuring the AST should make it possible to remove this attribute.</description>
-            <type name="Bool">
-                <targets>
-                    <target mandatory="no">
-                        <phases>
-                            <all />
                         </phases>
                     </target>
                 </targets>

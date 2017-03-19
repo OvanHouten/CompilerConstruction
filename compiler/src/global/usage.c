@@ -29,6 +29,7 @@ void PrintGeneralInfo(void)
           "    -I <dirame>     Name of the directory containing the CiviC system header files. Use in conjunstion with the '-ep' flag.\n\n"
           "    -o <filename>   Name of output file.\n\n"
           "    -v <n>          Verbosity level (default: %d).\n\n"
+          "    -dstp           Disable printing of the symbol table information.\n\n"
           "    -tc             Apply syntax tree consistency checks.\n\n"
           "    -#d,<id>        Print debugging information for tag <id>.\n"
           "                    Supported tags are:\n\n"

@@ -283,16 +283,19 @@ node *SAvardef(node *arg_node, info *arg_info) {
 node *SAid(node * arg_node, info * arg_info) {
     DBUG_ENTER("SAid");
 
-    int distance = 0;
     // Used for traversing to outer ST/scopes
+    int distance = 0;
     node* varDefSTE = findInAnyScope(arg_info, ID_NAME(arg_node), &distance, STE_vardef);
 
     if(varDefSTE == NULL) {
         CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
     } else {
         if(distance > 0) {
+            DBUG_PRINT("SA", ("Difined in outer sccope, creating a locel STE."));
             // Defined in a outer scope, create new STE in current scope
             node* localSTE = registerWithinCurrentScope(arg_node, arg_info, ID_NAME(arg_node), STE_vardef, SYMBOLTABLEENTRY_TYPE(varDefSTE));
+            // And link to the original declaration
+            SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(varDefSTE);
             // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
             SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
@@ -387,7 +390,9 @@ node *SAtypecast(node *arg_node, info *arg_info) {
 node *SAassign(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAassign");
 
+    DBUG_PRINT("SA", ("Processing the RH-side"));
     TRAVopt(ASSIGN_EXPR(arg_node), arg_info);
+    DBUG_PRINT("SA", ("Processing the LH-side"));
     TRAVdo(ASSIGN_LET(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);

@@ -79,12 +79,12 @@ declaration: globaldec { $$ = $1; }
            | fundef    { $$ = $1; }
            ;
            
-globaldec: EXTERN type ID SEMICOLON { $$ = TBmakeVardef( TRUE, FALSE, $3, $2, NULL, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
+globaldec: EXTERN type ID SEMICOLON { $$ = TBmakeVardef( TRUE, FALSE, $3, $2, NULL, NULL, NULL); }
 
-globaldef: type ID SEMICOLON                 { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, NULL, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
-         | type ID LET expr SEMICOLON        { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, $4, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE;}
-         | EXPORT type ID SEMICOLON          { $$ = TBmakeVardef( FALSE, TRUE, $3, $2, NULL, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
-         | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeVardef( FALSE, TRUE, $3, $2, $5, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE;}
+globaldef: type ID SEMICOLON                 { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, NULL, NULL, NULL); }
+         | type ID LET expr SEMICOLON        { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, $4, NULL, NULL); }
+         | EXPORT type ID SEMICOLON          { $$ = TBmakeVardef( FALSE, TRUE, $3, $2, NULL, NULL, NULL); }
+         | EXPORT type ID LET expr SEMICOLON { $$ = TBmakeVardef( FALSE, TRUE, $3, $2, $5, NULL, NULL); }
          ;
 
 fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundef(TRUE, FALSE, $2, NULL, NULL); }
