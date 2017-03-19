@@ -25,6 +25,7 @@ static int yyerror( char *errname);
  char               *id;
  char               *cint;
  char               *cflt;
+ type                type;
  arithop             carithop;
  logicop             clogicop;
  relop               crelop;
@@ -56,16 +57,18 @@ static int yyerror( char *errname);
 %token <cflt> FLOAT
 %token <id> ID
 
+%type <type> type
+
 %type <node> program declarations declaration globaldec globaldef fundec fundef 
 %type <node> funheader params param funbody vardecs vardec block  stmts stmt exprs expr arrexpr arrexprs ids
 %type <node> assign if while do for typecast return funcall
-%type <node> type constant floatval intval boolval
+%type <node> constant floatval intval boolval
 
 %start program
 
 %%
 
-program: declarations { parseresult = TBmakeProgram( $1); }
+program: declarations { parseresult = TBmakeProgram( $1, TBmakeSymboltable(NULL)); }
 
 declarations: declarations declaration { $$ = TBmakeDeclarations( $2, $1); }
             | declaration              { $$ = TBmakeDeclarations( $1, NULL); }
@@ -77,35 +80,35 @@ declaration: globaldec { $$ = $1; }
            | fundef    { $$ = $1; }
            ;
            
-globaldec: EXTERN type ID SEMICOLON                       { $$ = TBmakeVardef( TRUE, FALSE, $2, TBmakeId($3), NULL, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
-         | EXTERN type SQUARE_L ids SQUARE_R ID SEMICOLON { $$ = TBmakeVardef( TRUE, FALSE, $2, TBmakeId($6), NULL, $4, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
+globaldec: EXTERN type ID SEMICOLON                       { $$ = TBmakeVardef( TRUE, FALSE, $3, $2, NULL, NULL, NULL); }
+         | EXTERN type SQUARE_L ids SQUARE_R ID SEMICOLON { $$ = TBmakeVardef( TRUE, FALSE, $6, $2, NULL, $4, NULL); }
 
-globaldef: type ID SEMICOLON                                             { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($2), NULL, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
-         | type ID LET expr SEMICOLON                                    { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($2), $4, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
-         | EXPORT type ID SEMICOLON                                      { $$ = TBmakeVardef( FALSE, TRUE, $2, TBmakeId($3), NULL, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
-         | EXPORT type ID LET expr SEMICOLON                             { $$ = TBmakeVardef( FALSE, TRUE, $2, TBmakeId($3), $5, NULL, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
-         | type SQUARE_L exprs SQUARE_R ID SEMICOLON                     { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($5), NULL, $3, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
-         | type SQUARE_L exprs SQUARE_R ID LET arrexprs SEMICOLON        { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($5), NULL, $3, $7); VARDEF_ISDECLARATION($$) = TRUE; }
-         | EXPORT type SQUARE_L exprs SQUARE_R ID SEMICOLON              { $$ = TBmakeVardef( FALSE, TRUE, $2, TBmakeId($6), NULL, $4, NULL); VARDEF_ISDECLARATION($$) = TRUE; }
-         | EXPORT type SQUARE_L exprs SQUARE_R ID LET arrexprs SEMICOLON { $$ = TBmakeVardef( FALSE, TRUE, $2, TBmakeId($6), NULL, $4, $8); VARDEF_ISDECLARATION($$) = TRUE; }
+globaldef: type ID SEMICOLON                                             { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, NULL, NULL, NULL); }
+         | type ID LET expr SEMICOLON                                    { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, $4, NULL, NULL); }
+         | EXPORT type ID SEMICOLON                                      { $$ = TBmakeVardef( FALSE, TRUE, $3, $2, NULL, NULL, NULL); }
+         | EXPORT type ID LET expr SEMICOLON                             { $$ = TBmakeVardef( FALSE, TRUE, $3, $2, $5, NULL, NULL); }
+         | type SQUARE_L exprs SQUARE_R ID SEMICOLON                     { $$ = TBmakeVardef( FALSE, FALSE, $5, $1, NULL, $3, NULL); }
+         | type SQUARE_L exprs SQUARE_R ID LET arrexprs SEMICOLON        { $$ = TBmakeVardef( FALSE, FALSE, $5, $1, NULL, $3, $7); }
+         | EXPORT type SQUARE_L exprs SQUARE_R ID SEMICOLON              { $$ = TBmakeVardef( FALSE, TRUE, $6, $2, NULL, $4, NULL); }
+         | EXPORT type SQUARE_L exprs SQUARE_R ID LET arrexprs SEMICOLON { $$ = TBmakeVardef( FALSE, TRUE, $6, $2, NULL, $4, $8); }
          ;
 
-fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundef(TRUE, FALSE, $2, NULL); }
+fundec: EXTERN funheader SEMICOLON { $$ = TBmakeFundef(TRUE, FALSE, $2, NULL, NULL); }
 
-fundef: funheader funbody                 { $$ = TBmakeFundef( FALSE, FALSE, $1, $2); }
-      | EXPORT funheader funbody          { $$ = TBmakeFundef( FALSE, TRUE, $2, $3); }
+fundef: funheader funbody                 { $$ = TBmakeFundef( FALSE, FALSE, $1, $2, NULL); }
+      | EXPORT funheader funbody          { $$ = TBmakeFundef( FALSE, TRUE, $2, $3, NULL); }
       ;
 
-funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $1, TBmakeId($2), NULL); }
-         | type ID BRACKET_L params BRACKET_R { $$ = TBmakeFunheader( $1, TBmakeId($2), $4); }
+funheader: type ID BRACKET_L BRACKET_R        { $$ = TBmakeFunheader( $1, $2, NULL); }
+         | type ID BRACKET_L params BRACKET_R { $$ = TBmakeFunheader( $1, $2, $4); }
          ;
          
 params: params COMMA param { $$ = TBmakeParams( $3, $1); }
       | param              { $$ = TBmakeParams( $1, NULL); }
       ;
       
-param: type ID                       { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($2), NULL, NULL, NULL); }
-     | type SQUARE_L ids SQUARE_R ID { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId($5), $3, NULL, NULL); }
+param: type ID                       { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, NULL, NULL, NULL); }
+     | type SQUARE_L ids SQUARE_R ID { $$ = TBmakeVardef( FALSE, FALSE, $5, $1, $3, NULL, NULL); }
      ;
 
 funbody: CURLY_L vardecs stmts CURLY_R { $$ = TBmakeFunbody($2, NULL, $3); } 
@@ -118,14 +121,14 @@ vardecs: vardecs vardec { $$ = TBmakeVardecs( $2, $1); }
        | vardec         { $$ = TBmakeVardecs( $1, NULL); }
        ;
        
-vardec: type ID SEMICOLON                                     { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId( $2), NULL, NULL, NULL); }
-      | type ID LET expr SEMICOLON                            { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId( $2), $4, NULL, NULL); }
-      | type SQUARE_L exprs SQUARE_R ID SEMICOLON             { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId( $5), NULL, $3, NULL); }
-      | type SQUARE_L exprs SQUARE_R ID LET arrexpr SEMICOLON { $$ = TBmakeVardef( FALSE, FALSE, $1, TBmakeId( $5), NULL, $3, $7); }
+vardec: type ID SEMICOLON                                     { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, NULL, NULL, NULL); }
+      | type ID LET expr SEMICOLON                            { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, $4, NULL, NULL); }
+      | type SQUARE_L exprs SQUARE_R ID SEMICOLON             { $$ = TBmakeVardef( FALSE, FALSE, $5, $1, NULL, $3, NULL); }
+      | type SQUARE_L exprs SQUARE_R ID LET arrexpr SEMICOLON { $$ = TBmakeVardef( FALSE, FALSE, $5, $1, NULL, $3, $7); }
       ;
 
 block: CURLY_L stmts CURLY_R { $$ = $2; }
-     | stmt                  { $$ = TBmakeStatements( $1, NULL); }
+     | stmt                  { $$ = TBmakeStatements($1, NULL); }
      ;
 
 stmts: stmts stmt { $$ = TBmakeStatements( $2, $1); }
@@ -152,12 +155,12 @@ do: DO block WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = TBmakeDo($5, $2); }
 
 while: WHILE BRACKET_L expr BRACKET_R block { $$ = TBmakeWhile($3, $5); }
 
-for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R block             { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, TBmakeInt(), TBmakeId( $4), $6, NULL, NULL), $8, NULL, $10); }
-   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R block  { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, TBmakeInt(), TBmakeId( $4), $6, NULL, NULL), $8, $10, $12); }
+for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R block             { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TY_int, $6, NULL, NULL), $8, NULL, $10); }
+   | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R block  { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TY_int, $6, NULL, NULL), $8, $10, $12); }
    ;
    
-funcall: ID BRACKET_L BRACKET_R       { $$ = TBmakeFuncall( TBmakeId($1), NULL); }
-       | ID BRACKET_L exprs BRACKET_R { $$ = TBmakeFuncall( TBmakeId($1), $3); }
+funcall: ID BRACKET_L BRACKET_R       { $$ = TBmakeFuncall( $1, NULL); }
+       | ID BRACKET_L exprs BRACKET_R { $$ = TBmakeFuncall( $1, $3); }
 
 return: RETURN SEMICOLON      { $$ = TBmakeReturn(NULL); }
       | RETURN expr SEMICOLON { $$ = TBmakeReturn( $2); }
@@ -198,7 +201,7 @@ constant: floatval { $$ = $1; }
 floatval: FLOAT { float* value = strToFloat($1);
                   MEMfree($1);
                   if (value) {
-                      $$ = TBmakeFloatconst( *value, TBmakeFloat());
+                      $$ = TBmakeFloatconst( TY_float, *value);
                       free(value);
                   } else {
                       yyerror("Float value out of range.");
@@ -208,21 +211,21 @@ floatval: FLOAT { float* value = strToFloat($1);
 intval:   NUM { int* value = strToInt($1);
                 MEMfree($1);
                 if (value) {
-                    $$ = TBmakeIntconst( *value, TBmakeInt());
+                    $$ = TBmakeIntconst( TY_int, *value);
                     free(value);
                 } else {
                     yyerror("Integer value out of range.");
                 }
               }
 
-boolval:  TRUEVAL  { $$ = TBmakeBoolconst( TRUE, TBmakeBool()); }
-       |  FALSEVAL { $$ = TBmakeBoolconst( FALSE, TBmakeBool()); }
+boolval:  TRUEVAL  { $$ = TBmakeBoolconst( TY_bool, TRUE); }
+       |  FALSEVAL { $$ = TBmakeBoolconst( TY_bool, FALSE); }
        ;
 
-type: INT_TYPE   { $$ = TBmakeInt(); }
-    | FLOAT_TYPE { $$ = TBmakeFloat(); }
-    | BOOL_TYPE  { $$ = TBmakeBool(); }
-    | VOID       { $$ = TBmakeVoid(); }
+type: INT_TYPE   { $$ = TY_int; }
+    | FLOAT_TYPE { $$ = TY_float; }
+    | BOOL_TYPE  { $$ = TY_bool; }
+    | VOID       { $$ = TY_void; }
     ;
 
 ids: ids COMMA ID { $$ = TBmakeIds(TBmakeId($3), $1); }

@@ -29,13 +29,17 @@ void PrintGeneralInfo(void)
           "    -I <dirame>     Name of the directory containing the CiviC system header files. Use in conjunstion with the '-ep' flag.\n\n"
           "    -o <filename>   Name of output file.\n\n"
           "    -v <n>          Verbosity level (default: %d).\n\n"
+          "    -dstp           Disable printing of the symbol table information.\n\n"
+          "    -pvd            Prints variable details from the symbol table at variable usage.\n\n"
           "    -tc             Apply syntax tree consistency checks.\n\n"
-          "    -pst            Print Symbol Table entry info.\n\n"
           "    -#d,<id>        Print debugging information for tag <id>.\n"
           "                    Supported tags are:\n\n"
           
           "                    MAKE - prints debug information of tree constructors.\n"
           "                    SA   - prints debug information of scope analysis.\n"
+          "                    SV   - prints debug information of Split VarDef transformation.\n"
+          "                    GI   - prints debug information of Global Init transformation.\n"
+          "                    UTIL - prints debug information of miscellaneous utils.\n"
           "                    FREE - prints debug information of tree destructors.\n",
           global.verbosity);
 

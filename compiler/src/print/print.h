@@ -12,6 +12,7 @@
 #include "types.h"
 
 extern node *PRTprogram(node * arg_node, info * arg_info);
+extern node *PRTsymboltable(node *arg_node, info *info_arg);
 
 extern node *PRTdeclarations(node * arg_node, info * arg_info);
 extern node *PRTfunheader(node * arg_node, info * arg_info);
@@ -44,12 +45,6 @@ extern node *PRTunop (node * arg_node, info * arg_info);
 extern node *PRTid(node * arg_node, info * arg_info);
 
 extern node *PRTparams(node * arg_node, info * arg_info);
-extern node *PRTparam(node * arg_node, info * arg_info);
-
-extern node *PRTint(node * arg_node, info * arg_info);
-extern node *PRTfloat (node * arg_node, info * arg_info);
-extern node *PRTbool (node * arg_node, info * arg_info);
-extern node *PRTvoid(node * arg_node, info * arg_info);
 
 extern node *PRTintconst(node * arg_node, info * arg_info);
 extern node *PRTfloatconst(node * arg_node, info * arg_info);
@@ -67,8 +62,6 @@ extern node *PRTarrexprs(node * arg_node, info * arg_info);
 extern node *PRTarrelem(node * arg_node, info * arg_info);
 
 
-
-extern node *PRTlocalfundef(node * arg_node, info * arg_info);
 extern node *PRTlocalfundefs(node * arg_node, info * arg_info);
 
 extern node *PRTsymboltableentry (node * arg_node, info * arg_info);

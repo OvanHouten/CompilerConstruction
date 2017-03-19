@@ -1,0 +1,11 @@
+void dummy(int i) {
+}
+export int main() {
+    int i = 20;
+    for (int i = i, 30) {
+        for (int i = 10, i) {
+            dummy(i);
+        }
+    }
+    return 0;
+}
