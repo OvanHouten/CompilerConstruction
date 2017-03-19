@@ -90,8 +90,14 @@ node *SVvardecs(node *arg_node, info *arg_info) {
         // Remove the expression from the vardef
         node *expr = VARDEF_EXPR(varDef);
         VARDEF_EXPR(varDef)  = NULL;
+        node* id = TBmakeId(STRcpy(VARDEF_NAME(varDef)));
+        ID_DECL(id) = VARDEF_DECL(varDef);
+        NODE_LINE(id) = NODE_LINE(varDef);
+        NODE_COL(id) = NODE_COL(varDef);
+
         // Create new assign statement
-        node *assignment = TBmakeAssign(TBmakeId(STRcpy(VARDEF_NAME(varDef))), expr);
+        node *assignment = TBmakeAssign(id, expr);
+
         INFO_VARINITS(arg_info) = TBmakeStatements( assignment, INFO_VARINITS(arg_info));
     }
 
@@ -115,7 +121,11 @@ node *SVstatements(node *arg_node, info *arg_info) {
 
             node *id = TBmakeId(STRcpy(VARDEF_NAME(varDef)));
             ID_DECL(id) = VARDEF_DECL(varDef);
+            NODE_LINE(id) = NODE_LINE(varDef);
+            NODE_COL(id) = NODE_COL(varDef);
+
             node *assignment = TBmakeAssign(id, expr);
+
             STATEMENTS_NEXT(statements) = TBmakeStatements(assignment, STATEMENTS_NEXT(statements));
             statements = STATEMENTS_NEXT(statements);
 

@@ -26,6 +26,10 @@ void OPTcheckOptions( int argc, char **argv)
 
   ARGS_OPTION( "v", ARG_RANGE(global.verbosity, 0, 3));
 
+  ARGS_FLAG( "dstp", myglobal.print_st = FALSE);
+
+  ARGS_FLAG( "pvd", myglobal.print_var_details = TRUE);
+
   ARGS_FLAG( "tc", global.treecheck = TRUE);
 
   ARGS_OPTION( "#", DBUG_PUSH( STRcpy( ARG)));

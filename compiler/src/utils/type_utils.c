@@ -10,21 +10,6 @@
 
 #include "type_utils.h"
 
-char *nodeTypeToString(nodetype typeInfo) {
-    switch (typeInfo) {
-        case N_int:
-            return "int";
-        case N_float:
-            return "float";
-        case N_bool:
-            return "bool";
-        case N_void :
-            return "void";
-        default:
-            return "<<TBD>>";
-    }
-}
-
 char *typeToString(type typeInfo) {
     switch (typeInfo) {
         case TY_int:
@@ -33,6 +18,8 @@ char *typeToString(type typeInfo) {
             return "float";
         case TY_bool:
             return "bool";
+        case TY_void:
+            return "void";
         case TY_unknown :
             return "unknown";
         default:

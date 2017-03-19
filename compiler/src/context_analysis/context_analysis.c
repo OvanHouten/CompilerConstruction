@@ -12,10 +12,12 @@
 #include "traverse.h"
 #include "dbug.h"
 #include "memory.h"
-#include "context_analysis.h"
 #include "lookup_table.h"
 #include "ctinfo.h"
 #include "math.h"
+#include "type_utils.h"
+
+#include "context_analysis.h"
 
 /*
  * INFO structure
@@ -127,13 +129,13 @@ char *createUniqueNameForSymbolTable(node *symbolTable, char *name, ste_type typ
     DBUG_RETURN(newName);
 }
 
-node *registerWithinCurrentScope(node* arg_node, info* arg_info, char* name, ste_type type) {
+node *registerWithinCurrentScope(node* arg_node, info* arg_info, char* name, ste_type entryType, type returnType) {
     DBUG_ENTER("registerWithinCurrentScope");
     // Add the vardef to the ST
     node* varDefSTE = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)));
-    SYMBOLTABLEENTRY_ENTRYTYPE(varDefSTE) = type;
+    SYMBOLTABLEENTRY_ENTRYTYPE(varDefSTE) = entryType;
     SYMBOLTABLEENTRY_NAME(varDefSTE) = STRcpy(name);
-    SYMBOLTABLEENTRY_TYPE(varDefSTE) = TY_unknown;
+    SYMBOLTABLEENTRY_TYPE(varDefSTE) = returnType;
     NODE_LINE(varDefSTE) = NODE_LINE(arg_node);
     NODE_COL(varDefSTE) = NODE_COL(arg_node);
 
@@ -184,7 +186,7 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
             CTIerror("Function [%s] at line %d, column %d has already been declared at line %d, column %d.",
                     name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
         } else {
-            funDefSTE = registerWithinCurrentScope(funHeader, arg_info, name, STE_fundef);
+            funDefSTE = registerWithinCurrentScope(funHeader, arg_info, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
         }
         // Make sure we have a reference at hand to the STE
         FUNHEADER_DECL(funHeader) = funDefSTE;
@@ -268,7 +270,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
         CTIerror("Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
                 name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
 	} else {
-	    varDefSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_vardef);
+        varDefSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_vardef, VARDEF_TYPE(arg_node));
 	}
     // Make sure we have a reference at hand to the STE
     VARDEF_DECL(arg_node) = varDefSTE;
@@ -283,16 +285,19 @@ node *SAvardef(node *arg_node, info *arg_info) {
 node *SAid(node * arg_node, info * arg_info) {
     DBUG_ENTER("SAid");
 
-    int distance = 0;
     // Used for traversing to outer ST/scopes
+    int distance = 0;
     node* varDefSTE = findInAnyScope(arg_info, ID_NAME(arg_node), &distance, STE_vardef);
 
     if(varDefSTE == NULL) {
         CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
     } else {
         if(distance > 0) {
+            DBUG_PRINT("SA", ("Difined in outer sccope, creating a locel STE."));
             // Defined in a outer scope, create new STE in current scope
-            node* localSTE = registerWithinCurrentScope(arg_node, arg_info, ID_NAME(arg_node), STE_vardef);
+            node* localSTE = registerWithinCurrentScope(arg_node, arg_info, ID_NAME(arg_node), STE_vardef, SYMBOLTABLEENTRY_TYPE(varDefSTE));
+            // And link to the original declaration
+            SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(varDefSTE);
             // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
             SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
@@ -319,7 +324,7 @@ node *SAfuncall(node *arg_node, info *arg_info) {
         if (distance > 0) {
             DBUG_PRINT("SA", ("Function defined in outer scope registering at local ST."));
             // Defined in a outer scope, create new STE in current scope
-            node* localSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_fundef);
+            node* localSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_fundef, SYMBOLTABLEENTRY_TYPE(funDefSTE));
             SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(funDefSTE);
             // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(funDefSTE);
@@ -358,24 +363,6 @@ node *SAfuncall(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *SAint(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAint");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAfloat(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAfloat");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAbool(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAbool");
-
-    DBUG_RETURN(arg_node);
-}
-
 node *SAparams(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAparams");
 
@@ -405,7 +392,9 @@ node *SAtypecast(node *arg_node, info *arg_info) {
 node *SAassign(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAassign");
 
+    DBUG_PRINT("SA", ("Processing the RH-side"));
     TRAVopt(ASSIGN_EXPR(arg_node), arg_info);
+    DBUG_PRINT("SA", ("Processing the LH-side"));
     TRAVdo(ASSIGN_LET(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
@@ -463,7 +452,7 @@ node *SAfor(node *arg_node, info *arg_info) {
         }
 
         // Register the variable, now all occurrences of our vardef name will get a STE entry to us
-        node *forVarEntry = registerWithinCurrentScope(FOR_VARDEF(arg_node), arg_info, name, STE_vardef);
+        node *forVarEntry = registerWithinCurrentScope(FOR_VARDEF(arg_node), arg_info, name, STE_vardef, TY_int);
         VARDEF_DECL(FOR_VARDEF(arg_node)) = forVarEntry;
         // Process the block
         DBUG_PRINT("SA", ("Processing the block."));
@@ -533,12 +522,6 @@ node *SAunop(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *SAvoid(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAvoid");
-
-    DBUG_RETURN(arg_node);
-}
-
 node *SAintconst(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAintconst");
 
@@ -594,7 +577,7 @@ node *SAlocalfundefs(node *arg_node, info *arg_info) {
         CTIerror("Function [%s] at line %d, column %d has already been declared at line %d, column %d.",
                 name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
     } else {
-        funDefSTE = registerWithinCurrentScope(funHeader, arg_info, name, STE_fundef);
+        funDefSTE = registerWithinCurrentScope(funHeader, arg_info, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
     }
     // Make sure we have a reference at hand to the STE
     FUNHEADER_DECL(funHeader) = funDefSTE;

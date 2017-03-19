@@ -46,11 +46,6 @@ extern node *PRTid(node * arg_node, info * arg_info);
 
 extern node *PRTparams(node * arg_node, info * arg_info);
 
-extern node *PRTint(node * arg_node, info * arg_info);
-extern node *PRTfloat (node * arg_node, info * arg_info);
-extern node *PRTbool (node * arg_node, info * arg_info);
-extern node *PRTvoid(node * arg_node, info * arg_info);
-
 extern node *PRTintconst(node * arg_node, info * arg_info);
 extern node *PRTfloatconst(node * arg_node, info * arg_info);
 extern node *PRTboolconst(node * arg_node, info * arg_info);
@@ -65,8 +60,6 @@ extern node *PRTarray(node * arg_node, info * arg_info);
 extern node *PRTids(node * arg_node, info * arg_info);
 extern node *PRTarrexprs(node * arg_node, info * arg_info);
 
-
-extern node *PRTlocalfundef(node * arg_node, info * arg_info);
 extern node *PRTlocalfundefs(node * arg_node, info * arg_info);
 
 extern node *PRTsymboltableentry (node * arg_node, info * arg_info);

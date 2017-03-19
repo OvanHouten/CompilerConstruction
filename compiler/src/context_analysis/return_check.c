@@ -12,6 +12,7 @@
 #include "memory.h"
 #include "dbug.h"
 #include "ctinfo.h"
+#include "type_utils.h"
 
 #include "return_check.h"
 
@@ -51,26 +52,11 @@ static info *FreeInfo( info *info)
   DBUG_RETURN( info);
 }
 
-char *toString(nodetype typeInfo) {
-    switch (typeInfo) {
-        case N_int:
-            return "int";
-        case N_float:
-            return "float";
-        case N_bool:
-            return "bool";
-        case N_void :
-            return "void";
-        default:
-            return "<<TBD>>";
-    }
-}
-
 node *RCfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("RCfundef");
 
     if (!FUNDEF_EXTERN(arg_node)) {
-        nodetype returnType = NODE_TYPE(FUNHEADER_RETTYPE(FUNDEF_FUNHEADER(arg_node)));
+        type returnType = FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(arg_node));
         node *returnStatement = NULL;
         node *funBody = FUNDEF_FUNBODY(arg_node);
         if (funBody) {
@@ -79,21 +65,21 @@ node *RCfundef(node *arg_node, info *arg_info) {
             }
         }
         if (returnStatement) {
-            nodetype returningType = N_undefined;
+            type returningType = TY_unknown;
             if (NODE_TYPE(returnStatement) == N_return) {
                 if (RETURN_EXPR(returnStatement)) {
-                    returningType = NODE_TYPE(RETURN_EXPR(returnStatement));
+                    returningType = TY_unknown; // FIXME RETURN_EXPR(returnStatement);
                 } else {
-                    returningType = N_void;
+                    returningType = TY_void;
                 }
             }
             if (returnType != returningType) {
-                CTIerror("The function [%s] at line [%d] must end with a '%s' returning statement.", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)), NODE_LINE(arg_node), toString(returningType));
+                CTIerror("The function [%s] at line [%d] must end with a '%s' returning statement.", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)), NODE_LINE(arg_node), typeToString(returningType));
             }
         } else {
             // Looks like an empty function
-            if (returnType != N_void) {
-                CTIerror("The function [%s] at line [%d] must end with a '%s' returning statement.", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)), NODE_LINE(arg_node), toString(returnType));
+            if (returnType != TY_void) {
+                CTIerror("The function [%s] at line [%d] must end with a '%s' returning statement.", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)), NODE_LINE(arg_node), typeToString(returnType));
             }
         }
     }
