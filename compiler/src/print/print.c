@@ -534,10 +534,10 @@ node *PRTid(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTid");
 
 	INDENT(arg_info);
-	if (ID_DECL(arg_node)) {
+	if (!myglobal.print_var_details) {
 	    printf("%s", SYMBOLTABLEENTRY_NAME(ID_DECL(arg_node)));
 	} else {
-	    printf("%s", ID_NAME(arg_node));
+	    printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(ID_DECL(arg_node)), SYMBOLTABLEENTRY_DISTANCE(ID_DECL(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(arg_node)));
 	}
 
 	DBUG_RETURN(arg_node);

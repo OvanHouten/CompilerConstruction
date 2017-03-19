@@ -30,6 +30,7 @@ void PrintGeneralInfo(void)
           "    -o <filename>   Name of output file.\n\n"
           "    -v <n>          Verbosity level (default: %d).\n\n"
           "    -dstp           Disable printing of the symbol table information.\n\n"
+          "    -pvd            Prints variable details from the symbol table at variable usage.\n\n"
           "    -tc             Apply syntax tree consistency checks.\n\n"
           "    -#d,<id>        Print debugging information for tag <id>.\n"
           "                    Supported tags are:\n\n"

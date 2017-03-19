@@ -73,12 +73,18 @@ node *GIprogram(node *arg_node, info *arg_info) {
                 // Pull out the expression
                 node *expr = VARDEF_EXPR(varDef);
                 VARDEF_EXPR(varDef) = NULL;
+                // Create a new ID node
+                node* id = TBmakeId(STRcpy(VARDEF_NAME(varDef)));
+                NODE_LINE(id) = NODE_LINE(varDef);
+                NODE_COL(id) = NODE_COL(varDef);
                 // And create a list of assignment statements
-                appendToStatements(funBody, TBmakeStatements(TBmakeAssign(TBmakeId(STRcpy(VARDEF_NAME(varDef))), expr), NULL));
+                appendToStatements(funBody, TBmakeStatements(TBmakeAssign(id, expr), NULL));
                 // And add it to the symboltable
                 node *symbolTableEntry = TBmakeSymboltableentry(NULL);
+                ID_DECL(id) = symbolTableEntry;
                 SYMBOLTABLEENTRY_TYPE(symbolTableEntry) = VARDEF_TYPE(varDef);
                 SYMBOLTABLEENTRY_NAME(symbolTableEntry) = STRcpy(VARDEF_NAME(varDef));
+                SYMBOLTABLEENTRY_DECL(symbolTableEntry) = varDef;
 
                 // By design the global variables will be at distance 1 from the calling '__init' function.
                 SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry) = 1;
