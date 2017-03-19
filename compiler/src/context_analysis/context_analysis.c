@@ -131,6 +131,7 @@ char *createUniqueNameForSymbolTable(node *symbolTable, char *name, ste_type typ
 
 node *registerWithinCurrentScope(node* arg_node, info* arg_info, char* name, ste_type entryType, type returnType) {
     DBUG_ENTER("registerWithinCurrentScope");
+    DBUG_PRINT("SA", ("Creating a new Symbol Table Entry"));
     // Add the vardef to the ST
     node* varDefSTE = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)));
     SYMBOLTABLEENTRY_ENTRYTYPE(varDefSTE) = entryType;
@@ -266,9 +267,9 @@ node *SAvardef(node *arg_node, info *arg_info) {
     // Make sure it does not exist within the current scope
     char *name = VARDEF_NAME(arg_node);
     node* varDefSTE = findDefWithinScope(arg_info, name, STE_vardef);
-    if(varDefSTE) {
-        CTIerror("Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
-                name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
+    if(varDefSTE && SYMBOLTABLEENTRY_DISTANCE(varDefSTE) == 0) {
+            CTIerror("Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
+                    name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
 	} else {
         varDefSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_vardef, VARDEF_TYPE(arg_node));
 	}
@@ -293,7 +294,7 @@ node *SAid(node * arg_node, info * arg_info) {
         CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
     } else {
         if(distance > 0) {
-            DBUG_PRINT("SA", ("Difined in outer sccope, creating a locel STE."));
+            DBUG_PRINT("SA", ("Defined in outer scope, creating a local STE."));
             // Defined in a outer scope, create new STE in current scope
             node* localSTE = registerWithinCurrentScope(arg_node, arg_info, ID_NAME(arg_node), STE_vardef, SYMBOLTABLEENTRY_TYPE(varDefSTE));
             // And link to the original declaration
