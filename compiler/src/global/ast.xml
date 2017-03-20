@@ -49,7 +49,7 @@
 
       <traversal id="SA" name="Context Analysis" default="user" include="context_analysis.h" />
 
-       <traversal id="RC" name="Return Check" default="sons" include="return_check.h">
+       <traversal id="TC" name="Type Check" default="sons" include="type_check.h">
         <travuser>
           <node name="FunDef" />
         </travuser>
