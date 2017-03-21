@@ -486,31 +486,13 @@ node *SAexprs(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *SAarithop(node *arg_node, info *arg_info) {
-   DBUG_ENTER("SAarithop");
+node *SAbinop(node *arg_node, info *arg_info) {
+   DBUG_ENTER("SAbinop");
 
-   TRAVdo(ARITHOP_LEFT(arg_node), arg_info);
-   TRAVdo(ARITHOP_RIGHT(arg_node), arg_info);
+   TRAVdo(BINOP_LEFT(arg_node), arg_info);
+   TRAVdo(BINOP_RIGHT(arg_node), arg_info);
 
    DBUG_RETURN(arg_node);
-}
-
-node *SArelop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SArelop");
-
-    TRAVdo(RELOP_LEFT(arg_node), arg_info);
-    TRAVdo(RELOP_RIGHT(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAlogicop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAlogicop");
-
-    TRAVdo(LOGICOP_LEFT(arg_node), arg_info);
-    TRAVdo(LOGICOP_RIGHT(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
 }
 
 node *SAunop(node *arg_node, info *arg_info) {

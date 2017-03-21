@@ -408,90 +408,51 @@ node *PRTexprs(node * arg_node, info * arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *PRTrelop (node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTrelop");
+node *PRTbinop (node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTbinop");
 
 	printf("(");
-	TRAVdo(RELOP_LEFT(arg_node), arg_info);
+	TRAVdo(BINOP_LEFT(arg_node), arg_info);
 
 	char* op;
-	switch(RELOP_OP(arg_node)) {
-	case RO_lt:
+	switch(BINOP_OP(arg_node)) {
+	case BO_lt:
 		op = "<";
 		break;
-	case RO_le:
+	case BO_le:
 		op = "<=";
 		break;
-	case RO_eq:
+	case BO_eq:
 		op = "==";
 		break;
-	case RO_ne:
+	case BO_ne:
 		op = "!=";
 		break;
-	case RO_ge:
+	case BO_ge:
 		op = ">=";
 		break;
-	case RO_gt:
+	case BO_gt:
 		op = ">";
 		break;
-	default:
-		op = "<<UNKNOWN>>";
-	}
-	printf(" %s ", op);
-
-	TRAVdo(RELOP_RIGHT(arg_node), arg_info);
-	printf(")");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTarithop (node * arg_node, info * arg_info) {
-	DBUG_ENTER("PRTarithop");
-
-	printf("(");
-	TRAVdo(ARITHOP_LEFT(arg_node), arg_info);
-
-	char* op;
-	switch(ARITHOP_OP(arg_node)) {
-	case AO_mul:
+	case BO_mul:
 		op = "*";
 		break;
-	case AO_div:
+	case BO_div:
 		op = "/";
 		break;
-	case AO_add:
+	case BO_add:
 		op = "+";
 		break;
-	case AO_sub:
+	case BO_sub:
 		op = "-";
 		break;
-	case AO_mod:
+	case BO_mod:
 		op = "%";
 		break;
-	default:
-		op = "<<UNKNOWN>>";
-	}
-	printf(" %s ", op);
-
-	TRAVdo(ARITHOP_RIGHT(arg_node), arg_info);
-	printf(")");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTlogicop (node * arg_node, info * arg_info)
-{
-	DBUG_ENTER("PRTlogicop");
-
-	printf("(");
-	TRAVdo(LOGICOP_LEFT(arg_node), arg_info);
-
-	char* op;
-	switch(LOGICOP_OP(arg_node)) {
-	case LO_and:
+	case BO_and:
 		op = "&&";
 		break;
-	case LO_or:
+	case BO_or:
 		op = "||";
 		break;
 	default:
@@ -499,7 +460,7 @@ node *PRTlogicop (node * arg_node, info * arg_info)
 	}
 	printf(" %s ", op);
 
-	TRAVdo(LOGICOP_RIGHT(arg_node), arg_info);
+	TRAVdo(BINOP_RIGHT(arg_node), arg_info);
 	printf(")");
 
 	DBUG_RETURN(arg_node);

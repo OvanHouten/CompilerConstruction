@@ -26,9 +26,6 @@ static int yyerror( char *errname);
  char               *cint;
  char               *cflt;
  type                type;
- arithop             carithop;
- logicop             clogicop;
- relop               crelop;
  node               *node;
 }
 
@@ -164,19 +161,19 @@ expr: BRACKET_L expr BRACKET_R { $$ = $2; }
     | typecast                 { $$ = $1; }
     | NOT expr                 { $$ = TBmakeUnop( UO_not, $2); }
     | MINUS expr               { $$ = TBmakeUnop( UO_neg, $2); }
-    | expr MINUS expr          { $$ = TBmakeArithop( AO_sub, $1, $3); }
-    | expr PLUS expr           { $$ = TBmakeArithop( AO_add, $1, $3); }
-    | expr STAR expr           { $$ = TBmakeArithop( AO_mul, $1, $3); }
-    | expr SLASH expr          { $$ = TBmakeArithop( AO_div, $1, $3); }
-    | expr PERCENT expr        { $$ = TBmakeArithop( AO_mod, $1, $3); }
-    | expr LT expr             { $$ = TBmakeRelop( RO_lt, $1, $3); }
-    | expr LE expr             { $$ = TBmakeRelop( RO_le, $1, $3); }
-    | expr EQ expr             { $$ = TBmakeRelop( RO_eq, $1, $3); }
-    | expr NE expr             { $$ = TBmakeRelop( RO_ne, $1, $3); }
-    | expr GE expr             { $$ = TBmakeRelop( RO_ge, $1, $3); }
-    | expr GT expr             { $$ = TBmakeRelop( RO_gt, $1, $3); }
-    | expr AND expr            { $$ = TBmakeLogicop( LO_and, $1, $3); }
-    | expr OR expr             { $$ = TBmakeLogicop( LO_or, $1, $3); }
+    | expr MINUS expr          { $$ = TBmakeBinop( BO_sub, $1, $3); }
+    | expr PLUS expr           { $$ = TBmakeBinop( BO_add, $1, $3); }
+    | expr STAR expr           { $$ = TBmakeBinop( BO_mul, $1, $3); }
+    | expr SLASH expr          { $$ = TBmakeBinop( BO_div, $1, $3); }
+    | expr PERCENT expr        { $$ = TBmakeBinop( BO_mod, $1, $3); }
+    | expr LT expr             { $$ = TBmakeBinop( BO_lt, $1, $3); }
+    | expr LE expr             { $$ = TBmakeBinop( BO_le, $1, $3); }
+    | expr EQ expr             { $$ = TBmakeBinop( BO_eq, $1, $3); }
+    | expr NE expr             { $$ = TBmakeBinop( BO_ne, $1, $3); }
+    | expr GE expr             { $$ = TBmakeBinop( BO_ge, $1, $3); }
+    | expr GT expr             { $$ = TBmakeBinop( BO_gt, $1, $3); }
+    | expr AND expr            { $$ = TBmakeBinop( BO_and, $1, $3); }
+    | expr OR expr             { $$ = TBmakeBinop( BO_or, $1, $3); }
     | ID                       { $$ = TBmakeId( $1); }
     | constant                 { $$ = $1; }
     ;
