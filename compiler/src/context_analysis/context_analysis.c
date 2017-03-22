@@ -16,6 +16,7 @@
 #include "ctinfo.h"
 #include "math.h"
 #include "type_utils.h"
+#include "globals.h"
 
 #include "context_analysis.h"
 
@@ -176,9 +177,8 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
 
         // Make sure it does not exist within the current scope
         node* funDefSTE = findDefWithinScope(arg_info, name, STE_fundef);
-        if(funDefSTE) {
-            CTIerror("Function [%s] at line %d, column %d has already been declared at line %d, column %d.",
-                    name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
+        if(funDefSTE) {        	
+            CTIerror("Function [%s] at line %d, column %d has already been declared at line %d, column %d.", name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
         } else {
             funDefSTE = registerWithinCurrentScope(funHeader, arg_info, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
             if (SYMBOLTABLEENTRY_NEXT(funDefSTE)) {

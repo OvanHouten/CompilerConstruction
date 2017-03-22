@@ -143,7 +143,9 @@ node *PRTdeclarations(node * arg_node, info * arg_info) {
 	    printf(";\n");
 	    INDENT_AT_NEWLINE(arg_info);
 	}
-
+	
+	TRAVopt(NODE_ERROR(arg_node), arg_info);
+	
 	DBUG_RETURN(arg_node);
 }
 
@@ -563,39 +565,36 @@ node *PRTboolconst(node * arg_node, info * arg_info) {
  *
  ***************************************************************************/
 
-node *PRTerror (node * arg_node, info * arg_info)
-{
-  bool first_error;
+node *PRTerror(node* arg_node, info* arg_info) {
+	bool first_error;
 
-  DBUG_ENTER ("PRTerror");
+	DBUG_ENTER ("PRTerror");
 
-  if (NODE_ERROR (arg_node) != NULL) {
-    NODE_ERROR (arg_node) = TRAVdo (NODE_ERROR (arg_node), arg_info);
-  }
+	if(NODE_ERROR(arg_node) != NULL) {
+		NODE_ERROR(arg_node) = TRAVdo(NODE_ERROR(arg_node), arg_info);
+	}
 
-  first_error = INFO_FIRSTERROR( arg_info);
+	first_error = INFO_FIRSTERROR(arg_info);
 
-  if( (global.outfile != NULL)
-      && (ERROR_ANYPHASE( arg_node) == global.compiler_anyphase)) {
+//	if((global.outfile != NULL) && (ERROR_ANYPHASE( arg_node) == global.compiler_anyphase)) {
+		if(first_error) {
+			printf("\n/******* BEGIN TREE CORRUPTION ********\n");
+			INFO_FIRSTERROR( arg_info) = FALSE;
+		}
 
-    if ( first_error) {
-      printf ( "\n/******* BEGIN TREE CORRUPTION ********\n");
-      INFO_FIRSTERROR( arg_info) = FALSE;
-    }
+		printf("%s\n", ERROR_MESSAGE( arg_node));
 
-    printf ( "%s\n", ERROR_MESSAGE( arg_node));
+		if(ERROR_NEXT(arg_node) != NULL) {
+			TRAVopt(ERROR_NEXT(arg_node), arg_info);
+		}
 
-    if (ERROR_NEXT (arg_node) != NULL) {
-      TRAVopt (ERROR_NEXT (arg_node), arg_info);
-    }
+		if(first_error) {
+			printf("********  END TREE CORRUPTION  *******/\n");
+			INFO_FIRSTERROR(arg_info) = TRUE;
+		}
+//	}
 
-    if ( first_error) {
-      printf ( "********  END TREE CORRUPTION  *******/\n");
-      INFO_FIRSTERROR( arg_info) = TRUE;
-    }
-  }
-
-  DBUG_RETURN (arg_node);
+	DBUG_RETURN(arg_node);
 }
 
 /*****************************************************************************
