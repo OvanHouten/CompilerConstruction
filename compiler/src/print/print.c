@@ -76,7 +76,7 @@ node *PRTprogram(node * arg_node, info * arg_info) {
 node* PRTsymboltable(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTsymboltable");
 
-	if (myglobal.print_st) {
+	if (myglobal.print_st && (SYMBOLTABLE_VARCOUNT(arg_node) > 0 || myglobal.full_st_print)) {
         INDENT(arg_info);
         printf("/*\n");
         INDENT_AT_NEWLINE(arg_info);
@@ -120,9 +120,16 @@ node *PRTsymboltableentry (node * arg_node, info * arg_info) {
 	DBUG_ENTER ("PRTsymboltableentry");
 	
 	TRAVopt(SYMBOLTABLEENTRY_NEXT(arg_node), arg_info);
+
 	INDENT(arg_info);
-	printf(" * %d %2d %-7s %s%s\n", SYMBOLTABLEENTRY_DISTANCE(arg_node), SYMBOLTABLEENTRY_OFFSET(arg_node), typeToString(SYMBOLTABLEENTRY_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(arg_node), SYMBOLTABLEENTRY_ENTRYTYPE(arg_node) == STE_fundef ? "()" : "");
-    INDENT_AT_NEWLINE(arg_info);
+	if (SYMBOLTABLEENTRY_ENTRYTYPE(arg_node) == STE_vardef || myglobal.full_st_print) {
+        if (SYMBOLTABLEENTRY_ENTRYTYPE(arg_node) == STE_fundef) {
+            printf(" * %d  - %-7s %s%s\n", SYMBOLTABLEENTRY_DISTANCE(arg_node), typeToString(SYMBOLTABLEENTRY_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(arg_node), SYMBOLTABLEENTRY_ENTRYTYPE(arg_node) == STE_fundef ? "()" : "");
+        } else {
+            printf(" * %d %2d %-7s %s%s\n", SYMBOLTABLEENTRY_DISTANCE(arg_node), SYMBOLTABLEENTRY_OFFSET(arg_node), typeToString(SYMBOLTABLEENTRY_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(arg_node), SYMBOLTABLEENTRY_ENTRYTYPE(arg_node) == STE_fundef ? "()" : "");
+        }
+        INDENT_AT_NEWLINE(arg_info);
+	}
 	
 	DBUG_RETURN (arg_node);
 }
@@ -363,19 +370,17 @@ node *PRTfor (node * arg_node, info * arg_info)
 
   INDENT(arg_info);
   printf("for ( ");
-  if (FOR_VARDEF(arg_node)) {
-      if (VARDEF_TYPE(FOR_VARDEF(arg_node))) {
-          printf("int ");
-      }
-      if (VARDEF_DECL(FOR_VARDEF(arg_node))) {
-          printf("%s", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))));
-      } else {
-          printf("%s", VARDEF_NAME(FOR_VARDEF(arg_node)));
-      }
-      if (VARDEF_EXPR(FOR_VARDEF(arg_node))) {
-          printf(" = ");
-          TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
-      }
+  if (VARDEF_TYPE(FOR_VARDEF(arg_node))) {
+      printf("int ");
+  }
+  if (!myglobal.print_var_details) {
+      printf("%s", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))));
+  } else {
+      printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_DISTANCE(VARDEF_DECL(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(FOR_VARDEF(arg_node))));
+  }
+  if (VARDEF_EXPR(FOR_VARDEF(arg_node))) {
+      printf(" = ");
+      TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
   }
   printf(", ");
   TRAVdo( FOR_FINISH(arg_node), arg_info);

@@ -24,8 +24,10 @@ GLOBAL( char*, includedir, NULL)
 GLOBAL( bool, preprocessor_enabled, FALSE)
 // Printing of the symbol tables can be switched on and off. By default is is switched on
 GLOBAL( bool, print_st, TRUE)
-// Printing of the symbol tables can be switched on and off. By default is is switched on
+// Printing of the symbol tables can be switched on and off. By default is is switched off
 GLOBAL( bool, print_var_details, FALSE)
+// Printing of the full (hidden) symbol tables can be switched on and off. By default is is switched off
+GLOBAL( bool, full_st_print, FALSE)
 
 #undef GLOBALtype
 #undef GLOBALname

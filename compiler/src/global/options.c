@@ -30,6 +30,8 @@ void OPTcheckOptions( int argc, char **argv)
 
   ARGS_FLAG( "pvd", myglobal.print_var_details = TRUE);
 
+  ARGS_FLAG( "fstp", myglobal.full_st_print = TRUE);
+
   ARGS_FLAG( "tc", global.treecheck = TRUE);
 
   ARGS_OPTION( "#", DBUG_PUSH( STRcpy( ARG)));

@@ -31,10 +31,6 @@ struct INFO {
  */
 #define INFO_CURSCOPE(n)      ((n)->curScope)
 
-// The Lookup table (lut) returns a pointer to the original pointer that was provided while inserting
-// the new value. By using this macro we can get the original pointer back without any hassle.
-#define DEREF_IF_NOT_NULL(n) (n == NULL ? n : *n)
-
 /*
  * INFO functions
  */
@@ -140,9 +136,6 @@ node *registerWithinCurrentScope(node* arg_node, info* arg_info, char* name, ste
     NODE_LINE(varDefSTE) = NODE_LINE(arg_node);
     NODE_COL(varDefSTE) = NODE_COL(arg_node);
 
-    if (SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info))) {
-        SYMBOLTABLEENTRY_OFFSET(varDefSTE) = SYMBOLTABLEENTRY_OFFSET(SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info))) + 1;
-    }
     SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)) = varDefSTE;
 
     DBUG_RETURN(varDefSTE);
@@ -188,6 +181,10 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
                     name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
         } else {
             funDefSTE = registerWithinCurrentScope(funHeader, arg_info, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
+            if (SYMBOLTABLEENTRY_NEXT(funDefSTE)) {
+                SYMBOLTABLEENTRY_OFFSET(funDefSTE) = SYMBOLTABLEENTRY_OFFSET(SYMBOLTABLEENTRY_NEXT(funDefSTE));
+            }
+
         }
         // Make sure we have a reference at hand to the STE
         FUNHEADER_DECL(funHeader) = funDefSTE;
@@ -265,11 +262,16 @@ node *SAvardef(node *arg_node, info *arg_info) {
     // Make sure it does not exist within the current scope
     char *name = VARDEF_NAME(arg_node);
     node* varDefSTE = findDefWithinScope(arg_info, name, STE_vardef);
-    if(varDefSTE && SYMBOLTABLEENTRY_DISTANCE(varDefSTE) == 0) {
+    if(varDefSTE) {
+        if (SYMBOLTABLEENTRY_DISTANCE(varDefSTE) == 0) {
             CTIerror("Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
                     name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
+        } else {
+            varDefSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_varusage, VARDEF_TYPE(arg_node));
+        }
 	} else {
         varDefSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_vardef, VARDEF_TYPE(arg_node));
+        SYMBOLTABLEENTRY_OFFSET(varDefSTE) = SYMBOLTABLE_VARCOUNT(INFO_CURSCOPE(arg_info))++;
 	}
     // Make sure we have a reference at hand to the STE
     VARDEF_DECL(arg_node) = varDefSTE;
@@ -294,7 +296,7 @@ node *SAid(node * arg_node, info * arg_info) {
         if(distance > 0) {
             DBUG_PRINT("SA", ("Defined in outer scope, creating a local STE."));
             // Defined in a outer scope, create new STE in current scope
-            node* localSTE = registerWithinCurrentScope(arg_node, arg_info, ID_NAME(arg_node), STE_vardef, SYMBOLTABLEENTRY_TYPE(varDefSTE));
+            node* localSTE = registerWithinCurrentScope(arg_node, arg_info, ID_NAME(arg_node), STE_varusage, SYMBOLTABLEENTRY_TYPE(varDefSTE));
             // And link to the original declaration
             SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(varDefSTE);
             // Set the correct distance and offset
@@ -453,6 +455,7 @@ node *SAfor(node *arg_node, info *arg_info) {
         // Register the variable, now all occurrences of our vardef name will get a STE entry to us
         node *forVarEntry = registerWithinCurrentScope(FOR_VARDEF(arg_node), arg_info, name, STE_vardef, TY_int);
         VARDEF_DECL(FOR_VARDEF(arg_node)) = forVarEntry;
+        SYMBOLTABLEENTRY_OFFSET(forVarEntry) = SYMBOLTABLE_VARCOUNT(INFO_CURSCOPE(arg_info))++;
         // Process the block
         DBUG_PRINT("SA", ("Processing the block."));
         FOR_BLOCK(arg_node) = TRAVdo(FOR_BLOCK(arg_node), arg_info);

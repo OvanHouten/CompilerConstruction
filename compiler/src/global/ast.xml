@@ -184,6 +184,18 @@
                 </targets>
             </type>
         </attribute>
+        <attribute name="VarCount">
+            <description>The number of variables defined in this scope</description>
+            <type name="Int">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
       </attributes>
     </node>
 
