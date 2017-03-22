@@ -594,7 +594,7 @@ node *PRTerror (node* arg_node, info* arg_info) {
     		printf("********  END TREE CORRUPTION  *******/\n");
 			INFO_FIRSTERROR(arg_info) = TRUE;
 		}
-//	}
+	}
 
 	DBUG_RETURN(arg_node);
 }
