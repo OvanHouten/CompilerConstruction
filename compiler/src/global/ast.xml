@@ -50,9 +50,13 @@
        <traversal id="TC" name="Type Check" default="sons" include="type_check.h">
         <travuser>
           <node name="Assign" />
+          <node name="VarDef"/>
+          <node name="Typecast"/>
           <node name="UnOp" />
           <node name="BinOp" />
+          <node name="FunDef" />
           <node name="Funcall" />
+          <node name="Return" />
         </travuser>
       </traversal>
 
@@ -732,17 +736,6 @@
                 </target>
             </targets>
         </attribute>
-        <attribute name="Type">
-            <description>Reference back to the FunDef node</description>
-            <type name="Type"/>
-            <targets>
-                <target mandatory="yes">
-                    <phases>
-                        <phase from="Context Analysis"/>
-                    </phases>
-                </target>
-            </targets>
-        </attribute>
       </attributes>
     </node>
 
@@ -1098,7 +1091,7 @@
     <node name="UnOp">
       <description>Represents unary operator application</description>
       <sons>
-        <son name="Right">
+        <son name="Expr">
           <description>Right operand expression</description>
           <targets>
             <target mandatory="yes">

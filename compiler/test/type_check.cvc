@@ -1,13 +1,15 @@
 //int a = 5;
 export int main() {
-    int c = foo();
+    float d;
+    float c = foo(false % true);
+//    d = c;
     return 0;
 }
-float foo() {
+float foo(bool a) {
 //    int b;
 //    float c;
 //    b = a;
 //    c = foo();
 //    a = b + a;
-    return 0;
+    return 0.0;
 }

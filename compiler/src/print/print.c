@@ -491,7 +491,7 @@ node * PRTunop (node * arg_node, info * arg_info)
   }
 
   printf( "%s(", tmp);
-  UNOP_RIGHT( arg_node) = TRAVdo( UNOP_RIGHT( arg_node), arg_info);
+  UNOP_EXPR( arg_node) = TRAVdo( UNOP_EXPR( arg_node), arg_info);
   printf( ")");
 
   DBUG_RETURN (arg_node);

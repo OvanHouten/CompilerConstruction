@@ -11,9 +11,13 @@
 #include "types.h"
 
 extern node *TCassign(node *arg_node, info *arg_info);
+extern node *TCvardef(node *arg_node, info *arg_info);
+extern node *TCtypecast(node *arg_node, info *arg_info);
 extern node *TCunop(node *arg_node, info *arg_info);
 extern node *TCbinop(node *arg_node, info *arg_info);
+extern node *TCfundef(node *arg_node, info *arg_info);
 extern node *TCfuncall(node *arg_node, info *arg_info);
+extern node *TCreturn(node *arg_node, info *arg_info);
 
 extern node *TCdoTypeCheck(node *syntaxtree);
 

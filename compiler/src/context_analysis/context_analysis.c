@@ -501,7 +501,7 @@ node *SAbinop(node *arg_node, info *arg_info) {
 node *SAunop(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAunop");
 
-    TRAVdo(UNOP_RIGHT(arg_node), arg_info);
+    TRAVdo(UNOP_EXPR(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
