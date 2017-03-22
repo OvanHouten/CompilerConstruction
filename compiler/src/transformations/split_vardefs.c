@@ -91,6 +91,7 @@ node *SVvardecs(node *arg_node, info *arg_info) {
         node *expr = VARDEF_EXPR(varDef);
         VARDEF_EXPR(varDef)  = NULL;
         node* id = TBmakeId(STRcpy(VARDEF_NAME(varDef)));
+        ID_TYPE(id) = VARDEF_TYPE(varDef);
         ID_DECL(id) = VARDEF_DECL(varDef);
         NODE_LINE(id) = NODE_LINE(varDef);
         NODE_COL(id) = NODE_COL(varDef);

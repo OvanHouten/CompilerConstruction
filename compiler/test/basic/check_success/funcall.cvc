@@ -2,6 +2,6 @@ extern int printi(int a);
 
 int main() {
     int a = 3;
-    bool b = printi(4 && -8);
+    int b = printi(4 * -8);
     printi(a);
 }
