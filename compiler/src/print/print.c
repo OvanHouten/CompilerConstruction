@@ -579,7 +579,7 @@ node *PRTerror(node* arg_node, info* arg_info) {
 
 	first_error = INFO_FIRSTERROR(arg_info);
 
-//	if((global.outfile != NULL) && (ERROR_ANYPHASE( arg_node) == global.compiler_anyphase)) {
+	if((global.outfile != NULL) && (ERROR_ANYPHASE( arg_node) == global.compiler_anyphase)) {
 		if(first_error) {
 			printf("\n/******* BEGIN TREE CORRUPTION ********\n");
 			INFO_FIRSTERROR( arg_info) = FALSE;
@@ -595,7 +595,7 @@ node *PRTerror(node* arg_node, info* arg_info) {
 			printf("********  END TREE CORRUPTION  *******/\n");
 			INFO_FIRSTERROR(arg_info) = TRUE;
 		}
-//	}
+	}
 
 	DBUG_RETURN(arg_node);
 }
