@@ -1,10 +1,10 @@
 extern int main1();
-extern float main2();
+extern int main2();
 extern bool main3();
-extern void main4();
+extern float main4();
 extern int main5(int a);
 extern int main6(int a, int b);
-extern float main7(int a);
+extern bool main7(int a);
 extern float main8(int a, int b);
 extern bool main9(int a);
 extern bool main10(int a, int b);
@@ -49,9 +49,9 @@ int main() {
     int aa;
     int b = 1;
     int bb = 1;
-    float q = 2 + 3 * -4;
+    int q = 2 + 3 * -4;
     int c;
-    bool b_ = main7(4 && -8);
+    bool b_ = main7(4 + -8);
     float l = 9.0 / 0.00;
     a = 2 + 3 * 4;
     a = b;
@@ -71,7 +71,7 @@ int main() {
             bb = c;
         }
         return a - 1;
-    } while (a != c && c > d);
+    } while (a != c && c > b);
     main1();
     main2();
     main3();

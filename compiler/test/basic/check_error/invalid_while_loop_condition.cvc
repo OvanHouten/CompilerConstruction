@@ -1,0 +1,6 @@
+void cantDo() {
+    int a;
+    while (3) {
+        a = 1;
+    }
+}

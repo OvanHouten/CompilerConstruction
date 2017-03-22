@@ -1,0 +1,7 @@
+void main() {
+    int a;
+    int b;
+    if (b == 1 || a == 5) {
+        main();
+    }
+}

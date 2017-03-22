@@ -1,0 +1,3 @@
+void cantCall(int a) {
+    cantCall(1.1);
+}

@@ -1,0 +1,6 @@
+void cantFor() {
+    int a;
+    for (int i = 3, false, 8.9) {
+        a = i;
+    }
+}
