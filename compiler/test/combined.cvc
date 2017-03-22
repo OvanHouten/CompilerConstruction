@@ -54,7 +54,7 @@ int main() {
     a = b;
     aa = bb;
     if (aa > bb) {
-        bb = aa;
+        bb = aa;	
     } else {
         aa = bb;
         return;

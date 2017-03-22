@@ -410,6 +410,18 @@ node *PRTexprs(node * arg_node, info * arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *PRTternop (node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTternop");
+
+	TRAVdo(TERNOP_CONDITION(arg_node), arg_info);
+	printf("?");
+	TRAVdo(TERNOP_THEN(arg_node), arg_info);
+	printf(":");
+	TRAVdo(TERNOP_ELSE(arg_node), arg_info);
+
+    DBUG_RETURN(arg_node);
+}
+
 node *PRTbinop (node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTbinop");
 
@@ -571,7 +583,7 @@ node *PRTerror(node* arg_node, info* arg_info) {
 
 	first_error = INFO_FIRSTERROR(arg_info);
 
-//	if((global.outfile != NULL) && (ERROR_ANYPHASE( arg_node) == global.compiler_anyphase)) {
+	if((global.outfile != NULL) && (ERROR_ANYPHASE( arg_node) == global.compiler_anyphase)) {
 		if(first_error) {
 			printf("\n/******* BEGIN TREE CORRUPTION ********\n");
 			INFO_FIRSTERROR( arg_info) = FALSE;
@@ -587,7 +599,7 @@ node *PRTerror(node* arg_node, info* arg_info) {
 			printf("********  END TREE CORRUPTION  *******/\n");
 			INFO_FIRSTERROR(arg_info) = TRUE;
 		}
-//	}
+	}
 
 	DBUG_RETURN(arg_node);
 }

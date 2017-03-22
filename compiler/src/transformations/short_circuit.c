@@ -7,6 +7,7 @@
 #include "str.h"
 #include "ctinfo.h"
 #include "myglobals.h"
+#include "mytypes.h"
 
 #include "short_circuit.h"
 
@@ -47,11 +48,34 @@ static info *FreeInfo( info *info)
   DBUG_RETURN( info);
 }
 
-node *SCBEexprs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SCBEexpr");
+node *SCBEbinop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SCBEbinop");
+	
+	if(BINOP_OP(arg_node) == BO_and) {
+		node* new_node = TBmakeTerop(BINOP_LEFT(arg_node), NULL, NULL);
+		TEROP_CONDITION(arg_node);
+		TEROP_THEN(arg_node);
+		TEROP_ELSE(arg_node);
+	}
+	else if(BINOP_OP(arg_node) == BO_or) {
+		node* new_node = TBmakeTerop(BINOP_LEFT(arg_node), NULL, NULL);
+		TEROP_CONDITION(arg_node);
+		TEROP_THEN(arg_node);
+		TEROP_ELSE(arg_node);
+	}
+	
+    DBUG_RETURN(arg_node);
+}
 
-	printf("HOI IK BEN NU HIER\n");
-
+node *SCBEunop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SCBEbinop");
+	
+	//node* new_node = TBmakeTerop(NULL);
+	
+	if(UNOP_OP(arg_node) == UO_not) {
+		
+	}
+	
     DBUG_RETURN(arg_node);
 }
 

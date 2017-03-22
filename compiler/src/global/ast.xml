@@ -69,7 +69,8 @@
       
       <traversal id="SCBE" name="ShortCircuit" default="sons" include="short_circuit.h">
         <travuser>
-          <node name="Exprs" />
+          <node name="BinOp" />
+          <node name="UnOp" />
         </travuser>
       </traversal>
     </general>
@@ -102,6 +103,7 @@
         
     <nodeset name="Expr">
       <target>
+        <node name="TernOp" />
         <node name="BinOp" />
         <node name="UnOp" />
         <node name="Typecast" />
@@ -1003,6 +1005,50 @@
           <targets>
             <target mandatory="no">
               <node name="Exprs" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+
+<!--
+ Node TernOp:
+-->
+    <node name="TernOp">
+      <description>Represents arithmatic operator application</description>
+      <sons>
+        <son name="Condition">
+          <description>Condition resulting from left expression</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Then">
+          <description></description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Else">
+          <description></description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
                 <phases>
                   <all />
                 </phases>

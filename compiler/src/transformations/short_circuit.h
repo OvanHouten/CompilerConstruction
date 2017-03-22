@@ -4,7 +4,8 @@
 
 #include "types.h"
 
-extern node *SCBEexprs(node *arg_node, info *arg_info);
+extern node *SCBEbinop(node *arg_node, info *arg_info);
+extern node *SCBEunop(node *arg_node, info *arg_info);
 
 extern node *SCBEdoShortCircuit(node *syntaxtree);
 
