@@ -6,17 +6,17 @@ int foo() {
 		return test;
 	}
 	void nothing(int a, float b) {
-	    if (a > b) {
-	        b = a;
+	    if (a > (int)b) {
+	        b = (float)a;
 	    }
 	}
 	bar();
 }
-void veryNested(bool a) {
+bool veryNested(bool a) {
     int b = 1;
     int firstLevel(float c) {
         bool secondLevel() {
-            return c != b && a < 0;
+            return c != (float)b && b < 0;
         }
     }
 }
