@@ -57,6 +57,9 @@
           <node name="FunDef" />
           <node name="Funcall" />
           <node name="Return" />
+          <node name="Do" />
+          <node name="While" />
+          <node name="For" />
         </travuser>
       </traversal>
 
