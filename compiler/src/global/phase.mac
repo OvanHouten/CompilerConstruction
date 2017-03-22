@@ -33,7 +33,7 @@ PHASE(ca, "Context Analysis", ALWAYS)
 
 SUBPHASE(sa, "Scope Analysis", SAdoScopeAnalysis, ALWAYS, ca)
 
-SUBPHASE(tc, "Type Check", TCdoTypeCheck, ALWAYS, ca)
+SUBPHASE(tc, "Type Check", TCdoTypeCheck, NEVER, ca)
 
 ENDPHASE(ca)
 

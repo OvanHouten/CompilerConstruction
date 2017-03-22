@@ -1,0 +1,13 @@
+//int a = 5;
+export int main() {
+    int c = foo();
+    return 0;
+}
+float foo() {
+//    int b;
+//    float c;
+//    b = a;
+//    c = foo();
+//    a = b + a;
+    return 0;
+}
