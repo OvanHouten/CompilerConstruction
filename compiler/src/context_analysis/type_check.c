@@ -282,7 +282,21 @@ node *TCfuncall(node *arg_node, info *arg_info) {
     DBUG_ENTER("TCfuncall");
 
     DBUG_PRINT("TC", ("Funcall >>"));
-    TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
+    TRAVopt(FUNCALL_EXPRS(arg_node), arg_info);
+
+    if (FUNCALL_EXPRS(arg_node)) {
+        node *params = FUNHEADER_PARAMS(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)));
+        node *exprs = FUNCALL_EXPRS(arg_node);
+        while (exprs) {
+            type expectedType = determineType(PARAMS_PARAM(params));
+            type actualType = determineType(EXPRS_EXPR(exprs));
+            if (actualType != expectedType) {
+                CTIerror("The actual type [%d] and the expected parameter type [%d] don't match at line [%d] and column [%d].", actualType, expectedType, NODE_LINE(arg_node), NODE_COL(arg_node));
+            }
+            params = PARAMS_NEXT(params);
+            exprs = EXPRS_NEXT(exprs);
+        }
+    }
 
     DBUG_PRINT("TC", ("Funcall <<"));
     DBUG_RETURN(arg_node);

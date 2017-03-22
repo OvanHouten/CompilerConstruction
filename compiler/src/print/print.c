@@ -274,7 +274,7 @@ node *PRTfuncall(node * arg_node, info * arg_info) {
     INDENT(arg_info);
 	printf("%s", FUNCALL_NAME(arg_node));
 	printf("(");
-	TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
+	TRAVopt(FUNCALL_EXPRS(arg_node), arg_info);
 	printf(")");
 
 	DBUG_RETURN(arg_node);

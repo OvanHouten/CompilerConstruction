@@ -700,7 +700,7 @@
  -->
     <node name="Funcall" >
       <sons>
-        <son name="Params">
+        <son name="Exprs">
           <description>The parameters for the function call</description>
           <targets>
             <target mandatory="No">

@@ -335,11 +335,11 @@ node *SAfuncall(node *arg_node, info *arg_info) {
         }
         FUNCALL_DECL(arg_node) = funDefSTE;
 
-        TRAVopt(FUNCALL_PARAMS(arg_node), arg_info);
+        TRAVopt(FUNCALL_EXPRS(arg_node), arg_info);
 
         DBUG_PRINT("SA", ("Performing param-count check..."));
         int exprCount = 0;
-        node *exprs = FUNCALL_PARAMS(arg_node);
+        node *exprs = FUNCALL_EXPRS(arg_node);
         while (exprs) {
             exprCount++;
             exprs = EXPRS_NEXT(exprs);
