@@ -219,7 +219,7 @@ node *SAfundef(node *arg_node, info *arg_info) {
 		INFO_CURSCOPE(arg_info) = currentScope;
 			
 		// Register the parameters
-        TRAVopt(FUNDEF_FUNHEADER(arg_node), arg_info);
+        TRAVdo(FUNDEF_FUNHEADER(arg_node), arg_info);
         // And process the body
         TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 		
