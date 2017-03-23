@@ -83,7 +83,7 @@ utils       = numbers.o list_utils.o type_utils.o
 
 context_analysis = context_analysis.o type_check.o
 
-transformations = global_init.o split_vardefs.o
+transformations = global_init.o split_vardefs.o short_circuit.o
 
 optimisations = op_wrapper.o
 

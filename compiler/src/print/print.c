@@ -415,6 +415,20 @@ node *PRTexprs(node * arg_node, info * arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *PRTternop (node * arg_node, info * arg_info) {
+	DBUG_ENTER("PRTternop");
+	
+	printf("(");
+	TRAVdo(TERNOP_CONDITION(arg_node), arg_info);
+	printf("?");
+	TRAVdo(TERNOP_THEN(arg_node), arg_info);
+	printf(":");
+	TRAVdo(TERNOP_ELSE(arg_node), arg_info);
+	printf(")");
+	
+    DBUG_RETURN(arg_node);
+}
+
 node *PRTbinop (node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTbinop");
 
