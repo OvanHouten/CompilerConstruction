@@ -77,6 +77,12 @@
         </travuser>
       </traversal>
 
+      <traversal id="OP" name="Optimisations" default="sons" include="op_wrapper.h">
+        <travuser>
+          <node name="UnOp" />
+        </travuser>
+      </traversal>
+
     </general>
   </phases>
 
