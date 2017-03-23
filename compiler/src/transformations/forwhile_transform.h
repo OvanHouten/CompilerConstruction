@@ -4,7 +4,7 @@
 
 #include "types.h"
 
-extern node* FTWfor(node* arg_node, info* arg_info);
+extern node* FWTfor(node* arg_node, info* arg_info);
 
 extern node* FWTdoForWhileTransform(node* syntaxtree);
 

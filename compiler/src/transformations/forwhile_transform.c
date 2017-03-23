@@ -7,6 +7,8 @@
 #include "str.h"
 #include "ctinfo.h"
 #include "myglobals.h"
+#include "copy_node.h"
+#include "mytypes.h"
 
 #include "forwhile_transform.h"
 
@@ -45,10 +47,27 @@ static info* FreeInfo(info* info) {
 	DBUG_RETURN(info);
 }
 
-node* FTWfor(node* arg_node, info* arg_info) {
+node* FWTfor(node* arg_node, info* arg_info) {
     DBUG_ENTER("FWTfor");
+		
+	// Create Id node for condition
+	node* id = TBmakeId(VARDEF_NAME(FOR_VARDEF(arg_node)));
+	ID_DECL(id) = VARDEF_DECL(FOR_VARDEF(arg_node));
+	ID_TYPE(id) = VARDEF_TYPE(FOR_VARDEF(arg_node));
 	
-    DBUG_RETURN(arg_node);
+	// Create Binop node for condition	
+	node* condition_node = TBmakeBinop(BO_lt, id, FOR_FINISH(arg_node));
+	
+	// Create Increment statement node for the end of the codeblock
+	node* incr_node = TBmakeAssign(COPYid(id, arg_info), TBmakeBinop(BO_add, COPYid(id, arg_info), FOR_STEP(arg_node)));
+	
+	// Add increment statement at the end of the codeblock
+	node* while_node = TBmakeWhile(condition_node, TBmakeStatements(incr_node, FOR_BLOCK(arg_node)));
+	FOR_BLOCK(arg_node) = NULL;
+	
+	TRAVdo(WHILE_BLOCK(while_node), arg_info);
+	
+    DBUG_RETURN(while_node);
 }
 
 node* FWTdoForWhileTransform(node* syntaxtree) {
