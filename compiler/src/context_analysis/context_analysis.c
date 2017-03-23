@@ -489,6 +489,16 @@ node *SAexprs(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *SAternop(node *arg_node, info *arg_info) {
+   DBUG_ENTER("SAternop");
+
+   TRAVdo(TERNOP_CONDITION(arg_node), arg_info);
+   TRAVdo(TERNOP_THEN(arg_node), arg_info);
+   TRAVdo(TERNOP_ELSE(arg_node), arg_info);
+
+   DBUG_RETURN(arg_node);
+}
+
 node *SAbinop(node *arg_node, info *arg_info) {
    DBUG_ENTER("SAbinop");
 
