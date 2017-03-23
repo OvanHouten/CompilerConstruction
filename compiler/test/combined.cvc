@@ -70,9 +70,9 @@ int main() {
         }
         return a - 1;
     } while (a != c && c > b);
-    main1();
-    main2();
-    main3();
+    a = main1();
+    a = main2();
+    b_ = main3();
     b = main();
     b = main1();
     b = main2();
