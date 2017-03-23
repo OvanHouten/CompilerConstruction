@@ -44,6 +44,13 @@ static info *FreeInfo( info *info)
   DBUG_RETURN( info);
 }
 
+void printParamTypes(node *params) {
+    while (params) {
+        printf(" %s", typeToString(VARDEF_TYPE(PARAMS_PARAM(params))));
+        params = PARAMS_NEXT(params);
+    }
+}
+
 node *GBCprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCprogram");
 
@@ -62,12 +69,18 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
             printf(".importvar \"%s\" %s\n", VARDEF_NAME(declaration), typeToString(VARDEF_TYPE(declaration)));
         } else if (VARDEF_EXPORT(declaration)) {
             printf(".exportvar \"%s\" %s %d\n", VARDEF_NAME(declaration), typeToString(VARDEF_TYPE(declaration)), INFO_VAREXPORTCOUNT(arg_info)++);
+        } else {
+            INFO_VAREXPORTCOUNT(arg_info)++;
         }
     } else if (NODE_TYPE(declaration) == N_fundef) {
         if (FUNDEF_EXTERN(declaration)) {
-            printf(".importvfun \"%s\" %s\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
+            printf(".importfun \"%s\" %s", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
+            printParamTypes(FUNHEADER_PARAMS(FUNDEF_FUNHEADER(declaration)));
+            printf("\n");
         } else if (FUNDEF_EXPORT(declaration)) {
-            printf(".exportfun \"%s\" %s\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
+            printf(".exportfun \"%s\" %s", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
+            printParamTypes(FUNHEADER_PARAMS(FUNDEF_FUNHEADER(declaration)));
+            printf(" %s\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)));
         }
     }
 
