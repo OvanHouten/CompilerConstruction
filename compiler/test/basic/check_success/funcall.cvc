@@ -3,5 +3,5 @@ extern int printi(int a);
 int main() {
     int a = 3;
     int b = printi(4 * -8);
-    printi(a);
+    return printi(a);
 }

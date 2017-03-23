@@ -10,6 +10,7 @@
 
 #include "types.h"
 
+extern node *TCstatements(node *arg_node, info *arg_info);
 extern node *TCassign(node *arg_node, info *arg_info);
 extern node *TCvardef(node *arg_node, info *arg_info);
 extern node *TCtypecast(node *arg_node, info *arg_info);
