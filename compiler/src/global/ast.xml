@@ -56,6 +56,7 @@
           <node name="BinOp" />
           <node name="FunDef" />
           <node name="Funcall" />
+          <node name="FunBody" />
           <node name="Return" />
           <node name="Do" />
           <node name="While" />
