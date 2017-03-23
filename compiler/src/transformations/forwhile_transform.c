@@ -8,6 +8,7 @@
 #include "ctinfo.h"
 #include "myglobals.h"
 #include "copy_node.h"
+#include "free_node.h"
 #include "mytypes.h"
 
 #include "forwhile_transform.h"
@@ -62,12 +63,17 @@ node* FWTfor(node* arg_node, info* arg_info) {
 	node* incr_node = TBmakeAssign(COPYid(id, arg_info), TBmakeBinop(BO_add, COPYid(id, arg_info), FOR_STEP(arg_node)));
 	
 	// Add increment statement at the end of the codeblock
-	node* while_node = TBmakeWhile(condition_node, TBmakeStatements(incr_node, FOR_BLOCK(arg_node)));
+	node* new_node = TBmakeWhile(condition_node, TBmakeStatements(incr_node, FOR_BLOCK(arg_node)));
+	
+	// Free old For node
 	FOR_BLOCK(arg_node) = NULL;
+	FOR_STEP(arg_node) = NULL;
+	FOR_FINISH(arg_node) = NULL;
+	FREEfor(arg_node, arg_info);
 	
-	TRAVdo(WHILE_BLOCK(while_node), arg_info);
+	TRAVdo(WHILE_BLOCK(new_node), arg_info);
 	
-    DBUG_RETURN(while_node);
+    DBUG_RETURN(new_node);
 }
 
 node* FWTdoForWhileTransform(node* syntaxtree) {
