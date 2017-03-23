@@ -5,7 +5,7 @@
 /*
  * This enumeration defines two different Symbol Table Entry types
  */
-typedef enum { STE_vardef, STE_fundef } ste_type;
+typedef enum { STE_vardef, STE_varusage, STE_fundef } ste_type;
 
 /*
  * This enumeration defines all unary operations

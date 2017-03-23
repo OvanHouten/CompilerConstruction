@@ -141,7 +141,7 @@ do: DO block WHILE BRACKET_L expr BRACKET_R SEMICOLON { $$ = TBmakeDo($5, $2); }
 
 while: WHILE BRACKET_L expr BRACKET_R block { $$ = TBmakeWhile($3, $5); }
 
-for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R block             { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TY_int, $6, NULL, NULL), $8, NULL, $10); }
+for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R block             { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TY_int, $6, NULL, NULL), $8, TBmakeIntconst(TY_int, 1), $10); }
    | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R block  { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TY_int, $6, NULL, NULL), $8, $10, $12); }
    ;
    

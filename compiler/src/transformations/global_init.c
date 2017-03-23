@@ -82,6 +82,7 @@ node *GIprogram(node *arg_node, info *arg_info) {
                 // And add it to the symboltable
                 node *symbolTableEntry = TBmakeSymboltableentry(NULL);
                 ID_DECL(id) = symbolTableEntry;
+                SYMBOLTABLEENTRY_ENTRYTYPE(symbolTableEntry) = STE_varusage;
                 SYMBOLTABLEENTRY_TYPE(symbolTableEntry) = VARDEF_TYPE(varDef);
                 SYMBOLTABLEENTRY_NAME(symbolTableEntry) = STRcpy(VARDEF_NAME(varDef));
                 SYMBOLTABLEENTRY_DECL(symbolTableEntry) = varDef;

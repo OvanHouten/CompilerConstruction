@@ -49,7 +49,17 @@
 
        <traversal id="TC" name="Type Check" default="sons" include="type_check.h">
         <travuser>
+          <node name="Assign" />
+          <node name="VarDef"/>
+          <node name="Typecast"/>
+          <node name="UnOp" />
+          <node name="BinOp" />
           <node name="FunDef" />
+          <node name="Funcall" />
+          <node name="Return" />
+          <node name="Do" />
+          <node name="While" />
+          <node name="For" />
         </travuser>
       </traversal>
 
@@ -66,6 +76,7 @@
           <node name="Program" />
         </travuser>
       </traversal>
+<<<<<<< HEAD
       
       <traversal id="SCBE" name="ShortCircuit" default="sons" include="short_circuit.h">
         <travuser>
@@ -73,6 +84,15 @@
           <node name="UnOp" />
         </travuser>
       </traversal>
+=======
+
+      <traversal id="OP" name="Optimisations" default="sons" include="op_wrapper.h">
+        <travuser>
+          <node name="UnOp" />
+        </travuser>
+      </traversal>
+
+>>>>>>> master
     </general>
   </phases>
 
@@ -182,6 +202,18 @@
         <attribute name="Parent">
             <description>The symboltable of the outer scope</description>
             <type name="Link">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="VarCount">
+            <description>The number of variables defined in this scope</description>
+            <type name="Int">
                 <targets>
                     <target mandatory="no">
                         <phases>
@@ -681,8 +713,6 @@
           </targets>
         </son>
       </sons>
-      <attributes>
-      </attributes>
     </node>
 
 <!--
@@ -690,7 +720,7 @@
  -->
     <node name="Funcall" >
       <sons>
-        <son name="Params">
+        <son name="Exprs">
           <description>The parameters for the function call</description>
           <targets>
             <target mandatory="No">
@@ -792,8 +822,6 @@
           </targets>
         </son>
       </sons>
-      <attributes>
-      </attributes>
     </node>
 
 <!--
@@ -836,8 +864,6 @@
           </targets>
         </son>
       </sons>
-      <attributes>
-      </attributes>
     </node>
 
 <!--
@@ -869,8 +895,6 @@
           </targets>
         </son>
       </sons>
-      <attributes>
-      </attributes>
     </node>
 
 <!--
@@ -902,8 +926,6 @@
           </targets>
         </son>
       </sons>
-      <attributes>
-      </attributes>
     </node>
 
 <!--
@@ -957,8 +979,6 @@
           </targets>
         </son>
       </sons>
-      <attributes>
-      </attributes>
     </node>
 
 <!--
@@ -980,6 +1000,18 @@
         </son>
       </sons>
       <attributes>
+        <attribute name="Type">
+          <description>Result type</description>
+          <type name="Type">
+            <targets>
+              <target mandatory="no">
+                <phases>
+                  <phase from="Type Check" />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
       </attributes>
     </node>
 
@@ -1095,9 +1127,20 @@
           <type name="BinOp">
             <targets>
               <target mandatory="yes">
-                <any />
                 <phases>
                   <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Type">
+          <description>Operator result type</description>
+          <type name="Type">
+            <targets>
+              <target mandatory="no">
+                <phases>
+                  <phase from="Type Check" />
                 </phases>
               </target>
             </targets>
@@ -1112,7 +1155,7 @@
     <node name="UnOp">
       <description>Represents unary operator application</description>
       <sons>
-        <son name="Right">
+        <son name="Expr">
           <description>Right operand expression</description>
           <targets>
             <target mandatory="yes">
@@ -1133,6 +1176,20 @@
                 <any />
                 <phases>
                   <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
+      <attributes>
+        <attribute name="Type">
+          <description>Operator result type</description>
+          <type name="Type">
+            <targets>
+              <target mandatory="no">
+                <phases>
+                  <phase from="Type Check" />
                 </phases>
               </target>
             </targets>
