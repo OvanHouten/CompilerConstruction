@@ -9,8 +9,10 @@
 #define SRC_UTILS_TYPE_UTILS_H_
 
 #include "types_nodetype.h"
+#include "node_basic.h"
 #include "mytypes.h"
 
 extern char *typeToString(type typeInfo);
+extern type determineType(node *expr);
 
 #endif /* SRC_UTILS_TYPE_UTILS_H_ */

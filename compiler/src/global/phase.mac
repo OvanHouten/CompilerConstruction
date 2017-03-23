@@ -49,6 +49,14 @@ ENDPHASE(tf)
 
 /******************************************************************************/
 
+PHASE(mop, "Optimisations", ALWAYS)
+
+SUBPHASE(op, "Optimisations", OPdoOptimisations, ALWAYS, mop)
+
+ENDPHASE(mop)
+
+/******************************************************************************/
+
 PHASE( cg,
        "Generating Code",
        ALWAYS)
