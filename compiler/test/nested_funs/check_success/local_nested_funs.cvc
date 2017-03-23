@@ -10,7 +10,7 @@ int foo() {
 	        b = (float)a;
 	    }
 	}
-	bar();
+	return bar();
 }
 bool veryNested(bool a) {
     int b = 1;
@@ -18,5 +18,7 @@ bool veryNested(bool a) {
         bool secondLevel() {
             return c != (float)b && b < 0;
         }
+        return -13;
     }
+    return firstLevel(13.0) < 42;
 }
