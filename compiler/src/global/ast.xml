@@ -76,7 +76,6 @@
           <node name="Program" />
         </travuser>
       </traversal>
-<<<<<<< HEAD
       
       <traversal id="SCBE" name="ShortCircuit" default="sons" include="short_circuit.h">
         <travuser>
@@ -84,7 +83,6 @@
           <node name="UnOp" />
         </travuser>
       </traversal>
-=======
 
       <traversal id="OP" name="Optimisations" default="sons" include="op_wrapper.h">
         <travuser>
@@ -92,7 +90,6 @@
         </travuser>
       </traversal>
 
->>>>>>> master
     </general>
   </phases>
 
