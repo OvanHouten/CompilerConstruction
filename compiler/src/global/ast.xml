@@ -92,6 +92,13 @@
         </travuser>
       </traversal>
 
+      <traversal id="GBC" name="Generate Assembler" default="sons" include="gen_byte_code.h" >
+        <travuser>
+            <node name="Program" />
+            <node name="SymbolTableEntry" />
+        </travuser>
+      </traversal>
+
     </general>
   </phases>
 
