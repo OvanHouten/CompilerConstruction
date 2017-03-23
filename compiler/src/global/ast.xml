@@ -79,6 +79,12 @@
         </travuser>
       </traversal>
       
+      <traversal id="FWT" name="ForWhile Transformation" default="sons" include="forwhile_transform.h">
+        <travuser>
+          <node name="For" />
+        </travuser>
+      </traversal>
+      
       <traversal id="SCBE" name="ShortCircuit" default="sons" include="short_circuit.h">
         <travuser>
           <node name="BinOp" />
