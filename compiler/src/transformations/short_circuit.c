@@ -9,6 +9,7 @@
 #include "myglobals.h"
 #include "mytypes.h"
 #include "type_utils.h"
+#include "free_node.h"
 
 #include "short_circuit.h"
 
@@ -51,11 +52,25 @@ node* SCBEbinop(node* arg_node, info* arg_info) {
     DBUG_ENTER("SCBEbinop");
 	
 	if(BINOP_OP(arg_node) == BO_and) {
+		// Create new Ternop node
 		node* new_node = TBmakeTernop(TRAVdo(BINOP_LEFT(arg_node), arg_info), TRAVdo(BINOP_RIGHT(arg_node), arg_info), TBmakeBoolconst(TY_bool, FALSE));
+		
+		// Free old binop node
+		BINOP_LEFT(arg_node) = NULL;
+		BINOP_RIGHT(arg_node) = NULL;
+		FREEbinop(arg_node, arg_info);
+		
 		DBUG_RETURN(new_node);
 	}
 	else if(BINOP_OP(arg_node) == BO_or) {
+		// Create new Ternop node
 		node* new_node = TBmakeTernop(TRAVdo(BINOP_LEFT(arg_node), arg_info), TBmakeBoolconst(TY_bool, TRUE), TRAVdo(BINOP_RIGHT(arg_node), arg_info));
+		
+		// Free old binop node
+		BINOP_LEFT(arg_node) = NULL;
+		BINOP_RIGHT(arg_node) = NULL;
+		FREEbinop(arg_node, arg_info);
+		
 		DBUG_RETURN(new_node);
 	}
 	
@@ -76,8 +91,14 @@ node* SCBEtypecast(node* arg_node, info* arg_info) {
 		}
 		
 		if(zero_node) {
+			// Create new Ternop node
 			node* comparison = TBmakeBinop(BO_ne, TRAVdo(TYPECAST_EXPR(arg_node), arg_info), zero_node);
 			node* new_node = TBmakeTernop(TRAVdo(comparison, arg_info), TBmakeBoolconst(TY_bool, TRUE), TBmakeBoolconst(TY_bool, FALSE));
+			
+			// Free old typecast node
+			TYPECAST_EXPR(arg_node) = NULL;
+			FREEtypecast(arg_node, arg_info);
+			
 			DBUG_RETURN(new_node);
 		}
 	}
