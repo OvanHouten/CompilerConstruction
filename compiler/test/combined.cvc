@@ -57,7 +57,7 @@ int main() {
         bb = aa;
     } else {
         aa = bb;
-        return;
+        return aa;
     }
     while (aa != bb) {
         bb = bb + 1;
@@ -89,4 +89,5 @@ int typecast() {
     float c = 4.2;
     float e = -1.3;
     int d = (int) c;
+    bool optimized = !false;
 }

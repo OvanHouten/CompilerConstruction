@@ -5,7 +5,6 @@
  *      Author: nico
  */
 
-#include "type_check.h"
 
 #include "types.h"
 #include "node_basic.h"
@@ -16,6 +15,8 @@
 #include "ctinfo.h"
 #include "type_utils.h"
 
+#include "type_check.h"
+#include "type_utils.h"
 
 /*
  * INFO structure
@@ -51,51 +52,6 @@ static info *FreeInfo( info *info)
   info = MEMfree( info);
 
   DBUG_RETURN( info);
-}
-
-type determineType(node *expr) {
-    DBUG_ENTER("determineType");
-
-    type exprType = TY_unknown;
-    DBUG_PRINT("TC", ("Determining type for [%d]", NODE_TYPE(expr)));
-    switch (NODE_TYPE(expr)) {
-        case N_funcall :
-            exprType = SYMBOLTABLEENTRY_TYPE(FUNCALL_DECL(expr));
-            break;
-        case N_id :
-            exprType = SYMBOLTABLEENTRY_TYPE(ID_DECL(expr));
-            break;
-        case N_vardef :
-            exprType = VARDEF_TYPE(expr);
-            break;
-        case N_typecast :
-            exprType = TYPECAST_TYPE(expr);
-            break;
-        case N_unop:
-            exprType = UNOP_TYPE(expr);
-            break;
-        case N_binop:
-            exprType = BINOP_TYPE(expr);
-            break;
-        case N_return :
-            exprType = RETURN_TYPE(expr);
-            break;
-        case N_intconst :
-            exprType = TY_int;
-            break;
-        case N_floatconst :
-            exprType = TY_float;
-            break;
-        case N_boolconst :
-            exprType = TY_bool;
-            break;
-        default :
-            DBUG_PRINT("TC", ("Unhandled epxression with type [%d]", NODE_TYPE(expr)));
-            break;
-    }
-    DBUG_PRINT("TC", ("Type [%d]", exprType));
-
-    DBUG_RETURN(exprType);
 }
 
 node *TCassign(node *arg_node, info *arg_info) {
