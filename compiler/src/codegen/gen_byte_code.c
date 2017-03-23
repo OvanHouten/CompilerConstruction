@@ -8,17 +8,19 @@
 
 #include "type_utils.h"
 
+typedef enum {PP_const, PP_global, PP_vardef, PP_fundef} pseudo_phase;
+
 /*
  * INFO structure
  */
 struct INFO {
-  int varExportCount;
+  pseudo_phase pseudoType;
 };
 
 /*
  * INFO macros
  */
-#define INFO_VAREXPORTCOUNT(n)  ((n)->varExportCount)
+#define INFO_PSEUDOTYPE(n) ((n)->pseudoType)
 
 /*
  * INFO functions
@@ -30,7 +32,7 @@ static info *MakeInfo(void)
   DBUG_ENTER( "MakeInfo");
 
   result = (info *)MEMmalloc(sizeof(info));
-  INFO_VAREXPORTCOUNT(result) = 0;
+  INFO_PSEUDOTYPE(result) = STE_const;
 
   DBUG_RETURN( result);
 }
@@ -54,6 +56,13 @@ void printParamTypes(node *params) {
 node *GBCprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCprogram");
 
+    INFO_PSEUDOTYPE(arg_info) = PP_const;
+    TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
+    INFO_PSEUDOTYPE(arg_info) = PP_global;
+    TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
+    INFO_PSEUDOTYPE(arg_info) = PP_vardef;
+    TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
+    INFO_PSEUDOTYPE(arg_info) = PP_fundef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
@@ -63,25 +72,46 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCsymboltableentry");
 
     TRAVopt(SYMBOLTABLEENTRY_NEXT(arg_node), arg_info);
+
     node *declaration = SYMBOLTABLEENTRY_DECL(arg_node);
-    if (NODE_TYPE(declaration) == N_vardef) {
-        if (VARDEF_EXTERN(declaration)) {
-            printf(".importvar \"%s\" %s\n", VARDEF_NAME(declaration), typeToString(VARDEF_TYPE(declaration)));
-        } else if (VARDEF_EXPORT(declaration)) {
-            printf(".exportvar \"%s\" %s %d\n", VARDEF_NAME(declaration), typeToString(VARDEF_TYPE(declaration)), INFO_VAREXPORTCOUNT(arg_info)++);
-        } else {
-            INFO_VAREXPORTCOUNT(arg_info)++;
-        }
-    } else if (NODE_TYPE(declaration) == N_fundef) {
-        if (FUNDEF_EXTERN(declaration)) {
-            printf(".importfun \"%s\" %s", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
-            printParamTypes(FUNHEADER_PARAMS(FUNDEF_FUNHEADER(declaration)));
-            printf("\n");
-        } else if (FUNDEF_EXPORT(declaration)) {
-            printf(".exportfun \"%s\" %s", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
-            printParamTypes(FUNHEADER_PARAMS(FUNDEF_FUNHEADER(declaration)));
-            printf(" %s\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)));
-        }
+    switch (NODE_TYPE(declaration)) {
+        case N_vardef :
+            switch (INFO_PSEUDOTYPE(arg_info)) {
+                case PP_const :
+                    break;
+                case PP_global :
+                    if (!VARDEF_EXTERN(declaration)) {
+                        printf(".global %s\n", typeToString(VARDEF_TYPE(declaration)));
+                    }
+                    break;
+                case PP_vardef :
+                    if (VARDEF_EXTERN(declaration)) {
+                        printf(".importvar \"%s\" %s\n", VARDEF_NAME(declaration), typeToString(VARDEF_TYPE(declaration)));
+                    } else if (VARDEF_EXPORT(declaration)) {
+                        printf(".exportvar \"%s\" %d\n", VARDEF_NAME(declaration), SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(declaration)));
+                    }
+                    break;
+                default :
+                    // Just to get the compiler happy
+                    break;
+            }
+            break;
+        case N_fundef :
+            if (INFO_PSEUDOTYPE(arg_info) == PP_fundef) {
+                if (FUNDEF_EXTERN(declaration)) {
+                    printf(".importfun \"%s\" %s", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
+                    printParamTypes(FUNHEADER_PARAMS(FUNDEF_FUNHEADER(declaration)));
+                    printf("\n");
+                } else if (FUNDEF_EXPORT(declaration)) {
+                    printf(".exportfun \"%s\" %s", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
+                    printParamTypes(FUNHEADER_PARAMS(FUNDEF_FUNHEADER(declaration)));
+                    printf(" %s\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)));
+                }
+            }
+            break;
+        default :
+            // Just to get the compiler happy
+            break;
     }
 
     DBUG_RETURN(arg_node);
@@ -95,7 +125,7 @@ node *GBCdoGenByteCode( node *syntaxtree)
 {
   DBUG_ENTER("GBCdoGenByteCode");
 
-  printf("Starting the assembler generation...\n\n");
+  printf("; Starting the assembler generation...\n\n");
 
   info *arg_info = MakeInfo();
 
@@ -107,7 +137,7 @@ node *GBCdoGenByteCode( node *syntaxtree)
 
   arg_info = FreeInfo(arg_info);
 
-  printf("\n\nAssembler generation done.\n");
+  printf("\n\n; Assembler generation done.\n");
 
   DBUG_RETURN( syntaxtree);
 }

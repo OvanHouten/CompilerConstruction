@@ -20,17 +20,44 @@
 
 #include "context_analysis.h"
 
+typedef struct COUNTERS {
+    int externs;
+    int constants;
+    int variables;
+    struct COUNTERS *previous;
+} counters;
+
 /*
  * INFO structure
  */
 struct INFO {
   node* curScope;
+  counters *counters;
 };
 
 /*
  * INFO macros
  */
 #define INFO_CURSCOPE(n)      ((n)->curScope)
+#define INFO_COUNTERS(n)      ((n)->counters)
+
+void startNewScope(info *arg_info) {
+    counters *newCounters = MEMmalloc(sizeof(counters));
+    newCounters->constants = 0;
+    newCounters->externs = 0;
+    newCounters->variables = 0;
+    newCounters->previous = INFO_COUNTERS(arg_info);
+    INFO_COUNTERS(arg_info) = newCounters;
+}
+
+void closeScope(info *arg_info) {
+    counters *previousCounters = INFO_COUNTERS(arg_info)->previous;
+
+    INFO_COUNTERS(arg_info)->previous = NULL;
+    INFO_COUNTERS(arg_info) = MEMfree(INFO_COUNTERS(arg_info));
+
+    INFO_COUNTERS(arg_info) = previousCounters;
+}
 
 /*
  * INFO functions
@@ -42,7 +69,9 @@ static info *MakeInfo(void)
   DBUG_ENTER( "MakeInfo");
 
   result = (info *)MEMmalloc(sizeof(info));
-  result->curScope = NULL;
+  INFO_CURSCOPE(result) = NULL;
+  INFO_COUNTERS(result) = NULL;
+  startNewScope(result);
 
   DBUG_RETURN( result);
 }
@@ -191,7 +220,7 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
         // Make sure we have a reference at hand to the STE
         FUNDEF_DECL(funDef) = funDefSTE;
         SYMBOLTABLEENTRY_DECL(funDefSTE) = funDef;
-        DBUG_PRINT("SA", ("Registering function [%s] at offset [%d].", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
+        DBUG_PRINT("SA", ("Registered function [%s] at offset [%d].", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
     }
 
     // Continue to register
@@ -211,18 +240,22 @@ node *SAfundef(node *arg_node, info *arg_info) {
 			
         DBUG_PRINT("SA", ("Starting a new scope."));
 		// 	Start new scope
-		node* previousScope = INFO_CURSCOPE(arg_info);
-		node *currentScope = TBmakeSymboltable(NULL);
-		SYMBOLTABLE_PARENT(currentScope) = previousScope;
-		FUNDEF_SYMBOLTABLE(arg_node) = currentScope;
-		INFO_CURSCOPE(arg_info) = currentScope;
-			
+		node *previousScope = INFO_CURSCOPE(arg_info);
+		node *newScope = TBmakeSymboltable(NULL);
+		SYMBOLTABLE_PARENT(newScope) = previousScope;
+		FUNDEF_SYMBOLTABLE(arg_node) = newScope;
+		INFO_CURSCOPE(arg_info) = newScope;
+
+		startNewScope(arg_info);
+
 		// Register the parameters
         TRAVdo(FUNDEF_FUNHEADER(arg_node), arg_info);
         // And process the body
         TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 		
         DBUG_PRINT("SA", ("Closing the scope."));
+
+        closeScope(arg_info);
         // Return to previous scope
 		INFO_CURSCOPE(arg_info) = previousScope;
     }
@@ -273,14 +306,24 @@ node *SAvardef(node *arg_node, info *arg_info) {
         }
 	} else {
         varDefSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_vardef, VARDEF_TYPE(arg_node));
-        SYMBOLTABLEENTRY_OFFSET(varDefSTE) = SYMBOLTABLE_VARCOUNT(INFO_CURSCOPE(arg_info))++;
+        DBUG_PRINT("SA", ("1"));
+        if (VARDEF_EXTERN(arg_node)) {
+            DBUG_PRINT("SA", ("2"));
+            SYMBOLTABLEENTRY_OFFSET(varDefSTE) = INFO_COUNTERS(arg_info)->externs++;
+            DBUG_PRINT("SA", ("3"));
+        } else {
+            DBUG_PRINT("SA", ("4"));
+            SYMBOLTABLEENTRY_OFFSET(varDefSTE) = INFO_COUNTERS(arg_info)->variables++;
+            DBUG_PRINT("SA", ("5"));
+        }
+        DBUG_PRINT("SA", ("6"));
 	}
     // Make sure we have a reference at hand to the STE
     VARDEF_DECL(arg_node) = varDefSTE;
     // And register a reference to the declaration node
     SYMBOLTABLEENTRY_DECL(varDefSTE) = arg_node;
 
-    DBUG_PRINT("SA", ("Registering variable [%s] at offset [%d].", VARDEF_NAME(arg_node), SYMBOLTABLEENTRY_OFFSET(varDefSTE)));
+    DBUG_PRINT("SA", ("Registered variable [%s] at offset [%d].", VARDEF_NAME(arg_node), SYMBOLTABLEENTRY_OFFSET(varDefSTE)));
 
     DBUG_RETURN(arg_node);
 }
@@ -436,14 +479,15 @@ node *SAfor(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAfor");
 
     DBUG_PRINT("SA", ("Processing the start, stop and step expressions."));
-    TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
+    node *varDef = FOR_VARDEF(arg_node);
+    TRAVdo(VARDEF_EXPR(varDef), arg_info);
     TRAVdo(FOR_FINISH(arg_node), arg_info);
     TRAVopt(FOR_STEP(arg_node), arg_info);
 
     // Only go through the trouble if it is really useful
     if (FOR_BLOCK(arg_node)) {
         DBUG_PRINT("SA", ("Looking for existing name."));
-        char *name = VARDEF_NAME(FOR_VARDEF(arg_node));
+        char *name = VARDEF_NAME(varDef);
         node *existingVarDef = findDefWithinScope(arg_info, name, STE_vardef);
 
         char *originalName = NULL;
@@ -455,9 +499,10 @@ node *SAfor(node *arg_node, info *arg_info) {
         }
 
         // Register the variable, now all occurrences of our vardef name will get a STE entry to us
-        node *forVarEntry = registerWithinCurrentScope(FOR_VARDEF(arg_node), arg_info, name, STE_vardef, TY_int);
-        VARDEF_DECL(FOR_VARDEF(arg_node)) = forVarEntry;
-        SYMBOLTABLEENTRY_OFFSET(forVarEntry) = SYMBOLTABLE_VARCOUNT(INFO_CURSCOPE(arg_info))++;
+        node *forVarEntry = registerWithinCurrentScope(varDef, arg_info, name, STE_vardef, TY_int);
+        VARDEF_DECL(varDef) = forVarEntry;
+        SYMBOLTABLEENTRY_DECL(forVarEntry) = varDef;
+        SYMBOLTABLEENTRY_OFFSET(forVarEntry) = INFO_COUNTERS(arg_info)->variables++;
         // Process the block
         DBUG_PRINT("SA", ("Processing the block."));
         FOR_BLOCK(arg_node) = TRAVdo(FOR_BLOCK(arg_node), arg_info);

@@ -101,6 +101,12 @@ node *GIprogram(node *arg_node, info *arg_info) {
         DBUG_PRINT("GI", ("Creating '__init' function for globladefs."));
         node *initMethod = TBmakeFundef( FALSE, TRUE, TBmakeFunheader(TY_void, STRcpy("__init"), NULL), funBody, initSymbolTable);
         PROGRAM_DECLARATIONS(arg_node) = TBmakeDeclarations(initMethod, PROGRAM_DECLARATIONS(arg_node));
+        node *symbolTable = PROGRAM_SYMBOLTABLE(arg_node);
+        SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable) = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable));
+        SYMBOLTABLEENTRY_ENTRYTYPE(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = STE_fundef;
+        SYMBOLTABLEENTRY_DECL(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = initMethod;
+        SYMBOLTABLEENTRY_NAME(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = STRcpy("__init");
+        SYMBOLTABLEENTRY_TYPE(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = TY_void;
     } else {
         // Cleanup
         initSymbolTable = MEMfree(initSymbolTable);
