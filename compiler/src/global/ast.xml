@@ -82,7 +82,7 @@
       <traversal id="SCBE" name="ShortCircuit" default="sons" include="short_circuit.h">
         <travuser>
           <node name="BinOp" />
-          <node name="UnOp" />
+          <node name="Typecast" />
         </travuser>
       </traversal>
 
