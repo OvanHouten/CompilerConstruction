@@ -13,5 +13,5 @@ export int onlyStatement(bool a) {
     return c;
 }
 int main() {
-    return 0;
+    return onlyStatement(false);
 }
