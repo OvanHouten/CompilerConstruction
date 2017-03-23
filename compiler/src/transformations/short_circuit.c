@@ -8,6 +8,7 @@
 #include "ctinfo.h"
 #include "myglobals.h"
 #include "mytypes.h"
+#include "type_utils.h"
 
 #include "short_circuit.h"
 
@@ -27,26 +28,26 @@ struct INFO {
  * INFO functions
  */
 static info *MakeInfo(void) {
-	info *result;
+	info* result;
 
-	DBUG_ENTER( "MakeInfo");
+	DBUG_ENTER("MakeInfo");
 
-	result = (info *)MEMmalloc(sizeof(info));
+	result = (info*)MEMmalloc(sizeof(info));
 
 	INFO_NON_EMPTY(result) = 0;
 
-	DBUG_RETURN( result);
+	DBUG_RETURN(result);
 }
 
-static info *FreeInfo( info *info) {
-	DBUG_ENTER ("FreeInfo");
+static info* FreeInfo(info* info) {
+	DBUG_ENTER("FreeInfo");
 
-	info = MEMfree( info);
+	info = MEMfree(info);
 
-	DBUG_RETURN( info);
+	DBUG_RETURN(info);
 }
 
-node *SCBEbinop(node *arg_node, info *arg_info) {
+node* SCBEbinop(node* arg_node, info* arg_info) {
     DBUG_ENTER("SCBEbinop");
 	
 	if(BINOP_OP(arg_node) == BO_and) {
@@ -61,15 +62,30 @@ node *SCBEbinop(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *SCBEunop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SCBEunop");
+node* SCBEtypecast(node* arg_node, info* arg_info) {
+	DBUG_ENTER("SCBEtypecast");
 	
-	// MAYBE TERNARY OPERATOR AS WELL
+	node* zero_node = NULL;
 	
-    DBUG_RETURN(arg_node);
+	if(TYPECAST_TYPE(arg_node) == TY_bool) {
+		if(determineType(TYPECAST_EXPR(arg_node)) == TY_int) {
+			zero_node = TBmakeIntconst(TY_int, 0);
+		}
+		else if (determineType(TYPECAST_EXPR(arg_node)) == TY_float) {
+			zero_node = TBmakeFloatconst(TY_float, 0.0);
+		}
+		
+		if(zero_node) {
+			node* comparison = TBmakeBinop(BO_ne, TRAVdo(TYPECAST_EXPR(arg_node), arg_info), zero_node);
+			node* new_node = TBmakeTernop(TRAVdo(comparison, arg_info), TBmakeBoolconst(TY_bool, TRUE), TBmakeBoolconst(TY_bool, FALSE));
+			DBUG_RETURN(new_node);
+		}
+	}
+	
+	DBUG_RETURN(arg_node);
 }
 
-node *SCBEdoShortCircuit(node *syntaxtree) {
+node* SCBEdoShortCircuit(node* syntaxtree) {
     DBUG_ENTER("SCBEdoShortCircuit");
 
     info *arg_info = MakeInfo();
