@@ -23,12 +23,14 @@
  */
 struct INFO {
   node *funHeader;
+  bool containsReturn;
 };
 
 /*
  * INFO macros
  */
 #define INFO_FUNHEADER(n)  ((n)->funHeader)
+#define INFO_CONTAINSRETURN(n)  ((n)->containsReturn)
 
 /*
  * INFO functions
@@ -41,6 +43,7 @@ static info *MakeInfo(void)
 
   result = (info *)MEMmalloc(sizeof(info));
   INFO_FUNHEADER(result) = NULL;
+  INFO_CONTAINSRETURN(result) = FALSE;
 
   DBUG_RETURN( result);
 }
@@ -52,6 +55,20 @@ static info *FreeInfo( info *info)
   info = MEMfree( info);
 
   DBUG_RETURN( info);
+}
+
+node *TCstatements(node *arg_node, info *arg_info) {
+    DBUG_ENTER("TCstatements");
+
+    TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
+    TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
+
+    if (NODE_TYPE(STATEMENTS_STATEMENT(arg_node)) == N_funcall) {
+        if (FUNHEADER_RETURNTYPE(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(STATEMENTS_STATEMENT(arg_node)))) != TY_void) {
+              CTIerror("The function '%s' return value must be assigned to a variable at line [%d].", FUNCALL_NAME(STATEMENTS_STATEMENT(arg_node)), NODE_LINE(STATEMENTS_STATEMENT(arg_node)));
+          }
+    }
+    DBUG_RETURN(arg_node);
 }
 
 node *TCassign(node *arg_node, info *arg_info) {
@@ -234,6 +251,25 @@ node *TCfundef(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *TCfunbody(node *arg_node, info *arg_info) {
+    DBUG_ENTER("TCfunbody");
+
+    TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
+    TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
+
+    bool outerContainsReturn = INFO_CONTAINSRETURN(arg_info);
+    INFO_CONTAINSRETURN(arg_info) = FALSE;
+
+    TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
+    if (FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info)) != TY_void && !INFO_CONTAINSRETURN(arg_info)) {
+        CTIerror("The function '%s' at line [%d] must have a return statements that returns [%d].", FUNHEADER_NAME(INFO_FUNHEADER(arg_info)), NODE_LINE(arg_node), FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info)));
+    }
+
+    INFO_CONTAINSRETURN(arg_info) = outerContainsReturn;
+
+    DBUG_RETURN(arg_node);
+}
+
 node *TCfuncall(node *arg_node, info *arg_info) {
     DBUG_ENTER("TCfuncall");
 
@@ -269,6 +305,7 @@ node *TCreturn(node *arg_node, info *arg_info) {
         if (returnType != FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info))) {
             CTIerror("The type of the expression [%d] and the return type [%d] for the function don't match at line [%d] and column [%d].", returnType, FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info)), NODE_LINE(arg_node), NODE_COL(arg_node));
         }
+        INFO_CONTAINSRETURN(arg_info) = TRUE;
     } else {
         if (FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info)) != TY_void) {
             CTIerror("A void returning function can not return anything, at line [%d] and column [%d].", NODE_LINE(arg_node), NODE_COL(arg_node));
