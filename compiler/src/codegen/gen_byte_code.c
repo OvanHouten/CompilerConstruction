@@ -63,13 +63,12 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
         } else if (VARDEF_EXPORT(declaration)) {
             printf(".exportvar \"%s\" %s %d\n", VARDEF_NAME(declaration), typeToString(VARDEF_TYPE(declaration)), INFO_VAREXPORTCOUNT(arg_info)++);
         }
-    } else if (NODE_TYPE(declaration) == N_funheader) {
-        // TODO First refactor the STE's to hold a reference to the FunDef's
-//        if (FUNHEADER_EXTERN(declaration)) {
-//            printf(".importvar \"%s\" %s\n", VARDEF_NAME(declaration), typeToString(VARDEF_TYPE(declaration)));
-//        } else if (VARDEF_EXPORT(declaration)) {
-//            printf(".exportvar \"%s\" %s %d\n", VARDEF_NAME(declaration), typeToString(VARDEF_TYPE(declaration)), INFO_VAREXPORTCOUNT(arg_info)++);
-//        }
+    } else if (NODE_TYPE(declaration) == N_fundef) {
+        if (FUNDEF_EXTERN(declaration)) {
+            printf(".importvfun \"%s\" %s\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
+        } else if (FUNDEF_EXPORT(declaration)) {
+            printf(".exportfun \"%s\" %s\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
+        }
     }
 
     DBUG_RETURN(arg_node);
