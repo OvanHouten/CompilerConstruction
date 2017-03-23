@@ -79,6 +79,12 @@
         </travuser>
       </traversal>
       
+      <traversal id="FWT" name="ForWhile Transformation" default="sons" include="forwhile_transform.h">
+        <travuser>
+          <node name="For" />
+        </travuser>
+      </traversal>
+      
       <traversal id="SCBE" name="ShortCircuit" default="sons" include="short_circuit.h">
         <travuser>
           <node name="BinOp" />
@@ -89,6 +95,13 @@
       <traversal id="OP" name="Optimisations" default="sons" include="op_wrapper.h">
         <travuser>
           <node name="UnOp" />
+        </travuser>
+      </traversal>
+
+      <traversal id="GBC" name="Generate Assembler" default="sons" include="gen_byte_code.h" >
+        <travuser>
+            <node name="Program" />
+            <node name="SymbolTableEntry" />
         </travuser>
       </traversal>
 
@@ -447,6 +460,18 @@
 	        </targets>
           </type>
         </attribute>
+        <attribute name="Decl">
+            <description>Link to its STE</description>
+            <type name="Link">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
       </attributes>
     </node>
 
@@ -492,18 +517,6 @@
               </target>
             </targets>
           </type>
-        </attribute>
-        <attribute name="Decl">
-            <description>Link to its STE</description>
-            <type name="Link">
-                <targets>
-                    <target mandatory="no">
-                        <phases>
-                            <phase from="Context Analysis"/>
-                        </phases>
-                    </target>
-                </targets>
-            </type>
         </attribute>
       </attributes>
     </node>

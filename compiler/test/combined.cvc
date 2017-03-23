@@ -42,7 +42,7 @@ int onlyDecs(int a, int b) {
 export void onlyStatement(bool a) {
     c = d;
 }
-int main() {
+export int main() {
     int a;
     int aa;
     int b = 1;
@@ -80,9 +80,10 @@ int main() {
     for (int i = 0, 10) {
         a = b;
     }
-    for (int i = 100, 0) {
+    for (int i = 100, 0, -1) {
         b = a;
     }
+    return 1;
 }
 int typecast() {
     int a = -4;
