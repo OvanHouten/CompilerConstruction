@@ -29,6 +29,7 @@ extern node *SAdo(node *arg_node, info *arg_info);
 extern node *SAfor(node *arg_node, info *arg_info);
 extern node *SAreturn(node *arg_node, info *arg_info);
 extern node *SAexprs(node *arg_node, info *arg_info);
+extern node *SAternop(node *arg_node, info *arg_info);
 extern node *SAbinop(node *arg_node, info *arg_info);
 extern node *SAunop(node *arg_node, info *arg_info);
 extern node *SAid(node *arg_node, info *arg_info);

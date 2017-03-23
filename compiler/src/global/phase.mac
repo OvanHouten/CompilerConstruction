@@ -45,6 +45,8 @@ SUBPHASE(sv, "Split VarDefs", SVdoSplitVarDefs, ALWAYS, tf)
 
 SUBPHASE(gi, "Global Init", GIdoGlobalInit, ALWAYS, tf)
 
+SUBPHASE(scbe, "Short Circuit Boolean Evaluation", SCBEdoShortCircuit, ALWAYS, tf)
+
 ENDPHASE(tf)
 
 /******************************************************************************/
