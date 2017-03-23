@@ -454,6 +454,18 @@
 	        </targets>
           </type>
         </attribute>
+        <attribute name="Decl">
+            <description>Link to its STE</description>
+            <type name="Link">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
       </attributes>
     </node>
 
@@ -499,18 +511,6 @@
               </target>
             </targets>
           </type>
-        </attribute>
-        <attribute name="Decl">
-            <description>Link to its STE</description>
-            <type name="Link">
-                <targets>
-                    <target mandatory="no">
-                        <phases>
-                            <phase from="Context Analysis"/>
-                        </phases>
-                    </target>
-                </targets>
-            </type>
         </attribute>
       </attributes>
     </node>

@@ -64,7 +64,7 @@ node *TCstatements(node *arg_node, info *arg_info) {
     TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
 
     if (NODE_TYPE(STATEMENTS_STATEMENT(arg_node)) == N_funcall) {
-        if (FUNHEADER_RETURNTYPE(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(STATEMENTS_STATEMENT(arg_node)))) != TY_void) {
+        if (FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(STATEMENTS_STATEMENT(arg_node))))) != TY_void) {
               CTIerror("The function '%s' return value must be assigned to a variable at line [%d].", FUNCALL_NAME(STATEMENTS_STATEMENT(arg_node)), NODE_LINE(STATEMENTS_STATEMENT(arg_node)));
           }
     }
@@ -261,6 +261,7 @@ node *TCfunbody(node *arg_node, info *arg_info) {
     INFO_CONTAINSRETURN(arg_info) = FALSE;
 
     TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
+    DBUG_PRINT("TC", ("..."));
     if (FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info)) != TY_void && !INFO_CONTAINSRETURN(arg_info)) {
         CTIerror("The function '%s' at line [%d] must have a return statements that returns [%d].", FUNHEADER_NAME(INFO_FUNHEADER(arg_info)), NODE_LINE(arg_node), FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info)));
     }
@@ -273,11 +274,11 @@ node *TCfunbody(node *arg_node, info *arg_info) {
 node *TCfuncall(node *arg_node, info *arg_info) {
     DBUG_ENTER("TCfuncall");
 
-    DBUG_PRINT("TC", ("Funcall >>"));
+    DBUG_PRINT("TC", ("Funcall >> [%d]", NODE_LINE(arg_node)));
     TRAVopt(FUNCALL_EXPRS(arg_node), arg_info);
 
     if (FUNCALL_EXPRS(arg_node)) {
-        node *params = FUNHEADER_PARAMS(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)));
+        node *params = FUNHEADER_PARAMS(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node))));
         node *exprs = FUNCALL_EXPRS(arg_node);
         while (exprs) {
             type expectedType = determineType(PARAMS_PARAM(params));
@@ -290,7 +291,7 @@ node *TCfuncall(node *arg_node, info *arg_info) {
         }
     }
 
-    DBUG_PRINT("TC", ("Funcall <<"));
+    DBUG_PRINT("TC", ("Funcall << [%d]", NODE_LINE(arg_node)));
     DBUG_RETURN(arg_node);
 }
 
@@ -361,6 +362,8 @@ node *TCfor(node *arg_node, info *arg_info) {
 node *TCdoTypeCheck(node *syntaxtree) {
     DBUG_ENTER("RCdoReturnCheck");
 
+    DBUG_PRINT("TC", ("Starting the type check."));
+
     info *arg_info = MakeInfo();
 
     TRAVpush(TR_tc);
@@ -370,6 +373,8 @@ node *TCdoTypeCheck(node *syntaxtree) {
     TRAVpop();
 
     arg_info = FreeInfo(arg_info);
+
+    DBUG_PRINT("TC", ("Finished the type check."));
 
     DBUG_RETURN(syntaxtree);
 }

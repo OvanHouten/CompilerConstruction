@@ -139,6 +139,8 @@ node *registerWithinCurrentScope(node* arg_node, info* arg_info, char* name, ste
 
     SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info)) = varDefSTE;
 
+    DBUG_PRINT("SA", ("Registered."));
+
     DBUG_RETURN(varDefSTE);
 }
 
@@ -180,15 +182,15 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
         if(funDefSTE) {        	
             CTIerror("Function [%s] at line %d, column %d has already been declared at line %d, column %d.", name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
         } else {
-            funDefSTE = registerWithinCurrentScope(funHeader, arg_info, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
+            funDefSTE = registerWithinCurrentScope(funDef, arg_info, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
             if (SYMBOLTABLEENTRY_NEXT(funDefSTE)) {
                 SYMBOLTABLEENTRY_OFFSET(funDefSTE) = SYMBOLTABLEENTRY_OFFSET(SYMBOLTABLEENTRY_NEXT(funDefSTE));
             }
 
         }
         // Make sure we have a reference at hand to the STE
-        FUNHEADER_DECL(funHeader) = funDefSTE;
-        SYMBOLTABLEENTRY_DECL(funDefSTE) = funHeader;
+        FUNDEF_DECL(funDef) = funDefSTE;
+        SYMBOLTABLEENTRY_DECL(funDefSTE) = funDef;
         DBUG_PRINT("SA", ("Registering function [%s] at offset [%d].", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
     }
 
@@ -345,7 +347,7 @@ node *SAfuncall(node *arg_node, info *arg_info) {
             exprs = EXPRS_NEXT(exprs);
         }
         DBUG_PRINT("SA", ("Parameters counted."));
-        node *funHeader = SYMBOLTABLEENTRY_DECL(funDefSTE);
+        node *funHeader = FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(funDefSTE));
         int paramCount = 0;
         node *params = FUNHEADER_PARAMS(funHeader);
         while (params) {
