@@ -14,9 +14,11 @@ node *GBCdoGenByteCode( node *syntaxtree)
 {
   DBUG_ENTER("GBCdoGenByteCode");
 
-  /*
-   * Your work here....
-   */
+  printf("Starting the assembler generation...\n\n");
+
+  printf("; The assembler code should appear here...\n");
+
+  printf("\n\nAssembler generation done.\n");
 
   DBUG_RETURN( syntaxtree);
 }

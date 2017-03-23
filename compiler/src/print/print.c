@@ -627,19 +627,21 @@ node *PRTdoPrint( node *syntaxtree)
 
   DBUG_ASSERT( (syntaxtree!= NULL), "PRTdoPrint called with empty syntaxtree");
 
-  printf("\n\n/* CiviC compiler output by Nico Tromp & Olaf van Houten */\n\n");
+  if (myglobal.print_ast) {
+      printf("\n\n/* CiviC compiler output by Nico Tromp & Olaf van Houten */\n\n");
 
-  info = MakeInfo();
+      info = MakeInfo();
 
-  TRAVpush( TR_prt);
+      TRAVpush( TR_prt);
 
-  syntaxtree = TRAVdo( syntaxtree, info);
+      syntaxtree = TRAVdo( syntaxtree, info);
 
-  TRAVpop();
+      TRAVpop();
 
-  info = FreeInfo(info);
+      info = FreeInfo(info);
 
-  printf("\n//That's all folks....\n\n");
+      printf("\n//That's all folks....\n\n");
+  }
 
   DBUG_RETURN( syntaxtree);
 }
