@@ -2,7 +2,19 @@ void main() {
 	bool a = true;
 	bool b = true;
 	bool c = true;
-	while(a && b && c) {
+	if(a && b && c) {
+		a = false;
+	}
+	
+	if(a || b || c) {
+		a = false;
+	}
+	
+	if(a || b && c) {
+		a = false;
+	}
+	
+	if(a && b || c) {
 		a = false;
 	}
 }

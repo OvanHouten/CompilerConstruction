@@ -1243,7 +1243,7 @@
           </type>
         </attribute>
         <attribute name="Value">
-          <description>Value of Boolean</description>
+          <description>Value of Float</description>
           <type name="Float">
             <targets>
               <target mandatory="yes">

@@ -21,60 +21,50 @@ struct INFO {
 /*
  * INFO macros
  */
-#define INFO_NON_EMPTY(n)      ((n)->non_empty)
+#define INFO_NON_EMPTY(n) ((n)->non_empty)
 
 /*
  * INFO functions
  */
-static info *MakeInfo(void)
-{
-  info *result;
+static info *MakeInfo(void) {
+	info *result;
 
-  DBUG_ENTER( "MakeInfo");
+	DBUG_ENTER( "MakeInfo");
 
-  result = (info *)MEMmalloc(sizeof(info));
-  
-  INFO_NON_EMPTY(result) = 0;
+	result = (info *)MEMmalloc(sizeof(info));
 
-  DBUG_RETURN( result);
+	INFO_NON_EMPTY(result) = 0;
+
+	DBUG_RETURN( result);
 }
 
-static info *FreeInfo( info *info)
-{
-  DBUG_ENTER ("FreeInfo");
+static info *FreeInfo( info *info) {
+	DBUG_ENTER ("FreeInfo");
 
-  info = MEMfree( info);
+	info = MEMfree( info);
 
-  DBUG_RETURN( info);
+	DBUG_RETURN( info);
 }
 
 node *SCBEbinop(node *arg_node, info *arg_info) {
     DBUG_ENTER("SCBEbinop");
 	
 	if(BINOP_OP(arg_node) == BO_and) {
-		node* new_node = TBmakeTerop(BINOP_LEFT(arg_node), NULL, NULL);
-		TEROP_CONDITION(arg_node);
-		TEROP_THEN(arg_node);
-		TEROP_ELSE(arg_node);
+		node* new_node = TBmakeTernop(TRAVdo(BINOP_LEFT(arg_node), arg_info), TRAVdo(BINOP_RIGHT(arg_node), arg_info), TBmakeBoolconst(TY_bool, FALSE));
+		DBUG_RETURN(new_node);
 	}
 	else if(BINOP_OP(arg_node) == BO_or) {
-		node* new_node = TBmakeTerop(BINOP_LEFT(arg_node), NULL, NULL);
-		TEROP_CONDITION(arg_node);
-		TEROP_THEN(arg_node);
-		TEROP_ELSE(arg_node);
+		node* new_node = TBmakeTernop(TRAVdo(BINOP_LEFT(arg_node), arg_info), TBmakeBoolconst(TY_bool, TRUE), TRAVdo(BINOP_RIGHT(arg_node), arg_info));
+		DBUG_RETURN(new_node);
 	}
 	
     DBUG_RETURN(arg_node);
 }
 
 node *SCBEunop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SCBEbinop");
+    DBUG_ENTER("SCBEunop");
 	
-	//node* new_node = TBmakeTerop(NULL);
-	
-	if(UNOP_OP(arg_node) == UO_not) {
-		
-	}
+	// MAYBE TERNARY OPERATOR AS WELL
 	
     DBUG_RETURN(arg_node);
 }
