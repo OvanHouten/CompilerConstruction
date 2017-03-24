@@ -16,13 +16,15 @@ typedef enum {PP_const, PP_global, PP_vardef, PP_fundef} pseudo_phase;
  * INFO structure
  */
 struct INFO {
-  pseudo_phase pseudoType;
+  pseudo_phase pseudoPhase;
+  int ifCount;
 };
 
 /*
  * INFO macros
  */
-#define INFO_PSEUDOTYPE(n) ((n)->pseudoType)
+#define INFO_PSEUDOPHASE(n) ((n)->pseudoPhase)
+#define INFO_IFCOUNT(n) ((n)->ifCount)
 
 /*
  * INFO functions
@@ -34,7 +36,8 @@ static info *MakeInfo(void)
   DBUG_ENTER( "MakeInfo");
 
   result = (info *)MEMmalloc(sizeof(info));
-  INFO_PSEUDOTYPE(result) = STE_const;
+  INFO_PSEUDOPHASE(result) = STE_const;
+  INFO_IFCOUNT(result) = 0;
 
   DBUG_RETURN( result);
 }
@@ -79,16 +82,16 @@ node *GBCprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCprogram");
 
     printf("; Constants\n");
-    INFO_PSEUDOTYPE(arg_info) = PP_const;
+    INFO_PSEUDOPHASE(arg_info) = PP_const;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
     printf("\n; Global variables\n");
-    INFO_PSEUDOTYPE(arg_info) = PP_global;
+    INFO_PSEUDOPHASE(arg_info) = PP_global;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
     printf("\n; Import/export variables\n");
-    INFO_PSEUDOTYPE(arg_info) = PP_vardef;
+    INFO_PSEUDOPHASE(arg_info) = PP_vardef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
     printf("\n; Import/export funcation\n");
-    INFO_PSEUDOTYPE(arg_info) = PP_fundef;
+    INFO_PSEUDOPHASE(arg_info) = PP_fundef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
 
     printf("\n; Functions\n");
@@ -106,7 +109,7 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
     node *declaration = SYMBOLTABLEENTRY_DECL(arg_node);
     switch (NODE_TYPE(declaration)) {
         case N_vardef :
-            switch (INFO_PSEUDOTYPE(arg_info)) {
+            switch (INFO_PSEUDOPHASE(arg_info)) {
                 case PP_const :
                     break;
                 case PP_global :
@@ -127,7 +130,7 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
             }
             break;
         case N_fundef :
-            if (INFO_PSEUDOTYPE(arg_info) == PP_fundef) {
+            if (INFO_PSEUDOPHASE(arg_info) == PP_fundef) {
                 if (FUNDEF_EXTERN(declaration)) {
                     printf(".importfun \"%s\" %s", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
                     printParamTypes(FUNHEADER_PARAMS(FUNDEF_FUNHEADER(declaration)));
@@ -186,6 +189,27 @@ node *GBCreturn(node *arg_node, info *arg_info) {
     } else {
         printf("    return\n");
     }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *GBCif(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCif");
+
+    int ifCount = INFO_IFCOUNT(arg_info)++;
+
+    TRAVdo(IF_CONDITION(arg_node), arg_info);
+    if (IF_ELSEBLOCK(arg_node)) {
+        printf("    branch_f _else_%d\n", ifCount);
+        TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+        printf("    jump _end_%d\n", ifCount);
+        printf("_else_%d:\n", ifCount);
+        TRAVdo(IF_ELSEBLOCK(arg_node), arg_info);
+    } else {
+        printf("    branch_f _end_%d\n", ifCount);
+        TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+    }
+    printf("_end_%d:\n", ifCount);
 
     DBUG_RETURN(arg_node);
 }
