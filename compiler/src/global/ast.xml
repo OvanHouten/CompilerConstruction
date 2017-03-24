@@ -107,6 +107,7 @@
             <node name="Return" />
             <node name="If" />
             <node name="While" />
+            <node name="Assign" />
             <node name="IntConst" />
             <node name="FloatConst" />
             <node name="BoolConst" />

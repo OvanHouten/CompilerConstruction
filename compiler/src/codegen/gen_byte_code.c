@@ -199,6 +199,7 @@ node *GBCreturn(node *arg_node, info *arg_info) {
 node *GBCif(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCif");
 
+    printf("; Line %d\n", NODE_LINE(arg_node));
     int ifCount = INFO_IFCOUNT(arg_info)++;
     // TODO Optimize for empty if-block
     TRAVdo(IF_CONDITION(arg_node), arg_info);
@@ -220,6 +221,7 @@ node *GBCif(node *arg_node, info *arg_info) {
 node *GBCwhile(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCwhile");
 
+    printf("; Line %d\n", NODE_LINE(arg_node));
     if (WHILE_BLOCK(arg_node)) {
         int whileCount = INFO_WHILECOUNT(arg_info)++;
         printf("_while_start_%d\n", whileCount);
@@ -236,6 +238,20 @@ node *GBCwhile(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *GBCassign(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCassign");
+
+    TRAVdo(ASSIGN_EXPR(arg_node), arg_info);
+
+    if (SYMBOLTABLEENTRY_DISTANCE(ID_DECL(ASSIGN_LET(arg_node))) == 0) {
+        printf("    %sstore %d\n", encodeReturnType(SYMBOLTABLEENTRY_TYPE(ID_DECL(ASSIGN_LET(arg_node)))), SYMBOLTABLEENTRY_OFFSET(ID_DECL(ASSIGN_LET(arg_node))));
+    } else {
+        printf("; Assigning to non-local variables is not yet supported.\n");
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
 node *GBCintconst(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCintconst");
 
@@ -248,6 +264,7 @@ node *GBCintconst(node *arg_node, info *arg_info) {
             printf("    iloadc_%d\n", INTCONST_VALUE(arg_node));
             break;
         default:
+            // FIXME
             printf("; Integer constants for return statements other then -1, 0 and 1 are not yet supported!\n");
     }
 
@@ -262,6 +279,7 @@ node *GBCfloatconst(node *arg_node, info *arg_info) {
     } else if (FLOATCONST_VALUE(arg_node) == 1.0) {
         printf("    floadc_1\n");
     } else {
+        // FIXME
             printf("; Float constants for return statements other then 0 and 1 are not yet supported!\n");
     }
 
