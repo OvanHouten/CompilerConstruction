@@ -55,6 +55,26 @@ void printParamTypes(node *params) {
     }
 }
 
+char *encodeReturnType(type returnType) {
+    char *returnChar = "";
+    switch (returnType) {
+        case TY_int:
+            returnChar = "i";
+            break;
+        case TY_float:
+            returnChar = "f";
+            break;
+        case TY_bool:
+            returnChar = "b";
+            break;
+        case TY_void:
+            break;
+        case TY_unknown :
+            CTIerror("Type check failed earlier, a function is missing a return type, can't generate byte code.");
+    }
+    return returnChar;
+}
+
 node *GBCprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCprogram");
 
@@ -136,40 +156,22 @@ node *GBCdeclarations(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-char *encodeReturnType(type returnType) {
-    char *returnChar = "";
-    switch (returnType) {
-        case TY_int:
-            returnChar = "i";
-            break;
-        case TY_float:
-            returnChar = "f";
-            break;
-        case TY_bool:
-            returnChar = "b";
-            break;
-        case TY_void:
-            break;
-        case TY_unknown :
-            CTIerror("Type check failed earlier, a function is missing a return type, can't generate byte code.");
-    }
-    return returnChar;
-}
-
 node *GBCfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCfundef");
 
-    printf("\n%s:\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)));
-    int localVarCount = 0;
-    if (FUNDEF_SYMBOLTABLE(arg_node) && SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node)) > 0) {
-        localVarCount = SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node));
-        printf("    esr %d\n", localVarCount);
-    }
+    if (!FUNDEF_EXTERN(arg_node)) {
+        printf("\n%s:\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)));
+        int localVarCount = 0;
+        if (FUNDEF_SYMBOLTABLE(arg_node) && SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node)) > 0) {
+            localVarCount = SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node));
+            printf("    esr %d\n", localVarCount);
+        }
 
-    TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
+        TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
-    if (FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(arg_node)) == TY_void) {
-        printf("    return\n");
+        if (FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(arg_node)) == TY_void) {
+            printf("    return\n");
+        }
     }
 
     DBUG_RETURN(arg_node);
