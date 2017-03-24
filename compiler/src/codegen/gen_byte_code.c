@@ -211,12 +211,11 @@ node *GBCintconst(node *arg_node, info *arg_info) {
 node *GBCfloatconst(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCfloatconst");
 
-    switch (FLOATCONST_VALUE(arg_node)) {
-        case 0.0:
-        case 1.0:
-            printf("    floadc_%d\n", (int)INTCONST_VALUE(arg_node));
-            break;
-        default:
+    if (FLOATCONST_VALUE(arg_node) == 0.0) {
+        printf("    floadc_0\n");
+    } else if (FLOATCONST_VALUE(arg_node) == 1.0) {
+        printf("    floadc_1\n");
+    } else {
             printf("; Float constants for return statements other then 0 and 1 are not yet supported!\n");
     }
 
