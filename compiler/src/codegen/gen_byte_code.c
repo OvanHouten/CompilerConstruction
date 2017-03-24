@@ -61,24 +61,24 @@ void printParamTypes(node *params) {
     }
 }
 
-char *encodeReturnType(type returnType, int lineNr) {
-    char *returnChar = "<BOGUS-T>";
-    switch (returnType) {
+char *encodeType(type ypeToEncode, int lineNr) {
+    char *typeId = "<BOGUS-T>";
+    switch (ypeToEncode) {
         case TY_int:
-            returnChar = "i";
+            typeId = "i";
             break;
         case TY_float:
-            returnChar = "f";
+            typeId = "f";
             break;
         case TY_bool:
-            returnChar = "b";
+            typeId = "b";
             break;
         case TY_void:
             break;
         case TY_unknown :
             CTIerror("Type check failed earlier, type information is missing for an instruction on line [%d], can't generate byte code.", lineNr);
     }
-    return returnChar;
+    return typeId;
 }
 
 char *encodeOperator(binop op, int lineNr) {
@@ -245,7 +245,7 @@ node *GBCreturn(node *arg_node, info *arg_info) {
 
     if (RETURN_EXPR(arg_node)) {
         TRAVdo(RETURN_EXPR(arg_node), arg_info);
-        printf("    %sreturn\n", encodeReturnType(determineType(RETURN_EXPR(arg_node)), NODE_LINE(arg_node)));
+        printf("    %sreturn\n", encodeType(determineType(RETURN_EXPR(arg_node)), NODE_LINE(arg_node)));
     } else {
         printf("    return\n");
     }
@@ -301,7 +301,7 @@ node *GBCassign(node *arg_node, info *arg_info) {
     TRAVdo(ASSIGN_EXPR(arg_node), arg_info);
 
     if (SYMBOLTABLEENTRY_DISTANCE(ID_DECL(ASSIGN_LET(arg_node))) == 0) {
-        printf("    %sstore %d\n", encodeReturnType(SYMBOLTABLEENTRY_TYPE(ID_DECL(ASSIGN_LET(arg_node))), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(ASSIGN_LET(arg_node))));
+        printf("    %sstore %d\n", encodeType(SYMBOLTABLEENTRY_TYPE(ID_DECL(ASSIGN_LET(arg_node))), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(ASSIGN_LET(arg_node))));
     } else {
         printf("; Assigning to non-local variables is not yet supported.\n");
     }
@@ -315,9 +315,9 @@ node *GBCid(node *arg_node, info *arg_info) {
     if (SYMBOLTABLEENTRY_DISTANCE(ID_DECL(arg_node)) == 0) {
         int offset = SYMBOLTABLEENTRY_OFFSET(ID_DECL(arg_node));
         if (offset <= 3) {
-            printf("    %sload_%d\n", encodeReturnType(SYMBOLTABLEENTRY_TYPE(ID_DECL(arg_node)), NODE_LINE(arg_node)), offset);
+            printf("    %sload_%d\n", encodeType(SYMBOLTABLEENTRY_TYPE(ID_DECL(arg_node)), NODE_LINE(arg_node)), offset);
         } else {
-            printf("    %sload %d\n", encodeReturnType(SYMBOLTABLEENTRY_TYPE(ID_DECL(arg_node)), NODE_LINE(arg_node)), offset);
+            printf("    %sload %d\n", encodeType(SYMBOLTABLEENTRY_TYPE(ID_DECL(arg_node)), NODE_LINE(arg_node)), offset);
         }
     } else {
         printf("; Using non-local variables is not yet supported.\n");
@@ -331,7 +331,7 @@ node *GBCunop(node *arg_node, info *arg_info) {
 
     // TODO check if the ternary operator replaces boolean typecasts.
     TRAVdo(UNOP_EXPR(arg_node), arg_info);
-    printf("    %s%s\n", encodeReturnType(determineType(arg_node), NODE_LINE(arg_node)), UNOP_OP(arg_node) == UO_not ? "not" : "neg");
+    printf("    %s%s\n", encodeType(determineType(arg_node), NODE_LINE(arg_node)), UNOP_OP(arg_node) == UO_not ? "not" : "neg");
 
     DBUG_RETURN(arg_node);
 }
@@ -339,7 +339,7 @@ node *GBCunop(node *arg_node, info *arg_info) {
 node *GBCtypecast(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCtypecast");
 
-    printf("    %s2%s\n", encodeReturnType(TYPECAST_TYPE(arg_node), NODE_LINE(arg_node)), encodeReturnType(determineType(TYPECAST_EXPR(arg_node)), NODE_LINE(arg_node)));
+    printf("    %s2%s\n", encodeType(TYPECAST_TYPE(arg_node), NODE_LINE(arg_node)), encodeType(determineType(TYPECAST_EXPR(arg_node)), NODE_LINE(arg_node)));
 
     DBUG_RETURN(arg_node);
 }
@@ -349,7 +349,7 @@ node *GBCbinop(node *arg_node, info *arg_info) {
 
     TRAVdo(BINOP_RIGHT(arg_node), arg_info);
     TRAVdo(BINOP_LEFT(arg_node), arg_info);
-    printf("    %s%s\n", encodeReturnType(determineType(arg_node), NODE_LINE(arg_node)), encodeOperator(BINOP_OP(arg_node), NODE_LINE(arg_node)));
+    printf("    %s%s\n", encodeType(determineType(arg_node), NODE_LINE(arg_node)), encodeOperator(BINOP_OP(arg_node), NODE_LINE(arg_node)));
 
     DBUG_RETURN(arg_node);
 }
