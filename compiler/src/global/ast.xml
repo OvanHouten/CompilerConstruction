@@ -111,6 +111,7 @@
             <node name="Assign" />
             <node name="Id" />
             <node name="UnOp" />
+            <node name="Typecast" />
             <node name="IntConst" />
             <node name="FloatConst" />
             <node name="BoolConst" />

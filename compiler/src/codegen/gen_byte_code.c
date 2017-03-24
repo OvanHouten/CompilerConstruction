@@ -281,8 +281,17 @@ node *GBCid(node *arg_node, info *arg_info) {
 node *GBCunop(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCunop");
 
+    // TODO check if the ternary operator replaces boolean typecasts.
     TRAVdo(UNOP_EXPR(arg_node), arg_info);
     printf("    %s%s\n", encodeReturnType(determineType(arg_node)), UNOP_OP(arg_node) == UO_not ? "not" : "neg");
+
+    DBUG_RETURN(arg_node);
+}
+
+node *GBCtypecast(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCtypecast");
+
+    printf("    %s2%s\n", encodeReturnType(TYPECAST_TYPE(arg_node)), encodeReturnType(determineType(TYPECAST_EXPR(arg_node))));
 
     DBUG_RETURN(arg_node);
 }
