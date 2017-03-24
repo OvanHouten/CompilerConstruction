@@ -105,6 +105,7 @@
             <node name="Declarations" />
             <node name="FunDef" />
             <node name="Return" />
+            <node name="IntConst" />
         </travuser>
       </traversal>
 

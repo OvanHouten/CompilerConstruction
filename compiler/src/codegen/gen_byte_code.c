@@ -181,9 +181,22 @@ node *GBCreturn(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCreturn");
 
     if (RETURN_EXPR(arg_node)) {
+        TRAVdo(RETURN_EXPR(arg_node), arg_info);
         printf("    %sreturn\n", encodeReturnType(determineType(RETURN_EXPR(arg_node))));
     } else {
         printf("    return\n");
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *GBCintconst(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCintconst");
+
+    if (INTCONST_VALUE(arg_node) >= 0 && INTCONST_VALUE(arg_node) <= 1) {
+        printf("    iloadc_%d\n", INTCONST_VALUE(arg_node));
+    } else {
+        printf("; Integer constants for return statements other then 0 and 1 are not yet supported!\n");
     }
 
     DBUG_RETURN(arg_node);
