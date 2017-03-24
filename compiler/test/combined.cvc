@@ -94,3 +94,12 @@ int typecast() {
     bool optimized = !!!false;
     return (int) optimized;
 }
+void globalAccess(int aa, float cc) {
+    bla1 = a;
+    a = aa;
+    c = cc;
+    bla2 = cc;
+    bla1 = bla1;
+    c = c;
+    bla3 = bla3;
+}

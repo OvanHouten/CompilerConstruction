@@ -303,15 +303,16 @@ node *GBCassign(node *arg_node, info *arg_info) {
     TRAVdo(ASSIGN_EXPR(arg_node), arg_info);
 
     node *symbolTableEntry = ID_DECL(ASSIGN_LET(arg_node));
+    node *varDef = SYMBOLTABLEENTRY_DECL(symbolTableEntry);
+
+    char* dataType = encodeType(SYMBOLTABLEENTRY_TYPE(symbolTableEntry), NODE_LINE(arg_node));
     int distance = SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry);
     int offset = SYMBOLTABLEENTRY_OFFSET(symbolTableEntry);
-    char* dataType = encodeType(SYMBOLTABLEENTRY_TYPE(symbolTableEntry), NODE_LINE(arg_node));
-    node *varDef = SYMBOLTABLEENTRY_DECL(symbolTableEntry);
 
     if (distance == 0 || SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
         printf("    %sstore%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
     } else {
-        printf("; Assigning to non-local variables is not yet supported.\n");
+        printf("; Assigning to relative free variables is not yet supported.\n");
     }
 
     DBUG_RETURN(arg_node);
@@ -320,14 +321,22 @@ node *GBCassign(node *arg_node, info *arg_info) {
 node *GBCid(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCid");
 
-    int distance = SYMBOLTABLEENTRY_DISTANCE(ID_DECL(arg_node));
+    node *symbolTableEntry = ID_DECL(arg_node);
+    node *varDef = SYMBOLTABLEENTRY_DECL(symbolTableEntry);
+
+    char* dataType = encodeType(SYMBOLTABLEENTRY_TYPE(symbolTableEntry), NODE_LINE(arg_node));
+    int distance = SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry);
+    int offset = SYMBOLTABLEENTRY_OFFSET(symbolTableEntry);
+
     if (distance == 0) {
-        int offset = SYMBOLTABLEENTRY_OFFSET(ID_DECL(arg_node));
+        int offset = SYMBOLTABLEENTRY_OFFSET(symbolTableEntry);
         if (offset <= 3) {
-            printf("    %sload_%d\n", encodeType(SYMBOLTABLEENTRY_TYPE(ID_DECL(arg_node)), NODE_LINE(arg_node)), offset);
+            printf("    %sload_%d\n", dataType, offset);
         } else {
-            printf("    %sload %d\n", encodeType(SYMBOLTABLEENTRY_TYPE(ID_DECL(arg_node)), NODE_LINE(arg_node)), offset);
+            printf("    %sload %d\n", dataType, offset);
         }
+    } else if (SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
+        printf("    %sload%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
     } else {
         printf("; Using non-local variables is not yet supported.\n");
     }
