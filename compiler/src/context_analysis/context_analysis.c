@@ -45,7 +45,6 @@ void startNewScope(info *arg_info) {
     counters *newCounters = MEMmalloc(sizeof(counters));
     newCounters->constants = 0;
     newCounters->externs = 0;
-    newCounters->variables = 0;
     newCounters->previous = INFO_COUNTERS(arg_info);
     INFO_COUNTERS(arg_info) = newCounters;
 }
@@ -313,7 +312,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
             DBUG_PRINT("SA", ("3"));
         } else {
             DBUG_PRINT("SA", ("4"));
-            SYMBOLTABLEENTRY_OFFSET(varDefSTE) = INFO_COUNTERS(arg_info)->variables++;
+            SYMBOLTABLEENTRY_OFFSET(varDefSTE) = SYMBOLTABLE_VARIABLES(INFO_CURSCOPE(arg_info))++;
             DBUG_PRINT("SA", ("5"));
         }
         DBUG_PRINT("SA", ("6"));
@@ -502,7 +501,7 @@ node *SAfor(node *arg_node, info *arg_info) {
         node *forVarEntry = registerWithinCurrentScope(varDef, arg_info, name, STE_vardef, TY_int);
         VARDEF_DECL(varDef) = forVarEntry;
         SYMBOLTABLEENTRY_DECL(forVarEntry) = varDef;
-        SYMBOLTABLEENTRY_OFFSET(forVarEntry) = INFO_COUNTERS(arg_info)->variables++;
+        SYMBOLTABLEENTRY_OFFSET(forVarEntry) = SYMBOLTABLE_VARIABLES(INFO_CURSCOPE(arg_info))++;
         // Process the block
         DBUG_PRINT("SA", ("Processing the block."));
         FOR_BLOCK(arg_node) = TRAVdo(FOR_BLOCK(arg_node), arg_info);

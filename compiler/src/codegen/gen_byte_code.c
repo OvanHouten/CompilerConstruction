@@ -5,9 +5,11 @@
 #include "traverse.h"
 #include "dbug.h"
 #include "memory.h"
+#include "ctinfo.h"
 
 #include "type_utils.h"
 
+// Used for grouping the pseudo codes at the top of the assembly program
 typedef enum {PP_const, PP_global, PP_vardef, PP_fundef} pseudo_phase;
 
 /*
@@ -133,11 +135,38 @@ node *GBCdeclarations(node *arg_node, info *arg_info) {
 
     DBUG_RETURN(arg_node);
 }
+
+char *encodeReturnType(type returnType) {
+    char *returnChar = "";
+    switch (returnType) {
+        case TY_int:
+            returnChar = "i";
+            break;
+        case TY_float:
+            returnChar = "f";
+            break;
+        case TY_bool:
+            returnChar = "b";
+            break;
+        case TY_void:
+            break;
+        case TY_unknown :
+            CTIerror("Type check failed earlier, a function is missing a return type, can't generate byte code.");
+    }
+    return returnChar;
+}
+
 node *GBCfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCfundef");
 
     printf("\n%s:\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)));
+    int localVarCount = 0;
+    if (FUNDEF_SYMBOLTABLE(arg_node) && SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node)) > 0) {
+        localVarCount = SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node));
+        printf("esr %d\n", localVarCount);
+    }
     TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
+    printf("%sreturn\n", encodeReturnType(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(arg_node))));
 
     DBUG_RETURN(arg_node);
 }

@@ -225,6 +225,18 @@
                 </targets>
             </type>
         </attribute>
+        <attribute name="Variables">
+            <description>The number of variables within the symboltable</description>
+            <type name="Int">
+                <targets>
+                    <target mandatory="yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
       </attributes>
     </node>
 
