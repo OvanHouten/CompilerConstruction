@@ -190,22 +190,43 @@ node *GBCreturn(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *GBCboolconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("GBCboolconst");
+node *GBCintconst(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCintconst");
 
-    printf("    bloadc_%s\n", BOOLCONST_VALUE(arg_node) ? "t" : "f");
+    switch (INTCONST_VALUE(arg_node)) {
+        case -1:
+            printf("    iloadc_m1\n");
+            break;
+        case 0:
+        case 1:
+            printf("    iloadc_%d\n", INTCONST_VALUE(arg_node));
+            break;
+        default:
+            printf("; Integer constants for return statements other then -1, 0 and 1 are not yet supported!\n");
+    }
 
     DBUG_RETURN(arg_node);
 }
 
-node *GBCintconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("GBCintconst");
+node *GBCfloatconst(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCfloatconst");
 
-    if (INTCONST_VALUE(arg_node) >= 0 && INTCONST_VALUE(arg_node) <= 1) {
-        printf("    iloadc_%d\n", INTCONST_VALUE(arg_node));
-    } else {
-        printf("; Integer constants for return statements other then 0 and 1 are not yet supported!\n");
+    switch (FLOATCONST_VALUE(arg_node)) {
+        case 0.0:
+        case 1.0:
+            printf("    floadc_%d\n", (int)INTCONST_VALUE(arg_node));
+            break;
+        default:
+            printf("; Float constants for return statements other then 0 and 1 are not yet supported!\n");
     }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *GBCboolconst(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCboolconst");
+
+    printf("    bloadc_%s\n", BOOLCONST_VALUE(arg_node) ? "t" : "f");
 
     DBUG_RETURN(arg_node);
 }

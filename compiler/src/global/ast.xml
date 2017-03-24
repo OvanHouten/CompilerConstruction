@@ -105,8 +105,9 @@
             <node name="Declarations" />
             <node name="FunDef" />
             <node name="Return" />
-            <node name="BoolConst" />
             <node name="IntConst" />
+            <node name="FloatConst" />
+            <node name="BoolConst" />
         </travuser>
       </traversal>
 
