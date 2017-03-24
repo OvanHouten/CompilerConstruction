@@ -252,6 +252,23 @@ node *GBCassign(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *GBCid(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCid");
+
+    if (SYMBOLTABLEENTRY_DISTANCE(ID_DECL(arg_node)) == 0) {
+        int offset = SYMBOLTABLEENTRY_OFFSET(ID_DECL(arg_node));
+        if (offset <= 3) {
+            printf("    %sload_%d\n", encodeReturnType(SYMBOLTABLEENTRY_TYPE(ID_DECL(arg_node))), offset);
+        } else {
+            printf("    %sload %d\n", encodeReturnType(SYMBOLTABLEENTRY_TYPE(ID_DECL(arg_node))), offset);
+        }
+    } else {
+        printf("; Using non-local variables is not yet supported.\n");
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
 node *GBCintconst(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCintconst");
 
