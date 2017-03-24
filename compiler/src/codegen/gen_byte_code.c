@@ -56,14 +56,22 @@ void printParamTypes(node *params) {
 node *GBCprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCprogram");
 
+    printf("; Constants\n");
     INFO_PSEUDOTYPE(arg_info) = PP_const;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
+    printf("\n; Global variables\n");
     INFO_PSEUDOTYPE(arg_info) = PP_global;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
+    printf("\n; Import/export variables\n");
     INFO_PSEUDOTYPE(arg_info) = PP_vardef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
+    printf("\n; Import/export funcation\n");
     INFO_PSEUDOTYPE(arg_info) = PP_fundef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
+
+    printf("\n; Functions\n");
+
+    TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -113,6 +121,23 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
             // Just to get the compiler happy
             break;
     }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *GBCdeclarations(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCdeclarations");
+
+    TRAVopt(DECLARATIONS_NEXT(arg_node), arg_info);
+    TRAVdo(DECLARATIONS_DECLARATION(arg_node), arg_info);
+
+    DBUG_RETURN(arg_node);
+}
+node *GBCfundef(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCfundef");
+
+    printf("\n%s:\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)));
+    TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }

@@ -57,13 +57,16 @@ This is handled during the traversal. Function names are registered when before 
 
 === SYMBOL TABLE IMPLEMENTATION ===
 In preparation for the implementation the ID node in the AST has been assigned a new meaning. It is basically a node that defines a variable. All the other nodes that had a ID node for defining their name have been extended with a 'name' attribute. This change, as a side effect, makes the treversal in later phases less complicated. Until now we had almost no way of knowing if the ID node was a actual variabel node or was the name of a function. After this change each ID node has a single purpose.
-Every FunDef node and the Program node have a dedicated SymbolTable node. Each SymbolTable has entries for every variable and function that is used within the scope of the function. Each STE holds a reference to the declaring node. So the STE for a VarDef has its attribute DECL pointing to the VarDef. Later on a ID STE will have a reference to that same VarDef. The same applies for FunDefs/FunHeaders and FunCall nodes. For FunDef the STE DECL references the FunHeader node. The FunHeader node contains all the information that is characteristic for the function.
+Every FunDef node and the Program node have a dedicated SymbolTable node. Each SymbolTable has entries for every variable and function that is used within the scope of the function. Each STE holds a reference to the declaring node. So the STE for a VarDef has its attribute DECL pointing to the VarDef. Later on a ID STE will have a reference to that same VarDef. The same applies for FunDef and FunCall nodes. For FunDef the STE DECL references the FunDef node. The FunDef node contains all the information that is characteristic for the function.
 
 VarDef <- STE <- ID
    +-------^
 
-FunHeader <- STE <- FunDef
-FunHeader <- STE <- FunCall
+FunDef <- STE <- FunDef
+   +-------^
+FunDef <- STE <- FunCall
+
+The SymbolTable and the SymbolTableEntries has been extended with extra information. SymbolTableEntries have a type attribute. Currrently we have VarDef, VarUsage, FunDef and Const as type. The later will be used to store constants found throughout the assembly code generation.
 
 === COMBINING VARDEF, GLOBALDEC, GLOBALDEF, PARAM NODES ===
 What seemed like a good decision for the FUNDEF and FUNDEC nodes also applies to all forms of variabel declarations, wheter it be global, local or parameter declarations. So at first we switched to using a single VARDEF node that is capable of handling all the variation.
@@ -73,3 +76,5 @@ When a redefinition is found the old STE is temporary renamed so that when looki
 
 === TYPE CHECKING ===
 In preparation for the type-checking a couple of changes was made to the ast.xml in order to make the type checking easier. The separate binary operator nodes (LogicOp, ArithOp and RelOp) have been replaced by a single binary operator node (BinOp).
+
+===  ===

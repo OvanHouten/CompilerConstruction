@@ -102,6 +102,8 @@
         <travuser>
             <node name="Program" />
             <node name="SymbolTableEntry" />
+            <node name="Declarations" />
+            <node name="FunDef" />
         </travuser>
       </traversal>
 
