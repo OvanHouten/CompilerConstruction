@@ -163,10 +163,10 @@ node *GBCfundef(node *arg_node, info *arg_info) {
     int localVarCount = 0;
     if (FUNDEF_SYMBOLTABLE(arg_node) && SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node)) > 0) {
         localVarCount = SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node));
-        printf("esr %d\n", localVarCount);
+        printf("    esr %d\n", localVarCount);
     }
     TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
-    printf("%sreturn\n", encodeReturnType(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(arg_node))));
+    printf("    %sreturn\n", encodeReturnType(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(arg_node))));
 
     DBUG_RETURN(arg_node);
 }
