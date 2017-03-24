@@ -180,7 +180,11 @@ node *GBCfundef(node *arg_node, info *arg_info) {
 node *GBCreturn(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCreturn");
 
-    printf("    %sreturn\n", encodeReturnType(determineType(RETURN_EXPR(arg_node))));
+    if (RETURN_EXPR(arg_node)) {
+        printf("    %sreturn\n", encodeReturnType(determineType(RETURN_EXPR(arg_node))));
+    } else {
+        printf("    return\n");
+    }
 
     DBUG_RETURN(arg_node);
 }
