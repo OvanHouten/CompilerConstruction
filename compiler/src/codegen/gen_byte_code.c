@@ -175,6 +175,14 @@ node *GBCfundef(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *GBCreturn(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCreturn");
+
+    printf("    %sreturn\n", encodeReturnType(determineType(RETURN_EXPR(arg_node))));
+
+    DBUG_RETURN(arg_node);
+}
+
 /*
  * Traversal start function
  */

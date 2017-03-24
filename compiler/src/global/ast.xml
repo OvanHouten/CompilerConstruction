@@ -104,6 +104,7 @@
             <node name="SymbolTableEntry" />
             <node name="Declarations" />
             <node name="FunDef" />
+            <node name="Return" />
         </travuser>
       </traversal>
 
