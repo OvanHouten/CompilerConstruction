@@ -190,6 +190,14 @@ node *GBCreturn(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *GBCboolconst(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCboolconst");
+
+    printf("    bloadc_%s\n", BOOLCONST_VALUE(arg_node) ? "t" : "f");
+
+    DBUG_RETURN(arg_node);
+}
+
 node *GBCintconst(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCintconst");
 
