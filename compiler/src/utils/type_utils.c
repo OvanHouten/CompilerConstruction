@@ -42,6 +42,9 @@ type determineType(node *expr) {
         case N_id :
             exprType = SYMBOLTABLEENTRY_TYPE(ID_DECL(expr));
             break;
+        case N_ternop :
+            exprType = TERNOP_TYPE(expr);
+            break;
         case N_vardef :
             exprType = VARDEF_TYPE(expr);
             break;

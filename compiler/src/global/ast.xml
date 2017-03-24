@@ -112,6 +112,7 @@
             <node name="Id" />
             <node name="UnOp" />
             <node name="Typecast" />
+            <node name="BinOp" />
             <node name="IntConst" />
             <node name="FloatConst" />
             <node name="BoolConst" />
@@ -1114,6 +1115,18 @@
         </son>
       </sons>
       <attributes>
+        <attribute name="Type">
+          <description>Operator result type</description>
+          <type name="Type">
+            <targets>
+              <target mandatory="no">
+                <phases>
+                  <phase from="Type Check" />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
       </attributes>
     </node>
 

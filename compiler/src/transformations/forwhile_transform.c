@@ -58,9 +58,11 @@ node* FWTfor(node* arg_node, info* arg_info) {
 	
 	// Create Binop node for condition	
 	node* condition_node = TBmakeBinop(BO_lt, id, FOR_FINISH(arg_node));
-	
+	BINOP_TYPE(condition_node) = TY_bool;
 	// Create Increment statement node for the end of the codeblock
-	node* incr_node = TBmakeAssign(COPYid(id, arg_info), TBmakeBinop(BO_add, COPYid(id, arg_info), FOR_STEP(arg_node)));
+    node* addInstruction = TBmakeBinop(BO_add, COPYid(id, arg_info), FOR_STEP(arg_node));
+    BINOP_TYPE(addInstruction) = TY_int;
+    node* incr_node = TBmakeAssign(COPYid(id, arg_info), addInstruction);
 	
 	// Add increment statement at the end of the codeblock
 	node* new_node = TBmakeWhile(condition_node, TBmakeStatements(incr_node, FOR_BLOCK(arg_node)));

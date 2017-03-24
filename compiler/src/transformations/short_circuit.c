@@ -54,6 +54,7 @@ node* SCBEbinop(node* arg_node, info* arg_info) {
 	if(BINOP_OP(arg_node) == BO_and) {
 		// Create new Ternop node
 		node* new_node = TBmakeTernop(TRAVdo(BINOP_LEFT(arg_node), arg_info), TRAVdo(BINOP_RIGHT(arg_node), arg_info), TBmakeBoolconst(TY_bool, FALSE));
+		TERNOP_TYPE(new_node) = BINOP_TYPE(arg_node);
 		
 		// Free old binop node
 		BINOP_LEFT(arg_node) = NULL;
@@ -65,6 +66,7 @@ node* SCBEbinop(node* arg_node, info* arg_info) {
 	else if(BINOP_OP(arg_node) == BO_or) {
 		// Create new Ternop node
 		node* new_node = TBmakeTernop(TRAVdo(BINOP_LEFT(arg_node), arg_info), TBmakeBoolconst(TY_bool, TRUE), TRAVdo(BINOP_RIGHT(arg_node), arg_info));
+        TERNOP_TYPE(new_node) = BINOP_TYPE(arg_node);
 		
 		// Free old binop node
 		BINOP_LEFT(arg_node) = NULL;
@@ -93,7 +95,9 @@ node* SCBEtypecast(node* arg_node, info* arg_info) {
 		if(zero_node) {
 			// Create new Ternop node
 			node* comparison = TBmakeBinop(BO_ne, TRAVdo(TYPECAST_EXPR(arg_node), arg_info), zero_node);
+			BINOP_TYPE(comparison) = TY_bool;
 			node* new_node = TBmakeTernop(TRAVdo(comparison, arg_info), TBmakeBoolconst(TY_bool, TRUE), TBmakeBoolconst(TY_bool, FALSE));
+			TERNOP_TYPE(new_node) = TY_bool;
 			
 			// Free old typecast node
 			TYPECAST_EXPR(arg_node) = NULL;

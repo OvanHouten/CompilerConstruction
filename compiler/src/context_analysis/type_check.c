@@ -226,6 +226,7 @@ node *TCbinop(node *arg_node, info *arg_info) {
                 }
                 break;
             case TY_void :
+                CTIerror("A binary operator [%d] at line [%d] and column [%d] returns a void!.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
                 break;
             default :
                 CTIerror("Untyped expression for binary operator [%d] at line [%d] and column [%d].", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
@@ -355,6 +356,7 @@ node *TCfor(node *arg_node, info *arg_info) {
     if (determineType(FOR_STEP(arg_node)) != TY_int) {
         CTIerror("The step expression for a for-loop must be evaluate to 'int' and not to [%d] at line [%d] and column [%d].", determineType(FOR_STEP(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
+    TRAVopt(FOR_BLOCK(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }

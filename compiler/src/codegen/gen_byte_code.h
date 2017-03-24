@@ -14,6 +14,7 @@ extern node *GBCassign(node *arg_node, info *arg_info);
 extern node *GBCid(node *arg_node, info *arg_info);
 extern node *GBCunop(node *arg_node, info *arg_info);
 extern node *GBCtypecast(node *arg_node, info *arg_info);
+extern node *GBCbinop(node *arg_node, info *arg_info);
 extern node *GBCintconst(node *arg_node, info *arg_info);
 extern node *GBCfloatconst(node *arg_node, info *arg_info);
 extern node *GBCboolconst(node *arg_node, info *arg_info);
