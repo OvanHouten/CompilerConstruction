@@ -185,7 +185,7 @@ node *SAprogram(node *arg_node, info *arg_info) {
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
     
     PROGRAM_SYMBOLTABLE(arg_node) = INFO_CURSCOPE(arg_info);
-	
+
     DBUG_RETURN(arg_node);
 }
 
@@ -305,17 +305,17 @@ node *SAvardef(node *arg_node, info *arg_info) {
         }
 	} else {
         varDefSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_vardef, VARDEF_TYPE(arg_node));
-        DBUG_PRINT("SA", ("1"));
         if (VARDEF_EXTERN(arg_node)) {
-            DBUG_PRINT("SA", ("2"));
             SYMBOLTABLEENTRY_OFFSET(varDefSTE) = INFO_COUNTERS(arg_info)->externs++;
-            DBUG_PRINT("SA", ("3"));
+            if (SYMBOLTABLE_PARENT(INFO_CURSCOPE(arg_info)) == NULL) {
+                SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE) = STRcpy("e");
+            }
         } else {
-            DBUG_PRINT("SA", ("4"));
             SYMBOLTABLEENTRY_OFFSET(varDefSTE) = SYMBOLTABLE_VARIABLES(INFO_CURSCOPE(arg_info))++;
-            DBUG_PRINT("SA", ("5"));
+            if (SYMBOLTABLE_PARENT(INFO_CURSCOPE(arg_info)) == NULL) {
+                SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE) = STRcpy("g");
+            }
         }
-        DBUG_PRINT("SA", ("6"));
 	}
     // Make sure we have a reference at hand to the STE
     VARDEF_DECL(arg_node) = varDefSTE;
@@ -346,6 +346,9 @@ node *SAid(node * arg_node, info * arg_info) {
             // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
             SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
+            if (SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE)) {
+                SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(localSTE) = STRcpy(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE));
+            }
 
             varDefSTE = localSTE;
         }

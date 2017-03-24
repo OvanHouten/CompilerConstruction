@@ -12,6 +12,8 @@
 // Used for grouping the pseudo codes at the top of the assembly program
 typedef enum {PP_const, PP_global, PP_vardef, PP_fundef} pseudo_phase;
 
+#define STR(n) ((n) == NULL ? "" : n)
+
 /*
  * INFO structure
  */
@@ -300,8 +302,14 @@ node *GBCassign(node *arg_node, info *arg_info) {
 
     TRAVdo(ASSIGN_EXPR(arg_node), arg_info);
 
-    if (SYMBOLTABLEENTRY_DISTANCE(ID_DECL(ASSIGN_LET(arg_node))) == 0) {
-        printf("    %sstore %d\n", encodeType(SYMBOLTABLEENTRY_TYPE(ID_DECL(ASSIGN_LET(arg_node))), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(ASSIGN_LET(arg_node))));
+    node *symbolTableEntry = ID_DECL(ASSIGN_LET(arg_node));
+    int distance = SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry);
+    int offset = SYMBOLTABLEENTRY_OFFSET(symbolTableEntry);
+    char* dataType = encodeType(SYMBOLTABLEENTRY_TYPE(symbolTableEntry), NODE_LINE(arg_node));
+    node *varDef = SYMBOLTABLEENTRY_DECL(symbolTableEntry);
+
+    if (distance == 0 || SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
+        printf("    %sstore%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
     } else {
         printf("; Assigning to non-local variables is not yet supported.\n");
     }
@@ -312,7 +320,8 @@ node *GBCassign(node *arg_node, info *arg_info) {
 node *GBCid(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCid");
 
-    if (SYMBOLTABLEENTRY_DISTANCE(ID_DECL(arg_node)) == 0) {
+    int distance = SYMBOLTABLEENTRY_DISTANCE(ID_DECL(arg_node));
+    if (distance == 0) {
         int offset = SYMBOLTABLEENTRY_OFFSET(ID_DECL(arg_node));
         if (offset <= 3) {
             printf("    %sload_%d\n", encodeType(SYMBOLTABLEENTRY_TYPE(ID_DECL(arg_node)), NODE_LINE(arg_node)), offset);

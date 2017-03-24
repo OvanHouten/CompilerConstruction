@@ -319,6 +319,18 @@
                 </targets>
             </type>
         </attribute>
+        <attribute name="AssemblerPostfix">
+            <description>Postfix for store and load instructions</description>
+            <type name="String">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
         <attribute name="Distance">
             <description>Distance within the symboltable</description>
             <type name="Int">
