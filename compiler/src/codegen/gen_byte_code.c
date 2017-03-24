@@ -338,7 +338,7 @@ node *GBCid(node *arg_node, info *arg_info) {
     } else if (SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
         printf("    %sload%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
     } else {
-        printf("; Using non-local variables is not yet supported.\n");
+        printf("; Using relative free variables is not yet supported.\n");
     }
 
     DBUG_RETURN(arg_node);
