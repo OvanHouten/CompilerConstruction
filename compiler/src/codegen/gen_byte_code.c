@@ -162,6 +162,15 @@ node *GBCdeclarations(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *GBCstatements(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCstatements");
+
+    TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
+    TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
+
+    DBUG_RETURN(arg_node);
+}
+
 node *GBCfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCfundef");
 
@@ -265,6 +274,15 @@ node *GBCid(node *arg_node, info *arg_info) {
     } else {
         printf("; Using non-local variables is not yet supported.\n");
     }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *GBCunop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCunop");
+
+    TRAVdo(UNOP_EXPR(arg_node), arg_info);
+    printf("    %s%s\n", encodeReturnType(determineType(arg_node)), UNOP_OP(arg_node) == UO_not ? "not" : "neg");
 
     DBUG_RETURN(arg_node);
 }

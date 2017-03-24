@@ -103,12 +103,14 @@
             <node name="Program" />
             <node name="SymbolTableEntry" />
             <node name="Declarations" />
+            <node name="Statements" />
             <node name="FunDef" />
             <node name="Return" />
             <node name="If" />
             <node name="While" />
             <node name="Assign" />
             <node name="Id" />
+            <node name="UnOp" />
             <node name="IntConst" />
             <node name="FloatConst" />
             <node name="BoolConst" />
