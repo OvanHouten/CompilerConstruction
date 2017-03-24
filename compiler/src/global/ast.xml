@@ -106,6 +106,7 @@
             <node name="FunDef" />
             <node name="Return" />
             <node name="If" />
+            <node name="While" />
             <node name="IntConst" />
             <node name="FloatConst" />
             <node name="BoolConst" />

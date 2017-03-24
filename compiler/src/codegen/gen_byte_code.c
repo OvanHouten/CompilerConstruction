@@ -18,6 +18,7 @@ typedef enum {PP_const, PP_global, PP_vardef, PP_fundef} pseudo_phase;
 struct INFO {
   pseudo_phase pseudoPhase;
   int ifCount;
+  int whileCount;
 };
 
 /*
@@ -25,6 +26,7 @@ struct INFO {
  */
 #define INFO_PSEUDOPHASE(n) ((n)->pseudoPhase)
 #define INFO_IFCOUNT(n) ((n)->ifCount)
+#define INFO_WHILECOUNT(n) ((n)->whileCount)
 
 /*
  * INFO functions
@@ -38,6 +40,7 @@ static info *MakeInfo(void)
   result = (info *)MEMmalloc(sizeof(info));
   INFO_PSEUDOPHASE(result) = STE_const;
   INFO_IFCOUNT(result) = 0;
+  INFO_WHILECOUNT(result) = 0;
 
   DBUG_RETURN( result);
 }
@@ -197,20 +200,39 @@ node *GBCif(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCif");
 
     int ifCount = INFO_IFCOUNT(arg_info)++;
-
+    // TODO Optimize for empty if-block
     TRAVdo(IF_CONDITION(arg_node), arg_info);
     if (IF_ELSEBLOCK(arg_node)) {
         printf("    branch_f _else_%d\n", ifCount);
         TRAVopt(IF_IFBLOCK(arg_node), arg_info);
-        printf("    jump _end_%d\n", ifCount);
+        printf("    jump _if_end_%d\n", ifCount);
         printf("_else_%d:\n", ifCount);
         TRAVdo(IF_ELSEBLOCK(arg_node), arg_info);
     } else {
-        printf("    branch_f _end_%d\n", ifCount);
+        printf("    branch_f _if_end_%d\n", ifCount);
         TRAVopt(IF_IFBLOCK(arg_node), arg_info);
     }
-    printf("_end_%d:\n", ifCount);
+    printf("_if_end_%d:\n", ifCount);
 
+    DBUG_RETURN(arg_node);
+}
+
+node *GBCwhile(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCwhile");
+
+    if (WHILE_BLOCK(arg_node)) {
+        int whileCount = INFO_WHILECOUNT(arg_info)++;
+        printf("_while_start_%d\n", whileCount);
+        TRAVdo(WHILE_CONDITION(arg_node), arg_info);
+        printf("    branch_f _while_end_%d\n", whileCount);
+
+        TRAVopt(WHILE_BLOCK(arg_node), arg_info);
+
+        printf("    jump _while_start_%d\n", whileCount);
+        printf("_while_end_%d:\n", whileCount);
+    } else {
+        printf("; Empty while block suppressed");
+    }
     DBUG_RETURN(arg_node);
 }
 
