@@ -155,6 +155,23 @@ char *encodeOperator(binop op, int lineNr) {
     return operator;
 }
 
+constantPool *registerNewConstant(info *arg_info, type type) {
+    DBUG_ENTER("registerNewConstant");
+
+    constantPool *constant = MEMmalloc(sizeof(constantPool));
+    constant->next = INFO_CONSTANTS(arg_info);
+    INFO_CONSTANTS(arg_info) = constant;
+
+    constant->type = type;
+    if (constant->next != NULL) {
+        constant->offset = ((constant->next)->offset) + 1;
+    } else {
+        constant->offset = 0;
+    }
+
+    DBUG_RETURN(constant);
+}
+
 node *GBCprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCprogram");
 
@@ -435,17 +452,8 @@ node *GBCintconst(node *arg_node, info *arg_info) {
                 constant = constant->next;
             }
             if (constant == NULL) {
-                constant = MEMmalloc(sizeof(constantPool));
-                constant->next = INFO_CONSTANTS(arg_info);
-                INFO_CONSTANTS(arg_info) = constant;
-
-                constant->type = TY_int;
+                constant = registerNewConstant(arg_info, TY_int);
                 constant->intVal = INTCONST_VALUE(arg_node);
-                if (constant->next != NULL) {
-                    constant->offset = ((constant->next)->offset) + 1;
-                } else {
-                    constant->offset = 0;
-                }
             }
 
             printf("    iloadc %d\n", constant->offset);
@@ -463,8 +471,20 @@ node *GBCfloatconst(node *arg_node, info *arg_info) {
     } else if (FLOATCONST_VALUE(arg_node) == 1.0) {
         printf("    floadc_1\n");
     } else {
-        // FIXME
-            printf("; Float constants other then 0.0 and 1.0 are not yet supported!\n");
+        constantPool *constant = INFO_CONSTANTS(arg_info);
+        while (constant != NULL) {
+            if (constant->type == TY_float && constant->floatVal == FLOATCONST_VALUE(arg_node)) {
+                break;
+            }
+            constant = constant->next;
+        }
+        if (constant == NULL) {
+            printf("Registering %f from line %d\n", FLOATCONST_VALUE(arg_node), NODE_LINE(arg_node));
+            constant = registerNewConstant(arg_info, TY_float);
+            constant->floatVal = FLOATCONST_VALUE(arg_node);
+        }
+
+        printf("    floadc %d\n", constant->offset);
     }
 
     DBUG_RETURN(arg_node);
