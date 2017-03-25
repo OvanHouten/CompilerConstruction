@@ -365,7 +365,11 @@ node *GBCtypecast(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCtypecast");
 
     TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
-    printf("    %s2%s\n", encodeType(determineType(TYPECAST_EXPR(arg_node)), NODE_LINE(arg_node)), encodeType(TYPECAST_TYPE(arg_node), NODE_LINE(arg_node)));
+    if (determineType(TYPECAST_EXPR(arg_node)) == TY_bool || TYPECAST_TYPE(arg_node) == TY_bool) {
+        printf("; Typecast with boolean is not yet supported.\n");
+    } else {
+        printf("    %s2%s\n", encodeType(determineType(TYPECAST_EXPR(arg_node)), NODE_LINE(arg_node)), encodeType(TYPECAST_TYPE(arg_node), NODE_LINE(arg_node)));
+    }
 
     DBUG_RETURN(arg_node);
 }
