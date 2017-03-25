@@ -9,16 +9,30 @@
 
 #include "type_utils.h"
 
-// Used for grouping the pseudo codes at the top of the assembly program
-typedef enum {PP_const, PP_global, PP_vardef, PP_fundef} pseudo_phase;
+// Used for grouping the pseudo codes at the bottom of the assembly program
+typedef enum { PP_global, PP_vardef, PP_fundef, PP_none} pseudo_phase;
 
 #define STR(n) ((n) == NULL ? "" : n)
+
+// DO NOT CHANGE THIS NAME TO 'CONSTANTS' OR 'CONSTANT'!!
+// Apparently the framework already as a struct with that name. Using one of those
+// names leads to very strange behavior and memory (de)allocation errors!
+typedef struct CONSTANT_POOL {
+    type type;
+    int offset;
+    struct CONSTANT_POOL *next;
+    union {
+        float floatVal;
+        int intVal;
+    };
+} constantPool;
 
 /*
  * INFO structure
  */
 struct INFO {
   pseudo_phase pseudoPhase;
+  constantPool *constants;
   int ifCount;
   int whileCount;
 };
@@ -27,6 +41,7 @@ struct INFO {
  * INFO macros
  */
 #define INFO_PSEUDOPHASE(n) ((n)->pseudoPhase)
+#define INFO_CONSTANTS(n) ((n)->constants)
 #define INFO_IFCOUNT(n) ((n)->ifCount)
 #define INFO_WHILECOUNT(n) ((n)->whileCount)
 
@@ -40,7 +55,8 @@ static info *MakeInfo(void)
   DBUG_ENTER( "MakeInfo");
 
   result = (info *)MEMmalloc(sizeof(info));
-  INFO_PSEUDOPHASE(result) = STE_const;
+  INFO_PSEUDOPHASE(result) = PP_none;
+  INFO_CONSTANTS(result) = NULL;
   INFO_IFCOUNT(result) = 0;
   INFO_WHILECOUNT(result) = 0;
 
@@ -50,6 +66,14 @@ static info *MakeInfo(void)
 static info *FreeInfo( info *info)
 {
   DBUG_ENTER ("FreeInfo");
+
+  constantPool *constants = INFO_CONSTANTS(info);
+  while (constants) {
+      constantPool *next = constants->next;
+      MEMfree(constants);
+      constants = next;
+  }
+  INFO_CONSTANTS(info) = NULL;
 
   info = MEMfree( info);
 
@@ -134,22 +158,31 @@ char *encodeOperator(binop op, int lineNr) {
 node *GBCprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCprogram");
 
-    printf("; Constants\n");
-    INFO_PSEUDOPHASE(arg_info) = PP_const;
-    TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
+    printf("\n; Functions\n");
+    TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
+
     printf("\n; Global variables\n");
     INFO_PSEUDOPHASE(arg_info) = PP_global;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
+
     printf("\n; Import/export variables\n");
     INFO_PSEUDOPHASE(arg_info) = PP_vardef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
+
     printf("\n; Import/export funcation\n");
     INFO_PSEUDOPHASE(arg_info) = PP_fundef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
 
-    printf("\n; Functions\n");
-
-    TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
+    printf("\n; Constants\n");
+    constantPool *constant = INFO_CONSTANTS(arg_info);
+    while (constant) {
+        if (constant->type == TY_int) {
+            printf(".constant int %d\n", constant->intVal);
+        } else {
+            printf(".constant float %f\n", constant->floatVal);
+        }
+        constant = constant->next;
+    }
 
     DBUG_RETURN(arg_node);
 }
@@ -163,8 +196,6 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
     switch (NODE_TYPE(declaration)) {
         case N_vardef :
             switch (INFO_PSEUDOPHASE(arg_info)) {
-                case PP_const :
-                    break;
                 case PP_global :
                     if (!VARDEF_EXTERN(declaration)) {
                         printf(".global %s\n", typeToString(VARDEF_TYPE(declaration)));
@@ -395,9 +426,30 @@ node *GBCintconst(node *arg_node, info *arg_info) {
         case 1:
             printf("    iloadc_%d\n", INTCONST_VALUE(arg_node));
             break;
-        default:
-            // FIXME
-            printf("; Integer constants for other then -1, 0 and 1 are not yet supported!\n");
+        default: {
+            constantPool *constant = INFO_CONSTANTS(arg_info);
+            while (constant != NULL) {
+                if (constant->type == TY_int && constant->intVal == INTCONST_VALUE(arg_node)) {
+                    break;
+                }
+                constant = constant->next;
+            }
+            if (constant == NULL) {
+                constant = MEMmalloc(sizeof(constantPool));
+                constant->next = INFO_CONSTANTS(arg_info);
+                INFO_CONSTANTS(arg_info) = constant;
+
+                constant->type = TY_int;
+                constant->intVal = INTCONST_VALUE(arg_node);
+                if (constant->next != NULL) {
+                    constant->offset = ((constant->next)->offset) + 1;
+                } else {
+                    constant->offset = 0;
+                }
+            }
+
+            printf("    iloadc %d\n", constant->offset);
+        }
     }
 
     DBUG_RETURN(arg_node);
