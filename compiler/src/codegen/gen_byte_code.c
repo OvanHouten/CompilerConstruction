@@ -178,6 +178,17 @@ node *GBCprogram(node *arg_node, info *arg_info) {
     printf("\n; Functions\n");
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
 
+    printf("\n; Constants\n");
+    constantPool *constant = INFO_CONSTANTS(arg_info);
+    while (constant) {
+        if (constant->type == TY_int) {
+            printf(".const int %d\n", constant->intVal);
+        } else {
+            printf(".const float %f\n", constant->floatVal);
+        }
+        constant = constant->next;
+    }
+
     printf("\n; Global variables\n");
     INFO_PSEUDOPHASE(arg_info) = PP_global;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
@@ -189,17 +200,6 @@ node *GBCprogram(node *arg_node, info *arg_info) {
     printf("\n; Import/export funcation\n");
     INFO_PSEUDOPHASE(arg_info) = PP_fundef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
-
-    printf("\n; Constants\n");
-    constantPool *constant = INFO_CONSTANTS(arg_info);
-    while (constant) {
-        if (constant->type == TY_int) {
-            printf(".constant int %d\n", constant->intVal);
-        } else {
-            printf(".constant float %f\n", constant->floatVal);
-        }
-        constant = constant->next;
-    }
 
     DBUG_RETURN(arg_node);
 }
@@ -338,7 +338,7 @@ node *GBCwhile(node *arg_node, info *arg_info) {
     printf("; Line %d\n", NODE_LINE(arg_node));
     if (WHILE_BLOCK(arg_node)) {
         int whileCount = INFO_WHILECOUNT(arg_info)++;
-        printf("_while_start_%d\n", whileCount);
+        printf("_while_start_%d:\n", whileCount);
         TRAVdo(WHILE_CONDITION(arg_node), arg_info);
         printf("    branch_f _while_end_%d\n", whileCount);
 
