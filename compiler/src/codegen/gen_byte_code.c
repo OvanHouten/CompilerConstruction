@@ -81,9 +81,9 @@ static info *FreeInfo( info *info)
 }
 
 void printParamTypes(node *params) {
-    while (params) {
+    if (params) {
+        printParamTypes(PARAMS_NEXT(params));
         printf(" %s", typeToString(VARDEF_TYPE(PARAMS_PARAM(params))));
-        params = PARAMS_NEXT(params);
     }
 }
 
@@ -155,6 +155,26 @@ char *encodeOperator(binop op, int lineNr) {
     return operator;
 }
 
+void prepareExpressions(node *exprs, info *info, int *expressionCount) {
+
+    if (exprs) {
+        (*expressionCount)++;
+        prepareExpressions(EXPRS_NEXT(exprs), info, expressionCount);
+        TRAVdo(EXPRS_EXPR(exprs), info);
+    }
+}
+
+void printConstants(constantPool *constant) {
+    if (constant) {
+        printConstants(constant->next);
+        if (constant->type == TY_int) {
+            printf(".const int %d\n", constant->intVal);
+        } else {
+            printf(".const float %f\n", constant->floatVal);
+        }
+    }
+}
+
 constantPool *registerNewConstant(info *arg_info, type type) {
     DBUG_ENTER("registerNewConstant");
 
@@ -179,15 +199,7 @@ node *GBCprogram(node *arg_node, info *arg_info) {
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
 
     printf("\n; Constants\n");
-    constantPool *constant = INFO_CONSTANTS(arg_info);
-    while (constant) {
-        if (constant->type == TY_int) {
-            printf(".const int %d\n", constant->intVal);
-        } else {
-            printf(".const float %f\n", constant->floatVal);
-        }
-        constant = constant->next;
-    }
+    printConstants(INFO_CONSTANTS(arg_info));
 
     printf("\n; Global variables\n");
     INFO_PSEUDOPHASE(arg_info) = PP_global;
@@ -305,6 +317,23 @@ node *GBCreturn(node *arg_node, info *arg_info) {
         printf("    %sreturn\n", encodeType(determineType(RETURN_EXPR(arg_node)), NODE_LINE(arg_node)));
     } else {
         printf("    return\n");
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *GBCfuncall(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCfuncall");
+
+    printf("    isrg\n");
+
+    int expressionCount = 0;
+    prepareExpressions(FUNCALL_EXPRS(arg_node), arg_info, &expressionCount);
+
+    if (FUNDEF_EXTERN(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))) {
+        printf("    jsre %d\n", SYMBOLTABLEENTRY_OFFSET(FUNCALL_DECL(arg_node)));
+    } else {
+        printf("    jsr %d %s\n", expressionCount, SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
     }
 
     DBUG_RETURN(arg_node);

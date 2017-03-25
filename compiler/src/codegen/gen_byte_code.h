@@ -8,6 +8,7 @@ extern node *GBCdeclarations(node *arg_node, info *arg_info);
 extern node *GBCstatements(node *arg_node, info *arg_info);
 extern node *GBCfundef(node *arg_node, info *arg_info);
 extern node *GBCreturn(node *arg_node, info *arg_info);
+extern node *GBCfuncall(node *arg_node, info *arg_info);
 extern node *GBCif(node *arg_node, info *arg_info);
 extern node *GBCwhile(node *arg_node, info *arg_info);
 extern node *GBCassign(node *arg_node, info *arg_info);

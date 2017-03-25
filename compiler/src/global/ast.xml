@@ -106,6 +106,7 @@
             <node name="Statements" />
             <node name="FunDef" />
             <node name="Return" />
+            <node name="Funcall" />
             <node name="If" />
             <node name="While" />
             <node name="Assign" />
