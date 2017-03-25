@@ -226,10 +226,17 @@ node *GBCfundef(node *arg_node, info *arg_info) {
 
     if (!FUNDEF_EXTERN(arg_node)) {
         printf("\n%s:\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)));
-        int localVarCount = 0;
         if (FUNDEF_SYMBOLTABLE(arg_node) && SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node)) > 0) {
-            localVarCount = SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node));
-            printf("    esr %d\n", localVarCount);
+            int localVarCount = SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node));
+            int paramCount = 0;
+            node *params = FUNHEADER_PARAMS(FUNDEF_FUNHEADER(arg_node));
+            while (params) {
+                paramCount++;
+                params = PARAMS_NEXT(params);
+            }
+            if (localVarCount - paramCount > 0) {
+                printf("    esr %d\n", localVarCount - paramCount);
+            }
         }
 
         TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
