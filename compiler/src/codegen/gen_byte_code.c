@@ -427,7 +427,7 @@ node *GBCbinop(node *arg_node, info *arg_info) {
 
     TRAVdo(BINOP_RIGHT(arg_node), arg_info);
     TRAVdo(BINOP_LEFT(arg_node), arg_info);
-    printf("    %s%s\n", encodeType(determineType(arg_node), NODE_LINE(arg_node)), encodeOperator(BINOP_OP(arg_node), NODE_LINE(arg_node)));
+    printf("    %s%s\n", encodeType(determineType(BINOP_LEFT(arg_node)), NODE_LINE(arg_node)), encodeOperator(BINOP_OP(arg_node), NODE_LINE(arg_node)));
 
     DBUG_RETURN(arg_node);
 }
