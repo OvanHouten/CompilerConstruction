@@ -479,7 +479,6 @@ node *GBCfloatconst(node *arg_node, info *arg_info) {
             constant = constant->next;
         }
         if (constant == NULL) {
-            printf("Registering %f from line %d\n", FLOATCONST_VALUE(arg_node), NODE_LINE(arg_node));
             constant = registerNewConstant(arg_info, TY_float);
             constant->floatVal = FLOATCONST_VALUE(arg_node);
         }
