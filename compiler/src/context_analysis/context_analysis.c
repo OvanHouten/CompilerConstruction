@@ -66,7 +66,7 @@ static info *FreeInfo( info *info)
 // Scope handling
 // =============================================
 
-node* findDefWithinScope(info* arg_info, char* name, ste_type type) {
+node* findWithinScope(info* arg_info, char* name, ste_type type) {
     DBUG_ENTER("findDefWithinScope");
     node* varDefSTE = SYMBOLTABLE_SYMBOLTABLEENTRY(INFO_CURSCOPE(arg_info));
     while (varDefSTE) {
@@ -184,7 +184,7 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
         DBUG_PRINT("SA", ("Registering function [%s].", name));
 
         // Make sure it does not exist within the current scope
-        node* funDefSTE = findDefWithinScope(arg_info, name, STE_fundef);
+        node* funDefSTE = findWithinScope(arg_info, name, STE_fundef);
         if(funDefSTE) {        	
             CTIerror("Function [%s] at line %d, column %d has already been declared at line %d, column %d.", name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
         } else {
@@ -270,7 +270,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
 
     // Make sure it does not exist within the current scope
     char *name = VARDEF_NAME(arg_node);
-    node* varDefSTE = findDefWithinScope(arg_info, name, STE_vardef);
+    node* varDefSTE = findWithinScope(arg_info, name, STE_vardef);
     if(varDefSTE) {
         if (SYMBOLTABLEENTRY_DISTANCE(varDefSTE) == 0) {
             CTIerror("Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
@@ -465,7 +465,7 @@ node *SAfor(node *arg_node, info *arg_info) {
     if (FOR_BLOCK(arg_node)) {
         DBUG_PRINT("SA", ("Looking for existing name."));
         char *name = VARDEF_NAME(varDef);
-        node *existingVarDef = findDefWithinScope(arg_info, name, STE_vardef);
+        node *existingVarDef = findWithinScope(arg_info, name, STE_vardef);
 
         char *originalName = NULL;
         if (existingVarDef) {
