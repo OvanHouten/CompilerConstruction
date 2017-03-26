@@ -20,43 +20,21 @@
 
 #include "context_analysis.h"
 
-typedef struct COUNTERS {
-    int externs;
-    int constants;
-    int variables;
-    struct COUNTERS *previous;
-} counters;
-
 /*
  * INFO structure
  */
 struct INFO {
   node* curScope;
-  counters *counters;
+  int externalFuns;
+  int externalVars;
 };
 
 /*
  * INFO macros
  */
 #define INFO_CURSCOPE(n)      ((n)->curScope)
-#define INFO_COUNTERS(n)      ((n)->counters)
-
-void startNewScope(info *arg_info) {
-    counters *newCounters = MEMmalloc(sizeof(counters));
-    newCounters->constants = 0;
-    newCounters->externs = 0;
-    newCounters->previous = INFO_COUNTERS(arg_info);
-    INFO_COUNTERS(arg_info) = newCounters;
-}
-
-void closeScope(info *arg_info) {
-    counters *previousCounters = INFO_COUNTERS(arg_info)->previous;
-
-    INFO_COUNTERS(arg_info)->previous = NULL;
-    INFO_COUNTERS(arg_info) = MEMfree(INFO_COUNTERS(arg_info));
-
-    INFO_COUNTERS(arg_info) = previousCounters;
-}
+#define INFO_EXTERNALFUNS(n)  ((n)->externalFuns)
+#define INFO_EXTERNALVARS(n)  ((n)->externalVars)
 
 /*
  * INFO functions
@@ -69,8 +47,8 @@ static info *MakeInfo(void)
 
   result = (info *)MEMmalloc(sizeof(info));
   INFO_CURSCOPE(result) = NULL;
-  INFO_COUNTERS(result) = NULL;
-  startNewScope(result);
+  INFO_EXTERNALFUNS(result) = 0;
+  INFO_EXTERNALVARS(result) = 0;
 
   DBUG_RETURN( result);
 }
@@ -211,8 +189,8 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
             CTIerror("Function [%s] at line %d, column %d has already been declared at line %d, column %d.", name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
         } else {
             funDefSTE = registerWithinCurrentScope(funDef, arg_info, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
-            if (SYMBOLTABLEENTRY_NEXT(funDefSTE)) {
-                SYMBOLTABLEENTRY_OFFSET(funDefSTE) = SYMBOLTABLEENTRY_OFFSET(SYMBOLTABLEENTRY_NEXT(funDefSTE));
+            if (FUNDEF_EXTERN(funDef)) {
+                SYMBOLTABLEENTRY_OFFSET(funDefSTE) = INFO_EXTERNALFUNS(arg_info)++;
             }
 
         }
@@ -245,8 +223,6 @@ node *SAfundef(node *arg_node, info *arg_info) {
 		FUNDEF_SYMBOLTABLE(arg_node) = newScope;
 		INFO_CURSCOPE(arg_info) = newScope;
 
-		startNewScope(arg_info);
-
 		// Register the parameters
         TRAVdo(FUNDEF_FUNHEADER(arg_node), arg_info);
         // And process the body
@@ -254,7 +230,6 @@ node *SAfundef(node *arg_node, info *arg_info) {
 		
         DBUG_PRINT("SA", ("Closing the scope."));
 
-        closeScope(arg_info);
         // Return to previous scope
 		INFO_CURSCOPE(arg_info) = previousScope;
     }
@@ -290,7 +265,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAvardef");
 
     DBUG_PRINT("SA", ("Registering variable [%s].", VARDEF_NAME(arg_node)));
-    // First go right
+    // First we process the expression, if any
     TRAVopt(VARDEF_EXPR(arg_node), arg_info);
 
     // Make sure it does not exist within the current scope
@@ -306,7 +281,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
 	} else {
         varDefSTE = registerWithinCurrentScope(arg_node, arg_info, name, STE_vardef, VARDEF_TYPE(arg_node));
         if (VARDEF_EXTERN(arg_node)) {
-            SYMBOLTABLEENTRY_OFFSET(varDefSTE) = INFO_COUNTERS(arg_info)->externs++;
+            SYMBOLTABLEENTRY_OFFSET(varDefSTE) = INFO_EXTERNALVARS(arg_info)++;
             if (SYMBOLTABLE_PARENT(INFO_CURSCOPE(arg_info)) == NULL) {
                 SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE) = STRcpy("e");
             }
@@ -316,11 +291,11 @@ node *SAvardef(node *arg_node, info *arg_info) {
                 SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE) = STRcpy("g");
             }
         }
+        // And register a reference to the declaration node
+        SYMBOLTABLEENTRY_DECL(varDefSTE) = arg_node;
 	}
     // Make sure we have a reference at hand to the STE
     VARDEF_DECL(arg_node) = varDefSTE;
-    // And register a reference to the declaration node
-    SYMBOLTABLEENTRY_DECL(varDefSTE) = arg_node;
 
     DBUG_PRINT("SA", ("Registered variable [%s] at offset [%d].", VARDEF_NAME(arg_node), SYMBOLTABLEENTRY_OFFSET(varDefSTE)));
 
