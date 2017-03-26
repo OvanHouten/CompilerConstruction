@@ -10,6 +10,7 @@
 #include "copy_node.h"
 #include "free_node.h"
 #include "mytypes.h"
+#include "copy.h"
 
 #include "forwhile_transform.h"
 
@@ -56,16 +57,31 @@ node* FWTfor(node* arg_node, info* arg_info) {
 	ID_DECL(id) = VARDEF_DECL(FOR_VARDEF(arg_node));
 	ID_TYPE(id) = VARDEF_TYPE(FOR_VARDEF(arg_node));
 	
-	// Create Binop node for condition	
-	node* condition_node = TBmakeBinop(BO_lt, id, FOR_FINISH(arg_node));
-	BINOP_TYPE(condition_node) = TY_bool;
+	// FIXME The Start, Finish and Step must be executed only once! So we must create a couple of variables and
+	// use them
+	// Depending on the sign of the step value the condition must be different
+	// step > 0 ? loop-var < finish : loop-var > finish
+	node* positiveStepCondition = TBmakeBinop(BO_lt, COPYdoCopy(id), COPYdoCopy(FOR_FINISH(arg_node)));
+	BINOP_TYPE(positiveStepCondition) = TY_bool;
+
+	node* negativeStepCondition = TBmakeBinop(BO_gt, COPYdoCopy(id), COPYdoCopy(FOR_FINISH(arg_node)));
+    BINOP_TYPE(negativeStepCondition) = TY_bool;
+
+    // Construct the ternary operator
+    node *stepSelection = TBmakeBinop(BO_ge, COPYdoCopy(FOR_STEP(arg_node)), TBmakeIntconst(TY_int, 0));
+    BINOP_TYPE(stepSelection) = TY_bool;
+
+    // Construct the ternary while condition
+    node *whileCondition = TBmakeTernop(stepSelection, positiveStepCondition, negativeStepCondition);
+    TERNOP_TYPE(whileCondition) = TY_bool;
+	
 	// Create Increment statement node for the end of the codeblock
-    node* addInstruction = TBmakeBinop(BO_add, COPYid(id, arg_info), FOR_STEP(arg_node));
+    node* addInstruction = TBmakeBinop(BO_add, COPYdoCopy(id), FOR_STEP(arg_node));
     BINOP_TYPE(addInstruction) = TY_int;
-    node* incr_node = TBmakeAssign(COPYid(id, arg_info), addInstruction);
+    node* nextStep = TBmakeAssign(COPYid(id, arg_info), addInstruction);
 	
 	// Add increment statement at the end of the codeblock
-	node* new_node = TBmakeWhile(condition_node, TBmakeStatements(incr_node, FOR_BLOCK(arg_node)));
+	node* whileLoop = TBmakeWhile(whileCondition, TBmakeStatements(nextStep, FOR_BLOCK(arg_node)));
 	
 	// Free old For node
 	FOR_BLOCK(arg_node) = NULL;
@@ -73,9 +89,9 @@ node* FWTfor(node* arg_node, info* arg_info) {
 	FOR_FINISH(arg_node) = NULL;
 	FREEfor(arg_node, arg_info);
 	
-	TRAVdo(WHILE_BLOCK(new_node), arg_info);
+	TRAVdo(WHILE_BLOCK(whileLoop), arg_info);
 	
-    DBUG_RETURN(new_node);
+    DBUG_RETURN(whileLoop);
 }
 
 node* FWTdoForWhileTransform(node* syntaxtree) {
