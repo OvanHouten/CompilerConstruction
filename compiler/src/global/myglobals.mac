@@ -13,7 +13,6 @@
 
 #define GLOBAL( type, name, init) GLOBALtype(type) GLOBALname(name) GLOBALinit(init)
 
-
 /*
  * CiviCC specific global variables
  */
@@ -29,7 +28,7 @@ GLOBAL( bool, print_var_details, FALSE)
 // Printing of the full (hidden) symbol tables can be switched on and off. By default it is switched off
 GLOBAL( bool, full_st_print, FALSE)
 // Printing of the AST (C code) can be switched on and off. By default it is switched off.
-GLOBAL(bool, print_ast, TRUE)
+GLOBAL(bool, print_ast, FALSE)
 
 #undef GLOBALtype
 #undef GLOBALname

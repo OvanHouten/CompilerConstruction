@@ -6,6 +6,7 @@
 #include "dbug.h"
 #include "memory.h"
 #include "ctinfo.h"
+#include "globals.h"
 
 #include "type_utils.h"
 
@@ -45,6 +46,8 @@ struct INFO {
 #define INFO_IFCOUNT(n) ((n)->ifCount)
 #define INFO_WHILECOUNT(n) ((n)->whileCount)
 
+static FILE *outfile = NULL;
+
 /*
  * INFO functions
  */
@@ -83,7 +86,7 @@ static info *FreeInfo( info *info)
 void printParamTypes(node *params) {
     if (params) {
         printParamTypes(PARAMS_NEXT(params));
-        printf(" %s", typeToString(VARDEF_TYPE(PARAMS_PARAM(params))));
+        fprintf(outfile, " %s", typeToString(VARDEF_TYPE(PARAMS_PARAM(params))));
     }
 }
 
@@ -150,7 +153,7 @@ char *encodeOperator(binop op, int lineNr) {
              operator = "add";
              break;
          default:
-             printf("; Unknown operator used on line [%d].", lineNr);
+             fprintf(outfile, "; Unknown operator used on line [%d].", lineNr);
     }
     return operator;
 }
@@ -168,9 +171,9 @@ void printConstants(constantPool *constant) {
     if (constant) {
         printConstants(constant->next);
         if (constant->type == TY_int) {
-            printf(".const int %d\n", constant->intVal);
+            fprintf(outfile, ".const int %d\n", constant->intVal);
         } else {
-            printf(".const float %f\n", constant->floatVal);
+            fprintf(outfile, ".const float %f\n", constant->floatVal);
         }
     }
 }
@@ -195,21 +198,23 @@ constantPool *registerNewConstant(info *arg_info, type type) {
 node *GBCprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCprogram");
 
-    printf("\n; Functions\n");
+    fprintf(outfile, "; %s\n", global.infile);
+
+    fprintf(outfile, "\n; Functions\n");
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
 
-    printf("\n; Constants\n");
+    fprintf(outfile, "\n; Constants\n");
     printConstants(INFO_CONSTANTS(arg_info));
 
-    printf("\n; Global variables\n");
+    fprintf(outfile, "\n; Global variables\n");
     INFO_PSEUDOPHASE(arg_info) = PP_global;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
 
-    printf("\n; Import/export variables\n");
+    fprintf(outfile, "\n; Import/export variables\n");
     INFO_PSEUDOPHASE(arg_info) = PP_vardef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
 
-    printf("\n; Import/export funcation\n");
+    fprintf(outfile, "\n; Import/export funcation\n");
     INFO_PSEUDOPHASE(arg_info) = PP_fundef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
 
@@ -227,14 +232,14 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
             switch (INFO_PSEUDOPHASE(arg_info)) {
                 case PP_global :
                     if (!VARDEF_EXTERN(declaration)) {
-                        printf(".global %s\n", typeToString(VARDEF_TYPE(declaration)));
+                        fprintf(outfile, ".global %s\n", typeToString(VARDEF_TYPE(declaration)));
                     }
                     break;
                 case PP_vardef :
                     if (VARDEF_EXTERN(declaration)) {
-                        printf(".importvar \"%s\" %s\n", VARDEF_NAME(declaration), typeToString(VARDEF_TYPE(declaration)));
+                        fprintf(outfile, ".importvar \"%s\" %s\n", VARDEF_NAME(declaration), typeToString(VARDEF_TYPE(declaration)));
                     } else if (VARDEF_EXPORT(declaration)) {
-                        printf(".exportvar \"%s\" %d\n", VARDEF_NAME(declaration), SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(declaration)));
+                        fprintf(outfile, ".exportvar \"%s\" %d\n", VARDEF_NAME(declaration), SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(declaration)));
                     }
                     break;
                 default :
@@ -245,13 +250,13 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
         case N_fundef :
             if (INFO_PSEUDOPHASE(arg_info) == PP_fundef) {
                 if (FUNDEF_EXTERN(declaration)) {
-                    printf(".importfun \"%s\" %s", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
+                    fprintf(outfile, ".importfun \"%s\" %s", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
                     printParamTypes(FUNHEADER_PARAMS(FUNDEF_FUNHEADER(declaration)));
-                    printf("\n");
+                    fprintf(outfile, "\n");
                 } else if (FUNDEF_EXPORT(declaration)) {
-                    printf(".exportfun \"%s\" %s", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
+                    fprintf(outfile, ".exportfun \"%s\" %s", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
                     printParamTypes(FUNHEADER_PARAMS(FUNDEF_FUNHEADER(declaration)));
-                    printf(" %s\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)));
+                    fprintf(outfile, " %s\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)));
                 }
             }
             break;
@@ -285,7 +290,7 @@ node *GBCfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCfundef");
 
     if (!FUNDEF_EXTERN(arg_node)) {
-        printf("\n%s:\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)));
+        fprintf(outfile, "\n%s:\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)));
         if (FUNDEF_SYMBOLTABLE(arg_node) && SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node)) > 0) {
             int localVarCount = SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node));
             int paramCount = 0;
@@ -295,14 +300,14 @@ node *GBCfundef(node *arg_node, info *arg_info) {
                 params = PARAMS_NEXT(params);
             }
             if (localVarCount - paramCount > 0) {
-                printf("    esr %d\n", localVarCount - paramCount);
+                fprintf(outfile, "    esr %d\n", localVarCount - paramCount);
             }
         }
 
         TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
         if (FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(arg_node)) == TY_void) {
-            printf("    return\n");
+            fprintf(outfile, "    return\n");
         }
     }
 
@@ -314,9 +319,9 @@ node *GBCreturn(node *arg_node, info *arg_info) {
 
     if (RETURN_EXPR(arg_node)) {
         TRAVdo(RETURN_EXPR(arg_node), arg_info);
-        printf("    %sreturn\n", encodeType(determineType(RETURN_EXPR(arg_node)), NODE_LINE(arg_node)));
+        fprintf(outfile, "    %sreturn\n", encodeType(determineType(RETURN_EXPR(arg_node)), NODE_LINE(arg_node)));
     } else {
-        printf("    return\n");
+        fprintf(outfile, "    return\n");
     }
 
     DBUG_RETURN(arg_node);
@@ -325,15 +330,15 @@ node *GBCreturn(node *arg_node, info *arg_info) {
 node *GBCfuncall(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCfuncall");
 
-    printf("    isrg\n");
+    fprintf(outfile, "    isrg\n");
 
     int expressionCount = 0;
     prepareExpressions(FUNCALL_EXPRS(arg_node), arg_info, &expressionCount);
 
     if (FUNDEF_EXTERN(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))) {
-        printf("    jsre %d\n", SYMBOLTABLEENTRY_OFFSET(FUNCALL_DECL(arg_node)));
+        fprintf(outfile, "    jsre %d\n", SYMBOLTABLEENTRY_OFFSET(FUNCALL_DECL(arg_node)));
     } else {
-        printf("    jsr %d %s\n", expressionCount, SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
+        fprintf(outfile, "    jsr %d %s\n", expressionCount, SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
     }
 
     DBUG_RETURN(arg_node);
@@ -342,21 +347,21 @@ node *GBCfuncall(node *arg_node, info *arg_info) {
 node *GBCif(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCif");
 
-    printf("; Line %d\n", NODE_LINE(arg_node));
+    fprintf(outfile, "; Line %d\n", NODE_LINE(arg_node));
     int ifCount = INFO_IFCOUNT(arg_info)++;
     // TODO Optimize for empty if-block
     TRAVdo(IF_CONDITION(arg_node), arg_info);
     if (IF_ELSEBLOCK(arg_node)) {
-        printf("    branch_f _else_%d\n", ifCount);
+        fprintf(outfile, "    branch_f _else_%d\n", ifCount);
         TRAVopt(IF_IFBLOCK(arg_node), arg_info);
-        printf("    jump _if_end_%d\n", ifCount);
-        printf("_else_%d:\n", ifCount);
+        fprintf(outfile, "    jump _if_end_%d\n", ifCount);
+        fprintf(outfile, "_else_%d:\n", ifCount);
         TRAVdo(IF_ELSEBLOCK(arg_node), arg_info);
     } else {
-        printf("    branch_f _if_end_%d\n", ifCount);
+        fprintf(outfile, "    branch_f _if_end_%d\n", ifCount);
         TRAVopt(IF_IFBLOCK(arg_node), arg_info);
     }
-    printf("_if_end_%d:\n", ifCount);
+    fprintf(outfile, "_if_end_%d:\n", ifCount);
 
     DBUG_RETURN(arg_node);
 }
@@ -364,19 +369,19 @@ node *GBCif(node *arg_node, info *arg_info) {
 node *GBCwhile(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCwhile");
 
-    printf("; Line %d\n", NODE_LINE(arg_node));
+    fprintf(outfile, "; Line %d\n", NODE_LINE(arg_node));
     if (WHILE_BLOCK(arg_node)) {
         int whileCount = INFO_WHILECOUNT(arg_info)++;
-        printf("_while_start_%d:\n", whileCount);
+        fprintf(outfile, "_while_start_%d:\n", whileCount);
         TRAVdo(WHILE_CONDITION(arg_node), arg_info);
-        printf("    branch_f _while_end_%d\n", whileCount);
+        fprintf(outfile, "    branch_f _while_end_%d\n", whileCount);
 
         TRAVopt(WHILE_BLOCK(arg_node), arg_info);
 
-        printf("    jump _while_start_%d\n", whileCount);
-        printf("_while_end_%d:\n", whileCount);
+        fprintf(outfile, "    jump _while_start_%d\n", whileCount);
+        fprintf(outfile, "_while_end_%d:\n", whileCount);
     } else {
-        printf("; Empty while block suppressed");
+        fprintf(outfile, "; Empty while block suppressed");
     }
     DBUG_RETURN(arg_node);
 }
@@ -394,9 +399,9 @@ node *GBCassign(node *arg_node, info *arg_info) {
     int offset = SYMBOLTABLEENTRY_OFFSET(symbolTableEntry);
 
     if (distance == 0 || SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
-        printf("    %sstore%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
+        fprintf(outfile, "    %sstore%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
     } else {
-        printf("; Assigning to relative free variables is not yet supported.\n");
+        fprintf(outfile, "; Assigning to relative free variables is not yet supported.\n");
     }
 
     DBUG_RETURN(arg_node);
@@ -415,14 +420,14 @@ node *GBCid(node *arg_node, info *arg_info) {
     if (distance == 0) {
         int offset = SYMBOLTABLEENTRY_OFFSET(symbolTableEntry);
         if (offset <= 3) {
-            printf("    %sload_%d\n", dataType, offset);
+            fprintf(outfile, "    %sload_%d\n", dataType, offset);
         } else {
-            printf("    %sload %d\n", dataType, offset);
+            fprintf(outfile, "    %sload %d\n", dataType, offset);
         }
     } else if (SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
-        printf("    %sload%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
+        fprintf(outfile, "    %sload%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
     } else {
-        printf("; Using relative free variables is not yet supported.\n");
+        fprintf(outfile, "; Using relative free variables is not yet supported.\n");
     }
 
     DBUG_RETURN(arg_node);
@@ -433,7 +438,7 @@ node *GBCunop(node *arg_node, info *arg_info) {
 
     // TODO check if the ternary operator replaces boolean typecasts.
     TRAVdo(UNOP_EXPR(arg_node), arg_info);
-    printf("    %s%s\n", encodeType(determineType(arg_node), NODE_LINE(arg_node)), UNOP_OP(arg_node) == UO_not ? "not" : "neg");
+    fprintf(outfile, "    %s%s\n", encodeType(determineType(arg_node), NODE_LINE(arg_node)), UNOP_OP(arg_node) == UO_not ? "not" : "neg");
 
     DBUG_RETURN(arg_node);
 }
@@ -443,9 +448,9 @@ node *GBCtypecast(node *arg_node, info *arg_info) {
 
     TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
     if (determineType(TYPECAST_EXPR(arg_node)) == TY_bool || TYPECAST_TYPE(arg_node) == TY_bool) {
-        printf("; Typecast with boolean is not yet supported.\n");
+        fprintf(outfile, "; Typecast with boolean is not yet supported.\n");
     } else {
-        printf("    %s2%s\n", encodeType(determineType(TYPECAST_EXPR(arg_node)), NODE_LINE(arg_node)), encodeType(TYPECAST_TYPE(arg_node), NODE_LINE(arg_node)));
+        fprintf(outfile, "    %s2%s\n", encodeType(determineType(TYPECAST_EXPR(arg_node)), NODE_LINE(arg_node)), encodeType(TYPECAST_TYPE(arg_node), NODE_LINE(arg_node)));
     }
 
     DBUG_RETURN(arg_node);
@@ -456,7 +461,7 @@ node *GBCbinop(node *arg_node, info *arg_info) {
 
     TRAVdo(BINOP_RIGHT(arg_node), arg_info);
     TRAVdo(BINOP_LEFT(arg_node), arg_info);
-    printf("    %s%s\n", encodeType(determineType(BINOP_LEFT(arg_node)), NODE_LINE(arg_node)), encodeOperator(BINOP_OP(arg_node), NODE_LINE(arg_node)));
+    fprintf(outfile, "    %s%s\n", encodeType(determineType(BINOP_LEFT(arg_node)), NODE_LINE(arg_node)), encodeOperator(BINOP_OP(arg_node), NODE_LINE(arg_node)));
 
     DBUG_RETURN(arg_node);
 }
@@ -466,11 +471,11 @@ node *GBCintconst(node *arg_node, info *arg_info) {
 
     switch (INTCONST_VALUE(arg_node)) {
         case -1:
-            printf("    iloadc_m1\n");
+            fprintf(outfile, "    iloadc_m1\n");
             break;
         case 0:
         case 1:
-            printf("    iloadc_%d\n", INTCONST_VALUE(arg_node));
+            fprintf(outfile, "    iloadc_%d\n", INTCONST_VALUE(arg_node));
             break;
         default: {
             constantPool *constant = INFO_CONSTANTS(arg_info);
@@ -485,7 +490,7 @@ node *GBCintconst(node *arg_node, info *arg_info) {
                 constant->intVal = INTCONST_VALUE(arg_node);
             }
 
-            printf("    iloadc %d\n", constant->offset);
+            fprintf(outfile, "    iloadc %d\n", constant->offset);
         }
     }
 
@@ -496,9 +501,9 @@ node *GBCfloatconst(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCfloatconst");
 
     if (FLOATCONST_VALUE(arg_node) == 0.0) {
-        printf("    floadc_0\n");
+        fprintf(outfile, "    floadc_0\n");
     } else if (FLOATCONST_VALUE(arg_node) == 1.0) {
-        printf("    floadc_1\n");
+        fprintf(outfile, "    floadc_1\n");
     } else {
         constantPool *constant = INFO_CONSTANTS(arg_info);
         while (constant != NULL) {
@@ -512,7 +517,7 @@ node *GBCfloatconst(node *arg_node, info *arg_info) {
             constant->floatVal = FLOATCONST_VALUE(arg_node);
         }
 
-        printf("    floadc %d\n", constant->offset);
+        fprintf(outfile, "    floadc %d\n", constant->offset);
     }
 
     DBUG_RETURN(arg_node);
@@ -521,7 +526,7 @@ node *GBCfloatconst(node *arg_node, info *arg_info) {
 node *GBCboolconst(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCboolconst");
 
-    printf("    bloadc_%s\n", BOOLCONST_VALUE(arg_node) ? "t" : "f");
+    fprintf(outfile, "    bloadc_%s\n", BOOLCONST_VALUE(arg_node) ? "t" : "f");
 
     DBUG_RETURN(arg_node);
 }
@@ -530,23 +535,29 @@ node *GBCboolconst(node *arg_node, info *arg_info) {
  * Traversal start function
  */
 
-node *GBCdoGenByteCode( node *syntaxtree)
-{
-  DBUG_ENTER("GBCdoGenByteCode");
+node *GBCdoGenByteCode( node *syntaxtree) {
+    DBUG_ENTER("GBCdoGenByteCode");
 
-  printf("; Starting the assembler generation...\n\n");
+    if (global.outfile) {
+        outfile = fopen(global.outfile, "w+");
+    } else {
+        outfile = stdout;
+    }
 
-  info *arg_info = MakeInfo();
+    info *arg_info = MakeInfo();
 
-  TRAVpush(TR_gbc);
+    TRAVpush(TR_gbc);
 
-  TRAVdo(syntaxtree, arg_info);
+    TRAVdo(syntaxtree, arg_info);
 
-  TRAVpop();
+    TRAVpop();
 
-  arg_info = FreeInfo(arg_info);
+    arg_info = FreeInfo(arg_info);
 
-  printf("\n\n; Assembler generation done.\n");
+    if (global.outfile) {
+        fclose(outfile);
+    }
+    outfile = NULL;
 
-  DBUG_RETURN( syntaxtree);
+    DBUG_RETURN( syntaxtree);
 }

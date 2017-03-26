@@ -32,7 +32,7 @@ void OPTcheckOptions( int argc, char **argv)
 
   ARGS_FLAG( "fstp", myglobal.full_st_print = TRUE);
 
-  ARGS_FLAG( "dap", myglobal.print_ast = FALSE);
+  ARGS_FLAG( "eap", myglobal.print_ast = TRUE);
 
   ARGS_FLAG( "tc", global.treecheck = TRUE);
 

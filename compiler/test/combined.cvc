@@ -21,7 +21,7 @@ extern float bla2;
 extern bool bla3;
 
 int a;
-int b = 42;
+export int b = 42;
 export float c;
 export float d = 13.1;
 
