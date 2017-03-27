@@ -82,21 +82,21 @@ char *createUniqueNameForSymbolTable(node *symbolTable, char *name, ste_type typ
     DBUG_RETURN(newName);
 }
 
-node *registerWithinCurrentScope(node* symbolTable, node* arg_node, char* name, ste_type entryType, type returnType) {
+node *registerWithinCurrentScope(node* symbolTable, node* arg_node, char* name, ste_type entryType, type dataType) {
     DBUG_ENTER("registerWithinCurrentScope");
     DBUG_PRINT("SA", ("Creating a new Symbol Table Entry"));
-    // Add the vardef to the ST
-    node* varDefSTE = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable));
-    SYMBOLTABLEENTRY_ENTRYTYPE(varDefSTE) = entryType;
-    SYMBOLTABLEENTRY_NAME(varDefSTE) = STRcpy(name);
-    SYMBOLTABLEENTRY_TYPE(varDefSTE) = returnType;
-    NODE_LINE(varDefSTE) = NODE_LINE(arg_node);
-    NODE_COL(varDefSTE) = NODE_COL(arg_node);
+    // Add the def to the ST
+    node* defSTE = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable));
+    SYMBOLTABLEENTRY_ENTRYTYPE(defSTE) = entryType;
+    SYMBOLTABLEENTRY_NAME(defSTE) = STRcpy(name);
+    SYMBOLTABLEENTRY_TYPE(defSTE) = dataType;
+    NODE_LINE(defSTE) = NODE_LINE(arg_node);
+    NODE_COL(defSTE) = NODE_COL(arg_node);
 
-    SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable) = varDefSTE;
+    SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable) = defSTE;
 
     DBUG_PRINT("SA", ("Registered."));
 
-    DBUG_RETURN(varDefSTE);
+    DBUG_RETURN(defSTE);
 }
 
