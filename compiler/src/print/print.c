@@ -153,10 +153,11 @@ node *PRTdeclarations(node * arg_node, info * arg_info) {
 
 node *PRTfunheader(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTfunheader");
-
-	printf("%s %s",typeToString(FUNHEADER_RETURNTYPE(arg_node)), FUNHEADER_NAME(arg_node));
+	printf("%s %s", typeToString(FUNHEADER_RETURNTYPE(arg_node)), FUNHEADER_NAME(arg_node));
 	printf("(");
-	TRAVopt(FUNHEADER_PARAMS(arg_node), arg_info);
+	if (FUNHEADER_PARAMS(arg_node)) {
+	    TRAVopt(FUNHEADER_PARAMS(arg_node), arg_info);
+	}
 	printf(")");
 
 	DBUG_RETURN(arg_node);
@@ -220,7 +221,12 @@ node *PRTvardef(node * arg_node, info * arg_info) {
     if (VARDEF_EXPORT(arg_node)) {
         printf("export ");
     }
-    printf("%s %s", typeToString(VARDEF_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(VARDEF_DECL(arg_node)));
+    if (VARDEF_DECL(arg_node)) {
+        printf("%s %s", typeToString(VARDEF_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(VARDEF_DECL(arg_node)));
+    } else {
+        // Parameters for external functions don't have an entry in the SymbolTable!
+        printf("%s %s", typeToString(VARDEF_TYPE(arg_node)), VARDEF_NAME(arg_node));
+    }
     if (VARDEF_EXPR(arg_node)) {
         printf(" = ");
         TRAVdo(VARDEF_EXPR(arg_node), arg_info);
