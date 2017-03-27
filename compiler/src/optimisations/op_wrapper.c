@@ -18,10 +18,10 @@
 #include "op_wrapper.h"
 
 struct INFO {
-  bool optimized;
+  bool keepOptimizing;
 };
 
-#define INFO_OPTIMIZED(n) ((n)->optimized)
+#define INFO_KEEPOPTIMIZING(n) ((n)->keepOptimizing)
 
 /*
  * INFO functions
@@ -33,7 +33,7 @@ static info *MakeInfo(void)
   DBUG_ENTER( "MakeInfo");
 
   result = (info *)MEMmalloc(sizeof(info));
-  INFO_OPTIMIZED(result) = FALSE;
+  INFO_KEEPOPTIMIZING(result) = FALSE;
 
   DBUG_RETURN( result);
 }
@@ -49,6 +49,8 @@ static info *FreeInfo( info *info)
 
 node *OPunop(node *arg_node, info *arg_info) {
     DBUG_ENTER("OPunop");
+
+    DBUG_PRINT("OP", ("Potential optimazation candidate from line %d", NODE_LINE(arg_node)));
 
     node *optimzedNode = NULL;
     switch (UNOP_OP(arg_node)) {
@@ -69,6 +71,7 @@ node *OPunop(node *arg_node, info *arg_info) {
         break;
     default:
         // We should never ever make it to here...
+        DBUG_PRINT("OP", ("Can't optimize."));
         break;
     }
 
@@ -78,8 +81,9 @@ node *OPunop(node *arg_node, info *arg_info) {
 
         arg_node = MEMfree(arg_node);
         arg_node = optimzedNode;
+        DBUG_PRINT("OP", ("Optimization activated."));
 
-        INFO_OPTIMIZED(arg_info) = TRUE;
+        INFO_KEEPOPTIMIZING(arg_info) = TRUE;
     }
 
     DBUG_RETURN(arg_node);
@@ -92,14 +96,14 @@ node *OPdoOptimisations(node *syntaxtree) {
 
     int maxOptimizationLoops = 10;
     do {
-        INFO_OPTIMIZED(arg_info) = FALSE;
+        INFO_KEEPOPTIMIZING(arg_info) = FALSE;
         TRAVpush(TR_op);
 
         syntaxtree = TRAVdo(syntaxtree, arg_info);
 
         TRAVpop();
-        DBUG_PRINT("OP", ("Optimized code: %s", INFO_OPTIMIZED(arg_info) ? "TRUE" : "FALSE"));
-    } while (INFO_OPTIMIZED(arg_info) && maxOptimizationLoops-- > 0);
+        DBUG_PRINT("OP", ("Optimized code: %s", INFO_KEEPOPTIMIZING(arg_info) ? "TRUE" : "FALSE"));
+    } while (INFO_KEEPOPTIMIZING(arg_info) && maxOptimizationLoops-- > 0);
 
     arg_info = FreeInfo(arg_info);
     DBUG_RETURN(syntaxtree);
