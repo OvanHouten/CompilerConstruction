@@ -105,6 +105,8 @@ node* SCBEtypecast(node* arg_node, info* arg_info) {
 			
 			DBUG_RETURN(new_node);
 		}
+	} else {
+	    CTIerror("Unsopprted typecast!!!!!!!!!!!!!!!!!!!!");
 	}
 	
 	DBUG_RETURN(arg_node);

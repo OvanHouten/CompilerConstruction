@@ -60,7 +60,7 @@ node *OPunop(node *arg_node, info *arg_info) {
             optimzedNode = TBmakeIntconst(TY_int, - INTCONST_VALUE(UNOP_EXPR(arg_node)));
         } else if (NODE_TYPE(UNOP_EXPR(arg_node)) == N_floatconst) {
             DBUG_PRINT("OP", ("Optimizing float constant."));
-            optimzedNode = TBmakeIntconst(TY_float, - FLOATCONST_VALUE(UNOP_EXPR(arg_node)));
+            optimzedNode = TBmakeFloatconst(TY_float, - FLOATCONST_VALUE(UNOP_EXPR(arg_node)));
         }
         break;
     case UO_not:
