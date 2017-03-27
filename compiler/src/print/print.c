@@ -220,7 +220,7 @@ node *PRTvardef(node * arg_node, info * arg_info) {
     if (VARDEF_EXPORT(arg_node)) {
         printf("export ");
     }
-    printf("%s %s", typeToString(VARDEF_TYPE(arg_node)),VARDEF_NAME(arg_node));
+    printf("%s %s", typeToString(VARDEF_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(VARDEF_DECL(arg_node)));
     if (VARDEF_EXPR(arg_node)) {
         printf(" = ");
         TRAVdo(VARDEF_EXPR(arg_node), arg_info);
@@ -374,28 +374,30 @@ node *PRTfor (node * arg_node, info * arg_info)
 
   INDENT(arg_info);
   printf("for ( ");
-  if (VARDEF_TYPE(FOR_VARDEF(arg_node))) {
-      printf("int ");
-  }
-  if (!myglobal.print_var_details) {
-      printf("%s", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))));
-  } else {
-      printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_DISTANCE(VARDEF_DECL(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(FOR_VARDEF(arg_node))));
-  }
-  if (VARDEF_EXPR(FOR_VARDEF(arg_node))) {
-      printf(" = ");
-      TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
-  }
-  printf(", ");
-  TRAVdo( FOR_FINISH(arg_node), arg_info);
-  if (FOR_STEP(arg_node)) {
+  if (FOR_VARDEF(arg_node)) {
+      if (VARDEF_TYPE(FOR_VARDEF(arg_node))) {
+          printf("int ");
+      }
+      if (!myglobal.print_var_details) {
+          printf("%s", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))));
+      } else {
+          printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_DISTANCE(VARDEF_DECL(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(FOR_VARDEF(arg_node))));
+      }
+      if (VARDEF_EXPR(FOR_VARDEF(arg_node))) {
+          printf(" = ");
+          TRAVdo(VARDEF_EXPR(FOR_VARDEF(arg_node)), arg_info);
+      }
       printf(", ");
-      TRAVdo(FOR_STEP(arg_node), arg_info);
+      TRAVdo( FOR_FINISH(arg_node), arg_info);
+      if (FOR_STEP(arg_node)) {
+          printf(", ");
+          TRAVdo(FOR_STEP(arg_node), arg_info);
+      }
   }
   printf(" ) {\n");
   INCREASE_INDENTATION(arg_info);
 
-  TRAVdo(FOR_BLOCK( arg_node), arg_info);
+  TRAVopt(FOR_BLOCK( arg_node), arg_info);
 
   DECREASE_INDENTATION(arg_info);
   INDENT(arg_info);

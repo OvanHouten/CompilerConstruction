@@ -352,16 +352,32 @@ node *GBCif(node *arg_node, info *arg_info) {
     // TODO Optimize for empty if-block
     TRAVdo(IF_CONDITION(arg_node), arg_info);
     if (IF_ELSEBLOCK(arg_node)) {
-        fprintf(outfile, "    branch_f _else_%d\n", ifCount);
+        fprintf(outfile, "    branch_f _if_else_%d\n", ifCount);
         TRAVopt(IF_IFBLOCK(arg_node), arg_info);
         fprintf(outfile, "    jump _if_end_%d\n", ifCount);
-        fprintf(outfile, "_else_%d:\n", ifCount);
+        fprintf(outfile, "_if_else_%d:\n", ifCount);
         TRAVdo(IF_ELSEBLOCK(arg_node), arg_info);
     } else {
         fprintf(outfile, "    branch_f _if_end_%d\n", ifCount);
         TRAVopt(IF_IFBLOCK(arg_node), arg_info);
     }
     fprintf(outfile, "_if_end_%d:\n", ifCount);
+
+    DBUG_RETURN(arg_node);
+}
+
+node *GBCternop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCternop");
+
+    fprintf(outfile, "; Line %d\n", NODE_LINE(arg_node));
+    int ifCount = INFO_IFCOUNT(arg_info)++;
+    TRAVdo(TERNOP_CONDITION(arg_node), arg_info);
+    fprintf(outfile, "    branch_f _ternop_else_%d\n", ifCount);
+    TRAVdo(TERNOP_THEN(arg_node), arg_info);
+    fprintf(outfile, "    jump _ternop_end_%d\n", ifCount);
+    fprintf(outfile, "_ternop_else_%d:\n", ifCount);
+    TRAVdo(TERNOP_ELSE(arg_node), arg_info);
+    fprintf(outfile, "_ternop_end_%d:\n", ifCount);
 
     DBUG_RETURN(arg_node);
 }
