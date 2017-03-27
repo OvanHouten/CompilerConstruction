@@ -124,8 +124,8 @@ node* FWTfor(node* arg_node, info* arg_info) {
     ID_DECL(finishVar) = VARDEF_DECL(finishVarDef);
 
     // Add them to the declarations list
-    FUNBODY_VARDECS(funBody) = TBmakeDeclarations(stepVarDef, FUNBODY_VARDECS(funBody));
-    FUNBODY_VARDECS(funBody) = TBmakeDeclarations(finishVarDef, FUNBODY_VARDECS(funBody));
+    FUNBODY_VARDECS(funBody) = TBmakeVardecs(stepVarDef, FUNBODY_VARDECS(funBody));
+    FUNBODY_VARDECS(funBody) = TBmakeVardecs(finishVarDef, FUNBODY_VARDECS(funBody));
 
     // Add assignment statements in front of the while loop
     node *stepVarAssign = TBmakeAssign(COPYdoCopy(stepVar), FOR_STEP(arg_node));

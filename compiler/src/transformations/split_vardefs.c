@@ -120,7 +120,7 @@ node *SVstatements(node *arg_node, info *arg_info) {
         // Remove the expression from the vardef
         node *expr = VARDEF_EXPR(varDef);
         VARDEF_EXPR(varDef)  = NULL;
-        FUNBODY_VARDECS(INFO_FUNBODY(arg_info)) = TBmakeDeclarations( varDef, FUNBODY_VARDECS(INFO_FUNBODY(arg_info)));
+        FUNBODY_VARDECS(INFO_FUNBODY(arg_info)) = TBmakeVardecs( varDef, FUNBODY_VARDECS(INFO_FUNBODY(arg_info)));
 
         // Create a copy for the var-loop variable
         node *id = TBmakeId(STRcpy(VARDEF_NAME(varDef)));
