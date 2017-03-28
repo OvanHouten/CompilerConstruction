@@ -486,21 +486,10 @@ node *SAerror(node *arg_node, info *arg_info) {
 node *SAlocalfundefs(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAlocalfundefs");
 
-//    // Just register the function name
-//    node * funDef = LOCALFUNDEFS_LOCALFUNDEF(arg_node);
-//    char *name = FUNHEADER_NAME(FUNDEF_FUNHEADER(funDef));
-//    registerWithinCurrentScope(FUNDEF_FUNHEADER(funDef), arg_info, name, STE_fundef);
-//
-//    // Register other functions
-//    TRAVopt(LOCALFUNDEFS_NEXT(arg_node), arg_info);
-//
-//    // Process the function header and the body
-//    TRAVdo(funDef, arg_info);
-
     node *funDef = LOCALFUNDEFS_LOCALFUNDEF(arg_node);
     node *funHeader = FUNDEF_FUNHEADER(funDef);
     char *name = FUNHEADER_NAME(funHeader);
-    DBUG_PRINT("SA", ("Registering function [%s].", name));
+    DBUG_PRINT("SA", ("Registering local function [%s].", name));
 
     // Make sure it does not exist within the current scope
     node* funDefSTE = findWithinScope(INFO_CURSCOPE(arg_info), name, STE_fundef);
@@ -511,8 +500,8 @@ node *SAlocalfundefs(node *arg_node, info *arg_info) {
         funDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), funDef, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
     }
     // Make sure we have a reference at hand to the STE
-    FUNDEF_DECL(funHeader) = funDefSTE;
-    SYMBOLTABLEENTRY_DECL(funDefSTE) = funHeader;
+    FUNDEF_DECL(funDef) = funDefSTE;
+    SYMBOLTABLEENTRY_DECL(funDefSTE) = funDef;
     DBUG_PRINT("SA", ("Registering function [%s] at offset [%d].", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
 
     // Continue to register
