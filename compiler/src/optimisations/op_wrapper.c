@@ -50,8 +50,10 @@ static info *FreeInfo( info *info)
 node *OPunop(node *arg_node, info *arg_info) {
     DBUG_ENTER("OPunop");
 
-    DBUG_PRINT("OP", ("Potential constant reduction optimazation candidate from line %d", NODE_LINE(arg_node)));
+    // First try the expression, you never know...
+    UNOP_EXPR(arg_node) = TRAVdo(UNOP_EXPR(arg_node), arg_info);
 
+    DBUG_PRINT("OP", ("Potential constant reduction optimazation candidate from line %d", NODE_LINE(arg_node)));
     node *optimzedNode = NULL;
     switch (UNOP_OP(arg_node)) {
     case UO_neg :
