@@ -2,6 +2,10 @@ MUST DO
 * Check error/warning messages for usage of typeToString(). Now there are a lot of places where just a number is printed.
 * Check source files for FIXME and TODO tags, and fix them... ;-)
 * Implement 'returns are last statement in block' check
+* Implement do-while code generation
+
+SHOULD DO
+* Extract SymbolTable code into single file and remove redundant code (currently we have multiple location where STE's are created...)
 
 COULD DO
 * Dead code removal from AST generated assembly code
