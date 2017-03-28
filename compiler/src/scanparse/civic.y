@@ -124,6 +124,7 @@ localfundefs: localfundefs fundef { $$ = TBmakeLocalfundefs( $2, $1); }
             ;
        
 block: CURLY_L stmts CURLY_R { $$ = $2; }
+     | CURLY_L CURLY_R       { $$ = NULL; }
      | stmt                  { $$ = TBmakeStatements($1, NULL); }
      ;
 

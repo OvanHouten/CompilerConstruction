@@ -79,11 +79,11 @@ print       = print.o
 
 codegen     = gen_byte_code.o
 
-utils       = numbers.o list_utils.o type_utils.o
+utils       = numbers.o list_utils.o type_utils.o scope_utils.o
 
 context_analysis = context_analysis.o type_check.o
 
-transformations = global_init.o split_vardefs.o short_circuit.o
+transformations = global_init.o split_vardefs.o short_circuit.o forwhile_transform.o
 
 optimisations = op_wrapper.o
 
@@ -104,7 +104,7 @@ TEST_CFLAGS := ""
 
 # Whether to run tests that compare program output. Set to 1 after you have
 # implemented your assembly phase.
-TEST_RUN_FUNCTIONAL := 0
+TEST_RUN_FUNCTIONAL := 1
 
 # Path to toolchain files, relative to the root directory (used for functional
 # test).

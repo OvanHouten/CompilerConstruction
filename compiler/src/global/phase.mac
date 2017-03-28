@@ -45,6 +45,8 @@ SUBPHASE(sv, "Split VarDefs", SVdoSplitVarDefs, ALWAYS, tf)
 
 SUBPHASE(gi, "Global Init", GIdoGlobalInit, ALWAYS, tf)
 
+SUBPHASE(fwt, "ForWhile Transformation", FWTdoForWhileTransform, ALWAYS, tf)
+
 SUBPHASE(scbe, "Short Circuit Boolean Evaluation", SCBEdoShortCircuit, ALWAYS, tf)
 
 ENDPHASE(tf)
@@ -59,18 +61,13 @@ ENDPHASE(mop)
 
 /******************************************************************************/
 
-PHASE( cg,
-       "Generating Code",
-       ALWAYS)
+PHASE( cg, "Generating Code", ALWAYS)
 
 SUBPHASE( prt, "Generating byte code", GBCdoGenByteCode, ALWAYS, cg)      
+
 SUBPHASE( prt_ast, "Print ast", PRTdoPrint, ALWAYS, cg)      
 
-SUBPHASE( frtr, 
-          "De-allocating syntax tree representation",
-          FREEdoFreeTree, 
-          ALWAYS,
-          cg)
+SUBPHASE( frtr, "De-allocating syntax tree representation", FREEdoFreeTree, ALWAYS, cg)
 
 ENDPHASE( cg) 
 

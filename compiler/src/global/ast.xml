@@ -79,16 +79,47 @@
         </travuser>
       </traversal>
       
+      <traversal id="FWT" name="ForWhile Transformation" default="sons" include="forwhile_transform.h">
+        <travuser>
+          <node name="For" />
+          <node name="FunDef" />
+          <node name="Statements" />
+        </travuser>
+      </traversal>
+      
       <traversal id="SCBE" name="ShortCircuit" default="sons" include="short_circuit.h">
         <travuser>
           <node name="BinOp" />
-          <node name="UnOp" />
+          <node name="Typecast" />
         </travuser>
       </traversal>
 
       <traversal id="OP" name="Optimisations" default="sons" include="op_wrapper.h">
         <travuser>
           <node name="UnOp" />
+        </travuser>
+      </traversal>
+
+      <traversal id="GBC" name="Generate Assembler" default="sons" include="gen_byte_code.h" >
+        <travuser>
+            <node name="Program" />
+            <node name="SymbolTableEntry" />
+            <node name="Declarations" />
+            <node name="Statements" />
+            <node name="FunDef" />
+            <node name="Return" />
+            <node name="Funcall" />
+            <node name="If" />
+            <node name="TernOp" />
+            <node name="While" />
+            <node name="Assign" />
+            <node name="Id" />
+            <node name="UnOp" />
+            <node name="Typecast" />
+            <node name="BinOp" />
+            <node name="IntConst" />
+            <node name="FloatConst" />
+            <node name="BoolConst" />
         </travuser>
       </traversal>
 
@@ -210,11 +241,11 @@
                 </targets>
             </type>
         </attribute>
-        <attribute name="VarCount">
-            <description>The number of variables defined in this scope</description>
+        <attribute name="Variables">
+            <description>The number of variables within the symboltable</description>
             <type name="Int">
                 <targets>
-                    <target mandatory="no">
+                    <target mandatory="yes">
                         <phases>
                             <phase from="Context Analysis"/>
                         </phases>
@@ -285,6 +316,18 @@
             <type name="Link">
                 <targets>
                     <target mandatory="yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
+        <attribute name="AssemblerPostfix">
+            <description>Postfix for store and load instructions</description>
+            <type name="String">
+                <targets>
+                    <target mandatory="no">
                         <phases>
                             <phase from="Context Analysis"/>
                         </phases>
@@ -447,6 +490,18 @@
 	        </targets>
           </type>
         </attribute>
+        <attribute name="Decl">
+            <description>Link to its STE</description>
+            <type name="Link">
+                <targets>
+                    <target mandatory="no">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
       </attributes>
     </node>
 
@@ -492,18 +547,6 @@
               </target>
             </targets>
           </type>
-        </attribute>
-        <attribute name="Decl">
-            <description>Link to its STE</description>
-            <type name="Link">
-                <targets>
-                    <target mandatory="no">
-                        <phases>
-                            <phase from="Context Analysis"/>
-                        </phases>
-                    </target>
-                </targets>
-            </type>
         </attribute>
       </attributes>
     </node>
@@ -1088,6 +1131,18 @@
         </son>
       </sons>
       <attributes>
+        <attribute name="Type">
+          <description>Operator result type</description>
+          <type name="Type">
+            <targets>
+              <target mandatory="no">
+                <phases>
+                  <phase from="Type Check" />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
       </attributes>
     </node>
 

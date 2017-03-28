@@ -1,0 +1,21 @@
+MUST DO
+* Allow procedure style function calling. Currently the compiler (type check) does not allow this.
+* Implement 'returns are last statement in block' check
+* Implement do-while code generation
+* Implement a 'can't change var-loop variable' check. The loop counter is readonly for expressions inside the loop!
+* Check error/warning messages for usage of typeToString(). Now there are a lot of places where just a number is printed.
+* Check source files for FIXME and TODO tags, and fix them... ;-)
+
+SHOULD DO
+* Extract SymbolTable code into single file and remove redundant code (currently we have multiple location where STE's are created...)
+* Remove array related nodes from the AST and revert that commit in the Array branch.
+* Implement a compiler optimization 'O' flag and have the compiler act accoringly. (We already have a coouple of 'built in' optimizations in the code generation phase that might need to be switchable)
+
+COULD DO
+* Dead code removal from AST generated assembly code
+* Constant folding
+* If-else and ternary operator optimization when condition is constant
+* Use 'sons' traversal for type context (scope) analysis. (tricky!)
+* Reuse of for-loop variables for sequential (non nested) for-loops.
+* Make the number of optimizations attempt configurable via command line options.
+* Peephole optimizations (could be done pure AST based, pure generated code based or mixed)

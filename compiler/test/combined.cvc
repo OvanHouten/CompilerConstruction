@@ -21,7 +21,7 @@ extern float bla2;
 extern bool bla3;
 
 int a;
-int b = 42;
+export int b = 42;
 export float c;
 export float d = 13.1;
 
@@ -42,7 +42,7 @@ int onlyDecs(int a, int b) {
 export void onlyStatement(bool a) {
     c = d;
 }
-int main() {
+export int main() {
     int a;
     int aa;
     int b = 1;
@@ -70,9 +70,9 @@ int main() {
         }
         return a - 1;
     } while (a != c && c > b);
-    main1();
-    main2();
-    main3();
+    a = main1();
+    a = main2();
+    b_ = main3();
     b = main();
     b = main1();
     b = main2();
@@ -80,16 +80,26 @@ int main() {
     for (int i = 0, 10) {
         a = b;
     }
-    for (int i = 100, 0) {
+    for (int i = 100, 0, -1) {
         b = a;
     }
+    return 1;
 }
 int typecast() {
-    int a = -4;
+    int a = ---4;
     float b = (float) a;
     float c = 4.2;
     float e = -1.3;
     int d = (int) c;
-    bool optimized = !false;
+    bool optimized = !!!false;
     return (int) optimized;
+}
+void globalAccess(int aa, float cc) {
+    bla1 = a;
+    a = aa;
+    c = cc;
+    bla2 = cc;
+    bla1 = bla1;
+    c = c;
+    bla3 = bla3;
 }
