@@ -163,7 +163,7 @@ node* FWTfor(node* arg_node, info* arg_info) {
     FOR_STEP(arg_node) = NULL;
     FOR_FINISH(arg_node) = NULL;
 	FOR_BLOCK(arg_node) = NULL;
-	FREEfor(arg_node, arg_info);
+	arg_node = FREEfor(arg_node, arg_info);
 
 	STATEMENTS_STATEMENT(INFO_CURRENTSTATEMENT(arg_info)) = whileLoop;
     arg_node = whileLoop;

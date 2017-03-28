@@ -66,7 +66,7 @@ node *SVfunbody(node *arg_node, info *arg_info) {
 
     // Start with a clean slate
     INFO_VARINITS(arg_info) = NULL;
-    TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
+    FUNBODY_VARDECS(arg_node) = TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
 
     arg_node = appendToStatements(arg_node, INFO_VARINITS(arg_info));
     INFO_VARINITS(arg_info) = NULL;
