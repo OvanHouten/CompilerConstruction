@@ -1,0 +1,9 @@
+MUST DO
+* Check error/warning messages for usage of typeToString(). Now there are a lot of places where just a number is printed.
+* Check source files for FIXME and TODO tags, and fix them... ;-)
+* Implement 'returns are last statement in block' check
+
+COULD DO
+* Dead code removal from AST generated assembly code
+* Constant folding
+* If-else ternary operator optimization when condition is constant
