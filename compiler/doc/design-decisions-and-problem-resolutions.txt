@@ -64,6 +64,7 @@ VarDef <- STE <- ID
 
 FunDef <- STE <- FunDef
    +-------^
+
 FunDef <- STE <- FunCall
 
 The SymbolTable and the SymbolTableEntries has been extended with extra information. SymbolTableEntries have a type attribute. Currrently we have VarDef, VarUsage, FunDef and Const as type. The later will be used to store constants found throughout the assembly code generation.
@@ -77,4 +78,12 @@ When a redefinition is found the old STE is temporary renamed so that when looki
 === TYPE CHECKING ===
 In preparation for the type-checking a couple of changes was made to the ast.xml in order to make the type checking easier. The separate binary operator nodes (LogicOp, ArithOp and RelOp) have been replaced by a single binary operator node (BinOp).
 
-===  ===
+=== TERNARY OPERATOR ===
+We have added a Ternary operator node to the AST that is being used for the short circuit boolean evaluation and typecasts to and from boolean.
+
+=== FOR-LOOP 2 WHILE-LOOP ===
+All for-loops are transformed into while loops. As part of this transformation the step- and finish-expressions are evaluated only once. In order to garantee this new local variabels have been introduced. These variables are being used during de condition check and the calculation of the next loop variable value (e.g. the '+ step' calculation.)
+
+=== OPTIMIZATIONS ===
+We have a compiler phase that is handles optimizations. The compiler performs the optimizations at most 10 times (currenlty hardcoded) or if no optimization was triggered.
+Currently we have 1 optimization. Constants that are being used by a unary operator are replaced by constants with the 'deduced' value.
