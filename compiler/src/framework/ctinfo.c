@@ -370,7 +370,7 @@ void InternalCompilerErrorBreak( int sig)
 {
   fprintf( stderr, 
            "\n\n"
-           "OOOPS your program crashed the compiler 8-((\n\n");
+           "OOOPS your program crashed the compiler 8-((\n\nSomething on line %d caused it.\n\n", global.line);
 
   CleanUp();
 
