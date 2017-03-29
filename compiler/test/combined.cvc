@@ -117,8 +117,7 @@ int typecast() {
     float e = -1.3;
     int d = (int) c;
     bool optimized = !!!false;
-//    return (int) optimized;
-	return 4;
+    return (int) optimized;
 }
 void globalAccess(int aa, float cc) {
     bla1 = a;
