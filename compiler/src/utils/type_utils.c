@@ -42,6 +42,9 @@ type determineType(node *expr) {
         case N_id :
             exprType = SYMBOLTABLEENTRY_TYPE(ID_DECL(expr));
             break;
+        case N_ternop :
+            exprType = TERNOP_TYPE(expr);
+            break;
         case N_vardef :
             exprType = VARDEF_TYPE(expr);
             break;
@@ -67,7 +70,7 @@ type determineType(node *expr) {
             exprType = TY_bool;
             break;
         default :
-            DBUG_PRINT("TC", ("Unhandled epxression with type [%d]", NODE_TYPE(expr)));
+            DBUG_PRINT("TC", ("Unhandled epxression with type [%d] from line [%d]", NODE_TYPE(expr), NODE_LINE(expr)));
             break;
     }
     DBUG_PRINT("UTIL", ("Type [%d]", exprType));

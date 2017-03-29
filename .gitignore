@@ -3,7 +3,6 @@
 
 # Executables and compiler output
 bin/
-*.out
 *.o
 *.output
 \.*.cpp

@@ -21,7 +21,7 @@ extern float bla2;
 extern bool bla3;
 
 int a;
-int b = 42;
+export int b = 42;
 export float c;
 export float d = 13.1;
 
@@ -98,11 +98,20 @@ export int main() {
     return 1;
 }
 int typecast() {
-    int a = -4;
+    int a = ---4;
     float b = (float) a;
     float c = 4.2;
     float e = -1.3;
     int d = (int) c;
-    bool optimized = !false;
+    bool optimized = !!!false;
     return (int) optimized;
+}
+void globalAccess(int aa, float cc) {
+    bla1 = a;
+    a = aa;
+    c = cc;
+    bla2 = cc;
+    bla1 = bla1;
+    c = c;
+    bla3 = bla3;
 }

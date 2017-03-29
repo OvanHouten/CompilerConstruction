@@ -14,6 +14,7 @@
 #include "str.h"
 #include "ctinfo.h"
 #include "myglobals.h"
+#include "copy.h"
 
 #include "list_utils.h"
 #include "split_vardefs.h"
@@ -65,7 +66,7 @@ node *SVfunbody(node *arg_node, info *arg_info) {
 
     // Start with a clean slate
     INFO_VARINITS(arg_info) = NULL;
-    TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
+    FUNBODY_VARDECS(arg_node) = TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
 
     arg_node = appendToStatements(arg_node, INFO_VARINITS(arg_info));
     INFO_VARINITS(arg_info) = NULL;
@@ -80,8 +81,10 @@ node *SVfunbody(node *arg_node, info *arg_info) {
 node *SVvardecs(node *arg_node, info *arg_info) {
     DBUG_ENTER("SVvardecs");
 
+    DBUG_PRINT("SV", ("Next..."));
     TRAVopt(VARDECS_NEXT(arg_node), arg_info);
 
+    DBUG_PRINT("SV", ("Checking [%s]", VARDEF_NAME(VARDECS_VARDEC(arg_node))));
     node *varDef = VARDECS_VARDEC(arg_node);
     if (VARDEF_EXPR(varDef)) {
         DBUG_PRINT("SV", ("Splitting [%s] from line [%d]", VARDEF_NAME(varDef), NODE_LINE(arg_node)));
@@ -98,6 +101,8 @@ node *SVvardecs(node *arg_node, info *arg_info) {
         node *assignment = TBmakeAssign(id, expr);
 
         INFO_VARINITS(arg_info) = TBmakeStatements( assignment, INFO_VARINITS(arg_info));
+    } else {
+        DBUG_PRINT("SV", ("Nothing to split on line %d.", NODE_LINE(varDef)));
     }
 
     DBUG_RETURN(arg_node);
@@ -115,6 +120,7 @@ node *SVstatements(node *arg_node, info *arg_info) {
         // Remove the expression from the vardef
         node *expr = VARDEF_EXPR(varDef);
         VARDEF_EXPR(varDef)  = NULL;
+        FUNBODY_VARDECS(INFO_FUNBODY(arg_info)) = TBmakeVardecs( varDef, FUNBODY_VARDECS(INFO_FUNBODY(arg_info)));
 
         // Create a copy for the var-loop variable
         node *id = TBmakeId(STRcpy(VARDEF_NAME(varDef)));
