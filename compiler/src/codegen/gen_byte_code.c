@@ -340,6 +340,9 @@ node *GBCfuncall(node *arg_node, info *arg_info) {
     } else {
         fprintf(outfile, "    jsr %d %s\n", expressionCount, SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
     }
+    if (FUNCALL_PROCEDURECALL(arg_node) && FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))) != TY_void) {
+        fprintf(outfile, "    %spop\n", encodeType(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))), NODE_LINE(arg_node)));
+    }
 
     DBUG_RETURN(arg_node);
 }

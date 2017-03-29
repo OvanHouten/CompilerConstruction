@@ -1,0 +1,4 @@
+int canBeSwallowed() {
+    canBeSwallowed();
+    return -1;
+}

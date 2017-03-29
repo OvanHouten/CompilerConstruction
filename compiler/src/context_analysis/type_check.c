@@ -57,20 +57,6 @@ static info *FreeInfo( info *info)
   DBUG_RETURN( info);
 }
 
-node *TCstatements(node *arg_node, info *arg_info) {
-    DBUG_ENTER("TCstatements");
-
-    TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
-    TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
-
-    if (NODE_TYPE(STATEMENTS_STATEMENT(arg_node)) == N_funcall) {
-        if (FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(STATEMENTS_STATEMENT(arg_node))))) != TY_void) {
-              CTIerror("The function '%s' return value must be assigned to a variable at line [%d].", FUNCALL_NAME(STATEMENTS_STATEMENT(arg_node)), NODE_LINE(STATEMENTS_STATEMENT(arg_node)));
-          }
-    }
-    DBUG_RETURN(arg_node);
-}
-
 node *TCassign(node *arg_node, info *arg_info) {
     DBUG_ENTER("TCassign");
 
