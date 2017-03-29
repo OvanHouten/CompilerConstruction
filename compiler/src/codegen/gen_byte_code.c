@@ -433,7 +433,7 @@ node *GBCassign(node *arg_node, info *arg_info) {
     if (distance == 0 || SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
         fprintf(outfile, "    %sstore%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
     } else {
-        fprintf(outfile, "; Assigning to relative free variables is not yet supported.\n");
+        fprintf(outfile, "    %sstoren %d %d\n", dataType, distance, offset);
     }
 
     DBUG_RETURN(arg_node);
@@ -459,7 +459,7 @@ node *GBCid(node *arg_node, info *arg_info) {
     } else if (SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
         fprintf(outfile, "    %sload%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
     } else {
-        fprintf(outfile, "; Using relative free variables is not yet supported.\n");
+        fprintf(outfile, "    %sloadn %d %d\n", dataType, distance, offset);
     }
 
     DBUG_RETURN(arg_node);
