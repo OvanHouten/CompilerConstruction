@@ -290,7 +290,11 @@ node *GBCfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCfundef");
 
     if (!FUNDEF_EXTERN(arg_node)) {
-        fprintf(outfile, "\n%s:\n", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)));
+        if (FUNDEF_DECL(arg_node)) {
+            fprintf(outfile, "\n%s:\n", SYMBOLTABLEENTRY_NAME(FUNDEF_DECL(arg_node)));
+        } else {
+            CTIerror("We're very sorry to let you know that you found a bug in the compiler. Please contact the developers.\nThe instruction on line %d of your program revealed the bug (missing STE for function).", NODE_LINE(arg_node));
+        }
         if (FUNDEF_SYMBOLTABLE(arg_node) && SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node)) > 0) {
             int localVarCount = SYMBOLTABLE_VARIABLES(FUNDEF_SYMBOLTABLE(arg_node));
             int paramCount = 0;
@@ -336,9 +340,9 @@ node *GBCfuncall(node *arg_node, info *arg_info) {
     prepareExpressions(FUNCALL_EXPRS(arg_node), arg_info, &expressionCount);
 
     if (FUNDEF_EXTERN(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))) {
-        fprintf(outfile, "    jsre %d\n", SYMBOLTABLEENTRY_OFFSET(FUNCALL_DECL(arg_node)));
+        fprintf(outfile, "    jsre %d\t\t\t; %s\n", SYMBOLTABLEENTRY_OFFSET(FUNCALL_DECL(arg_node)), SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
     } else {
-        fprintf(outfile, "    jsr %d %s\n", expressionCount, SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
+        fprintf(outfile, "    jsr %d %s\n", expressionCount, SYMBOLTABLEENTRY_NAME(FUNDEF_DECL(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))));
     }
 
     DBUG_RETURN(arg_node);

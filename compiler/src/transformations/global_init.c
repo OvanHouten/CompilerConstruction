@@ -16,8 +16,10 @@
 #include "ctinfo.h"
 #include "myglobals.h"
 
-#include "global_init.h"
 #include "list_utils.h"
+#include "scope_utils.h"
+
+#include "global_init.h"
 
 /*
  * INFO structure
@@ -80,6 +82,7 @@ node *GIprogram(node *arg_node, info *arg_info) {
                 // And create a list of assignment statements
                 appendToStatements(funBody, TBmakeStatements(TBmakeAssign(id, expr), NULL));
                 // And add it to the symboltable
+                // TODO check why we don't use 'registerWithinCurrentScope'
                 node *symbolTableEntry = TBmakeSymboltableentry(NULL);
                 ID_DECL(id) = symbolTableEntry;
                 SYMBOLTABLEENTRY_ENTRYTYPE(symbolTableEntry) = STE_varusage;
@@ -100,13 +103,12 @@ node *GIprogram(node *arg_node, info *arg_info) {
     if (FUNBODY_STATEMENTS(funBody)) {
         DBUG_PRINT("GI", ("Creating '__init' function for globladefs."));
         node *initMethod = TBmakeFundef( FALSE, TRUE, TBmakeFunheader(TY_void, STRcpy("__init"), NULL), funBody, initSymbolTable);
+        // And register it in the ST
+        node *initSTE = registerWithinCurrentScope(PROGRAM_SYMBOLTABLE(arg_node), initMethod, "__init", STE_fundef, TY_void);
+        FUNDEF_DECL(initMethod) = initSTE;
+        SYMBOLTABLEENTRY_DECL(initSTE) = initMethod;
+        // And add the new function to the declarations section
         PROGRAM_DECLARATIONS(arg_node) = TBmakeDeclarations(initMethod, PROGRAM_DECLARATIONS(arg_node));
-        node *symbolTable = PROGRAM_SYMBOLTABLE(arg_node);
-        SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable) = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable));
-        SYMBOLTABLEENTRY_ENTRYTYPE(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = STE_fundef;
-        SYMBOLTABLEENTRY_DECL(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = initMethod;
-        SYMBOLTABLEENTRY_NAME(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = STRcpy("__init");
-        SYMBOLTABLEENTRY_TYPE(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = TY_void;
     } else {
         // Cleanup
         initSymbolTable = MEMfree(initSymbolTable);

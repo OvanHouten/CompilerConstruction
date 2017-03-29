@@ -94,6 +94,12 @@
         </travuser>
       </traversal>
 
+      <traversal id="RNF" name="Rename Nested Functions" default="sons" include="rename_nested_functions.h">
+        <travuser>
+            <node name="FunDef" />
+        </travuser>
+      </traversal>
+
       <traversal id="OP" name="Optimisations" default="sons" include="op_wrapper.h">
         <travuser>
           <node name="UnOp" />

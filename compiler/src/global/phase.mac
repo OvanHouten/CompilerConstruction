@@ -49,6 +49,8 @@ SUBPHASE(fwt, "ForWhile Transformation", FWTdoForWhileTransform, ALWAYS, tf)
 
 SUBPHASE(scbe, "Short Circuit Boolean Evaluation", SCBEdoShortCircuit, ALWAYS, tf)
 
+SUBPHASE(rnf, "Rename Nested Functions", RNFdoRenameNestedFunctions, ALWAYS, tf)
+
 ENDPHASE(tf)
 
 /******************************************************************************/
