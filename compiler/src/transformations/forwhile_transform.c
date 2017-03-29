@@ -22,6 +22,7 @@
 struct INFO {
 	node *funDef;
 	node *currentStatement;
+	node *nextStatement;
 };
 
 /*
@@ -175,21 +176,35 @@ node* FWTfor(node* arg_node, info* arg_info) {
 
 node* FWTdo(node* arg_node, info* arg_info) {
     DBUG_ENTER("FWTdo");
-		
-	// Create new While node, traverse it for nested transformations
-	node* while_node = TBmakeWhile(DO_CONDITION(arg_node), DO_BLOCK(arg_node));
-	WHILE_BLOCK(while_node) = TRAVdo(WHILE_BLOCK(while_node), arg_info);
 	
-	// Create the final new node with a block in front of the while node
-	node* block_node = COPYstatements(WHILE_BLOCK(while_node), arg_info);
-	node* new_node = TBmakeStatements(while_node, block_node);
+	// We want to do a traverse, but are not yet done at that time with the current statement node
+	// However we also do not want it to change when it returns from this traversal
+	node* current_statement = INFO_CURRENTSTATEMENT(arg_info);
 	
-	// Free old node
+	// Add increment statement at the end of the codeblock
+	node* new_node = TBmakeWhile(DO_CONDITION(arg_node), DO_BLOCK(arg_node));
+	TRAVdo(WHILE_BLOCK(new_node), arg_info);
+	node* block = COPYdoCopy(WHILE_BLOCK(new_node));
+	
+	// new while loop is the new current statement (we free the do-node later)
+	STATEMENTS_STATEMENT(current_statement) = new_node;
+	
+	// Put body in front of while loop
+	node* temp = STATEMENTS_NEXT(current_statement);
+	STATEMENTS_NEXT(current_statement) = block;
+	
+	// Put the rest of the statements before this body and whileloop
+	while(STATEMENTS_NEXT(block)) {
+		block = STATEMENTS_NEXT(block);
+	}
+	STATEMENTS_NEXT(block) = temp;
+	
+	// Free old For node
+    DO_CONDITION(arg_node) = NULL;
 	DO_BLOCK(arg_node) = NULL;
-	DO_CONDITION(arg_node) = NULL;
-	FREEdo(arg_node, arg_info);
+	arg_node = FREEdo(arg_node, arg_info);
 	
-	DBUG_RETURN(new_node);
+    DBUG_RETURN(new_node);
 }
 
 node* FWTdoForWhileTransform(node* syntaxtree) {
