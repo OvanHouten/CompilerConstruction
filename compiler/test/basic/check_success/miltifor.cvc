@@ -1,0 +1,10 @@
+export int main() {
+	if(true) {
+
+	} else if(false) {
+
+	} else {
+
+	}
+	return 0;
+}
