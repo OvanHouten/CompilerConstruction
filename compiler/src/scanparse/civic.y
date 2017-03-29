@@ -58,7 +58,7 @@ static int yyerror( char *errname);
 
 %type <node> program declarations declaration globaldec globaldef fundec fundef 
 %type <node> funheader params param funbody vardecs vardec block  stmts stmt exprs expr arrexpr arrexprs ids
-%type <node> assign if while do for typecast return funcall
+%type <node> assign if while do for typecast return funcall arrayassign
 %type <node> constant floatval intval boolval
 
 %start program
@@ -140,6 +140,7 @@ stmt: assign            { $$ = $1; }
     | for               { $$ = $1; }
     | return            { $$ = $1; }
     | funcall SEMICOLON { $$ = $1; FUNCALL_PROCEDURECALL($$) = TRUE;}
+    | arrayassign       { $$ = $1; }
     ;         
 
 assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId( $1), $3); }
@@ -155,14 +156,16 @@ while: WHILE BRACKET_L expr BRACKET_R block { $$ = TBmakeWhile($3, $5); }
 for: FOR BRACKET_L INT_TYPE ID LET expr COMMA expr BRACKET_R block             { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TY_int, $6, NULL, NULL, NULL), $8, TBmakeIntconst(TY_int, 1), $10); }
    | FOR BRACKET_L INT_TYPE ID LET expr COMMA expr COMMA expr BRACKET_R block  { $$ = TBmakeFor( TBmakeVardef( FALSE, FALSE, $4, TY_int, $6, NULL, NULL, NULL), $8, $10, $12); }
    ;
-   
-funcall: ID BRACKET_L BRACKET_R       { $$ = TBmakeFuncall( $1, NULL); }
-       | ID BRACKET_L exprs BRACKET_R { $$ = TBmakeFuncall( $1, $3); }
 
 return: RETURN SEMICOLON      { $$ = TBmakeReturn(NULL); }
       | RETURN expr SEMICOLON { $$ = TBmakeReturn( $2); }
+
+funcall: ID BRACKET_L BRACKET_R       { $$ = TBmakeFuncall( $1, NULL); }
+       | ID BRACKET_L exprs BRACKET_R { $$ = TBmakeFuncall( $1, $3); }
       
 typecast: BRACKET_L type BRACKET_R expr { $$ = TBmakeTypecast( $2, $4); }
+
+arrayassign: ID SQUARE_L exprs SQUARE_R LET expr SEMICOLON { $$ = TBmakeArrayassign(TBmakeId($1), $3, $6); }
 
 exprs: exprs COMMA expr { $$ = TBmakeExprs( $3, $1); }
      | expr             { $$ = TBmakeExprs( $1, NULL); }

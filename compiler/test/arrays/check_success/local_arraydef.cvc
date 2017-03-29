@@ -9,7 +9,8 @@ void func()
     int cc = 5;
     int[3] ccc;
     int[3] bla = [1, 2, 3];
-    int a = i[3];
+    int a;
     i[3] = 3;
+    a = i[3];
 }
 
