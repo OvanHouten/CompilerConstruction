@@ -1,5 +1,5 @@
 MUST DO
-* Implement 'returns are last statement in block' check
+* Implement better return statement check. The spec is rather loose when it comes to the return statement.
 * Check error/warning messages for usage of typeToString(). Now there are a lot of places where just a number is printed.
 * Check source files for FIXME and TODO tags, and fix them... ;-)
 
