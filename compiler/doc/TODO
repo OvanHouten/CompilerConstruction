@@ -1,8 +1,5 @@
 MUST DO
-* Allow procedure style function calling. Currently the compiler (type check) does not allow this.
-* Implement 'returns are last statement in block' check
-* Implement do-while code generation
-* Implement a 'can't change var-loop variable' check. The loop counter is readonly for expressions inside the loop!
+* Implement better return statement check. The spec is rather loose when it comes to the return statement.
 * Check error/warning messages for usage of typeToString(). Now there are a lot of places where just a number is printed.
 * Check source files for FIXME and TODO tags, and fix them... ;-)
 

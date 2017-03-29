@@ -61,7 +61,6 @@
           <node name="Do" />
           <node name="While" />
           <node name="For" />
-          <node name="Statements" />
         </travuser>
       </traversal>
 
@@ -118,6 +117,7 @@
             <node name="If" />
             <node name="TernOp" />
             <node name="While" />
+            <node name="Do" />
             <node name="Assign" />
             <node name="Id" />
             <node name="UnOp" />
@@ -812,6 +812,17 @@
                 <target mandatory="yes">
                     <phases>
                         <phase from="Context Analysis"/>
+                    </phases>
+                </target>
+            </targets>
+        </attribute>
+        <attribute name="ProcedureCall">
+            <description>Indicates wheter or not the function call is used in procedure style, e.g. the result is not used</description>
+            <type name="Bool"/>
+            <targets>
+                <target mandatory="no">
+                    <phases>
+                        <all />
                     </phases>
                 </target>
             </targets>

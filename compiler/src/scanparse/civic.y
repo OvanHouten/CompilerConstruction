@@ -138,7 +138,7 @@ stmt: assign            { $$ = $1; }
     | while             { $$ = $1; }
     | for               { $$ = $1; }
     | return            { $$ = $1; }
-    | funcall SEMICOLON { $$ = $1; }
+    | funcall SEMICOLON { $$ = $1; FUNCALL_PROCEDURECALL($$) = TRUE;}
     ;         
 
 assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId( $1), $3); }
