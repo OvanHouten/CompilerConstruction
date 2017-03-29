@@ -81,6 +81,7 @@
       <traversal id="FWT" name="ForWhile Transformation" default="sons" include="forwhile_transform.h">
         <travuser>
           <node name="For" />
+          <node name="Do" />
           <node name="FunDef" />
           <node name="Statements" />
         </travuser>
