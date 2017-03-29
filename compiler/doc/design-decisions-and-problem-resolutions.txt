@@ -87,3 +87,6 @@ All for-loops are transformed into while loops. As part of this transformation t
 === OPTIMIZATIONS ===
 We have a compiler phase that is handles optimizations. The compiler performs the optimizations at most 10 times (currenlty hardcoded) or if no optimization was triggered.
 Currently we have 1 optimization. Constants that are being used by a unary operator are replaced by constants with the 'deduced' value.
+
+=== GENERATE BYTE CODE ===
+During the generation of the byte code (assemly) the most efficient opcode is used. This behaviour can not be disabled.
