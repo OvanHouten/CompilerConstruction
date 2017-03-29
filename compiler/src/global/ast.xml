@@ -111,6 +111,7 @@
             <node name="If" />
             <node name="TernOp" />
             <node name="While" />
+            <node name="Do" />
             <node name="Assign" />
             <node name="Id" />
             <node name="UnOp" />

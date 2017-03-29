@@ -36,6 +36,7 @@ struct INFO {
   constantPool *constants;
   int ifCount;
   int whileCount;
+  int doCount;
 };
 
 /*
@@ -45,6 +46,7 @@ struct INFO {
 #define INFO_CONSTANTS(n) ((n)->constants)
 #define INFO_IFCOUNT(n) ((n)->ifCount)
 #define INFO_WHILECOUNT(n) ((n)->whileCount)
+#define INFO_DOCOUNT(n) ((n)->doCount)
 
 static FILE *outfile = NULL;
 
@@ -62,6 +64,7 @@ static info *MakeInfo(void)
   INFO_CONSTANTS(result) = NULL;
   INFO_IFCOUNT(result) = 0;
   INFO_WHILECOUNT(result) = 0;
+  INFO_DOCOUNT(result) = 0;
 
   DBUG_RETURN( result);
 }
@@ -401,6 +404,24 @@ node *GBCwhile(node *arg_node, info *arg_info) {
         fprintf(outfile, "_while_end_%d:\n", whileCount);
     } else {
         fprintf(outfile, "; Empty while block suppressed");
+    }
+    DBUG_RETURN(arg_node);
+}
+
+node *GBCdo(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCwhile");
+
+    fprintf(outfile, "; Line %d\n", NODE_LINE(arg_node));
+    if (DO_BLOCK(arg_node)) {
+        int doCount = INFO_DOCOUNT(arg_info)++;
+        fprintf(outfile, "_do_start_%d:\n", doCount);
+
+        TRAVopt(DO_BLOCK(arg_node), arg_info);
+
+        TRAVdo(DO_CONDITION(arg_node), arg_info);
+        fprintf(outfile, "    branch_t _do_start_%d\n", doCount);
+    } else {
+        fprintf(outfile, "; Empty do block suppressed");
     }
     DBUG_RETURN(arg_node);
 }
