@@ -76,6 +76,25 @@ node* FWTfor(node* arg_node, info* arg_info) {
     DBUG_RETURN(new_node);
 }
 
+node* FWTdo(node* arg_node, info* arg_info) {
+    DBUG_ENTER("FWTdo");
+		
+	// Create new While node, traverse it for nested transformations
+	node* while_node = TBmakeWhile(DO_CONDITION(arg_node), DO_BLOCK(arg_node));
+	WHILE_BLOCK(while_node) = TRAVdo(WHILE_BLOCK(while_node), arg_info);
+	
+	// Create the final new node with a block in front of the while node
+	node* block_node = COPYstatements(WHILE_BLOCK(while_node), arg_info);
+	node* new_node = TBmakeStatements(while_node, block_node);
+	
+	// Free old node
+	DO_BLOCK(arg_node) = NULL;
+	DO_CONDITION(arg_node) = NULL;
+	FREEdo(arg_node, arg_info);
+	
+	DBUG_RETURN(new_node);
+}
+
 node* FWTdoForWhileTransform(node* syntaxtree) {
     DBUG_ENTER("FWTdoForWhileTransform");
 
