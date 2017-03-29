@@ -568,8 +568,19 @@
             </target>
           </targets>
         </son>
-        <son name="ArraySize">
-          <description>Size of array, only valid for globaldefs</description>
+        <son name="SizeExprs">
+          <description>Size of array, only valid for globaldefs and vardecs</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Exprs" />
+              <phases>
+                <all />
+              </phases>
+            </target>
+          </targets>
+        </son>
+        <son name="SizeIds">
+          <description>Size of array, only valid for globaldecs and params</description>
           <targets>
             <target mandatory="no">
               <node name="Ids" />
