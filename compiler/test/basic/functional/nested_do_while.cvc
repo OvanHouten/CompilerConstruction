@@ -1,0 +1,22 @@
+extern void printInt(int i);
+extern void printNewlines(int l);
+
+export int main() {
+    int x = 0;
+    int y = 10;
+    int z;
+    do {
+        x = x + 1;
+        y = y - 1;
+        z = x;
+        do {
+            printInt(z);
+            z = z + 1;
+        } while (z < y);
+        printNewlines(1);
+        printInt(x);
+        printInt(y);
+        printNewlines(1);
+    } while (x <= y);
+    return 0;
+}
