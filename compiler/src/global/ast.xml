@@ -341,6 +341,18 @@
                 </targets>
             </type>
         </attribute>
+        <attribute name="GlobalFun">
+            <description>Indicates (for functions) if they are defined at the global level</description>
+            <type name="Bool">
+                <targets>
+                    <target mandatory="yes">
+                        <phases>
+                            <phase from="Context Analysis"/>
+                        </phases>
+                    </target>
+                </targets>
+            </type>
+        </attribute>
         <attribute name="Distance">
             <description>Distance within the symboltable</description>
             <type name="Int">

@@ -100,6 +100,7 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
             CTIerror("Function [%s] at line %d, column %d has already been declared at line %d, column %d.", name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
         } else {
             funDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), funDef, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
+            SYMBOLTABLEENTRY_GLOBALFUN(funDefSTE) = TRUE;
             if (FUNDEF_EXTERN(funDef)) {
                 SYMBOLTABLEENTRY_OFFSET(funDefSTE) = INFO_EXTERNALFUNS(arg_info)++;
             }
@@ -262,6 +263,7 @@ node *SAfuncall(node *arg_node, info *arg_info) {
             // Defined in a outer scope, create new STE in current scope
             node* localSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, name, STE_fundef, SYMBOLTABLEENTRY_TYPE(funDefSTE));
             SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(funDefSTE);
+            SYMBOLTABLEENTRY_GLOBALFUN(localSTE) = SYMBOLTABLEENTRY_GLOBALFUN(funDefSTE);
             // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(funDefSTE);
             SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
