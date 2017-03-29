@@ -1,6 +1,5 @@
 MUST DO
 * Implement 'returns are last statement in block' check
-* Implement do-while code generation
 * Check error/warning messages for usage of typeToString(). Now there are a lot of places where just a number is printed.
 * Check source files for FIXME and TODO tags, and fix them... ;-)
 
