@@ -37,6 +37,7 @@ extern node *PRTfor (node * arg_node, info * arg_info);
 
 extern node *PRTexprs(node * arg_node, info * arg_info);
 
+extern node *PRTternop (node * arg_node, info * arg_info);
 extern node *PRTbinop (node * arg_node, info * arg_info);
 extern node *PRTunop (node * arg_node, info * arg_info);
 

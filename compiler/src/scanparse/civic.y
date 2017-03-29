@@ -125,6 +125,7 @@ vardec: type ID SEMICOLON                                     { $$ = TBmakeVarde
       ;
 
 block: CURLY_L stmts CURLY_R { $$ = $2; }
+     | CURLY_L CURLY_R       { $$ = NULL; }
      | stmt                  { $$ = TBmakeStatements($1, NULL); }
      ;
 
@@ -132,14 +133,13 @@ stmts: stmts stmt { $$ = TBmakeStatements( $2, $1); }
      | stmt       { $$ = TBmakeStatements( $1, NULL); }
      ;
      
-stmt: assign                                        { $$ = $1; }  
-    | if                                            { $$ = $1; }
-    | do                                            { $$ = $1; }
-    | while                                         { $$ = $1; }
-    | for                                           { $$ = $1; }
-    | return                                        { $$ = $1; }
-    | funcall SEMICOLON                             { $$ = $1; }
-    | ID SQUARE_L exprs SQUARE_R LET expr SEMICOLON { $$ = TBmakeArrayassign(TBmakeId($1), $3, $6); }
+stmt: assign            { $$ = $1; }  
+    | if                { $$ = $1; }
+    | do                { $$ = $1; }
+    | while             { $$ = $1; }
+    | for               { $$ = $1; }
+    | return            { $$ = $1; }
+    | funcall SEMICOLON { $$ = $1; FUNCALL_PROCEDURECALL($$) = TRUE;}
     ;         
 
 assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId( $1), $3); }

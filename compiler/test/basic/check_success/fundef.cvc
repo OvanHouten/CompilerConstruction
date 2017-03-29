@@ -1,4 +1,4 @@
-int empty() {
+void empty() {
 }
 void singleParam(int a) {
 }
@@ -6,34 +6,12 @@ export void multipleParams(int a, float b) {
 }
 int onlyDecs(int a, int b) {
     int c;
+    return a * b * c;
 }
 export int onlyStatement(bool a) {
     int c = (int)a;
+    return c;
 }
 int main() {
-//    int a;
-//    int aa;
-//    int b = -1;
-//    int bb = !1;
-//    float q = 2 + 3 * 4;
-//    int c;
-//    a = 2 + 3 * 4;
-//    a = b;
-//    aa = bb;
-//    if (aa > bb) {
-//        bb = aa;
-//    } else {
-//        aa = bb;
-//        return;
-//    }
-//    while (aa != bb) {
-//        bb = bb + 1;
-//    }
-//    do {
-//        aaa = bbb;
-//        for (int q = 4, aa) {
-//            bb = c;
-//        }
-//        return a - 1;
-//    } while (a != c && c > d);
+    return onlyStatement(false);
 }

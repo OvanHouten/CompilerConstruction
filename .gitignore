@@ -3,9 +3,9 @@
 
 # Executables and compiler output
 bin/
-*.out
 *.o
 *.output
+*.out
 \.*.cpp
 
 # Generated documentation

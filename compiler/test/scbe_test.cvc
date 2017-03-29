@@ -1,0 +1,26 @@
+void main() {
+	bool a = true;
+	bool b = true;
+	bool c = true;
+	int d = 4;
+	int e = 0;
+	
+	b = (bool)d;
+	c = (bool)e;
+	
+	if(a && b && c) {
+		a = false;
+	}
+	
+	if(a || b || c) {
+		a = false;
+	}
+	
+	if(a || b && c) {
+		a = false;
+	}
+	
+	if(a && b || c) {
+		a = false;
+	}
+}
