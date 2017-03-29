@@ -339,13 +339,13 @@ node *GBCfuncall(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCfuncall");
 
     if (SYMBOLTABLEENTRY_GLOBALFUN(FUNCALL_DECL(arg_node))) {
-        fprintf(outfile, "    isrg\t\t\t; Init call to '%s'\n", SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
+        fprintf(outfile, "    isrg\t\t\t; %s\n", SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
     } else if (SYMBOLTABLEENTRY_DISTANCE(FUNCALL_DECL(arg_node)) == 0) {
-        fprintf(outfile, "    isrl\t\t\t; Init call to '%s'\n", SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
+        fprintf(outfile, "    isrl\t\t\t; %s\n", SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
     } else if (SYMBOLTABLEENTRY_DISTANCE(FUNCALL_DECL(arg_node)) > 1) {
-        fprintf(outfile, "    isrn %d\t\t\t; Init call to '%s'\n", SYMBOLTABLEENTRY_DISTANCE(FUNCALL_DECL(arg_node)) - 1, SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
+        fprintf(outfile, "    isrn %d\t\t\t; %s\n", SYMBOLTABLEENTRY_DISTANCE(FUNCALL_DECL(arg_node)) - 1, SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
     } else {
-        fprintf(outfile, "    isr\t\t\t\t; Init call to '%s'\n", SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
+        fprintf(outfile, "    isr\t\t\t\t; %s\n", SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
     }
 
     int expressionCount = 0;
