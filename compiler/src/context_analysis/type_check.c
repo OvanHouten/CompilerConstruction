@@ -238,6 +238,14 @@ node *TCfundef(node *arg_node, info *arg_info) {
     node *outerFunHeader = INFO_FUNHEADER(arg_info);
     INFO_FUNHEADER(arg_info) = FUNDEF_FUNHEADER(arg_node);
 
+    node *param = FUNHEADER_PARAMS(FUNDEF_FUNHEADER(arg_node));
+    while (param) {
+        if (VARDEF_TYPE(PARAMS_PARAM(param)) == TY_void) {
+            CTIerror("Parameter can't be of type 'void' at line %d and column %d.", NODE_LINE(param), NODE_COL(param));
+        }
+        param = PARAMS_NEXT(param);
+    }
+
     TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
     INFO_FUNHEADER(arg_info) = outerFunHeader;
