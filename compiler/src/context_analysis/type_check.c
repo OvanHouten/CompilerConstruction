@@ -14,6 +14,7 @@
 #include "dbug.h"
 #include "ctinfo.h"
 #include "type_utils.h"
+#include "str.h"
 
 #include "type_check.h"
 #include "type_utils.h"
@@ -24,13 +25,15 @@
 struct INFO {
   node *funHeader;
   bool containsReturn;
+  char *forLoopVar;
 };
 
 /*
  * INFO macros
  */
-#define INFO_FUNHEADER(n)  ((n)->funHeader)
+#define INFO_FUNHEADER(n)       ((n)->funHeader)
 #define INFO_CONTAINSRETURN(n)  ((n)->containsReturn)
+#define INFO_FORLOOPVAR(n)      ((n)->forLoopVar)
 
 /*
  * INFO functions
@@ -44,6 +47,7 @@ static info *MakeInfo(void)
   result = (info *)MEMmalloc(sizeof(info));
   INFO_FUNHEADER(result) = NULL;
   INFO_CONTAINSRETURN(result) = FALSE;
+  INFO_FORLOOPVAR(result) = NULL;
 
   DBUG_RETURN( result);
 }
@@ -69,6 +73,10 @@ node *TCassign(node *arg_node, info *arg_info) {
 
     if (leftResultType != rightResultType) {
         CTIerror("The type at the left hand side [%d] and the right hand side [%d] don't match at line [%d] and column [%d].", leftResultType, rightResultType, NODE_LINE(arg_node), NODE_COL(arg_node));
+    }
+    // Make sure that the for loop variable is read-only
+    if (STReq(ID_NAME(ASSIGN_LET(arg_node)), INFO_FORLOOPVAR(arg_info))) {
+        CTIerror("The loop variable '%s' can't be changed at line %d.", ID_NAME(ASSIGN_LET(arg_node)), NODE_LINE(arg_node));
     }
 
     DBUG_PRINT("TC", ("Assign <<"));
@@ -342,7 +350,14 @@ node *TCfor(node *arg_node, info *arg_info) {
     if (determineType(FOR_STEP(arg_node)) != TY_int) {
         CTIerror("The step expression for a for-loop must be evaluate to 'int' and not to [%d] at line [%d] and column [%d].", determineType(FOR_STEP(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
+
+    // Prepare for loop variable read-only check
+    char *outerLoopVar = INFO_FORLOOPVAR(arg_info);
+    INFO_FORLOOPVAR(arg_info) = VARDEF_NAME(FOR_VARDEF(arg_node));
+
     TRAVopt(FOR_BLOCK(arg_node), arg_info);
+
+    INFO_FORLOOPVAR(arg_info) = outerLoopVar;
 
     DBUG_RETURN(arg_node);
 }
