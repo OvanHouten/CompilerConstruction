@@ -1288,18 +1288,6 @@
             </targets>
           </type>
         </attribute>
-        <attribute name="Type">
-          <description>The datatype of the variable</description>
-          <type name="Type">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
-            </targets>
-          </type>
-        </attribute>
         <attribute name="Decl">
           <description>Link to its STE</description>
           <type name="Link">
