@@ -66,11 +66,6 @@
      <traversal id="RC" name="Return Check" default="sons" include="return_check.h">
        <travuser>
          <node name="FunDef" />
-         <node name="Return" />
-         <node name="If" />
-         <node name="Do" />
-         <node name="While" />
-         <node name="For" />
        </travuser>
      </traversal>
 
