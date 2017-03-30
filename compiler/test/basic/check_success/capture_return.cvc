@@ -1,0 +1,4 @@
+int foo() {
+	int test = foo();
+	return test;
+}

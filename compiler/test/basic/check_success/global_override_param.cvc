@@ -1,0 +1,9 @@
+int test = 1;
+
+void foo(float test) {
+	test = 1.0;
+}
+
+void foo2() {
+	test = 5;
+}

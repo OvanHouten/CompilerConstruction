@@ -1,0 +1,6 @@
+export int main() {
+	float test = -1.0;
+	float test2 = 1.0;
+	bool not = !false;
+	return 0;
+}

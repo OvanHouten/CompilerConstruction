@@ -1,0 +1,9 @@
+int test() {
+	int x = test2();
+	return x;
+}
+
+int test2() {
+	int x = test();
+	return x;
+}

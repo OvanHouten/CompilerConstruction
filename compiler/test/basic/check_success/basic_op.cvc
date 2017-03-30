@@ -1,0 +1,4 @@
+export int main() {
+	bool test = true && false;
+	return 0;
+}
