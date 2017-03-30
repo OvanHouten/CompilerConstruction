@@ -5,7 +5,6 @@
 bin/
 *.o
 *.output
-*.out
 \.*.cpp
 
 # Generated documentation
