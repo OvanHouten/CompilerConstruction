@@ -66,6 +66,7 @@ FunDef <- STE <- FunDef
    +-------^
 
 FunDef <- STE <- FunCall
+   +-------^
 
 The SymbolTable and the SymbolTableEntries has been extended with extra information. SymbolTableEntries have a type attribute. Currrently we have VarDef, VarUsage, FunDef and Const as type. The later will be used to store constants found throughout the assembly code generation.
 
