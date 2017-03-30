@@ -56,13 +56,23 @@
           <node name="BinOp" />
           <node name="FunDef" />
           <node name="Funcall" />
-          <node name="FunBody" />
           <node name="Return" />
           <node name="Do" />
           <node name="While" />
           <node name="For" />
         </travuser>
       </traversal>
+
+     <traversal id="RC" name="Return Check" default="sons" include="return_check.h">
+       <travuser>
+         <node name="FunDef" />
+         <node name="Return" />
+         <node name="If" />
+         <node name="Do" />
+         <node name="While" />
+         <node name="For" />
+       </travuser>
+     </traversal>
 
       <traversal id="SV" name="Split VarDefs" default="sons" include="split_vardefs.h">
         <travuser>

@@ -2,9 +2,6 @@ export int main() {
     int a = 0;
     if (a > 5) {
         a = a + 1;
-        return -1;
     } else {
-        a = -a;
     }
-    // Missing return statement 
 }

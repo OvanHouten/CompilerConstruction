@@ -1,5 +1,4 @@
 MUST DO
-* Implement better return statement check. The spec is rather loose when it comes to the return statement.
 * Check error/warning messages for usage of typeToString(). Now there are a lot of places where just a number is printed.
 * Check source files for FIXME and TODO tags, and fix them... ;-)
 
@@ -10,6 +9,7 @@ SHOULD DO
 * Refactor functions for translating enum values from using switch-statement into using string arrays.  
 
 COULD DO
+* Move loop-var read-only check to separate traversal
 * Dead code removal from AST generated assembly code
 * Constant folding
 * If-else and ternary operator optimization when condition is constant
