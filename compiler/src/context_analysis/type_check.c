@@ -72,7 +72,7 @@ node *TCassign(node *arg_node, info *arg_info) {
     type leftResultType = determineType(ASSIGN_LET(arg_node));
 
     if (leftResultType != rightResultType) {
-        CTIerror("The type at the left hand side [%d] and the right hand side [%d] don't match at line [%d] and column [%d].", leftResultType, rightResultType, NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The type at the left hand side [%s] and the right hand side [%s] don't match at line [%d] and column [%d].", typeToString(leftResultType), typeToString(rightResultType), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
     // Make sure that the for loop variable is read-only
     if (STReq(ID_NAME(ASSIGN_LET(arg_node)), INFO_FORLOOPVAR(arg_info))) {
@@ -95,7 +95,7 @@ node *TCvardef(node *arg_node, info *arg_info) {
         type leftResultType = determineType(arg_node);
 
         if (leftResultType != rightResultType) {
-            CTIerror("The type at the left hand side [%d] and the right hand side [%d] don't match at line [%d] and column [%d].", leftResultType, rightResultType, NODE_LINE(arg_node), NODE_COL(arg_node));
+            CTIerror("The type at the left hand side [%s] and the right hand side [%s] don't match at line [%d] and column [%d].", typeToString(leftResultType), typeToString(rightResultType), NODE_LINE(arg_node), NODE_COL(arg_node));
         }
     }
 
@@ -117,7 +117,7 @@ node *TCtypecast(node *arg_node, info *arg_info) {
         case TY_bool:
             break;
         default :
-            CTIerror("The type of the expression [%d] can not be casted into [%d] at line [%d] and column [%d].", exprType, TYPECAST_TYPE(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+            CTIerror("The type of the expression [%s] can not be casted into [%d] at line [%d] and column [%d].", typeToString(exprType), TYPECAST_TYPE(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     DBUG_PRINT("TC", ("Typecast <<"));
@@ -174,7 +174,7 @@ node *TCbinop(node *arg_node, info *arg_info) {
     type rightResultType = determineType(BINOP_RIGHT(arg_node));
 
     if (leftResultType != rightResultType) {
-        CTIerror("The type at the left hand side [%d] and the right hand side [%d] don't match at line [%d] and column [%d].", leftResultType, rightResultType, NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The type at the left hand side [%s] and the right hand side [%s] don't match at line [%d] and column [%d].", typeToString(leftResultType), typeToString(rightResultType), NODE_LINE(arg_node), NODE_COL(arg_node));
     } else {
         switch (leftResultType) {
             case TY_int :
@@ -287,7 +287,7 @@ node *TCfuncall(node *arg_node, info *arg_info) {
             type expectedType = determineType(PARAMS_PARAM(params));
             type actualType = determineType(EXPRS_EXPR(exprs));
             if (actualType != expectedType) {
-                CTIerror("The actual type [%d] and the expected parameter type [%d] don't match at line [%d] and column [%d].", actualType, expectedType, NODE_LINE(arg_node), NODE_COL(arg_node));
+                CTIerror("The actual type [%s] and the expected parameter type [%s] don't match at line [%d] and column [%d].", typeToString(actualType), typeToString(expectedType), NODE_LINE(arg_node), NODE_COL(arg_node));
             }
             params = PARAMS_NEXT(params);
             exprs = EXPRS_NEXT(exprs);
@@ -307,7 +307,7 @@ node *TCreturn(node *arg_node, info *arg_info) {
 
         type returnType = determineType(RETURN_EXPR(arg_node));
         if (returnType != FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info))) {
-            CTIerror("The type of the expression [%d] and the return type [%d] for the function don't match at line [%d] and column [%d].", returnType, FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info)), NODE_LINE(arg_node), NODE_COL(arg_node));
+            CTIerror("The type of the expression [%s] and the return type [%s] for the function don't match at line [%d] and column [%d].", typeToString(returnType), typeToString(FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info))), NODE_LINE(arg_node), NODE_COL(arg_node));
         }
         INFO_CONTAINSRETURN(arg_info) = TRUE;
     } else {
@@ -325,7 +325,7 @@ node *TCdo(node *arg_node, info *arg_info) {
 
     TRAVdo(DO_CONDITION(arg_node), arg_info);
     if (determineType(DO_CONDITION(arg_node)) != TY_bool) {
-        CTIerror("The expression for a do-loop must be evaluate to boolean and not to [%d] at line [%d] and column [%d].", determineType(DO_CONDITION(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The expression for a do-loop must be evaluate to boolean and not to [%s] at line [%d] and column [%d].", typeToString(determineType(DO_CONDITION(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     TRAVopt(DO_BLOCK(arg_node), arg_info);
@@ -340,7 +340,7 @@ node *TCwhile(node *arg_node, info *arg_info) {
 
     TRAVdo(WHILE_CONDITION(arg_node), arg_info);
     if (determineType(WHILE_CONDITION(arg_node)) != TY_bool) {
-        CTIerror("The expression for a while-loop must be evaluate to boolean and not to [%d] at line [%d] and column [%d].", determineType(WHILE_CONDITION(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The expression for a while-loop must be evaluate to boolean and not to [%s] at line [%d] and column [%d].", typeToString(determineType(WHILE_CONDITION(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     DBUG_RETURN(arg_node);
@@ -352,11 +352,11 @@ node *TCfor(node *arg_node, info *arg_info) {
     TRAVdo(FOR_VARDEF(arg_node), arg_info);
     TRAVdo(FOR_FINISH(arg_node), arg_info);
     if (determineType(FOR_FINISH(arg_node)) != TY_int) {
-        CTIerror("The finish expression for a for-loop must be evaluate to 'int' and not to [%d] at line [%d] and column [%d].", determineType(FOR_FINISH(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The finish expression for a for-loop must be evaluate to 'int' and not to [%s] at line [%d] and column [%d].", typeToString(determineType(FOR_FINISH(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
     TRAVopt(FOR_STEP(arg_node), arg_info);
     if (determineType(FOR_STEP(arg_node)) != TY_int) {
-        CTIerror("The step expression for a for-loop must be evaluate to 'int' and not to [%d] at line [%d] and column [%d].", determineType(FOR_STEP(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The step expression for a for-loop must be evaluate to 'int' and not to [%s] at line [%d] and column [%d].", typeToString(determineType(FOR_STEP(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     // Prepare for loop variable read-only check
