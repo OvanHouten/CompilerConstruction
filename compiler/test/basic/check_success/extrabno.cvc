@@ -1,0 +1,12 @@
+export int main() {
+	bool test = true + true;
+	float testf = 1.0 + 1.0;
+	bool testb = 1 == 1 && true == true && 1.0 == 1.0;
+	
+	test = true * true;
+	testf = 1.0 / 1.0;
+
+	testb = 1 < 1 && 1 > 2;
+
+	return 0;
+}

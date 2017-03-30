@@ -81,7 +81,7 @@ codegen     = gen_byte_code.o
 
 utils       = numbers.o list_utils.o type_utils.o scope_utils.o
 
-context_analysis = context_analysis.o type_check.o
+context_analysis = context_analysis.o type_check.o return_check.o
 
 transformations = global_init.o split_vardefs.o short_circuit.o forwhile_transform.o rename_nested_functions.o
 

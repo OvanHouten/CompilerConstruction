@@ -66,6 +66,7 @@ FunDef <- STE <- FunDef
    +-------^
 
 FunDef <- STE <- FunCall
+   +-------^
 
 The SymbolTable and the SymbolTableEntries has been extended with extra information. SymbolTableEntries have a type attribute. Currrently we have VarDef, VarUsage, FunDef and Const as type. The later will be used to store constants found throughout the assembly code generation.
 
@@ -90,3 +91,6 @@ Currently we have 1 optimization. Constants that are being used by a unary opera
 
 === GENERATE BYTE CODE ===
 During the generation of the byte code (assemly) the most efficient opcode is used. This behaviour can not be disabled.
+
+=== UNIQUE LABEL GENERATION ===
+When generating labels for jump instructions needed by if-else and loop statements the labels have a fixed part and a dynamic part. For the dynamic part we use a counter that is incremented each time a statement is used. This ensures that the label are unique throughout each module.

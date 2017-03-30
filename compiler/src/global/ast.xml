@@ -56,13 +56,18 @@
           <node name="BinOp" />
           <node name="FunDef" />
           <node name="Funcall" />
-          <node name="FunBody" />
           <node name="Return" />
           <node name="Do" />
           <node name="While" />
           <node name="For" />
         </travuser>
       </traversal>
+
+     <traversal id="RC" name="Return Check" default="sons" include="return_check.h">
+       <travuser>
+         <node name="FunDef" />
+       </travuser>
+     </traversal>
 
       <traversal id="SV" name="Split VarDefs" default="sons" include="split_vardefs.h">
         <travuser>
@@ -81,6 +86,7 @@
       <traversal id="FWT" name="ForWhile Transformation" default="sons" include="forwhile_transform.h">
         <travuser>
           <node name="For" />
+          <node name="Do" />
           <node name="FunDef" />
           <node name="Statements" />
         </travuser>

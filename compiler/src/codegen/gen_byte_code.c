@@ -16,7 +16,7 @@ typedef enum { PP_global, PP_vardef, PP_fundef, PP_none} pseudo_phase;
 #define STR(n) ((n) == NULL ? "" : n)
 
 // DO NOT CHANGE THIS NAME TO 'CONSTANTS' OR 'CONSTANT'!!
-// Apparently the framework already as a struct with that name. Using one of those
+// Apparently the framework already has a struct with that name. Using one of those
 // names leads to very strange behavior and memory (de)allocation errors!
 typedef struct CONSTANT_POOL {
     type type;
@@ -217,7 +217,7 @@ node *GBCprogram(node *arg_node, info *arg_info) {
     INFO_PSEUDOPHASE(arg_info) = PP_vardef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
 
-    fprintf(outfile, "\n; Import/export funcation\n");
+    fprintf(outfile, "\n; Import/export functions\n");
     INFO_PSEUDOPHASE(arg_info) = PP_fundef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
 
@@ -370,20 +370,34 @@ node *GBCif(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCif");
 
     fprintf(outfile, "; Line %d\n", NODE_LINE(arg_node));
-    int ifCount = INFO_IFCOUNT(arg_info)++;
-    // TODO Optimize for empty if-block
-    TRAVdo(IF_CONDITION(arg_node), arg_info);
-    if (IF_ELSEBLOCK(arg_node)) {
-        fprintf(outfile, "    branch_f _if_else_%d\n", ifCount);
-        TRAVopt(IF_IFBLOCK(arg_node), arg_info);
-        fprintf(outfile, "    jump _if_end_%d\n", ifCount);
-        fprintf(outfile, "_if_else_%d:\n", ifCount);
-        TRAVdo(IF_ELSEBLOCK(arg_node), arg_info);
+    if (IF_IFBLOCK(arg_node) || IF_ELSEBLOCK(arg_node)) {
+        int ifCount = INFO_IFCOUNT(arg_info)++;
+        TRAVdo(IF_CONDITION(arg_node), arg_info);
+
+        if (IF_IFBLOCK(arg_node)) {
+            // There is a then block now check if there is a else block, if not we can use less labels
+            if (IF_ELSEBLOCK(arg_node)) {
+                fprintf(outfile, "    branch_f _if_else_%d\n", ifCount);
+                TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+                fprintf(outfile, "    jump _if_end_%d\n", ifCount);
+                fprintf(outfile, "_if_else_%d:\n", ifCount);
+                TRAVdo(IF_ELSEBLOCK(arg_node), arg_info);
+            } else {
+                fprintf(outfile, "    branch_f _if_end_%d\n", ifCount);
+                TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+                fprintf(outfile, "; Empty else suppressed\n");
+            }
+        } else {
+            // There is no then block, only a else block
+            fprintf(outfile, "    branch_t _if_end_%d\n", ifCount);
+            fprintf(outfile, "; Empty if suppressed\n");
+            TRAVdo(IF_ELSEBLOCK(arg_node), arg_info);
+        }
+
+        fprintf(outfile, "_if_end_%d:\n", ifCount);
     } else {
-        fprintf(outfile, "    branch_f _if_end_%d\n", ifCount);
-        TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+        fprintf(outfile, "; Empty if-else suppressed\n");
     }
-    fprintf(outfile, "_if_end_%d:\n", ifCount);
 
     DBUG_RETURN(arg_node);
 }
@@ -492,7 +506,6 @@ node *GBCid(node *arg_node, info *arg_info) {
 node *GBCunop(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCunop");
 
-    // TODO check if the ternary operator replaces boolean typecasts.
     TRAVdo(UNOP_EXPR(arg_node), arg_info);
     fprintf(outfile, "    %s%s\n", encodeType(determineType(arg_node), NODE_LINE(arg_node)), UNOP_OP(arg_node) == UO_not ? "not" : "neg");
 

@@ -1,5 +1,4 @@
 MUST DO
-* Implement better return statement check. The spec is rather loose when it comes to the return statement.
 * Check error/warning messages for usage of typeToString(). Now there are a lot of places where just a number is printed.
 * Check source files for FIXME and TODO tags, and fix them... ;-)
 
@@ -7,12 +6,14 @@ SHOULD DO
 * Extract SymbolTable code into single file and remove redundant code (currently we have multiple location where STE's are created...)
 * Remove array related nodes from the AST and revert that commit in the Array branch.
 * Implement a compiler optimization 'O' flag and have the compiler act accoringly. (We already have a coouple of 'built in' optimizations in the code generation phase that might need to be switchable)
-* Refactor functions for translating enum values from using switch-statement into using string arrays.  
 
 COULD DO
-* Dead code removal from AST generated assembly code
 * Constant folding
 * If-else and ternary operator optimization when condition is constant
+* Remove ternary operator in the for-loop if the step size is known at compile time
+* Optimize 'a = a +/- 1' instruction sequence
+* Move loop-var read-only check to separate traversal
+* Dead code removal from AST generated assembly code
 * Use 'sons' traversal for type context (scope) analysis. (tricky!)
 * Reuse of for-loop variables for sequential (non nested) for-loops.
 * Make the number of optimizations attempt configurable via command line options.

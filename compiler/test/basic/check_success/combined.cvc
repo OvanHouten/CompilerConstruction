@@ -43,10 +43,6 @@ export void onlyStatement(bool a) {
     c = d;
 }
 export int main() {
-	int a1;
-	int a2;
-	int b1;
-	int b2;
     int a;
     int aa;
     int b = 1;
@@ -55,19 +51,6 @@ export int main() {
     int c;
     bool b_ = main7(4 + -8);
     float l = 9.0 / 0.00;
-    
-    do {
-    	a1 = b1;
-    	a1 = a1 + 1;
-    	b1 = b1 + 1;
-    	
-    	do {
-    		a2 = b2;
-    		a2 = a2 + 2;
-    		b2 = b2 + 2;
-    	} while(a2 > b2);
-    } while(a2 < b2);
-    
     a = 2 + 3 * 4;
     a = b;
     aa = bb;
@@ -80,20 +63,13 @@ export int main() {
     while (aa != bb) {
         bb = bb + 1;
     }
-    
-    for (int q = 4, aa) {
-        for (int q = 4, aa) {
-            bb = c;
-        }
-    }
-    
     do {
         aa = bb;
         for (int q = 4, aa) {
             bb = c;
         }
         return a - 1;
-    } while(a != c && c > b);
+    } while (a != c && c > b);
     a = main1();
     a = main2();
     b_ = main3();
@@ -107,7 +83,6 @@ export int main() {
     for (int i = 100, 0, -1) {
         b = a;
     }
-    
     return 1;
 }
 int typecast() {

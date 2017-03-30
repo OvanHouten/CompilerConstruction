@@ -1,0 +1,5 @@
+export int main() {
+	bool test = true * false;
+	bool test2 = true + false;
+	return 0;
+}
