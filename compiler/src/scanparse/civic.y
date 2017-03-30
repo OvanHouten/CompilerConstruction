@@ -56,7 +56,7 @@ static int yyerror( char *errname);
 
 %type <type> type
 
-%type <node> program declarations declaration globaldec globaldef fundec fundef 
+%type <node> program declarations declaration globaldec globaldef fundec fundef localfundefs
 %type <node> funheader params param funbody vardecs vardec block  stmts stmt exprs expr arrexpr arrexprs ids
 %type <node> assign if while do for typecast return funcall arrayassign
 %type <node> constant floatval intval boolval
@@ -108,10 +108,14 @@ param: type ID                       { $$ = TBmakeVardef( FALSE, FALSE, $2, $1, 
      | type SQUARE_L ids SQUARE_R ID { $$ = TBmakeVardef( FALSE, FALSE, $5, $1, NULL, NULL, $3, NULL); }
      ;
 
-funbody: CURLY_L vardecs stmts CURLY_R { $$ = TBmakeFunbody($2, NULL, $3); } 
-       | CURLY_L vardecs CURLY_R       { $$ = TBmakeFunbody($2, NULL, NULL); } 
-       | CURLY_L stmts CURLY_R         { $$ = TBmakeFunbody(NULL, NULL, $2); }
-       | CURLY_L CURLY_R               { $$ = TBmakeFunbody(NULL, NULL, NULL); }
+funbody: CURLY_L vardecs localfundefs stmts CURLY_R { $$ = TBmakeFunbody($2, $3, $4); }
+       | CURLY_L vardecs localfundefs CURLY_R       { $$ = TBmakeFunbody($2, $3, NULL); }
+       | CURLY_L vardecs stmts CURLY_R              { $$ = TBmakeFunbody($2, NULL, $3); } 
+       | CURLY_L localfundefs stmts CURLY_R         { $$ = TBmakeFunbody(NULL, $2, $3); } 
+       | CURLY_L vardecs CURLY_R                    { $$ = TBmakeFunbody($2, NULL, NULL); } 
+       | CURLY_L localfundefs CURLY_R               { $$ = TBmakeFunbody(NULL, $2, NULL); } 
+       | CURLY_L stmts CURLY_R                      { $$ = TBmakeFunbody(NULL, NULL, $2); }
+       | CURLY_L CURLY_R                            { $$ = TBmakeFunbody(NULL, NULL, NULL); }
        ;
 
 vardecs: vardecs vardec { $$ = TBmakeVardecs( $2, $1); }
@@ -123,6 +127,10 @@ vardec: type ID SEMICOLON                                      { $$ = TBmakeVard
       | type SQUARE_L exprs SQUARE_R ID SEMICOLON              { $$ = TBmakeVardef( FALSE, FALSE, $5, $1, NULL, $3, NULL, NULL); }
       | type SQUARE_L exprs SQUARE_R ID LET arrexprs SEMICOLON { $$ = TBmakeVardef( FALSE, FALSE, $5, $1, NULL, $3, NULL, $7); }
       ;
+
+localfundefs: localfundefs fundef { $$ = TBmakeLocalfundefs( $2, $1); }
+            | fundef              { $$ = TBmakeLocalfundefs( $1, NULL); }
+            ;
 
 block: CURLY_L stmts CURLY_R { $$ = $2; }
      | CURLY_L CURLY_R       { $$ = NULL; }
