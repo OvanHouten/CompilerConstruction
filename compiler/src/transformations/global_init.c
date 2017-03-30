@@ -74,7 +74,7 @@ node *GIprogram(node *arg_node, info *arg_info) {
                 node *expr = VARDEF_EXPR(varDef);
                 VARDEF_EXPR(varDef) = NULL;
                 // Create a new ID node
-                node* id = TBmakeId(STRcpy(VARDEF_NAME(varDef)));
+                node* id = TBmakeId(STRcpy(VARDEF_NAME(varDef)), NULL); //TODO array
                 NODE_LINE(id) = NODE_LINE(varDef);
                 NODE_COL(id) = NODE_COL(varDef);
                 // And create a list of assignment statements

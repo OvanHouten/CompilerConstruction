@@ -89,7 +89,7 @@ node* FWTfor(node* arg_node, info* arg_info) {
     node *symbolTable = FUNDEF_SYMBOLTABLE(INFO_FUNDEF(arg_info));
 
     // Get the name of the loop variable and create a variable for it (needed later)
-    node *loopVar = TBmakeId(STRcpy(SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node)))));
+    node *loopVar = TBmakeId(STRcpy(SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node)))), NULL);
     ID_TYPE(loopVar) = TY_int;
     ID_DECL(loopVar) = VARDEF_DECL(FOR_VARDEF(arg_node));
     NODE_LINE(loopVar) = NODE_LINE(FOR_VARDEF(arg_node));
@@ -97,12 +97,12 @@ node* FWTfor(node* arg_node, info* arg_info) {
 
     // We are only allowed to determine the step and finish values once, so we need some
     // unique variable names to store their values.
-    node *stepVar = TBmakeId(STRcat(ID_NAME(loopVar), "_step"));
+    node *stepVar = TBmakeId(STRcat(ID_NAME(loopVar), "_step"), NULL);
     ID_TYPE(stepVar) = TY_int;
     NODE_LINE(stepVar) = NODE_LINE(FOR_STEP(arg_node));
     NODE_COL(stepVar) = NODE_COL(FOR_STEP(arg_node));
 
-    node *finishVar = TBmakeId(STRcat(ID_NAME(loopVar), "_finish"));
+    node *finishVar = TBmakeId(STRcat(ID_NAME(loopVar), "_finish"), NULL);
     ID_TYPE(finishVar) = TY_int;
     NODE_LINE(finishVar) = NODE_LINE(FOR_FINISH(arg_node));
     NODE_COL(finishVar) = NODE_COL(FOR_FINISH(arg_node));

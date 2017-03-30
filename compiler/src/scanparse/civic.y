@@ -58,7 +58,7 @@ static int yyerror( char *errname);
 
 %type <node> program declarations declaration globaldec globaldef fundec fundef localfundefs
 %type <node> funheader params param funbody vardecs vardec block  stmts stmt exprs expr arrexpr arrexprs ids
-%type <node> assign if while do for typecast return funcall arrayassign
+%type <node> assign if while do for typecast return funcall
 %type <node> constant floatval intval boolval
 
 %start program
@@ -148,10 +148,11 @@ stmt: assign            { $$ = $1; }
     | for               { $$ = $1; }
     | return            { $$ = $1; }
     | funcall SEMICOLON { $$ = $1; FUNCALL_PROCEDURECALL($$) = TRUE;}
-    | arrayassign       { $$ = $1; }
     ;         
 
-assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId( $1), $3); }
+assign: ID LET expr SEMICOLON { $$ = TBmakeAssign( TBmakeId($1, NULL), $3); }
+      | ID SQUARE_L exprs SQUARE_R LET expr SEMICOLON { $$ = TBmakeAssign(TBmakeId($1, $3), $6); }
+      ;
 
 if: IF BRACKET_L expr BRACKET_R block %prec THEN { $$ = TBmakeIf( $3, $5, NULL ); }
   | IF BRACKET_L expr BRACKET_R block ELSE block { $$ = TBmakeIf( $3, $5, $7 ); }
@@ -172,8 +173,6 @@ funcall: ID BRACKET_L BRACKET_R       { $$ = TBmakeFuncall( $1, NULL); }
        | ID BRACKET_L exprs BRACKET_R { $$ = TBmakeFuncall( $1, $3); }
       
 typecast: BRACKET_L type BRACKET_R expr { $$ = TBmakeTypecast( $2, $4); }
-
-arrayassign: ID SQUARE_L exprs SQUARE_R LET expr SEMICOLON { $$ = TBmakeArrayassign(TBmakeId($1), $3, $6); }
 
 exprs: exprs COMMA expr { $$ = TBmakeExprs( $3, $1); }
      | expr             { $$ = TBmakeExprs( $1, NULL); }
@@ -196,9 +195,9 @@ expr: BRACKET_L expr BRACKET_R   { $$ = $2; }
     | expr GT expr               { $$ = TBmakeBinop( BO_gt, $1, $3); }
     | expr AND expr              { $$ = TBmakeBinop( BO_and, $1, $3); }
     | expr OR expr               { $$ = TBmakeBinop( BO_or, $1, $3); }
-    | ID                         { $$ = TBmakeId( $1); }
+    | ID                         { $$ = TBmakeId($1, NULL); }
     | constant                   { $$ = $1; }
-    | ID SQUARE_L exprs SQUARE_R { $$ = TBmakeArray( TBmakeId($1), $3); }
+    | ID SQUARE_L exprs SQUARE_R { $$ = TBmakeId($1, $3); }
     ;
     
 constant: floatval { $$ = $1; }
@@ -236,8 +235,8 @@ type: INT_TYPE   { $$ = TY_int; }
     | VOID       { $$ = TY_void; }
     ;
 
-ids: ids COMMA ID { $$ = TBmakeIds(TBmakeId($3), $1); }
-   | ID           { $$ = TBmakeIds(TBmakeId($1), NULL); }
+ids: ids COMMA ID { $$ = TBmakeIds(TBmakeId($3, NULL), $1); }
+   | ID           { $$ = TBmakeIds(TBmakeId($1, NULL), NULL); }
    ;
 
 arrexprs: arrexprs COMMA arrexpr { $$ = TBmakeArrexprs($3, $1); }

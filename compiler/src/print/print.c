@@ -382,7 +382,12 @@ node *PRTfor(node* arg_node, info* arg_info) {
 			printf("int ");
 		}
 		if (!myglobal.print_var_details) {
-			printf("%s", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))));
+			if(VARDEF_DECL(FOR_VARDEF(arg_node))) {
+				printf("%s", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))));
+			}
+			else { //TODO if "else" clause can be removed it is working properly
+				printf("%s", VARDEF_NAME(FOR_VARDEF(arg_node)));
+			}
 		} else {
 			printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_DISTANCE(VARDEF_DECL(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(FOR_VARDEF(arg_node))));
 		}
@@ -516,15 +521,29 @@ node *PRTunop(node* arg_node, info* arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-
 node *PRTid(node* arg_node, info* arg_info) {
 	DBUG_ENTER("PRTid");
 
 	INDENT(arg_info);
 	if (!myglobal.print_var_details) {
-	    printf("%s", SYMBOLTABLEENTRY_NAME(ID_DECL(arg_node)));
+	    if(ID_DECL(arg_node)) { //TODO if "else" clause can be removed it is working properly
+	    	printf("%s", SYMBOLTABLEENTRY_NAME(ID_DECL(arg_node)));
+	    }
+	    else {
+	    	printf("%s", ID_NAME(arg_node));
+	    }
+	    if(ID_EXPRS(arg_node)) {
+	    	printf("[");
+	    	TRAVdo(ID_EXPRS(arg_node), arg_info);
+	    	printf("]");
+	    }
 	} else {
 	    printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(ID_DECL(arg_node)), SYMBOLTABLEENTRY_DISTANCE(ID_DECL(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(arg_node)));
+	    if(ID_EXPRS(arg_node)) {
+	    	printf("[");
+	    	TRAVdo(ID_EXPRS(arg_node), arg_info);
+	    	printf("]");
+	    }
 	}
 
 	DBUG_RETURN(arg_node);
@@ -648,35 +667,6 @@ node *PRTdoPrint( node *syntaxtree) {
   }
 
 	DBUG_RETURN( syntaxtree);
-}
-
-node *PRTarrayassign(node* arg_node, info* arg_info) {
-	DBUG_ENTER("PRTarrayassign");
-	
-	TRAVdo(ARRAYASSIGN_ID(arg_node), arg_info);
-	
-	printf("[");
-	TRAVdo(ARRAYASSIGN_ARRAYSIZE(arg_node), arg_info);
-	printf("]");
-	
-	printf(" = ");
-	TRAVdo(ARRAYASSIGN_EXPR(arg_node), arg_info);
-	printf(";\n");
-	INDENT_AT_NEWLINE(arg_info);
-	
-	DBUG_RETURN(arg_node);
-}
-
-node *PRTarray(node* arg_node, info* arg_info) {
-	DBUG_ENTER("PRTarray");
-	
-	TRAVdo(ARRAY_ID(arg_node), arg_info);
-	
-	printf("[");
-	TRAVdo(ARRAY_EXPRS(arg_node), arg_info);
-	printf("]");
-	
-	DBUG_RETURN(arg_node);
 }
 
 node *PRTids(node* arg_node, info* arg_info) {
