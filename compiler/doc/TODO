@@ -17,3 +17,5 @@ COULD DO
 * Reuse of for-loop variables for sequential (non nested) for-loops.
 * Make the number of optimizations attempt configurable via command line options.
 * Peephole optimizations (could be done pure AST based, pure generated code based or mixed)
+* Optimize 'a = a +/- 1' instruction sequence
+* Remove ternary operator in the for-loop if the step size is known at compile time
