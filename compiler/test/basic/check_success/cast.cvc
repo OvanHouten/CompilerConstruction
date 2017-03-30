@@ -1,0 +1,4 @@
+export int main() {
+	bool test = (bool)5.0;
+	return 0;
+}

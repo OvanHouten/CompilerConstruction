@@ -1,0 +1,105 @@
+extern int main1();
+extern int main2();
+extern bool main3();
+extern float main4();
+extern int main5(int a);
+extern int main6(int a, int b);
+extern bool main7(int a);
+extern float main8(int a, int b);
+extern bool main9(int a);
+extern bool main10(int a, int b);
+extern void main11(int a);
+extern void main12(int a, int b);
+
+/*
+ * Multiline comments
+ */
+
+// Single line comment
+extern int bla1;
+extern float bla2;
+extern bool bla3;
+
+int a;
+export int b = 42;
+export float c;
+export float d = 13.1;
+
+void empty() {
+	int a;
+	int d;
+}
+void singleParam() {
+	int b;
+}
+export void multipleParams(int a, float b) {
+	int c;
+}
+int onlyDecs(int a, int b) {
+    int c;
+    return c * a * b;
+}
+export void onlyStatement(bool a) {
+    c = d;
+}
+export int main() {
+    int a;
+    int aa;
+    int b = 1;
+    int bb = 1;
+    int q = 2 + 3 * -4;
+    int c;
+    bool b_ = main7(4 + -8);
+    float l = 9.0 / 0.00;
+    a = 2 + 3 * 4;
+    a = b;
+    aa = bb;
+    if (aa > bb) {
+        bb = aa;	
+    } else {
+        aa = bb;
+        return aa;
+    }
+    while (aa != bb) {
+        bb = bb + 1;
+    }
+    do {
+        aa = bb;
+        for (int q = 4, aa) {
+            bb = c;
+        }
+        return a - 1;
+    } while (a != c && c > b);
+    a = main1();
+    a = main2();
+    b_ = main3();
+    b = main();
+    b = main1();
+    b = main2();
+    d = main4();
+    for (int i = 0, 10) {
+        a = b;
+    }
+    for (int i = 100, 0, -1) {
+        b = a;
+    }
+    return 1;
+}
+int typecast() {
+    int a = ---4;
+    float b = (float) a;
+    float c = 4.2;
+    float e = -1.3;
+    int d = (int) c;
+    bool optimized = !!!false;
+    return (int) optimized;
+}
+void globalAccess(int aa, float cc) {
+    bla1 = a;
+    a = aa;
+    c = cc;
+    bla2 = cc;
+    bla1 = bla1;
+    c = c;
+    bla3 = bla3;
+}

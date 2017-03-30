@@ -1,0 +1,4 @@
+export int main() {
+	float test;
+	test = 5;
+}

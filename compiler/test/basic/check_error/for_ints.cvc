@@ -1,0 +1,6 @@
+export int main() {
+	for(int test = (int)1.0, (int)1,1) {
+
+	}
+	return 0;
+}

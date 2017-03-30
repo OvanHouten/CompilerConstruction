@@ -339,7 +339,7 @@ node *SAif(node *arg_node, info *arg_info) {
 
     TRAVdo(IF_CONDITION(arg_node), arg_info);
 
-    TRAVdo(IF_IFBLOCK(arg_node), arg_info);
+    TRAVopt(IF_IFBLOCK(arg_node), arg_info);
     TRAVopt(IF_ELSEBLOCK(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);

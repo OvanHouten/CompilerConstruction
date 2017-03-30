@@ -1,0 +1,6 @@
+extern void test();
+extern void test2(int test);
+extern void test3(float test);
+extern void test4(bool test);
+extern void test5(bool test, bool test2);
+

@@ -1,0 +1,3 @@
+int maina() {
+	float test = maina();
+}
