@@ -102,6 +102,7 @@
       <traversal id="OP" name="Optimisations" default="sons" include="op_wrapper.h">
         <travuser>
           <node name="UnOp" />
+          <node name="BinOp" />
         </travuser>
       </traversal>
 

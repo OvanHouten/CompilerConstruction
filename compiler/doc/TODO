@@ -8,7 +8,6 @@ SHOULD DO
 * Implement a compiler optimization 'O' flag and have the compiler act accoringly. (We already have a coouple of 'built in' optimizations in the code generation phase that might need to be switchable)
 
 COULD DO
-* Constant folding
 * If-else and ternary operator optimization when condition is constant
 * Remove ternary operator in the for-loop if the step size is known at compile time
 * Optimize 'a = a +/- 1' instruction sequence
