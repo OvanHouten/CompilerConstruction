@@ -354,20 +354,34 @@ node *GBCif(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCif");
 
     fprintf(outfile, "; Line %d\n", NODE_LINE(arg_node));
-    int ifCount = INFO_IFCOUNT(arg_info)++;
-    // TODO Optimize for empty if-block
-    TRAVdo(IF_CONDITION(arg_node), arg_info);
-    if (IF_ELSEBLOCK(arg_node)) {
-        fprintf(outfile, "    branch_f _if_else_%d\n", ifCount);
-        TRAVopt(IF_IFBLOCK(arg_node), arg_info);
-        fprintf(outfile, "    jump _if_end_%d\n", ifCount);
-        fprintf(outfile, "_if_else_%d:\n", ifCount);
-        TRAVdo(IF_ELSEBLOCK(arg_node), arg_info);
+    if (IF_IFBLOCK(arg_node) || IF_ELSEBLOCK(arg_node)) {
+        int ifCount = INFO_IFCOUNT(arg_info)++;
+        TRAVdo(IF_CONDITION(arg_node), arg_info);
+
+        if (IF_IFBLOCK(arg_node)) {
+            // There is a then block now check if there is a else block, if not we can use less labels
+            if (IF_ELSEBLOCK(arg_node)) {
+                fprintf(outfile, "    branch_f _if_else_%d\n", ifCount);
+                TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+                fprintf(outfile, "    jump _if_end_%d\n", ifCount);
+                fprintf(outfile, "_if_else_%d:\n", ifCount);
+                TRAVdo(IF_ELSEBLOCK(arg_node), arg_info);
+            } else {
+                fprintf(outfile, "    branch_f _if_end_%d\n", ifCount);
+                TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+                fprintf(outfile, "; Empty else suppressed\n");
+            }
+        } else {
+            // There is no then block, only a else block
+            fprintf(outfile, "    branch_t _if_end_%d\n", ifCount);
+            fprintf(outfile, "; Empty if suppressed\n");
+            TRAVdo(IF_ELSEBLOCK(arg_node), arg_info);
+        }
+
+        fprintf(outfile, "_if_end_%d:\n", ifCount);
     } else {
-        fprintf(outfile, "    branch_f _if_end_%d\n", ifCount);
-        TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+        fprintf(outfile, "; Empty if-else suppressed\n");
     }
-    fprintf(outfile, "_if_end_%d:\n", ifCount);
 
     DBUG_RETURN(arg_node);
 }
