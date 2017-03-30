@@ -23,9 +23,12 @@
  * INFO structure
  */
 struct INFO {
-  node* curScope;
-  int externalFuns;
-  int externalVars;
+	node* curScope;
+	int externalFuns;
+	int externalVars;
+	bool sizeIds;
+	bool externArray;
+	node* vardefScope;
 };
 
 /*
@@ -34,31 +37,35 @@ struct INFO {
 #define INFO_CURSCOPE(n)      ((n)->curScope)
 #define INFO_EXTERNALFUNS(n)  ((n)->externalFuns)
 #define INFO_EXTERNALVARS(n)  ((n)->externalVars)
+#define INFO_SIZEIDS(n)       ((n)->sizeIds)
+#define INFO_EXTERNARRAY(n)   ((n)->externArray)
+#define INFO_VARDEFSCOPE(n)   ((n)->vardefScope)
 
 /*
  * INFO functions
  */
-static info *MakeInfo(void)
-{
-  info *result;
+static info *MakeInfo(void) {
+	info *result;
 
-  DBUG_ENTER( "MakeInfo");
+	DBUG_ENTER( "MakeInfo");
 
-  result = (info *)MEMmalloc(sizeof(info));
-  INFO_CURSCOPE(result) = NULL;
-  INFO_EXTERNALFUNS(result) = 0;
-  INFO_EXTERNALVARS(result) = 0;
+	result = (info *)MEMmalloc(sizeof(info));
+	INFO_CURSCOPE(result) = NULL;
+	INFO_EXTERNALFUNS(result) = 0;
+	INFO_EXTERNALVARS(result) = 0;
+	INFO_SIZEIDS(result) = FALSE;
+	INFO_EXTERNARRAY(result) = FALSE;
+	INFO_VARDEFSCOPE(result) = NULL;
 
-  DBUG_RETURN( result);
+	DBUG_RETURN( result);
 }
 
-static info *FreeInfo( info *info)
-{
-  DBUG_ENTER ("FreeInfo");
+static info *FreeInfo( info *info) {
+	DBUG_ENTER ("FreeInfo");
 
-  info = MEMfree( info);
+	info = MEMfree( info);
 
-  DBUG_RETURN( info);
+	DBUG_RETURN( info);
 }
 
 // =============================================
@@ -70,6 +77,7 @@ node *SAprogram(node *arg_node, info *arg_info) {
 
 	// Start new scope, change curscope, prevscope stays NULL;
 	INFO_CURSCOPE(arg_info) = PROGRAM_SYMBOLTABLE(arg_node);
+	INFO_VARDEFSCOPE(arg_info) = PROGRAM_DECLARATIONS(arg_node);
 	
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
     
@@ -87,7 +95,7 @@ node *SAsymboltable(node *arg_node, info *arg_info) {
 node *SAdeclarations(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAdeclarations");
 
-    // Just register the name of the function or variable
+    // Just register the name of the function
     if (NODE_TYPE(DECLARATIONS_DECLARATION(arg_node)) == N_fundef) {
         node *funDef = DECLARATIONS_DECLARATION(arg_node);
         node *funHeader = FUNDEF_FUNHEADER(funDef);
@@ -133,6 +141,10 @@ node *SAfundef(node *arg_node, info *arg_info) {
 		SYMBOLTABLE_PARENT(newScope) = previousScope;
 		FUNDEF_SYMBOLTABLE(arg_node) = newScope;
 		INFO_CURSCOPE(arg_info) = newScope;
+		
+		// Vardefscope for arrays
+		node* previousVardefScope = INFO_VARDEFSCOPE(arg_info);
+		INFO_VARDEFSCOPE(arg_info) = FUNHEADER_PARAMS(FUNDEF_FUNHEADER(arg_node));
 
 		// Register the parameters
         TRAVdo(FUNDEF_FUNHEADER(arg_node), arg_info);
@@ -141,8 +153,9 @@ node *SAfundef(node *arg_node, info *arg_info) {
 		
         DBUG_PRINT("SA", ("Closing the scope."));
 
-        // Return to previous scope
+        // Return to previous scope and previous vardefscope
 		INFO_CURSCOPE(arg_info) = previousScope;
+		INFO_VARDEFSCOPE(arg_info) = previousVardefScope;
     }
 	DBUG_PRINT("SA", ("Function definition is processed."));
 	
@@ -174,8 +187,29 @@ node *SAfunbody(node *arg_node, info *arg_info) {
 
 node *SAvardef(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAvardef");
-
-    DBUG_PRINT("SA", ("Registering variable [%s].", VARDEF_NAME(arg_node)));
+	
+	// When ids-node is used, traverse those.
+	if(VARDEF_SIZEIDS(arg_node)) {
+		DBUG_PRINT("SA", ("Registering array param/globaldec [%s].", VARDEF_NAME(arg_node)));
+		
+		// Keep track if it is an extrernal function
+		INFO_SIZEIDS(arg_info) = TRUE;
+		INFO_EXTERNARRAY(arg_info) = VARDEF_EXTERN(arg_node);
+		
+		TRAVdo(VARDEF_SIZEIDS(arg_node), arg_info);
+		
+		INFO_EXTERNARRAY(arg_info) = FALSE;
+		INFO_SIZEIDS(arg_info) = FALSE;
+	}
+	// Else traverse the exprs node.
+	else if(VARDEF_SIZEEXPRS(arg_node)) {
+		DBUG_PRINT("SA", ("Registering array globaldef/vardef[%s].", VARDEF_NAME(arg_node)));
+		TRAVdo(VARDEF_SIZEEXPRS(arg_node), arg_info);
+	}
+	else {
+    	DBUG_PRINT("SA", ("Registering variable [%s].", VARDEF_NAME(arg_node)));
+    }
+    
     // First we process the expression, if any
     TRAVopt(VARDEF_EXPR(arg_node), arg_info);
 
@@ -221,7 +255,38 @@ node *SAid(node * arg_node, info * arg_info) {
     node* varDefSTE = findInAnyScope(INFO_CURSCOPE(arg_info), ID_NAME(arg_node), &distance, STE_vardef);
 
     if(varDefSTE == NULL) {
-        CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+    	if(INFO_SIZEIDS(arg_info)) {
+    		// Create new vardef
+    		node* new_vardef = TBmakeVardef(INFO_EXTERNARRAY(arg_info), FALSE, ID_NAME(arg_node), ID_TYPE(arg_node), NULL, NULL, NULL, NULL);
+    		
+    		// If it is an extern id, add it to the start of the list of declarations in the program node
+    		if(INFO_EXTERNARRAY(arg_info)) {    		
+    			new_vardef = TBmakeDeclarations(new_vardef, NULL);
+				
+				// add it to the start of the list
+				node* temp = INFO_VARDEFSCOPE(arg_info);
+				while(DECLARATIONS_NEXT(temp)) {
+					temp = DECLARATIONS_NEXT(temp);
+				}
+				DECLARATIONS_NEXT(temp) = new_vardef;
+			}
+			// else create a parameter for it
+			else {
+				new_vardef = TBmakeParams(new_vardef, NULL);
+				
+				// add it to the start of the list
+				node* temp = INFO_VARDEFSCOPE(arg_info);
+				while(PARAMS_NEXT(temp)) {
+					temp = PARAMS_NEXT(temp);
+				}
+				PARAMS_NEXT(temp) = new_vardef;
+			}
+			// Traverse new vardef to add it to the symboltable
+			TRAVdo(new_vardef, arg_info);
+    	}
+    	else {
+        	CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+        }
     } else {
         if(distance > 0) {
             DBUG_PRINT("SA", ("Defined in outer scope, creating a local STE."));
@@ -477,7 +542,7 @@ node *SAsymboltableentry(node *arg_node, info *arg_info) {
 
 node *SAerror(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAerror");
-
+	// todo remove
     DBUG_RETURN(arg_node);
 }
 
@@ -489,19 +554,23 @@ node *SAlocalfundefs(node *arg_node, info *arg_info) {
 
 node *SAarrayassign(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAarrayassign");
-
+	// TODO remove
     DBUG_RETURN(arg_node);
 }
 
 node *SAarray(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAarray");
-
+	// TODO remove
     DBUG_RETURN(arg_node);
 }
 
 node *SAids(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAids");
-
+	
+	DBUG_PRINT("SA", ("Going to next ID"));
+    TRAVopt(IDS_NEXT(arg_node), arg_info);
+    TRAVdo(IDS_ID(arg_node), arg_info);
+	
     DBUG_RETURN(arg_node);
 }
 

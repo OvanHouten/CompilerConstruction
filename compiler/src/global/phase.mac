@@ -29,7 +29,7 @@ ENDPHASE( ld)
 
 /******************************************************************************/
 
-PHASE(ca, "Context Analysis", NEVER)
+PHASE(ca, "Context Analysis", ALWAYS)
 
 SUBPHASE(sa, "Scope Analysis", SAdoScopeAnalysis, ALWAYS, ca)
 
