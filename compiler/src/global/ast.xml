@@ -18,6 +18,7 @@
     <type name="Float" ctype="float" init="0.0" copy="literal" />
     <type name="BinOp" ctype="binop" init="BO_unknown" copy="literal" />
     <type name="UnOp" ctype="unop" init="UO_unknown" copy="literal" />
+    <type name="ShortOp" ctype="sop" init="SO_unknown" copy="literal" />
     <type name="Type" ctype="type" init="TY_unknown" copy="literal" />
     <type name="EntryType" ctype="ste_type" init="STE_vardef" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
@@ -103,6 +104,7 @@
         <travuser>
           <node name="UnOp" />
           <node name="BinOp" />
+          <node name="Assign" />
         </travuser>
       </traversal>
 
@@ -120,6 +122,7 @@
             <node name="While" />
             <node name="Do" />
             <node name="Assign" />
+            <node name="Shortcut" />
             <node name="Id" />
             <node name="UnOp" />
             <node name="Typecast" />
@@ -148,6 +151,7 @@
   	<nodeset name="Statement">
       <target>
         <node name="Assign" />
+        <node name="Shortcut" />
         <node name="Funcall"/>
         <node name="If" />
         <node name="While" />
@@ -882,6 +886,51 @@
           </targets>
         </son>
       </sons>
+    </node>
+
+<!--
+ Node IncDec:
+-->
+     <node name="Shortcut">
+      <description>Represents shortcut assign inc/dec statement</description>
+      <sons>
+        <son name="Id">
+          <description>Represents the variable to be increased/decreased</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Id" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Const">
+          <description>Represents the value the variabe needs to be increased/decrease by</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="IntConst" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <attribute name="Op">
+          <description>Represents the operation</description>
+          <type name="ShortOp">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
     </node>
 
 <!--

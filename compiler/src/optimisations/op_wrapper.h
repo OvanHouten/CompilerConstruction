@@ -12,6 +12,7 @@
 
 extern node *OPunop(node *arg_node, info *arg_info);
 extern node *OPbinop(node *arg_node, info *arg_info);
+extern node *OPassign(node *arg_node, info *arg_info);
 
 extern node *OPdoOptimisations(node *syntaxtree);
 

@@ -14,6 +14,7 @@
 #include "str.h"
 #include "ctinfo.h"
 #include "myglobals.h"
+#include "copy.h"
 #include "free_node.h"
 
 #include "op_wrapper.h"
@@ -208,6 +209,42 @@ node *OPbinop(node *arg_node, info *arg_info) {
         INFO_KEEPOPTIMIZING(arg_info) = TRUE;
         DBUG_PRINT("OP", ("Folded :-)"));
     }
+
+    DBUG_RETURN(arg_node);
+}
+
+bool areSameVars(node *left, node *right) {
+    return ID_DECL(left) == ID_DECL(right);
+}
+node *OPassign(node *arg_node, info *arg_info) {
+    DBUG_ENTER("OPassign");
+
+    // Lets try to optimize the expression first
+    ASSIGN_EXPR(arg_node) = TRAVdo(ASSIGN_EXPR(arg_node), arg_info);
+
+    node *shortCutAssign = NULL;
+    // Detecting 'var = var + const' and 'var = var - const' kind of operations
+    if (NODE_TYPE(ASSIGN_EXPR(arg_node)) == N_binop && NODE_TYPE(BINOP_LEFT(ASSIGN_EXPR(arg_node))) == N_id && NODE_TYPE(BINOP_RIGHT(ASSIGN_EXPR(arg_node))) == N_intconst) {
+        if (STReq(SYMBOLTABLEENTRY_NAME(ID_DECL(ASSIGN_LET(arg_node))), SYMBOLTABLEENTRY_NAME(ID_DECL(BINOP_LEFT(ASSIGN_EXPR(arg_node)))))) {
+            DBUG_PRINT("OP", ("Found a potential INC/DEC optimization candidate."));
+            if (areSameVars(ASSIGN_LET(arg_node), BINOP_LEFT(ASSIGN_EXPR(arg_node)))) {
+                if (BINOP_OP(ASSIGN_EXPR(arg_node)) == BO_add) {
+                    shortCutAssign = TBmakeShortcut(SO_inc, COPYdoCopy(BINOP_LEFT(ASSIGN_EXPR(arg_node))), COPYdoCopy(BINOP_RIGHT(ASSIGN_EXPR(arg_node))));
+                } else if (BINOP_OP(ASSIGN_EXPR(arg_node)) == BO_sub) {
+                    shortCutAssign = TBmakeShortcut(SO_dec, COPYdoCopy(BINOP_LEFT(ASSIGN_EXPR(arg_node))), COPYdoCopy(BINOP_RIGHT(ASSIGN_EXPR(arg_node))));
+                }
+            }
+        }
+    }
+    if (shortCutAssign) {
+        DBUG_PRINT("OP", ("Optimized a 'var = var +/- const' statement."));
+        NODE_LINE(shortCutAssign) = NODE_LINE(arg_node);
+        NODE_COL(shortCutAssign) = NODE_COL(arg_node);
+        arg_node = FREEassign(arg_node, arg_info);
+        arg_node = shortCutAssign;
+        INFO_KEEPOPTIMIZING(arg_info) = TRUE;
+    }
+
 
     DBUG_RETURN(arg_node);
 }

@@ -244,6 +244,7 @@ node *PRTstatements(node * arg_node, info * arg_info) {
 	switch (NODE_TYPE(STATEMENTS_STATEMENT(arg_node))) {
 	case N_assign:
 	case N_funcall:
+	case N_shortcut:
 	    printf(";\n");
 	    INDENT_AT_NEWLINE(arg_info);
 	    break;
@@ -264,6 +265,21 @@ node *PRTassign (node * arg_node, info * arg_info)
   TRAVdo( ASSIGN_EXPR( arg_node), arg_info);
 
   DBUG_RETURN (arg_node);
+}
+
+node *PRTshortcut(node *arg_node, info *arg_info) {
+    DBUG_ENTER("PRTshortcut");
+
+    INDENT(arg_info);
+    TRAVdo( SHORTCUT_ID( arg_node), arg_info);
+    if (SHORTCUT_OP(arg_node) == SO_inc) {
+        printf( " += ");
+    } else if (SHORTCUT_OP(arg_node) == SO_dec) {
+        printf( " += ");
+    }
+    TRAVdo( SHORTCUT_CONST( arg_node), arg_info);
+
+    DBUG_RETURN(arg_node);
 }
 
 node *PRTtypecast(node * arg_node, info * arg_info) {

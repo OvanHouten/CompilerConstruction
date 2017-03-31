@@ -161,6 +161,17 @@ char *encodeOperator(binop op, int lineNr) {
     return operator;
 }
 
+char *encodeShortcut(sop op, int lineNr) {
+    if (op == SO_inc) {
+        return "inc";
+    } else if (op == SO_dec) {
+        return "dec";
+    } else {
+        CTIerror("A unknown shortcut instruction was introduced for line %d.", lineNr);
+        return "<BOGUS-S>";
+    }
+}
+
 void prepareExpressions(node *exprs, info *info, int *expressionCount) {
 
     if (exprs) {
@@ -456,6 +467,29 @@ node *GBCassign(node *arg_node, info *arg_info) {
         fprintf(outfile, "    %sstore%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
     } else {
         fprintf(outfile, "; Assigning to relative free variables is not yet supported.\n");
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *GBCshortcut(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCshortcut");
+
+    if (INTCONST_VALUE(SHORTCUT_CONST(arg_node)) == 1) {
+        fprintf(outfile, "    i%s_1 %d\t\t\t; optimized\n", encodeShortcut(SHORTCUT_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(SHORTCUT_ID(arg_node))));
+    } else {
+        constantPool *constant = INFO_CONSTANTS(arg_info);
+        while (constant != NULL) {
+            if (constant->type == TY_int && constant->intVal == INTCONST_VALUE(SHORTCUT_CONST(arg_node))) {
+                break;
+            }
+            constant = constant->next;
+        }
+        if (constant == NULL) {
+            constant = registerNewConstant(arg_info, TY_int);
+            constant->intVal = INTCONST_VALUE(SHORTCUT_CONST(arg_node));
+        }
+        fprintf(outfile, "    i%s %d %d\t\t\t; optimized\n", encodeShortcut(SHORTCUT_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(SHORTCUT_ID(arg_node))), constant->offset);
     }
 
     DBUG_RETURN(arg_node);

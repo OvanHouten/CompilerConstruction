@@ -334,6 +334,12 @@ node *SAassign(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *SAshortcut(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAshortcut");
+
+    DBUG_RETURN(arg_node);
+}
+
 node *SAif(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAif");
 
