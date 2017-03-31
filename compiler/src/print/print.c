@@ -226,6 +226,17 @@ node *PRTvardef(node * arg_node, info * arg_info) {
         // Parameters for external functions don't have an entry in the SymbolTable!
         printf("%s %s", typeToString(VARDEF_TYPE(arg_node)), VARDEF_NAME(arg_node));
     }
+    // TODO!!! print sizeids and sizeexprs!
+    if(VARDEF_SIZEIDS(arg_node)) {
+    	printf("[");
+    	TRAVdo(VARDEF_SIZEIDS(arg_node), arg_info);
+    	printf("]");
+    }
+    else if(VARDEF_SIZEEXPRS(arg_node)) {
+    	printf("[");
+    	TRAVdo(VARDEF_SIZEEXPRS(arg_node), arg_info);
+    	printf("]");
+    }
     if (VARDEF_EXPR(arg_node)) {
         printf(" = ");
         // Lets be lazy and let the TRAV opt decide which to print, there are exclusive so no need to check...

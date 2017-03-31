@@ -16,6 +16,7 @@
 #include "type_utils.h"
 #include "globals.h"
 #include "scope_utils.h"
+#include "string.h"
 
 #include "context_analysis.h"
 
@@ -135,6 +136,7 @@ node *SAfundef(node *arg_node, info *arg_info) {
     if (FUNDEF_FUNBODY(arg_node)) {
 			
         DBUG_PRINT("SA", ("Starting a new scope."));
+        DBUG_PRINT("SA", ("1: %s", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node))));
 		// 	Start new scope
 		node *previousScope = INFO_CURSCOPE(arg_info);
 		node *newScope = TBmakeSymboltable(NULL);
@@ -249,62 +251,80 @@ node *SAvardef(node *arg_node, info *arg_info) {
 
 node *SAid(node * arg_node, info * arg_info) {
     DBUG_ENTER("SAid");
-
-    // Used for traversing to outer ST/scopes
-    int distance = 0;
-    node* varDefSTE = findInAnyScope(INFO_CURSCOPE(arg_info), ID_NAME(arg_node), &distance, STE_vardef);
-
-    if(varDefSTE == NULL) {
-    	if(INFO_SIZEIDS(arg_info)) {
-    		// Create new vardef
-    		node* new_vardef = TBmakeVardef(INFO_EXTERNARRAY(arg_info), FALSE, ID_NAME(arg_node), ID_TYPE(arg_node), NULL, NULL, NULL, NULL);
-    		
-    		// If it is an extern id, add it to the start of the list of declarations in the program node
-    		if(INFO_EXTERNARRAY(arg_info)) {    		
-    			new_vardef = TBmakeDeclarations(new_vardef, NULL);
-				
-				// add it to the start of the list
-				node* temp = INFO_VARDEFSCOPE(arg_info);
-				while(DECLARATIONS_NEXT(temp)) {
-					temp = DECLARATIONS_NEXT(temp);
+	
+	// If it is an extern id, add it to the start of the list of declarations in the program node
+	if(INFO_EXTERNARRAY(arg_info)) {
+		// check see if var doesnt already exist, eg this is valid:
+		// extern int[n] arr;
+		// extern int[n, m] arr2;
+		node* temp = INFO_VARDEFSCOPE(arg_info);
+		while(DECLARATIONS_NEXT(temp)) {
+			temp = DECLARATIONS_NEXT(temp);
+			if(NODE_TYPE(DECLARATIONS_DECLARATION(temp)) == N_vardef) {
+				if(strcmp(VARDEF_NAME(DECLARATIONS_DECLARATION(temp)), ID_NAME(arg_node)) == 0) {
+					DBUG_RETURN(arg_node);
 				}
-				DECLARATIONS_NEXT(temp) = new_vardef;
 			}
-			// else create a parameter for it
-			else {
-				new_vardef = TBmakeParams(new_vardef, NULL);
-				
-				// add it to the start of the list
-				node* temp = INFO_VARDEFSCOPE(arg_info);
-				while(PARAMS_NEXT(temp)) {
-					temp = PARAMS_NEXT(temp);
+		}
+		  		
+		node* new_vardef = TBmakeVardef(TRUE, FALSE, STRcpy(ID_NAME(arg_node)), TY_int, NULL, NULL, NULL, NULL);
+		new_vardef = TBmakeDeclarations(new_vardef, NULL);
+		
+		// add it to the start of the list
+		temp = INFO_VARDEFSCOPE(arg_info);
+		while(DECLARATIONS_NEXT(temp)) {
+			temp = DECLARATIONS_NEXT(temp);
+		}
+		DECLARATIONS_NEXT(temp) = new_vardef;
+		TRAVdo(new_vardef, arg_info);
+	}
+	// We ned to create a new vardef in these cases, id is used in an extern or parameter context
+	// This is for arrays
+// 	if(INFO_SIZEIDS(arg_info)) {
+// 		// Used for traversing to outer ST/scopes
+// 		int distance = 0;
+// 		node* varDefSTE = findInAnyScope(INFO_CURSCOPE(arg_info), ID_NAME(arg_node), &distance, STE_vardef);
+// 		if(varDefSTE == NULL) {
+// 			// Create new vardef
+// 			node* new_vardef = TBmakeVardef(FALSE, FALSE, STRcpy(ID_NAME(arg_node)), TY_int, NULL, NULL, NULL, NULL);
+// 			new_vardef = TBmakeParams(new_vardef, NULL);
+// 		
+// 			// add it to the start of the list
+// 			node* temp = INFO_VARDEFSCOPE(arg_info);
+// 			while(PARAMS_NEXT(temp)) {
+// 				printf("PARAMS %s\n", VARDEF_NAME(PARAMS_PARAM(temp)));
+// 				temp = PARAMS_NEXT(temp);
+// 			}
+// 			PARAMS_NEXT(temp) = new_vardef;
+// 			// Traverse new vardef to add it to the symboltable
+// 			TRAVdo(new_vardef, arg_info);
+// 		}
+// 	}
+	else {
+		// Used for traversing to outer ST/scopes
+		int distance = 0;
+		node* varDefSTE = findInAnyScope(INFO_CURSCOPE(arg_info), ID_NAME(arg_node), &distance, STE_vardef);
+		if(varDefSTE == NULL) {
+				CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+		} else {
+			if(distance > 0) {
+				DBUG_PRINT("SA", ("Defined in outer scope, creating a local STE."));
+				// Defined in a outer scope, create new STE in current scope
+				node* localSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, ID_NAME(arg_node), STE_varusage, SYMBOLTABLEENTRY_TYPE(varDefSTE));
+				// And link to the original declaration
+				SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(varDefSTE);
+				// Set the correct distance and offset
+				SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
+				SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
+				if (SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE)) {
+					SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(localSTE) = STRcpy(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE));
 				}
-				PARAMS_NEXT(temp) = new_vardef;
-			}
-			// Traverse new vardef to add it to the symboltable
-			TRAVdo(new_vardef, arg_info);
-    	}
-    	else {
-        	CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
-        }
-    } else {
-        if(distance > 0) {
-            DBUG_PRINT("SA", ("Defined in outer scope, creating a local STE."));
-            // Defined in a outer scope, create new STE in current scope
-            node* localSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, ID_NAME(arg_node), STE_varusage, SYMBOLTABLEENTRY_TYPE(varDefSTE));
-            // And link to the original declaration
-            SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(varDefSTE);
-            // Set the correct distance and offset
-            SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
-            SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
-            if (SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE)) {
-                SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(localSTE) = STRcpy(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE));
-            }
 
-            varDefSTE = localSTE;
-        }
-        // Make sure we can reference the STE
-        ID_DECL(arg_node) = varDefSTE;
+				varDefSTE = localSTE;
+			}
+			// Make sure we can reference the STE
+			ID_DECL(arg_node) = varDefSTE;
+		}
     }
 
     DBUG_RETURN(arg_node);
