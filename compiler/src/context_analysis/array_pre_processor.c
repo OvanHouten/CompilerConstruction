@@ -9,6 +9,7 @@
 #include "type_utils.h"
 #include "globals.h"
 #include "scope_utils.h"
+#include "list_utils.h"
 #include "string.h"
 
 #include "array_pre_processor.h"
@@ -110,6 +111,8 @@ node* PPAvardef(node* arg_node, info* arg_info) {
 		if(INFO_DIMDECLS(arg_info)) {
 			node* temp = INFO_EXTERNSCOPE(arg_info);
 			
+			INFO_DIMDECLS(arg_info) = reverseDeclarationsList(INFO_DIMDECLS(arg_info), NULL);
+			
 			// Find the current vardef node
 			while(temp) {
 				if(NODE_TYPE(DECLARATIONS_DECLARATION(temp)) == N_vardef) {
@@ -141,9 +144,30 @@ node* PPAvardef(node* arg_node, info* arg_info) {
 		// Create Declarations nodes for the dimension variables of the array
 		TRAVdo(VARDEF_SIZEIDS(arg_node), arg_info);
 		
-		
+		// If a list of declarations has been created, put it before the array declaration
+		if(INFO_DIMDECLS(arg_info)) {
+			node* temp = INFO_FUNHEADERPARAMS(arg_info);
+			
+			INFO_DIMDECLS(arg_info) = reverseParamsList(INFO_DIMDECLS(arg_info), NULL); 
+			
+			// Find the current vardef node
+			while(temp) {
+				if(PARAMS_PARAM(temp) == arg_node) {
+					node* tail = PARAMS_NEXT(temp);
+					PARAMS_NEXT(temp) = INFO_DIMDECLS(arg_info);
+					
+					// put the tail behind the new list of decls
+					node* end_decls = INFO_DIMDECLS(arg_info);
+					while(PARAMS_NEXT(end_decls)) {
+						end_decls = PARAMS_NEXT(end_decls);
+					}
+					PARAMS_NEXT(end_decls) = tail;
+				}
+				
+				temp = PARAMS_NEXT(temp);
+			}
+		}
 	}
-	
     DBUG_RETURN(arg_node);
 }
 
@@ -170,7 +194,7 @@ node* PPAid(node* arg_node, info* arg_info) {
 		DBUG_PRINT("PPA", ("PARAMTEST!"));
 		
 		node* new_node = TBmakeVardef(FALSE, FALSE, STRcpy(ID_NAME(arg_node)), TY_int, NULL, NULL, NULL, NULL);
-		INFO_DIMDECLS(arg_info) = TBmakeIds(new_node, INFO_DIMDECLS(arg_info));
+		INFO_DIMDECLS(arg_info) = TBmakeParams(new_node, INFO_DIMDECLS(arg_info));
 	}
 	
 	DBUG_RETURN(arg_node);

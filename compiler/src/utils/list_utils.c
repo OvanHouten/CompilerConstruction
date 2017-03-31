@@ -50,3 +50,34 @@ node *appendToSymbolTableEntries(node *symbolTable, node *symbolTableEntry) {
     DBUG_RETURN(symbolTable);
 }
 
+/*
+ * Reverses a params list.
+ */
+node* reverseParamsList(node *rest, node *reversed) {
+	node *current;
+
+	if(rest == NULL)
+		return reversed;
+
+	current = rest;
+	rest = PARAMS_NEXT(rest);
+	PARAMS_NEXT(current) = reversed;
+
+	return reverseParamsList(rest, current);
+}
+
+/*
+ * Reverses a decls list.
+ */
+node* reverseDeclarationsList(node *rest, node *reversed) {
+	node *current;
+
+	if(rest == NULL)
+		return reversed;
+
+	current = rest;
+	rest = DECLARATIONS_NEXT(rest);
+	DECLARATIONS_NEXT(current) = reversed;
+
+	return reverseDeclarationsList(rest, current);
+}

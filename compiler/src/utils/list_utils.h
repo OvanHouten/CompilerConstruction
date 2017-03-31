@@ -14,5 +14,7 @@
 
 node *appendToStatements(node *funBody, node* newStatements);
 node *appendToSymbolTableEntries(node *symbolTable, node *symbolTableEntry);
+node* reverseParamsList(node *rest, node *reversed);
+node* reverseDeclarationsList(node *rest, node *reversed);
 
 #endif /* SRC_UTILS_LIST_UTILS_H_ */
