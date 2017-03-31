@@ -72,13 +72,21 @@ node* PPAprogram(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node* PPAdeclarations(node* arg_node, info* arg_info) {
+	DBUG_ENTER("PPAdeclarations");
+	
+	// First declarations have to be processed first, default is other way around it seems
+	TRAVopt(DECLARATIONS_NEXT(arg_node), arg_info);
+	TRAVdo(DECLARATIONS_DECLARATION(arg_node), arg_info);
+	
+	DBUG_RETURN(arg_node);
+}
+
 node* PPAvardef(node *arg_node, info *arg_info) {
     DBUG_ENTER("PPAvardef");
 	
 	// Varedef is an external array, split dims variables in separate external declaration
-	if(VARDEF_EXTERN(arg_node) && VARDEF_SIZEIDS(arg_node)) {
-		DBUG_PRINT("PPA", ("Extern %s", VARDEF_NAME(arg_node)));
-		
+	if(VARDEF_EXTERN(arg_node) && VARDEF_SIZEIDS(arg_node)) {		
 		INFO_DIMSIDS(arg_info) = TRUE;
 		INFO_DIMDECLS(arg_info) = NULL;
 		
@@ -121,13 +129,13 @@ node* PPAid(node* arg_node, info* arg_info) {
 	if(INFO_DIMSIDS(arg_info)) {
 		// We dont want any duplicate declarations eg arr[n] and arr2[n, m]
 		node* temp = INFO_EXTERNSCOPE(arg_info);
-		while(DECLARATIONS_NEXT(temp)) {
+		while(temp) {
 			if(NODE_TYPE(DECLARATIONS_DECLARATION(temp)) == N_vardef) {
-				DBUG_PRINT("PPA", ("%s =?= %s", VARDEF_NAME(DECLARATIONS_DECLARATION(temp)), ID_NAME(arg_node)));
 				if(strcmp(VARDEF_NAME(DECLARATIONS_DECLARATION(temp)), ID_NAME(arg_node)) == 0) {
 					DBUG_RETURN(arg_node);
 				}
 			}
+			
 			temp = DECLARATIONS_NEXT(temp);
 		}
 		
