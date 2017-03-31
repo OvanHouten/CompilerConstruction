@@ -225,14 +225,12 @@ node *OPassign(node *arg_node, info *arg_info) {
     node *shortCutAssign = NULL;
     // Detecting 'var = var + const' and 'var = var - const' kind of operations
     if (NODE_TYPE(ASSIGN_EXPR(arg_node)) == N_binop && NODE_TYPE(BINOP_LEFT(ASSIGN_EXPR(arg_node))) == N_id && NODE_TYPE(BINOP_RIGHT(ASSIGN_EXPR(arg_node))) == N_intconst) {
-        if (STReq(SYMBOLTABLEENTRY_NAME(ID_DECL(ASSIGN_LET(arg_node))), SYMBOLTABLEENTRY_NAME(ID_DECL(BINOP_LEFT(ASSIGN_EXPR(arg_node)))))) {
+        if (areSameVars(ASSIGN_LET(arg_node), BINOP_LEFT(ASSIGN_EXPR(arg_node)))) {
             DBUG_PRINT("OP", ("Found a potential INC/DEC optimization candidate."));
-            if (areSameVars(ASSIGN_LET(arg_node), BINOP_LEFT(ASSIGN_EXPR(arg_node)))) {
-                if (BINOP_OP(ASSIGN_EXPR(arg_node)) == BO_add) {
-                    shortCutAssign = TBmakeShortcut(SO_inc, COPYdoCopy(BINOP_LEFT(ASSIGN_EXPR(arg_node))), COPYdoCopy(BINOP_RIGHT(ASSIGN_EXPR(arg_node))));
-                } else if (BINOP_OP(ASSIGN_EXPR(arg_node)) == BO_sub) {
-                    shortCutAssign = TBmakeShortcut(SO_dec, COPYdoCopy(BINOP_LEFT(ASSIGN_EXPR(arg_node))), COPYdoCopy(BINOP_RIGHT(ASSIGN_EXPR(arg_node))));
-                }
+            if (BINOP_OP(ASSIGN_EXPR(arg_node)) == BO_add) {
+                shortCutAssign = TBmakeShortcut(SO_inc, COPYdoCopy(BINOP_LEFT(ASSIGN_EXPR(arg_node))), COPYdoCopy(BINOP_RIGHT(ASSIGN_EXPR(arg_node))));
+            } else if (BINOP_OP(ASSIGN_EXPR(arg_node)) == BO_sub) {
+                shortCutAssign = TBmakeShortcut(SO_dec, COPYdoCopy(BINOP_LEFT(ASSIGN_EXPR(arg_node))), COPYdoCopy(BINOP_RIGHT(ASSIGN_EXPR(arg_node))));
             }
         }
     }
