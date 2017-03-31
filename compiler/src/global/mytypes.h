@@ -22,5 +22,9 @@ typedef enum { TY_int, TY_bool, TY_float, TY_void, TY_unknown } type;
  */
 typedef enum { BO_add, BO_sub, BO_mul, BO_div, BO_mod, BO_lt, BO_le, BO_gt, BO_ge, BO_eq, BO_ne, BO_and, BO_or, BO_unknown } binop;
 
+/*
+ * This enumeration defines the shortcut inc and dec instructions
+ */
+typedef enum { SO_inc, SO_dec, SO_unknown } sop;
 
 #endif  /* _CIVCC_MYTYPES_H_ */

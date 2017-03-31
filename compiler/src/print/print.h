@@ -25,15 +25,16 @@ extern node *PRTvardecs(node * arg_node, info * arg_info);
 extern node *PRTvardef(node * arg_node, info * arg_info);
 
 extern node *PRTstatements(node * arg_node, info * arg_info);
-extern node *PRTassign (node * arg_node, info * arg_info);
+extern node *PRTassign(node * arg_node, info * arg_info);
+extern node *PRTshortcut(node * arg_node, info * arg_info);
 extern node *PRTtypecast(node * arg_node, info * arg_info);
 extern node *PRTfuncall(node * arg_node, info * arg_info);
-extern node *PRTreturn (node * arg_node, info * arg_info);
+extern node *PRTreturn(node * arg_node, info * arg_info);
 
-extern node *PRTif (node * arg_node, info * arg_info);
-extern node *PRTwhile (node * arg_node, info * arg_info);
-extern node *PRTdo (node * arg_node, info * arg_info);
-extern node *PRTfor (node * arg_node, info * arg_info);
+extern node *PRTif(node * arg_node, info * arg_info);
+extern node *PRTwhile(node * arg_node, info * arg_info);
+extern node *PRTdo(node * arg_node, info * arg_info);
+extern node *PRTfor(node * arg_node, info * arg_info);
 
 extern node *PRTexprs(node * arg_node, info * arg_info);
 
