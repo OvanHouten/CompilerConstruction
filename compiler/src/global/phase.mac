@@ -31,6 +31,8 @@ ENDPHASE( ld)
 
 PHASE(ca, "Context Analysis", ALWAYS)
 
+SUBPHASE(ppa, "Array Pre Processor", PPAdoPreProcessorArray, ALWAYS, ca)
+
 SUBPHASE(sa, "Scope Analysis", SAdoScopeAnalysis, NEVER, ca)
 
 SUBPHASE(tc, "Type Check", TCdoTypeCheck, NEVER, ca)

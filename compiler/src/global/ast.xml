@@ -44,14 +44,21 @@
       <traversal id="COPY" name="Copy Syntax Tree" default="user" include="copy_node.h" />
       <traversal id="FREE" name="Free Syntax Tree" default="user" include="free_node.h" />
       <traversal id="CHK" name="Check Syntax Tree" default="user" include="check.h" />
-
+		
+	  <traversal id="PPA" name="Pre Process Array" default="sons" include="array_pre_processor.h">
+        <travuser>
+          <node name="VarDef" />
+          <node name="Id" />
+        </travuser>
+      </traversal>
+      
       <traversal id="SA" name="Context Analysis" default="user" include="context_analysis.h" />
 
        <traversal id="TC" name="Type Check" default="sons" include="type_check.h">
         <travuser>
           <node name="Assign" />
-          <node name="VarDef"/>
-          <node name="Typecast"/>
+          <node name="VarDef" />
+          <node name="Typecast" />
           <node name="UnOp" />
           <node name="BinOp" />
           <node name="FunDef" />
