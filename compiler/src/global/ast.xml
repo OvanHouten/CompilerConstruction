@@ -49,6 +49,7 @@
         <travuser>
           <node name="Program" />
           <node name="Declarations" />
+          <node name="FunHeader" />
           <node name="VarDef" />
           <node name="Id" />
         </travuser>

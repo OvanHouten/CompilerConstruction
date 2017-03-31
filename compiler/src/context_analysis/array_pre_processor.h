@@ -5,6 +5,7 @@
 
 extern node* PPAprogram(node *arg_node, info* arg_info);
 extern node* PPAdeclarations(node* arg_node, info* arg_info);
+extern node* PPAfunheader(node* arg_node, info* arg_info);
 extern node* PPAvardef(node *arg_node, info *arg_info);
 extern node* PPAid(node* arg_node, info* arg_info);
 

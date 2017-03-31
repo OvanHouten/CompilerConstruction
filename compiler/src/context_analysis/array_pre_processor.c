@@ -20,7 +20,8 @@ struct INFO {
 	bool dimsids;
 	node* cur_scope;
 	node* dimDecls;
-	node* externScope; // Global declarations list of program for external arrays
+	node* externScope;
+	node* funheaderParams;
 };
 
 /*
@@ -30,6 +31,7 @@ struct INFO {
 #define INFO_CURSCOPE(n) ((n)->cur_scope)
 #define INFO_DIMDECLS(n) ((n)->dimDecls)
 #define INFO_EXTERNSCOPE(n) ((n)->externScope)
+#define INFO_FUNHEADERPARAMS(n) ((n)->funheaderParams)
 
 /*
  * INFO functions
@@ -44,6 +46,7 @@ static info *MakeInfo(void) {
 	INFO_CURSCOPE(result) = NULL;
 	INFO_DIMDECLS(result) = NULL;
 	INFO_EXTERNSCOPE(result) = NULL;
+	INFO_FUNHEADERPARAMS(result) = NULL;
 	
 	DBUG_RETURN( result);
 }
@@ -82,10 +85,20 @@ node* PPAdeclarations(node* arg_node, info* arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node* PPAvardef(node *arg_node, info *arg_info) {
+node* PPAfunheader(node* arg_node, info* arg_info) {
+	DBUG_ENTER("PPAfunheader");
+	
+	INFO_FUNHEADERPARAMS(arg_info) = FUNHEADER_PARAMS(arg_node);
+	TRAVopt(FUNHEADER_PARAMS(arg_node), arg_info);
+	INFO_FUNHEADERPARAMS(arg_info) = NULL;
+	
+	DBUG_RETURN(arg_node);
+}
+
+node* PPAvardef(node* arg_node, info* arg_info) {
     DBUG_ENTER("PPAvardef");
 	
-	// Varedef is an external array, split dims variables in separate external declaration
+	// Vardef is an external array, split dims variables in separate external declaration
 	if(VARDEF_EXTERN(arg_node) && VARDEF_SIZEIDS(arg_node)) {		
 		INFO_DIMSIDS(arg_info) = TRUE;
 		INFO_DIMDECLS(arg_info) = NULL;
@@ -119,6 +132,17 @@ node* PPAvardef(node *arg_node, info *arg_info) {
 		
 		INFO_DIMSIDS(arg_info) = FALSE;
 	}
+	// Vardef is a parameter in a funheader.
+	else if(INFO_FUNHEADERPARAMS(arg_info) && VARDEF_SIZEIDS(arg_node)) {
+		DBUG_PRINT("PPA", ("PARAM %s", VARDEF_NAME(arg_node)));
+		
+		INFO_DIMDECLS(arg_info) = NULL;
+		
+		// Create Declarations nodes for the dimension variables of the array
+		TRAVdo(VARDEF_SIZEIDS(arg_node), arg_info);
+		
+		
+	}
 	
     DBUG_RETURN(arg_node);
 }
@@ -141,6 +165,12 @@ node* PPAid(node* arg_node, info* arg_info) {
 		
 		node* new_node = TBmakeVardef(TRUE, FALSE, STRcpy(ID_NAME(arg_node)), TY_int, NULL, NULL, NULL, NULL);
 		INFO_DIMDECLS(arg_info) = TBmakeDeclarations(new_node, INFO_DIMDECLS(arg_info));
+	}
+	else if(INFO_FUNHEADERPARAMS(arg_info)) {
+		DBUG_PRINT("PPA", ("PARAMTEST!"));
+		
+		node* new_node = TBmakeVardef(FALSE, FALSE, STRcpy(ID_NAME(arg_node)), TY_int, NULL, NULL, NULL, NULL);
+		INFO_DIMDECLS(arg_info) = TBmakeIds(new_node, INFO_DIMDECLS(arg_info));
 	}
 	
 	DBUG_RETURN(arg_node);
