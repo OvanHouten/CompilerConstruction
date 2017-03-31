@@ -47,6 +47,7 @@
 		
 	  <traversal id="PPA" name="Pre Process Array" default="sons" include="array_pre_processor.h">
         <travuser>
+          <node name="Program" />
           <node name="VarDef" />
           <node name="Id" />
         </travuser>

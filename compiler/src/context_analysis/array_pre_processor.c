@@ -20,6 +20,7 @@ struct INFO {
 	bool dimsids;
 	node* cur_scope;
 	node* dimDecls;
+	node* externScope; // Global declarations list of program for external arrays
 };
 
 /*
@@ -28,6 +29,7 @@ struct INFO {
 #define INFO_DIMSIDS(n) ((n)->dimsids)
 #define INFO_CURSCOPE(n) ((n)->cur_scope)
 #define INFO_DIMDECLS(n) ((n)->dimDecls)
+#define INFO_EXTERNSCOPE(n) ((n)->externScope)
 
 /*
  * INFO functions
@@ -41,6 +43,7 @@ static info *MakeInfo(void) {
 	INFO_DIMSIDS(result) = FALSE;
 	INFO_CURSCOPE(result) = NULL;
 	INFO_DIMDECLS(result) = NULL;
+	INFO_EXTERNSCOPE(result) = NULL;
 	
 	DBUG_RETURN( result);
 }
@@ -57,18 +60,19 @@ static info *FreeInfo( info *info) {
 // Traversal code starts here
 // =============================================
 
-node *PPAprogram(node *arg_node, info *arg_info) {
+node* PPAprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("PPAprogram");
 
 	// Start new scope: change curscope
 	INFO_CURSCOPE(arg_info) = PROGRAM_DECLARATIONS(arg_node);
+	INFO_EXTERNSCOPE(arg_info) = PROGRAM_DECLARATIONS(arg_node);
 	
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
     
     DBUG_RETURN(arg_node);
 }
 
-node *PPAvardef(node *arg_node, info *arg_info) {
+node* PPAvardef(node *arg_node, info *arg_info) {
     DBUG_ENTER("PPAvardef");
 	
 	// Varedef is an external array, split dims variables in separate external declaration
@@ -81,15 +85,30 @@ node *PPAvardef(node *arg_node, info *arg_info) {
 		// Create Declarations nodes for the dimension variables of the array
 		TRAVdo(VARDEF_SIZEIDS(arg_node), arg_info);
 		
-		node* temp = INFO_DIMDECLS(arg_info);
-		if(temp) {
-			DBUG_PRINT("PPA", ("DIMSLIST:"));
-			while(DECLARATIONS_NEXT(temp)) {
-				printf("%s - ", VARDEF_NAME(DECLARATIONS_DECLARATION(temp)));
+		// If a list of declarations has been created, put it before the array declaration
+		if(INFO_DIMDECLS(arg_info)) {
+			node* temp = INFO_EXTERNSCOPE(arg_info);
+			
+			// Find the current vardef node
+			while(temp) {
+				if(NODE_TYPE(DECLARATIONS_DECLARATION(temp)) == N_vardef) {
+					if(DECLARATIONS_DECLARATION(temp) == arg_node) {
+						node* tail = DECLARATIONS_NEXT(temp);
+						DECLARATIONS_NEXT(temp) = INFO_DIMDECLS(arg_info);
+						
+						// put the tail behind the new list of decls
+						node* end_decls = INFO_DIMDECLS(arg_info);
+						while(DECLARATIONS_NEXT(end_decls)) {
+							end_decls = DECLARATIONS_NEXT(end_decls);
+						}
+						DECLARATIONS_NEXT(end_decls) = tail;
+					}
+				}
+				
 				temp = DECLARATIONS_NEXT(temp);
 			}
-			printf("%s\n", VARDEF_NAME(DECLARATIONS_DECLARATION(temp)));
 		}
+		
 		INFO_DIMSIDS(arg_info) = FALSE;
 	}
 	
@@ -100,7 +119,18 @@ node* PPAid(node* arg_node, info* arg_info) {
 	DBUG_ENTER("PPAid");
 	
 	if(INFO_DIMSIDS(arg_info)) {
-		DBUG_PRINT("PPA", ("id: %s", ID_NAME(arg_node)));
+		// We dont want any duplicate declarations eg arr[n] and arr2[n, m]
+		node* temp = INFO_EXTERNSCOPE(arg_info);
+		while(DECLARATIONS_NEXT(temp)) {
+			if(NODE_TYPE(DECLARATIONS_DECLARATION(temp)) == N_vardef) {
+				DBUG_PRINT("PPA", ("%s =?= %s", VARDEF_NAME(DECLARATIONS_DECLARATION(temp)), ID_NAME(arg_node)));
+				if(strcmp(VARDEF_NAME(DECLARATIONS_DECLARATION(temp)), ID_NAME(arg_node)) == 0) {
+					DBUG_RETURN(arg_node);
+				}
+			}
+			temp = DECLARATIONS_NEXT(temp);
+		}
+		
 		node* new_node = TBmakeVardef(TRUE, FALSE, STRcpy(ID_NAME(arg_node)), TY_int, NULL, NULL, NULL, NULL);
 		INFO_DIMDECLS(arg_info) = TBmakeDeclarations(new_node, INFO_DIMDECLS(arg_info));
 	}
@@ -108,7 +138,7 @@ node* PPAid(node* arg_node, info* arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PPAdoPreProcessorArray(node *syntaxtree) {
+node* PPAdoPreProcessorArray(node *syntaxtree) {
     DBUG_ENTER("PPAdoScopeAnalysis");
 
     info *arg_info = MakeInfo();
