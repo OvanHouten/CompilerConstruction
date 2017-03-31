@@ -275,7 +275,7 @@ node *PRTshortcut(node *arg_node, info *arg_info) {
     if (SHORTCUT_OP(arg_node) == SO_inc) {
         printf( " += ");
     } else if (SHORTCUT_OP(arg_node) == SO_dec) {
-        printf( " += ");
+        printf( " -= ");
     }
     TRAVdo( SHORTCUT_CONST( arg_node), arg_info);
 
