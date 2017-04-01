@@ -78,18 +78,6 @@ node *SAprogram(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *SAsymboltable(node *arg_node, info *arg_info) {
-	DBUG_ENTER("SASymbolTable");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *SAnop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAnop");
-
-    DBUG_RETURN(arg_node);
-}
-
 node *SAdeclarations(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAdeclarations");
 
@@ -152,29 +140,6 @@ node *SAfundef(node *arg_node, info *arg_info) {
     }
 	DBUG_PRINT("SA", ("Function definition is processed."));
 	
-    DBUG_RETURN(arg_node);
-}
-
-node *SAfunheader(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAfunheader");
-
-    DBUG_PRINT("SA", ("Registering the parameters."));
-    TRAVopt(FUNHEADER_PARAMS(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAfunbody(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAfunbody");
-		
-    DBUG_PRINT("SA", ("Processing the VarDecs"));
-    TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
-    DBUG_PRINT("SA", ("Processing the LocalFunDefs."));
-    TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
-    DBUG_PRINT("SA", ("Processing the Statements."));
-    TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
-    DBUG_PRINT("SA", ("Function has been processed."));
-
     DBUG_RETURN(arg_node);
 }
 
@@ -314,17 +279,9 @@ node *SAparams(node *arg_node, info *arg_info) {
 
 node *SAvardecs(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAvardecs");
-    
+
     TRAVopt(VARDECS_NEXT(arg_node), arg_info);
     TRAVdo(VARDECS_VARDEC(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAtypecast(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAtypecast");
-
-    TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -336,41 +293,6 @@ node *SAassign(node *arg_node, info *arg_info) {
     TRAVopt(ASSIGN_EXPR(arg_node), arg_info);
     DBUG_PRINT("SA", ("Processing the LH-side"));
     TRAVdo(ASSIGN_LET(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAshortcut(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAshortcut");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAif(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAif");
-
-    TRAVdo(IF_CONDITION(arg_node), arg_info);
-
-    TRAVopt(IF_IFBLOCK(arg_node), arg_info);
-    TRAVopt(IF_ELSEBLOCK(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAwhile(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAwhile");
-
-    TRAVdo(WHILE_CONDITION(arg_node), arg_info);
-    TRAVopt(WHILE_BLOCK(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAdo(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAdo");
-
-    TRAVopt(DO_BLOCK(arg_node), arg_info);
-    TRAVdo(DO_CONDITION(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -419,106 +341,11 @@ node *SAfor(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *SAreturn(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAreturn");
-
-    TRAVopt(RETURN_EXPR(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
 node *SAexprs(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAexprs");
 
     TRAVopt(EXPRS_NEXT(arg_node), arg_info);
     TRAVdo(EXPRS_EXPR(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAternop(node *arg_node, info *arg_info) {
-   DBUG_ENTER("SAternop");
-
-   TRAVdo(TERNOP_CONDITION(arg_node), arg_info);
-   TRAVdo(TERNOP_THEN(arg_node), arg_info);
-   TRAVdo(TERNOP_ELSE(arg_node), arg_info);
-
-   DBUG_RETURN(arg_node);
-}
-
-node *SAbinop(node *arg_node, info *arg_info) {
-   DBUG_ENTER("SAbinop");
-
-   TRAVdo(BINOP_LEFT(arg_node), arg_info);
-   TRAVdo(BINOP_RIGHT(arg_node), arg_info);
-
-   DBUG_RETURN(arg_node);
-}
-
-node *SAunop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAunop");
-
-    TRAVdo(UNOP_EXPR(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAintconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAintconst");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAfloatconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAfloatconst");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAboolconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAboolconst");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAsymboltableentry(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAsymboltableentry");
-	
-    DBUG_RETURN(arg_node);
-}
-
-node *SAerror(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAerror");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAlocalfundefs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAlocalfundefs");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAarrayassign(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAarrayassign");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAarray(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAarray");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAids(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAids");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAarrexprs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAarrexprs");
 
     DBUG_RETURN(arg_node);
 }
@@ -548,4 +375,3 @@ node *SAdoScopeAnalysis( node *syntaxtree) {
 
     DBUG_RETURN(syntaxtree);
 }
-

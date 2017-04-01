@@ -46,7 +46,22 @@
       <traversal id="FREE" name="Free Syntax Tree" default="user" include="free_node.h" />
       <traversal id="CHK" name="Check Syntax Tree" default="user" include="check.h" />
 
-      <traversal id="SA" name="Context Analysis" default="user" include="context_analysis.h" />
+      <traversal id="SA" name="Context Analysis" default="sons" include="context_analysis.h" >
+        <travuser>
+          <node name="Program" />
+          <node name="Declarations" />
+          <node name="FunDef" />
+          <node name="VarDef" />
+          <node name="Id" />
+          <node name="Funcall" />
+          <node name="Assign" />
+          <node name="For" />
+          <node name="Statements" /> <!-- Only needed because we need to traverse in a different order then the framework uses as default -->
+          <node name="Exprs" />      <!-- Only needed because we need to traverse in a different order then the framework uses as default -->
+          <node name="VarDecs" />    <!-- Only needed because we need to traverse in a different order then the framework uses as default -->
+          <node name="Params" />     <!-- Only needed because we need to traverse in a different order then the framework uses as default -->
+        </travuser>
+      </traversal>
 
        <traversal id="TC" name="Type Check" default="sons" include="type_check.h">
         <travuser>
