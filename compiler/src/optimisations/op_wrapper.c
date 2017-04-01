@@ -251,6 +251,8 @@ node *OPstatements(node *arg_node, info *arg_info) {
     DBUG_ENTER("OPstatements");
 
     STATEMENTS_NEXT(arg_node) = TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
+    STATEMENTS_STATEMENT(arg_node) = TRAVopt(STATEMENTS_STATEMENT(arg_node), arg_info);
+
     if (NODE_TYPE(STATEMENTS_STATEMENT(arg_node)) == N_if) {
         node *reducedIf = TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
         // If the if statement is reduced we either get a list of statements back or a single statement.
@@ -280,6 +282,10 @@ node *OPstatements(node *arg_node, info *arg_info) {
 node *OPif(node *arg_node, info *arg_info) {
     DBUG_ENTER("OPif");
 
+    IF_CONDITION(arg_node) = TRAVdo(IF_CONDITION(arg_node), arg_info);
+    IF_IFBLOCK(arg_node) = TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+    IF_ELSEBLOCK(arg_node) = TRAVopt(IF_ELSEBLOCK(arg_node), arg_info);
+
     if (NODE_TYPE(IF_CONDITION(arg_node)) == N_boolconst) {
         DBUG_PRINT("OP", ("Reducing a if-else statement."));
 
@@ -305,6 +311,25 @@ node *OPif(node *arg_node, info *arg_info) {
         // Just return the code block, the OPstatements function will insert
         // the statements into the surrounding code
         arg_node = remainingBlock;
+
+        INFO_KEEPOPTIMIZING(arg_info) = TRUE;
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *OPternop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("OPternop");
+
+    TERNOP_CONDITION(arg_node) = TRAVdo(TERNOP_CONDITION(arg_node), arg_info);
+    TERNOP_THEN(arg_node) = TRAVdo(TERNOP_THEN(arg_node), arg_info);
+    TERNOP_ELSE(arg_node) = TRAVdo(TERNOP_ELSE(arg_node), arg_info);
+
+    if (NODE_TYPE(TERNOP_CONDITION(arg_node)) == N_boolconst) {
+        DBUG_PRINT("OP", ("Optimizing a ternary operation."));
+        node *remaining = COPYdoCopy(BOOLCONST_VALUE(TERNOP_CONDITION(arg_node)) ? TERNOP_THEN(arg_node) : TERNOP_ELSE(arg_node));
+        arg_node = FREEternop(arg_node, arg_info);
+        arg_node = remaining;
 
         INFO_KEEPOPTIMIZING(arg_info) = TRUE;
     }
