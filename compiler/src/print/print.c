@@ -136,6 +136,12 @@ node *PRTsymboltableentry (node * arg_node, info * arg_info) {
 	DBUG_RETURN (arg_node);
 }
 
+node *PRTnop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("PRTnop");
+
+    DBUG_RETURN(arg_node);
+}
+
 node *PRTdeclarations(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTdeclarations");
 

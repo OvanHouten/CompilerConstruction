@@ -80,8 +80,14 @@ node *SAprogram(node *arg_node, info *arg_info) {
 
 node *SAsymboltable(node *arg_node, info *arg_info) {
 	DBUG_ENTER("SASymbolTable");
-		
+
 	DBUG_RETURN(arg_node);
+}
+
+node *SAnop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("SAnop");
+
+    DBUG_RETURN(arg_node);
 }
 
 node *SAdeclarations(node *arg_node, info *arg_info) {

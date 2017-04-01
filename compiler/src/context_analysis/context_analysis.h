@@ -14,6 +14,7 @@ extern node *SAprogram(node *arg_node, info *arg_info);
 extern node *SAsymboltable(node *arg_node, info *info_arg);
 extern node *SAdeclarations(node *arg_node, info *arg_info);
 extern node *SAstatements(node *arg_node, info *arg_info);
+extern node *SAnop(node *arg_node, info *arg_info);
 extern node *SAfundef(node *arg_node, info *arg_info);
 extern node *SAfunheader(node *arg_node, info *arg_info);
 extern node *SAvardef(node *arg_node, info *arg_info);

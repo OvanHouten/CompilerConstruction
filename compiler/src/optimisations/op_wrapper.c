@@ -247,6 +247,71 @@ node *OPassign(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *OPstatements(node *arg_node, info *arg_info) {
+    DBUG_ENTER("OPstatements");
+
+    STATEMENTS_NEXT(arg_node) = TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
+    if (NODE_TYPE(STATEMENTS_STATEMENT(arg_node)) == N_if) {
+        node *reducedIf = TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
+        // If the if statement is reduced we either get a list of statements back or a single statement.
+        // If we get a single statement it will replace the current if-else statement.
+        // If we get a list of statements they will be inserted in the current surrounding statements.
+        if (NODE_TYPE(reducedIf) == N_statements) {
+            // Replace the original if-else statement with a NOP statement
+            // This relieves us from a whole bunch of tricky list handling code :-)
+            STATEMENTS_STATEMENT(arg_node) = TBmakeNop();
+
+            DBUG_PRINT("OP", ("Inserting remaining code into the surrounding code"));
+            node *firstStatement = reducedIf;
+            while (STATEMENTS_NEXT(firstStatement)) {
+                firstStatement = STATEMENTS_NEXT(firstStatement);
+            }
+
+            STATEMENTS_NEXT(firstStatement) = STATEMENTS_NEXT(arg_node);
+            STATEMENTS_NEXT(arg_node) = reducedIf;
+        } else {
+            STATEMENTS_STATEMENT(arg_node) = reducedIf;
+        }
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *OPif(node *arg_node, info *arg_info) {
+    DBUG_ENTER("OPif");
+
+    if (NODE_TYPE(IF_CONDITION(arg_node)) == N_boolconst) {
+        DBUG_PRINT("OP", ("Reducing a if-else statement."));
+
+        node *remainingBlock = NULL;
+        if (BOOLCONST_VALUE(IF_CONDITION(arg_node))) {
+            remainingBlock = IF_IFBLOCK(arg_node);
+            IF_IFBLOCK(arg_node) = NULL;
+        } else {
+            remainingBlock = IF_ELSEBLOCK(arg_node);
+            IF_ELSEBLOCK(arg_node) = NULL;
+        }
+
+        if (remainingBlock) {
+            DBUG_PRINT("OP", ("Leaving the active block in place."));
+            remainingBlock = TRAVopt(remainingBlock, arg_info);
+        } else {
+            DBUG_PRINT("OP", ("Nothing left :-)"));
+            // This NOP statement will replace the removed if-else statement
+            remainingBlock = TBmakeNop();
+        }
+
+        arg_node = FREEif(arg_node, arg_info);
+        // Just return the code block, the OPstatements function will insert
+        // the statements into the surrounding code
+        arg_node = remainingBlock;
+
+        INFO_KEEPOPTIMIZING(arg_info) = TRUE;
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
 node *OPdoOptimisations(node *syntaxtree) {
     DBUG_ENTER("OPdoOptimisations");
 
