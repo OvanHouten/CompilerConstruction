@@ -111,6 +111,8 @@
           <node name="UnOp" />
           <node name="BinOp" />
           <node name="Assign" />
+          <node name="Statements" />
+          <node name="If" />
         </travuser>
       </traversal>
 
@@ -165,6 +167,7 @@
         <node name="For" />
         <node name="Return" />
         <node name="ArrayAssign" />
+        <node name="Nop" />
       </target>
     </nodeset>
         
@@ -455,6 +458,12 @@
       </attributes>
     </node>
 
+<!--
+ Node Nop:
+-->
+     <node name="Nop">
+      <description>Represents a nop instruction, handy for reducing optimisations</description>
+    </node>
 <!--
  Node FunDef:
 -->
