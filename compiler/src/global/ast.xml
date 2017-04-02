@@ -22,7 +22,6 @@
     <type name="Type" ctype="type" init="TY_unknown" copy="literal" />
     <type name="EntryType" ctype="ste_type" init="STE_vardef" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
-    <type name="Void" ctype="void*" init="NULL" copy="lookup" /> <!-- Not sure this is how we want it, but for now it works. -->
     <type name="CompilerPhase" ctype="compiler_phase_t" init="PH_initial" copy="literal" />
   </attributetypes>
 
