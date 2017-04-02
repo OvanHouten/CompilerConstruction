@@ -14,7 +14,7 @@ extern node *GBCternop(node *arg_node, info *arg_info);
 extern node *GBCwhile(node *arg_node, info *arg_info);
 extern node *GBCdo(node *arg_node, info *arg_info);
 extern node *GBCassign(node *arg_node, info *arg_info);
-extern node *GBCshortcut(node *arg_node, info *arg_info);
+extern node *GBCcompop(node *arg_node, info *arg_info);
 extern node *GBCid(node *arg_node, info *arg_info);
 extern node *GBCunop(node *arg_node, info *arg_info);
 extern node *GBCtypecast(node *arg_node, info *arg_info);

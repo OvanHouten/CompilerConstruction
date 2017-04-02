@@ -222,24 +222,24 @@ node *OPassign(node *arg_node, info *arg_info) {
     // Lets try to optimize the expression first
     ASSIGN_EXPR(arg_node) = TRAVdo(ASSIGN_EXPR(arg_node), arg_info);
 
-    node *shortCutAssign = NULL;
+    node *compoundOp = NULL;
     // Detecting 'var = var + const' and 'var = var - const' kind of operations
     if (NODE_TYPE(ASSIGN_EXPR(arg_node)) == N_binop && NODE_TYPE(BINOP_LEFT(ASSIGN_EXPR(arg_node))) == N_id && NODE_TYPE(BINOP_RIGHT(ASSIGN_EXPR(arg_node))) == N_intconst) {
         if (areSameVars(ASSIGN_LET(arg_node), BINOP_LEFT(ASSIGN_EXPR(arg_node)))) {
             DBUG_PRINT("OP", ("Found a potential INC/DEC optimization candidate."));
             if (BINOP_OP(ASSIGN_EXPR(arg_node)) == BO_add) {
-                shortCutAssign = TBmakeShortcut(SO_inc, COPYdoCopy(BINOP_LEFT(ASSIGN_EXPR(arg_node))), COPYdoCopy(BINOP_RIGHT(ASSIGN_EXPR(arg_node))));
+                compoundOp = TBmakeCompop(CO_inc, COPYdoCopy(BINOP_LEFT(ASSIGN_EXPR(arg_node))), COPYdoCopy(BINOP_RIGHT(ASSIGN_EXPR(arg_node))));
             } else if (BINOP_OP(ASSIGN_EXPR(arg_node)) == BO_sub) {
-                shortCutAssign = TBmakeShortcut(SO_dec, COPYdoCopy(BINOP_LEFT(ASSIGN_EXPR(arg_node))), COPYdoCopy(BINOP_RIGHT(ASSIGN_EXPR(arg_node))));
+                compoundOp = TBmakeCompop(CO_dec, COPYdoCopy(BINOP_LEFT(ASSIGN_EXPR(arg_node))), COPYdoCopy(BINOP_RIGHT(ASSIGN_EXPR(arg_node))));
             }
         }
     }
-    if (shortCutAssign) {
+    if (compoundOp) {
         DBUG_PRINT("OP", ("Optimized a 'var = var +/- const' statement."));
-        NODE_LINE(shortCutAssign) = NODE_LINE(arg_node);
-        NODE_COL(shortCutAssign) = NODE_COL(arg_node);
+        NODE_LINE(compoundOp) = NODE_LINE(arg_node);
+        NODE_COL(compoundOp) = NODE_COL(arg_node);
         arg_node = FREEassign(arg_node, arg_info);
-        arg_node = shortCutAssign;
+        arg_node = compoundOp;
         INFO_KEEPOPTIMIZING(arg_info) = TRUE;
     }
 

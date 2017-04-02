@@ -161,14 +161,14 @@ char *encodeOperator(binop op, int lineNr) {
     return operator;
 }
 
-char *encodeShortcut(sop op, int lineNr) {
-    if (op == SO_inc) {
+char *encodeCompOp(cop op, int lineNr) {
+    if (op == CO_inc) {
         return "inc";
-    } else if (op == SO_dec) {
+    } else if (op == CO_dec) {
         return "dec";
     } else {
-        CTIerror("A unknown shortcut instruction was introduced for line %d.", lineNr);
-        return "<BOGUS-S>";
+        CTIerror("A unknown compound operation instruction was introduced for line %d.", lineNr);
+        return "<BOGUS-C>";
     }
 }
 
@@ -472,24 +472,24 @@ node *GBCassign(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *GBCshortcut(node *arg_node, info *arg_info) {
-    DBUG_ENTER("GBCshortcut");
+node *GBCcompop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCcompop");
 
-    if (INTCONST_VALUE(SHORTCUT_CONST(arg_node)) == 1) {
-        fprintf(outfile, "    i%s_1 %d\t\t\t; optimized\n", encodeShortcut(SHORTCUT_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(SHORTCUT_ID(arg_node))));
+    if (INTCONST_VALUE(COMPOP_CONST(arg_node)) == 1) {
+        fprintf(outfile, "    i%s_1 %d\t\t\t; optimized\n", encodeCompOp(COMPOP_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(COMPOP_ID(arg_node))));
     } else {
         constantPool *constant = INFO_CONSTANTS(arg_info);
         while (constant != NULL) {
-            if (constant->type == TY_int && constant->intVal == INTCONST_VALUE(SHORTCUT_CONST(arg_node))) {
+            if (constant->type == TY_int && constant->intVal == INTCONST_VALUE(COMPOP_CONST(arg_node))) {
                 break;
             }
             constant = constant->next;
         }
         if (constant == NULL) {
             constant = registerNewConstant(arg_info, TY_int);
-            constant->intVal = INTCONST_VALUE(SHORTCUT_CONST(arg_node));
+            constant->intVal = INTCONST_VALUE(COMPOP_CONST(arg_node));
         }
-        fprintf(outfile, "    i%s %d %d\t\t\t; optimized\n", encodeShortcut(SHORTCUT_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(SHORTCUT_ID(arg_node))), constant->offset);
+        fprintf(outfile, "    i%s %d %d\t\t\t; optimized\n", encodeCompOp(COMPOP_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(COMPOP_ID(arg_node))), constant->offset);
     }
 
     DBUG_RETURN(arg_node);

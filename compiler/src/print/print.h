@@ -27,7 +27,7 @@ extern node *PRTvardef(node * arg_node, info * arg_info);
 
 extern node *PRTstatements(node * arg_node, info * arg_info);
 extern node *PRTassign(node * arg_node, info * arg_info);
-extern node *PRTshortcut(node * arg_node, info * arg_info);
+extern node *PRTcompop(node * arg_node, info * arg_info);
 extern node *PRTtypecast(node * arg_node, info * arg_info);
 extern node *PRTfuncall(node * arg_node, info * arg_info);
 extern node *PRTreturn(node * arg_node, info * arg_info);

@@ -92,7 +92,7 @@ These are the optimizations the compiler supports:
 * Unary operators that are being used on constant values are replaced with the 'deduced' value.
 * Binary operators action on two constants are reduced to the deduced value.
 * Ternary operation are reduced to the remaining part when the condition is a boolean constant.
-* Incrementing and decrementing integer variables with constants are replaced with a shortcut += or -= operation.
+* Incrementing and decrementing integer variables with constants are replaced with a compounr += or -= operation.
 
 === GENERATE BYTE CODE ===
 During the generation of the byte code (assemly) the most efficient opcode is used. This behaviour can not be disabled.

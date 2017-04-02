@@ -18,7 +18,7 @@
     <type name="Float" ctype="float" init="0.0" copy="literal" />
     <type name="BinOp" ctype="binop" init="BO_unknown" copy="literal" />
     <type name="UnOp" ctype="unop" init="UO_unknown" copy="literal" />
-    <type name="ShortOp" ctype="sop" init="SO_unknown" copy="literal" />
+    <type name="CompOp" ctype="cop" init="CO_unknown" copy="literal" />
     <type name="Type" ctype="type" init="TY_unknown" copy="literal" />
     <type name="EntryType" ctype="ste_type" init="STE_vardef" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
@@ -139,7 +139,7 @@
             <node name="While" />
             <node name="Do" />
             <node name="Assign" />
-            <node name="Shortcut" />
+            <node name="CompOp" />
             <node name="Id" />
             <node name="UnOp" />
             <node name="Typecast" />
@@ -168,7 +168,7 @@
   	<nodeset name="Statement">
       <target>
         <node name="Assign" />
-        <node name="Shortcut" />
+        <node name="CompOp" />
         <node name="Funcall"/>
         <node name="If" />
         <node name="While" />
@@ -915,8 +915,8 @@
 <!--
  Node IncDec:
 -->
-     <node name="Shortcut">
-      <description>Represents shortcut assign inc/dec statement</description>
+     <node name="CompOp">
+      <description>Represents compound assign inc/dec statement</description>
       <sons>
         <son name="Id">
           <description>Represents the variable to be increased/decreased</description>
@@ -944,7 +944,7 @@
       <attributes>
         <attribute name="Op">
           <description>Represents the operation</description>
-          <type name="ShortOp">
+          <type name="CompOp">
             <targets>
               <target mandatory="yes">
                 <phases>
