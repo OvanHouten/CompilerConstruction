@@ -3,9 +3,9 @@
 
 
 /*
- * This enumeration defines two different Symbol Table Entry types
+ * This enumeration defines the different Symbol Table Entry types
  */
-typedef enum { STE_const, STE_vardef, STE_varusage, STE_fundef } ste_type;
+typedef enum { STE_vardef, STE_varusage, STE_fundef } ste_type;
 
 /*
  * This enumeration defines all unary operations
