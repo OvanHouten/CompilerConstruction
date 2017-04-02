@@ -243,7 +243,6 @@ node *OPassign(node *arg_node, info *arg_info) {
         INFO_KEEPOPTIMIZING(arg_info) = TRUE;
     }
 
-
     DBUG_RETURN(arg_node);
 }
 

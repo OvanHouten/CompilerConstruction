@@ -21,6 +21,7 @@
     <type name="CompOp" ctype="cop" init="CO_unknown" copy="literal" />
     <type name="Type" ctype="type" init="TY_unknown" copy="literal" />
     <type name="EntryType" ctype="ste_type" init="STE_vardef" copy="literal" />
+    <type name="Location" ctype="location" init="LOC_local" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
     <type name="CompilerPhase" ctype="compiler_phase_t" init="PH_initial" copy="literal" />
   </attributetypes>
@@ -352,9 +353,9 @@
                 </targets>
             </type>
         </attribute>
-        <attribute name="AssemblerPostfix">
+        <attribute name="Location">
             <description>Postfix for store and load instructions</description>
-            <type name="String">
+            <type name="Location">
                 <targets>
                     <target mandatory="no">
                         <phases>

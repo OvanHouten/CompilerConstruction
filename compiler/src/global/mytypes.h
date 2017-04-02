@@ -27,4 +27,9 @@ typedef enum { BO_add, BO_sub, BO_mul, BO_div, BO_mod, BO_lt, BO_le, BO_gt, BO_g
  */
 typedef enum { CO_inc, CO_dec, CO_unknown } cop;
 
+/*
+ * Defined the three possible 'locations' for variables and functions.
+ */
+typedef enum { LOC_extern, LOC_global, LOC_local } location;
+
 #endif  /* _CIVCC_MYTYPES_H_ */

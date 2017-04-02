@@ -13,8 +13,6 @@
 // Used for grouping the pseudo codes at the bottom of the assembly program
 typedef enum { PP_global, PP_vardef, PP_fundef, PP_none} pseudo_phase;
 
-#define STR(n) ((n) == NULL ? "" : n)
-
 // DO NOT CHANGE THIS NAME TO 'CONSTANTS' OR 'CONSTANT'!!
 // Apparently the framework already has a struct with that name. Using one of those
 // names leads to very strange behavior and memory (de)allocation errors!
@@ -90,6 +88,20 @@ void printParamTypes(node *params) {
     if (params) {
         printParamTypes(PARAMS_NEXT(params));
         fprintf(outfile, " %s", typeToString(VARDEF_TYPE(PARAMS_PARAM(params))));
+    }
+}
+
+char *encodeLocation(location loc) {
+    switch (loc) {
+        case LOC_extern:
+            return "e";
+            break;
+        case LOC_global:
+            return "g";
+            break;
+        default:
+            return "";
+            break;
     }
 }
 
@@ -463,8 +475,8 @@ node *GBCassign(node *arg_node, info *arg_info) {
     int distance = SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry);
     int offset = SYMBOLTABLEENTRY_OFFSET(symbolTableEntry);
 
-    if (distance == 0 || SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
-        fprintf(outfile, "    %sstore%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
+    if (distance == 0 || SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef)) != LOC_local) {
+        fprintf(outfile, "    %sstore%s %d\n", dataType, encodeLocation(SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef))), offset);
     } else {
         fprintf(outfile, "; Assigning to relative free variables is not yet supported.\n");
     }
@@ -512,8 +524,8 @@ node *GBCid(node *arg_node, info *arg_info) {
         } else {
             fprintf(outfile, "    %sload %d\n", dataType, offset);
         }
-    } else if (SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
-        fprintf(outfile, "    %sload%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
+    } else if (SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef)) != LOC_local) {
+        fprintf(outfile, "    %sload%s %d\n", dataType, encodeLocation(SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef))), offset);
     } else {
         fprintf(outfile, "; Using relative free variables is not yet supported.\n");
     }

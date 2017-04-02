@@ -164,13 +164,11 @@ node *SAvardef(node *arg_node, info *arg_info) {
         varDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, name, STE_vardef, VARDEF_TYPE(arg_node));
         if (VARDEF_EXTERN(arg_node)) {
             SYMBOLTABLEENTRY_OFFSET(varDefSTE) = INFO_EXTERNALVARS(arg_info)++;
-            if (SYMBOLTABLE_PARENT(INFO_CURSCOPE(arg_info)) == NULL) {
-                SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE) = STRcpy("e");
-            }
+            SYMBOLTABLEENTRY_LOCATION(varDefSTE) = LOC_extern;
         } else {
             SYMBOLTABLEENTRY_OFFSET(varDefSTE) = SYMBOLTABLE_VARIABLES(INFO_CURSCOPE(arg_info))++;
             if (SYMBOLTABLE_PARENT(INFO_CURSCOPE(arg_info)) == NULL) {
-                SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE) = STRcpy("g");
+                SYMBOLTABLEENTRY_LOCATION(varDefSTE) = LOC_global;
             }
         }
         // And register a reference to the declaration node
@@ -203,9 +201,7 @@ node *SAid(node * arg_node, info * arg_info) {
             // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
             SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
-            if (SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE)) {
-                SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(localSTE) = STRcpy(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE));
-            }
+            SYMBOLTABLEENTRY_LOCATION(localSTE) = SYMBOLTABLEENTRY_LOCATION(varDefSTE);
 
             varDefSTE = localSTE;
         }
@@ -241,14 +237,14 @@ node *SAfuncall(node *arg_node, info *arg_info) {
 
         TRAVopt(FUNCALL_EXPRS(arg_node), arg_info);
 
-        DBUG_PRINT("SA", ("Performing param-count check..."));
+        DBUG_PRINT("SA", ("Performing param and expression count check..."));
         int exprCount = 0;
         node *exprs = FUNCALL_EXPRS(arg_node);
         while (exprs) {
             exprCount++;
             exprs = EXPRS_NEXT(exprs);
         }
-        DBUG_PRINT("SA", ("Parameters counted."));
+        DBUG_PRINT("SA", ("Expressions counted, counting parameters."));
         node *funHeader = FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(funDefSTE));
         int paramCount = 0;
         node *params = FUNHEADER_PARAMS(funHeader);
