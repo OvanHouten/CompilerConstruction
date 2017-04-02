@@ -68,7 +68,7 @@ FunDef <- STE <- FunDef
 FunDef <- STE <- FunCall
    +-------^
 
-The SymbolTable and the SymbolTableEntries has been extended with extra information. SymbolTableEntries have a type attribute. Currrently we have VarDef, VarUsage, FunDef and Const as type. The later will be used to store constants found throughout the assembly code generation.
+The SymbolTable and the SymbolTableEntries has been extended with extra information. SymbolTableEntries have a type attribute. Currrently we have VarDef, VarUsage, FunDef as type.
 
 === COMBINING VARDEF, GLOBALDEC, GLOBALDEF, PARAM NODES ===
 What seemed like a good decision for the FUNDEF and FUNDEC nodes also applies to all forms of variabel declarations, wheter it be global, local or parameter declarations. So at first we switched to using a single VARDEF node that is capable of handling all the variation.
@@ -87,7 +87,12 @@ All for-loops are transformed into while loops. As part of this transformation t
 
 === OPTIMIZATIONS ===
 We have a compiler phase that is handles optimizations. The compiler performs the optimizations at most 10 times (currenlty hardcoded) or if no optimization was triggered.
-Currently we have 1 optimization. Constants that are being used by a unary operator are replaced by constants with the 'deduced' value.
+These are the optimizations the compiler supports:
+* Constants that are being used by a unary operator are replaced by constants with the 'deduced' value.
+* Unary operators that are being used on constant values are replaced with the 'deduced' value.
+* Binary operators action on two constants are reduced to the deduced value.
+* Ternary operation are reduced to the remaining part when the condition is a boolean constant.
+* Incrementing and decrementing integer variables with constants are replaced with a shortcut += or -= operation.
 
 === GENERATE BYTE CODE ===
 During the generation of the byte code (assemly) the most efficient opcode is used. This behaviour can not be disabled.
