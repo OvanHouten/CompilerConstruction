@@ -341,7 +341,7 @@
                 </targets>
             </type>
         </attribute>
-        <attribute name="Decl">
+        <attribute name="DefNode">
             <description>The original declaration node</description>
             <type name="Link">
                 <targets>

@@ -85,7 +85,7 @@ node *GIprogram(node *arg_node, info *arg_info) {
                 SYMBOLTABLEENTRY_ENTRYTYPE(symbolTableEntry) = STE_varusage;
                 SYMBOLTABLEENTRY_TYPE(symbolTableEntry) = VARDEF_TYPE(varDef);
                 SYMBOLTABLEENTRY_NAME(symbolTableEntry) = STRcpy(VARDEF_NAME(varDef));
-                SYMBOLTABLEENTRY_DECL(symbolTableEntry) = varDef;
+                SYMBOLTABLEENTRY_DEFNODE(symbolTableEntry) = varDef;
 
                 // By design the global variables will be at distance 1 from the calling '__init' function.
                 SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry) = 1;
@@ -104,7 +104,7 @@ node *GIprogram(node *arg_node, info *arg_info) {
         node *symbolTable = PROGRAM_SYMBOLTABLE(arg_node);
         SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable) = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable));
         SYMBOLTABLEENTRY_ENTRYTYPE(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = STE_fundef;
-        SYMBOLTABLEENTRY_DECL(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = initMethod;
+        SYMBOLTABLEENTRY_DEFNODE(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = initMethod;
         SYMBOLTABLEENTRY_NAME(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = STRcpy("__init");
         SYMBOLTABLEENTRY_TYPE(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = TY_void;
     } else {

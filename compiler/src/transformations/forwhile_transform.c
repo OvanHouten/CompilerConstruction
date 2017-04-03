@@ -111,13 +111,13 @@ node* FWTfor(node* arg_node, info* arg_info) {
     // And store them in the SymbolTable and
     VARDEF_DECL(stepVarDef) = registerWithinCurrentScope(symbolTable, stepVarDef, ID_NAME(stepVar), STE_vardef, TY_int);
     SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(stepVarDef)) = SYMBOLTABLE_VARIABLES(symbolTable)++;
-    SYMBOLTABLEENTRY_DECL(VARDEF_DECL(stepVarDef)) = stepVarDef;
+    SYMBOLTABLEENTRY_DEFNODE(VARDEF_DECL(stepVarDef)) = stepVarDef;
     // Link from the variable to the VarDef
     ID_DECL(stepVar) = VARDEF_DECL(stepVarDef);
 
     VARDEF_DECL(finishVarDef) = registerWithinCurrentScope(symbolTable, finishVarDef, ID_NAME(finishVar), STE_vardef, TY_int);
     SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(finishVarDef)) = SYMBOLTABLE_VARIABLES(symbolTable)++;
-    SYMBOLTABLEENTRY_DECL(VARDEF_DECL(finishVarDef)) = finishVarDef;
+    SYMBOLTABLEENTRY_DEFNODE(VARDEF_DECL(finishVarDef)) = finishVarDef;
     // Link from the variable to the VarDef
     ID_DECL(finishVar) = VARDEF_DECL(finishVarDef);
 

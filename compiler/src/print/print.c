@@ -126,7 +126,7 @@ node *PRTsymboltableentry (node * arg_node, info * arg_info) {
         if (SYMBOLTABLEENTRY_ENTRYTYPE(arg_node) == STE_fundef) {
             printf(" * %d  - %-7s %s()\n", SYMBOLTABLEENTRY_DISTANCE(arg_node), typeToString(SYMBOLTABLEENTRY_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(arg_node));
         } else {
-            if (!VARDEF_EXTERN(SYMBOLTABLEENTRY_DECL(arg_node))) {
+            if (!VARDEF_EXTERN(SYMBOLTABLEENTRY_DEFNODE(arg_node))) {
                 printf(" * %d %2d %-7s %s\n", SYMBOLTABLEENTRY_DISTANCE(arg_node), SYMBOLTABLEENTRY_OFFSET(arg_node), typeToString(SYMBOLTABLEENTRY_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(arg_node));
             }
         }

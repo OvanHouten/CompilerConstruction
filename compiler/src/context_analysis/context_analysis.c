@@ -104,7 +104,7 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
         }
         // Make sure we have a reference at hand to the STE
         FUNDEF_DECL(funDef) = funDefSTE;
-        SYMBOLTABLEENTRY_DECL(funDefSTE) = funDef;
+        SYMBOLTABLEENTRY_DEFNODE(funDefSTE) = funDef;
         DBUG_PRINT("SA", ("Registered function [%s] at offset [%d].", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
     }
 
@@ -177,7 +177,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
             }
         }
         // And register a reference to the declaration node
-        SYMBOLTABLEENTRY_DECL(varDefSTE) = arg_node;
+        SYMBOLTABLEENTRY_DEFNODE(varDefSTE) = arg_node;
 	}
     // Make sure we have a reference at hand to the STE
     VARDEF_DECL(arg_node) = varDefSTE;
@@ -202,7 +202,7 @@ node *SAid(node * arg_node, info * arg_info) {
             // Defined in a outer scope, create new STE in current scope
             node* localSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, ID_NAME(arg_node), STE_varusage, SYMBOLTABLEENTRY_TYPE(varDefSTE));
             // And link to the original declaration
-            SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(varDefSTE);
+            SYMBOLTABLEENTRY_DEFNODE(localSTE) = SYMBOLTABLEENTRY_DEFNODE(varDefSTE);
             // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
             SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
@@ -231,7 +231,7 @@ node *SAfuncall(node *arg_node, info *arg_info) {
             DBUG_PRINT("SA", ("Function defined in outer scope registering at local ST."));
             // Defined in a outer scope, create new STE in current scope
             node* localSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, name, STE_fundef, SYMBOLTABLEENTRY_TYPE(funDefSTE));
-            SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(funDefSTE);
+            SYMBOLTABLEENTRY_DEFNODE(localSTE) = SYMBOLTABLEENTRY_DEFNODE(funDefSTE);
             // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(funDefSTE);
             SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
@@ -250,7 +250,7 @@ node *SAfuncall(node *arg_node, info *arg_info) {
             exprs = EXPRS_NEXT(exprs);
         }
         DBUG_PRINT("SA", ("Expressions counted, counting parameters."));
-        node *funHeader = FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(funDefSTE));
+        node *funHeader = FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DEFNODE(funDefSTE));
         int paramCount = 0;
         node *params = FUNHEADER_PARAMS(funHeader);
         while (params) {
@@ -324,7 +324,7 @@ node *SAfor(node *arg_node, info *arg_info) {
         // Register the variable, now all occurrences of our vardef name will get a STE entry to us
         node *forVarEntry = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), varDef, name, STE_vardef, TY_int);
         VARDEF_DECL(varDef) = forVarEntry;
-        SYMBOLTABLEENTRY_DECL(forVarEntry) = varDef;
+        SYMBOLTABLEENTRY_DEFNODE(forVarEntry) = varDef;
         SYMBOLTABLEENTRY_OFFSET(forVarEntry) = SYMBOLTABLE_VARIABLES(INFO_CURSCOPE(arg_info))++;
         // Process the block
         DBUG_PRINT("SA", ("Processing the block."));
