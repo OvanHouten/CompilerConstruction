@@ -96,6 +96,9 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
             funDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), funDef, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
             if (FUNDEF_EXTERN(funDef)) {
                 SYMBOLTABLEENTRY_OFFSET(funDefSTE) = INFO_EXTERNALFUNS(arg_info)++;
+                SYMBOLTABLEENTRY_LOCATION(funDefSTE) = LOC_extern;
+            } else {
+                SYMBOLTABLEENTRY_LOCATION(funDefSTE) = LOC_global;
             }
 
         }
@@ -158,9 +161,11 @@ node *SAvardef(node *arg_node, info *arg_info) {
             CTIerror("Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
                     name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
         } else {
+            // Declared at outer scope, register at local scope.
             varDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, name, STE_varusage, VARDEF_TYPE(arg_node));
         }
 	} else {
+	    // Never seen this variable, register it
         varDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, name, STE_vardef, VARDEF_TYPE(arg_node));
         if (VARDEF_EXTERN(arg_node)) {
             SYMBOLTABLEENTRY_OFFSET(varDefSTE) = INFO_EXTERNALVARS(arg_info)++;
