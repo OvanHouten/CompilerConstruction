@@ -1,0 +1,59 @@
+extern void printInt(int val);
+extern void printFloat(float val);
+
+extern int scanInt();
+extern float scanFloat();
+
+extern void printSpaces(int num);
+extern void printNewlines(int num);
+
+bool isPrime(int primeCandidate) {
+    int divider = 2;
+    bool isPrime = true;
+
+    while (isPrime && divider * divider <= primeCandidate) {
+        if (primeCandidate % divider == 0) {
+            isPrime = false;
+        }
+        divider = divider + 1;
+    }
+
+    return isPrime;
+}
+
+int primes(int numberOfPrimes) {
+    int primeCandidate = 1;
+    int lastPrime = 0;
+    while (numberOfPrimes > 0) {
+        if (isPrime(primeCandidate)) {
+            printInt(primeCandidate);
+            printNewlines(1);
+            lastPrime = primeCandidate;
+            numberOfPrimes = numberOfPrimes - 1;
+        }
+        primeCandidate = primeCandidate + 1;
+    }
+    return lastPrime;
+}
+
+export int main() {
+    // Prints the specified first primesfollowed by a line that starts with the last printed prime
+    // and the expected last prima separated by a space.
+
+    printInt(primes(1));
+    printSpaces(1);
+    printInt(1);
+    printNewlines(2);
+
+    printInt(primes(2));
+    printSpaces(1);
+    printInt(2);
+    printNewlines(2);
+
+    printInt(primes(10));
+    printSpaces(1);
+    printInt(23);
+    printNewlines(2);
+
+    return 0;
+}

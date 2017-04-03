@@ -18,10 +18,11 @@
     <type name="Float" ctype="float" init="0.0" copy="literal" />
     <type name="BinOp" ctype="binop" init="BO_unknown" copy="literal" />
     <type name="UnOp" ctype="unop" init="UO_unknown" copy="literal" />
+    <type name="CompOp" ctype="cop" init="CO_unknown" copy="literal" />
     <type name="Type" ctype="type" init="TY_unknown" copy="literal" />
     <type name="EntryType" ctype="ste_type" init="STE_vardef" copy="literal" />
+    <type name="Location" ctype="location" init="LOC_local" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
-    <type name="Void" ctype="void*" init="NULL" copy="lookup" /> <!-- Not sure this is how we want it, but for now it works. -->
     <type name="CompilerPhase" ctype="compiler_phase_t" init="PH_initial" copy="literal" />
   </attributetypes>
 
@@ -55,7 +56,22 @@
         </travuser>
       </traversal>
       
-      <traversal id="SA" name="Context Analysis" default="user" include="context_analysis.h" />
+      <traversal id="SA" name="Context Analysis" default="sons" include="context_analysis.h" >
+        <travuser>
+          <node name="Program" />
+          <node name="Declarations" />
+          <node name="FunDef" />
+          <node name="VarDef" />
+          <node name="Id" />
+          <node name="Funcall" />
+          <node name="Assign" />
+          <node name="For" />
+          <node name="Statements" /> <!-- Only needed because we need to traverse in a different order then the framework uses as default -->
+          <node name="Exprs" />      <!-- Only needed because we need to traverse in a different order then the framework uses as default -->
+          <node name="VarDecs" />    <!-- Only needed because we need to traverse in a different order then the framework uses as default -->
+          <node name="Params" />     <!-- Only needed because we need to traverse in a different order then the framework uses as default -->
+        </travuser>
+      </traversal>
 
        <traversal id="TC" name="Type Check" default="sons" include="type_check.h">
         <travuser>
@@ -66,13 +82,18 @@
           <node name="BinOp" />
           <node name="FunDef" />
           <node name="Funcall" />
-          <node name="FunBody" />
           <node name="Return" />
           <node name="Do" />
           <node name="While" />
           <node name="For" />
         </travuser>
       </traversal>
+
+     <traversal id="RC" name="Return Check" default="sons" include="return_check.h">
+       <travuser>
+         <node name="FunDef" />
+       </travuser>
+     </traversal>
 
       <traversal id="SV" name="Split VarDefs" default="sons" include="split_vardefs.h">
         <travuser>
@@ -107,6 +128,11 @@
       <traversal id="OP" name="Optimisations" default="sons" include="op_wrapper.h">
         <travuser>
           <node name="UnOp" />
+          <node name="BinOp" />
+          <node name="Assign" />
+          <node name="Statements" />
+          <node name="If" />
+          <node name="TernOp" />
         </travuser>
       </traversal>
 
@@ -124,6 +150,7 @@
             <node name="While" />
             <node name="Do" />
             <node name="Assign" />
+            <node name="CompOp" />
             <node name="Id" />
             <node name="UnOp" />
             <node name="Typecast" />
@@ -152,12 +179,14 @@
   	<nodeset name="Statement">
       <target>
         <node name="Assign" />
+        <node name="CompOp" />
         <node name="Funcall"/>
         <node name="If" />
         <node name="While" />
         <node name="Do" />
         <node name="For" />
         <node name="Return" />
+        <node name="Nop" />
       </target>
     </nodeset>
         
@@ -332,9 +361,9 @@
                 </targets>
             </type>
         </attribute>
-        <attribute name="AssemblerPostfix">
+        <attribute name="Location">
             <description>Postfix for store and load instructions</description>
-            <type name="String">
+            <type name="Location">
                 <targets>
                     <target mandatory="no">
                         <phases>
@@ -435,6 +464,12 @@
       </attributes>
     </node>
 
+<!--
+ Node Nop:
+-->
+     <node name="Nop">
+      <description>Represents a nop instruction, handy for reducing optimisations</description>
+    </node>
 <!--
  Node FunDef:
 -->
@@ -898,6 +933,51 @@
     </node>
 
 <!--
+ Node IncDec:
+-->
+     <node name="CompOp">
+      <description>Represents compound assign inc/dec statement</description>
+      <sons>
+        <son name="Id">
+          <description>Represents the variable to be increased/decreased</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Id" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Const">
+          <description>Represents the value the variabe needs to be increased/decrease by</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="IntConst" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <attribute name="Op">
+          <description>Represents the operation</description>
+          <type name="CompOp">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
+    </node>
+
+<!--
  Node If:
 -->
      <node name="If">
@@ -1310,18 +1390,6 @@
                   <all />
                 </phases>
                </target>
-            </targets>
-          </type>
-        </attribute>
-        <attribute name="Type">
-          <description>The datatype of the variable</description>
-          <type name="Type">
-            <targets>
-              <target mandatory="yes">
-                <phases>
-                  <phase from="Context Analysis"/>
-                </phases>
-              </target>
             </targets>
           </type>
         </attribute>

@@ -134,7 +134,13 @@ node *PRTsymboltableentry (node * arg_node, info * arg_info) {
 	DBUG_RETURN (arg_node);
 }
 
-node *PRTdeclarations(node* arg_node, info* arg_info) {
+node *PRTnop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("PRTnop");
+
+    DBUG_RETURN(arg_node);
+}
+
+node *PRTdeclarations(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTdeclarations");
 
 	TRAVopt(DECLARATIONS_NEXT(arg_node), arg_info);
@@ -256,6 +262,7 @@ node *PRTstatements(node* arg_node, info* arg_info) {
 	switch (NODE_TYPE(STATEMENTS_STATEMENT(arg_node))) {
 	case N_assign:
 	case N_funcall:
+	case N_compop:
 	    printf(";\n");
 	    INDENT_AT_NEWLINE(arg_info);
 	    break;
@@ -277,7 +284,22 @@ node *PRTassign (node* arg_node, info* arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTtypecast(node* arg_node, info* arg_info) {
+node *PRTcompop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("PRTcompop");
+
+    INDENT(arg_info);
+    TRAVdo(COMPOP_ID( arg_node), arg_info);
+    if (COMPOP_OP(arg_node) == CO_inc) {
+        printf( " += ");
+    } else if (COMPOP_OP(arg_node) == CO_dec) {
+        printf( " -= ");
+    }
+    TRAVdo(COMPOP_CONST( arg_node), arg_info);
+
+    DBUG_RETURN(arg_node);
+}
+
+node *PRTtypecast(node * arg_node, info * arg_info) {
 	DBUG_ENTER("PRTtypecast");
 
 	printf("(%s)", typeToString(TYPECAST_TYPE(arg_node)));

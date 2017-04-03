@@ -37,6 +37,8 @@ SUBPHASE(sa, "Scope Analysis", SAdoScopeAnalysis, NEVER, ca)
 
 SUBPHASE(tc, "Type Check", TCdoTypeCheck, NEVER, ca)
 
+SUBPHASE(rc, "Return Check", RCdoReturnCheck, ALWAYS, ca)
+
 ENDPHASE(ca)
 
 /******************************************************************************/

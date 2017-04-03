@@ -13,10 +13,8 @@
 // Used for grouping the pseudo codes at the bottom of the assembly program
 typedef enum { PP_global, PP_vardef, PP_fundef, PP_none} pseudo_phase;
 
-#define STR(n) ((n) == NULL ? "" : n)
-
 // DO NOT CHANGE THIS NAME TO 'CONSTANTS' OR 'CONSTANT'!!
-// Apparently the framework already as a struct with that name. Using one of those
+// Apparently the framework already has a struct with that name. Using one of those
 // names leads to very strange behavior and memory (de)allocation errors!
 typedef struct CONSTANT_POOL {
     type type;
@@ -93,6 +91,20 @@ void printParamTypes(node *params) {
     }
 }
 
+char *encodeLocation(location loc) {
+    switch (loc) {
+        case LOC_extern:
+            return "e";
+            break;
+        case LOC_global:
+            return "g";
+            break;
+        default:
+            return "";
+            break;
+    }
+}
+
 char *encodeType(type ypeToEncode, int lineNr) {
     char *typeId = "<BOGUS-T>";
     switch (ypeToEncode) {
@@ -161,6 +173,17 @@ char *encodeOperator(binop op, int lineNr) {
     return operator;
 }
 
+char *encodeCompOp(cop op, int lineNr) {
+    if (op == CO_inc) {
+        return "inc";
+    } else if (op == CO_dec) {
+        return "dec";
+    } else {
+        CTIerror("A unknown compound operation instruction was introduced for line %d.", lineNr);
+        return "<BOGUS-C>";
+    }
+}
+
 void prepareExpressions(node *exprs, info *info, int *expressionCount) {
 
     if (exprs) {
@@ -217,7 +240,7 @@ node *GBCprogram(node *arg_node, info *arg_info) {
     INFO_PSEUDOPHASE(arg_info) = PP_vardef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
 
-    fprintf(outfile, "\n; Import/export funcation\n");
+    fprintf(outfile, "\n; Import/export functions\n");
     INFO_PSEUDOPHASE(arg_info) = PP_fundef;
     TRAVopt(PROGRAM_SYMBOLTABLE(arg_node), arg_info);
 
@@ -354,20 +377,34 @@ node *GBCif(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCif");
 
     fprintf(outfile, "; Line %d\n", NODE_LINE(arg_node));
-    int ifCount = INFO_IFCOUNT(arg_info)++;
-    // TODO Optimize for empty if-block
-    TRAVdo(IF_CONDITION(arg_node), arg_info);
-    if (IF_ELSEBLOCK(arg_node)) {
-        fprintf(outfile, "    branch_f _if_else_%d\n", ifCount);
-        TRAVopt(IF_IFBLOCK(arg_node), arg_info);
-        fprintf(outfile, "    jump _if_end_%d\n", ifCount);
-        fprintf(outfile, "_if_else_%d:\n", ifCount);
-        TRAVdo(IF_ELSEBLOCK(arg_node), arg_info);
+    if (IF_IFBLOCK(arg_node) || IF_ELSEBLOCK(arg_node)) {
+        int ifCount = INFO_IFCOUNT(arg_info)++;
+        TRAVdo(IF_CONDITION(arg_node), arg_info);
+
+        if (IF_IFBLOCK(arg_node)) {
+            // There is a then block now check if there is a else block, if not we can use less labels
+            if (IF_ELSEBLOCK(arg_node)) {
+                fprintf(outfile, "    branch_f _if_else_%d\n", ifCount);
+                TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+                fprintf(outfile, "    jump _if_end_%d\n", ifCount);
+                fprintf(outfile, "_if_else_%d:\n", ifCount);
+                TRAVdo(IF_ELSEBLOCK(arg_node), arg_info);
+            } else {
+                fprintf(outfile, "    branch_f _if_end_%d\n", ifCount);
+                TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+                fprintf(outfile, "; Empty else suppressed\n");
+            }
+        } else {
+            // There is no then block, only a else block
+            fprintf(outfile, "    branch_t _if_end_%d\n", ifCount);
+            fprintf(outfile, "; Empty if suppressed\n");
+            TRAVdo(IF_ELSEBLOCK(arg_node), arg_info);
+        }
+
+        fprintf(outfile, "_if_end_%d:\n", ifCount);
     } else {
-        fprintf(outfile, "    branch_f _if_end_%d\n", ifCount);
-        TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+        fprintf(outfile, "; Empty if-else suppressed\n");
     }
-    fprintf(outfile, "_if_end_%d:\n", ifCount);
 
     DBUG_RETURN(arg_node);
 }
@@ -438,10 +475,33 @@ node *GBCassign(node *arg_node, info *arg_info) {
     int distance = SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry);
     int offset = SYMBOLTABLEENTRY_OFFSET(symbolTableEntry);
 
-    if (distance == 0 || SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
-        fprintf(outfile, "    %sstore%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
+    if (distance == 0 || SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef)) != LOC_local) {
+        fprintf(outfile, "    %sstore%s %d\n", dataType, encodeLocation(SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef))), offset);
     } else {
         fprintf(outfile, "; Assigning to relative free variables is not yet supported.\n");
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *GBCcompop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCcompop");
+
+    if (INTCONST_VALUE(COMPOP_CONST(arg_node)) == 1) {
+        fprintf(outfile, "    i%s_1 %d\t\t\t; optimized\n", encodeCompOp(COMPOP_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(COMPOP_ID(arg_node))));
+    } else {
+        constantPool *constant = INFO_CONSTANTS(arg_info);
+        while (constant != NULL) {
+            if (constant->type == TY_int && constant->intVal == INTCONST_VALUE(COMPOP_CONST(arg_node))) {
+                break;
+            }
+            constant = constant->next;
+        }
+        if (constant == NULL) {
+            constant = registerNewConstant(arg_info, TY_int);
+            constant->intVal = INTCONST_VALUE(COMPOP_CONST(arg_node));
+        }
+        fprintf(outfile, "    i%s %d %d\t\t\t; optimized\n", encodeCompOp(COMPOP_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(COMPOP_ID(arg_node))), constant->offset);
     }
 
     DBUG_RETURN(arg_node);
@@ -464,8 +524,8 @@ node *GBCid(node *arg_node, info *arg_info) {
         } else {
             fprintf(outfile, "    %sload %d\n", dataType, offset);
         }
-    } else if (SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
-        fprintf(outfile, "    %sload%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
+    } else if (SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef)) != LOC_local) {
+        fprintf(outfile, "    %sload%s %d\n", dataType, encodeLocation(SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef))), offset);
     } else {
         fprintf(outfile, "; Using relative free variables is not yet supported.\n");
     }
@@ -476,7 +536,6 @@ node *GBCid(node *arg_node, info *arg_info) {
 node *GBCunop(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCunop");
 
-    // TODO check if the ternary operator replaces boolean typecasts.
     TRAVdo(UNOP_EXPR(arg_node), arg_info);
     fprintf(outfile, "    %s%s\n", encodeType(determineType(arg_node), NODE_LINE(arg_node)), UNOP_OP(arg_node) == UO_not ? "not" : "neg");
 

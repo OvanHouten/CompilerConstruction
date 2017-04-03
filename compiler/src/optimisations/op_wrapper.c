@@ -14,6 +14,8 @@
 #include "str.h"
 #include "ctinfo.h"
 #include "myglobals.h"
+#include "copy.h"
+#include "free_node.h"
 
 #include "op_wrapper.h"
 
@@ -84,6 +86,249 @@ node *OPunop(node *arg_node, info *arg_info) {
         arg_node = MEMfree(arg_node);
         arg_node = optimzedNode;
         DBUG_PRINT("OP", ("Optimization activated."));
+
+        INFO_KEEPOPTIMIZING(arg_info) = TRUE;
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *OPbinop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("OPbinop");
+
+    // First try left and right, who knows...
+    BINOP_LEFT(arg_node) = TRAVdo(BINOP_LEFT(arg_node), arg_info);
+    BINOP_RIGHT(arg_node) = TRAVdo(BINOP_RIGHT(arg_node), arg_info);
+
+    node *folded = NULL;
+    if (NODE_TYPE(BINOP_LEFT(arg_node)) == N_intconst && NODE_TYPE(BINOP_RIGHT(arg_node)) == N_intconst) {
+        DBUG_PRINT("OP", ("Potential int binop for folding."));
+        switch (BINOP_OP(arg_node)) {
+            case BO_add:
+                folded = TBmakeIntconst(TY_int, INTCONST_VALUE(BINOP_LEFT(arg_node)) + INTCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_sub:
+                folded = TBmakeIntconst(TY_int, INTCONST_VALUE(BINOP_LEFT(arg_node)) - INTCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_mul:
+                folded = TBmakeIntconst(TY_int, INTCONST_VALUE(BINOP_LEFT(arg_node)) * INTCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_div:
+                if (INTCONST_VALUE(BINOP_RIGHT(arg_node)) != 0) {
+                    folded = TBmakeIntconst(TY_int, INTCONST_VALUE(BINOP_LEFT(arg_node)) / INTCONST_VALUE(BINOP_RIGHT(arg_node)));
+                }
+                break;
+            case BO_mod:
+                folded = TBmakeIntconst(TY_int, INTCONST_VALUE(BINOP_LEFT(arg_node)) % INTCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_lt:
+                folded = TBmakeBoolconst(TY_bool, INTCONST_VALUE(BINOP_LEFT(arg_node)) < INTCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_le:
+                folded = TBmakeBoolconst(TY_bool, INTCONST_VALUE(BINOP_LEFT(arg_node)) <= INTCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_eq:
+                folded = TBmakeBoolconst(TY_bool, INTCONST_VALUE(BINOP_LEFT(arg_node)) == INTCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_ne:
+                folded = TBmakeBoolconst(TY_bool, INTCONST_VALUE(BINOP_LEFT(arg_node)) != INTCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_ge:
+                folded = TBmakeBoolconst(TY_bool, INTCONST_VALUE(BINOP_LEFT(arg_node)) >= INTCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_gt:
+                folded = TBmakeBoolconst(TY_bool, INTCONST_VALUE(BINOP_LEFT(arg_node)) > INTCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            default:
+                DBUG_PRINT("OP", ("Unable to fold int binop [%d].", BINOP_OP(arg_node)));
+        }
+    } else if (NODE_TYPE(BINOP_LEFT(arg_node)) == N_floatconst && NODE_TYPE(BINOP_RIGHT(arg_node)) == N_floatconst) {
+        DBUG_PRINT("OP", ("Potential float binop for folding."));
+        switch (BINOP_OP(arg_node)) {
+            case BO_add:
+                folded = TBmakeFloatconst(TY_float, FLOATCONST_VALUE(BINOP_LEFT(arg_node)) + FLOATCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_sub:
+                folded = TBmakeFloatconst(TY_float, FLOATCONST_VALUE(BINOP_LEFT(arg_node)) - FLOATCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_mul:
+                folded = TBmakeFloatconst(TY_float, FLOATCONST_VALUE(BINOP_LEFT(arg_node)) * FLOATCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_div:
+                if (FLOATCONST_VALUE(BINOP_RIGHT(arg_node)) != 0.0) {
+                    folded = TBmakeFloatconst(TY_float, FLOATCONST_VALUE(BINOP_LEFT(arg_node)) / FLOATCONST_VALUE(BINOP_RIGHT(arg_node)));
+                }
+                break;
+            case BO_lt:
+                folded = TBmakeBoolconst(TY_bool, FLOATCONST_VALUE(BINOP_LEFT(arg_node)) < FLOATCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_le:
+                folded = TBmakeBoolconst(TY_bool, FLOATCONST_VALUE(BINOP_LEFT(arg_node)) <= FLOATCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_eq:
+                folded = TBmakeBoolconst(TY_bool, FLOATCONST_VALUE(BINOP_LEFT(arg_node)) == FLOATCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_ne:
+                folded = TBmakeBoolconst(TY_bool, FLOATCONST_VALUE(BINOP_LEFT(arg_node)) != FLOATCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_ge:
+                folded = TBmakeBoolconst(TY_bool, FLOATCONST_VALUE(BINOP_LEFT(arg_node)) >= FLOATCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_gt:
+                folded = TBmakeBoolconst(TY_bool, FLOATCONST_VALUE(BINOP_LEFT(arg_node)) > FLOATCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            default:
+                DBUG_PRINT("OP", ("Unable to fold float binop [%d].", BINOP_OP(arg_node)));
+        }
+    } else if (NODE_TYPE(BINOP_LEFT(arg_node)) == N_boolconst && NODE_TYPE(BINOP_RIGHT(arg_node)) == N_boolconst) {
+        DBUG_PRINT("OP", ("Potential bool binop for folding."));
+        switch (BINOP_OP(arg_node)) {
+            case BO_mul:
+            case BO_and:
+                folded = TBmakeBoolconst(TY_bool, BOOLCONST_VALUE(BINOP_LEFT(arg_node)) & BOOLCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_add:
+            case BO_or:
+                folded = TBmakeBoolconst(TY_bool, BOOLCONST_VALUE(BINOP_LEFT(arg_node)) | BOOLCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_eq:
+                folded = TBmakeBoolconst(TY_bool, BOOLCONST_VALUE(BINOP_LEFT(arg_node)) == BOOLCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            case BO_ne:
+                folded = TBmakeBoolconst(TY_bool, BOOLCONST_VALUE(BINOP_LEFT(arg_node)) != BOOLCONST_VALUE(BINOP_RIGHT(arg_node)));
+                break;
+            default:
+                DBUG_PRINT("OP", ("Unable to fold bool binop [%d].", BINOP_OP(arg_node)));
+        }
+    }
+    if (folded) {
+        NODE_LINE(folded) = NODE_LINE(arg_node);
+        NODE_COL(folded) = NODE_COL(arg_node);
+        arg_node = FREEbinop(arg_node, arg_info);
+        arg_node = folded;
+        INFO_KEEPOPTIMIZING(arg_info) = TRUE;
+        DBUG_PRINT("OP", ("Folded :-)"));
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+bool areSameVars(node *left, node *right) {
+    return ID_DECL(left) == ID_DECL(right);
+}
+node *OPassign(node *arg_node, info *arg_info) {
+    DBUG_ENTER("OPassign");
+
+    // Lets try to optimize the expression first
+    ASSIGN_EXPR(arg_node) = TRAVdo(ASSIGN_EXPR(arg_node), arg_info);
+
+    node *compoundOp = NULL;
+    // Detecting 'var = var + const' and 'var = var - const' kind of operations
+    if (NODE_TYPE(ASSIGN_EXPR(arg_node)) == N_binop && NODE_TYPE(BINOP_LEFT(ASSIGN_EXPR(arg_node))) == N_id && NODE_TYPE(BINOP_RIGHT(ASSIGN_EXPR(arg_node))) == N_intconst) {
+        if (areSameVars(ASSIGN_LET(arg_node), BINOP_LEFT(ASSIGN_EXPR(arg_node)))) {
+            DBUG_PRINT("OP", ("Found a potential INC/DEC optimization candidate."));
+            if (BINOP_OP(ASSIGN_EXPR(arg_node)) == BO_add) {
+                compoundOp = TBmakeCompop(CO_inc, COPYdoCopy(BINOP_LEFT(ASSIGN_EXPR(arg_node))), COPYdoCopy(BINOP_RIGHT(ASSIGN_EXPR(arg_node))));
+            } else if (BINOP_OP(ASSIGN_EXPR(arg_node)) == BO_sub) {
+                compoundOp = TBmakeCompop(CO_dec, COPYdoCopy(BINOP_LEFT(ASSIGN_EXPR(arg_node))), COPYdoCopy(BINOP_RIGHT(ASSIGN_EXPR(arg_node))));
+            }
+        }
+    }
+    if (compoundOp) {
+        DBUG_PRINT("OP", ("Optimized a 'var = var +/- const' statement."));
+        NODE_LINE(compoundOp) = NODE_LINE(arg_node);
+        NODE_COL(compoundOp) = NODE_COL(arg_node);
+        arg_node = FREEassign(arg_node, arg_info);
+        arg_node = compoundOp;
+        INFO_KEEPOPTIMIZING(arg_info) = TRUE;
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *OPstatements(node *arg_node, info *arg_info) {
+    DBUG_ENTER("OPstatements");
+
+    STATEMENTS_NEXT(arg_node) = TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
+    STATEMENTS_STATEMENT(arg_node) = TRAVopt(STATEMENTS_STATEMENT(arg_node), arg_info);
+
+    if (NODE_TYPE(STATEMENTS_STATEMENT(arg_node)) == N_if) {
+        node *reducedIf = TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
+        // If the if statement is reduced we either get a list of statements back or a single statement.
+        // If we get a single statement it will replace the current if-else statement.
+        // If we get a list of statements they will be inserted in the current surrounding statements.
+        if (NODE_TYPE(reducedIf) == N_statements) {
+            // Replace the original if-else statement with a NOP statement
+            // This relieves us from a whole bunch of tricky list handling code :-)
+            STATEMENTS_STATEMENT(arg_node) = TBmakeNop();
+
+            DBUG_PRINT("OP", ("Inserting remaining code into the surrounding code"));
+            node *firstStatement = reducedIf;
+            while (STATEMENTS_NEXT(firstStatement)) {
+                firstStatement = STATEMENTS_NEXT(firstStatement);
+            }
+
+            STATEMENTS_NEXT(firstStatement) = STATEMENTS_NEXT(arg_node);
+            STATEMENTS_NEXT(arg_node) = reducedIf;
+        } else {
+            STATEMENTS_STATEMENT(arg_node) = reducedIf;
+        }
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *OPif(node *arg_node, info *arg_info) {
+    DBUG_ENTER("OPif");
+
+    IF_CONDITION(arg_node) = TRAVdo(IF_CONDITION(arg_node), arg_info);
+    IF_IFBLOCK(arg_node) = TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+    IF_ELSEBLOCK(arg_node) = TRAVopt(IF_ELSEBLOCK(arg_node), arg_info);
+
+    if (NODE_TYPE(IF_CONDITION(arg_node)) == N_boolconst) {
+        DBUG_PRINT("OP", ("Reducing a if-else statement."));
+
+        node *remainingBlock = NULL;
+        if (BOOLCONST_VALUE(IF_CONDITION(arg_node))) {
+            remainingBlock = IF_IFBLOCK(arg_node);
+            IF_IFBLOCK(arg_node) = NULL;
+        } else {
+            remainingBlock = IF_ELSEBLOCK(arg_node);
+            IF_ELSEBLOCK(arg_node) = NULL;
+        }
+
+        if (remainingBlock) {
+            DBUG_PRINT("OP", ("Leaving the active block in place."));
+            remainingBlock = TRAVopt(remainingBlock, arg_info);
+        } else {
+            DBUG_PRINT("OP", ("Nothing left :-)"));
+            // This NOP statement will replace the removed if-else statement
+            remainingBlock = TBmakeNop();
+        }
+
+        arg_node = FREEif(arg_node, arg_info);
+        // Just return the code block, the OPstatements function will insert
+        // the statements into the surrounding code
+        arg_node = remainingBlock;
+
+        INFO_KEEPOPTIMIZING(arg_info) = TRUE;
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *OPternop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("OPternop");
+
+    TERNOP_CONDITION(arg_node) = TRAVdo(TERNOP_CONDITION(arg_node), arg_info);
+    TERNOP_THEN(arg_node) = TRAVdo(TERNOP_THEN(arg_node), arg_info);
+    TERNOP_ELSE(arg_node) = TRAVdo(TERNOP_ELSE(arg_node), arg_info);
+
+    if (NODE_TYPE(TERNOP_CONDITION(arg_node)) == N_boolconst) {
+        DBUG_PRINT("OP", ("Optimizing a ternary operation."));
+        node *remaining = COPYdoCopy(BOOLCONST_VALUE(TERNOP_CONDITION(arg_node)) ? TERNOP_THEN(arg_node) : TERNOP_ELSE(arg_node));
+        arg_node = FREEternop(arg_node, arg_info);
+        arg_node = remaining;
 
         INFO_KEEPOPTIMIZING(arg_info) = TRUE;
     }

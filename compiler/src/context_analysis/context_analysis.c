@@ -87,12 +87,6 @@ node *SAprogram(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *SAsymboltable(node *arg_node, info *arg_info) {
-	DBUG_ENTER("SASymbolTable");
-		
-	DBUG_RETURN(arg_node);
-}
-
 node *SAdeclarations(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAdeclarations");
 
@@ -111,6 +105,9 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
             funDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), funDef, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
             if (FUNDEF_EXTERN(funDef)) {
                 SYMBOLTABLEENTRY_OFFSET(funDefSTE) = INFO_EXTERNALFUNS(arg_info)++;
+                SYMBOLTABLEENTRY_LOCATION(funDefSTE) = LOC_extern;
+            } else {
+                SYMBOLTABLEENTRY_LOCATION(funDefSTE) = LOC_global;
             }
 
         }
@@ -164,29 +161,6 @@ node *SAfundef(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *SAfunheader(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAfunheader");
-
-    DBUG_PRINT("SA", ("Registering the parameters."));
-    TRAVopt(FUNHEADER_PARAMS(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAfunbody(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAfunbody");
-		
-    DBUG_PRINT("SA", ("Processing the VarDecs"));
-    TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
-    DBUG_PRINT("SA", ("Processing the LocalFunDefs."));
-    TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
-    DBUG_PRINT("SA", ("Processing the Statements."));
-    TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
-    DBUG_PRINT("SA", ("Function has been processed."));
-
-    DBUG_RETURN(arg_node);
-}
-
 node *SAvardef(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAvardef");
 	
@@ -223,19 +197,19 @@ node *SAvardef(node *arg_node, info *arg_info) {
             CTIerror("Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
                     name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
         } else {
+            // Declared at outer scope, register at local scope.
             varDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, name, STE_varusage, VARDEF_TYPE(arg_node));
         }
 	} else {
+	    // Never seen this variable, register it
         varDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, name, STE_vardef, VARDEF_TYPE(arg_node));
         if (VARDEF_EXTERN(arg_node)) {
             SYMBOLTABLEENTRY_OFFSET(varDefSTE) = INFO_EXTERNALVARS(arg_info)++;
-            if (SYMBOLTABLE_PARENT(INFO_CURSCOPE(arg_info)) == NULL) {
-                SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE) = STRcpy("e");
-            }
+            SYMBOLTABLEENTRY_LOCATION(varDefSTE) = LOC_extern;
         } else {
             SYMBOLTABLEENTRY_OFFSET(varDefSTE) = SYMBOLTABLE_VARIABLES(INFO_CURSCOPE(arg_info))++;
             if (SYMBOLTABLE_PARENT(INFO_CURSCOPE(arg_info)) == NULL) {
-                SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE) = STRcpy("g");
+                SYMBOLTABLEENTRY_LOCATION(varDefSTE) = LOC_global;
             }
         }
         // And register a reference to the declaration node
@@ -251,80 +225,29 @@ node *SAvardef(node *arg_node, info *arg_info) {
 
 node *SAid(node * arg_node, info * arg_info) {
     DBUG_ENTER("SAid");
-	
-	// If it is an extern id, add it to the start of the list of declarations in the program node
-	if(INFO_EXTERNARRAY(arg_info)) {
-		// check see if var doesnt already exist, eg this is valid:
-		// extern int[n] arr;
-		// extern int[n, m] arr2;
-		node* temp = INFO_VARDEFSCOPE(arg_info);
-		while(DECLARATIONS_NEXT(temp)) {
-			temp = DECLARATIONS_NEXT(temp);
-			if(NODE_TYPE(DECLARATIONS_DECLARATION(temp)) == N_vardef) {
-				if(strcmp(VARDEF_NAME(DECLARATIONS_DECLARATION(temp)), ID_NAME(arg_node)) == 0) {
-					DBUG_RETURN(arg_node);
-				}
-			}
-		}
-		  		
-		node* new_vardef = TBmakeVardef(TRUE, FALSE, STRcpy(ID_NAME(arg_node)), TY_int, NULL, NULL, NULL, NULL);
-		new_vardef = TBmakeDeclarations(new_vardef, NULL);
-		
-		// add it to the start of the list
-		temp = INFO_VARDEFSCOPE(arg_info);
-		while(DECLARATIONS_NEXT(temp)) {
-			temp = DECLARATIONS_NEXT(temp);
-		}
-		DECLARATIONS_NEXT(temp) = new_vardef;
-		TRAVdo(new_vardef, arg_info);
-	}
-	// We ned to create a new vardef in these cases, id is used in an extern or parameter context
-	// This is for arrays
-// 	if(INFO_SIZEIDS(arg_info)) {
-// 		// Used for traversing to outer ST/scopes
-// 		int distance = 0;
-// 		node* varDefSTE = findInAnyScope(INFO_CURSCOPE(arg_info), ID_NAME(arg_node), &distance, STE_vardef);
-// 		if(varDefSTE == NULL) {
-// 			// Create new vardef
-// 			node* new_vardef = TBmakeVardef(FALSE, FALSE, STRcpy(ID_NAME(arg_node)), TY_int, NULL, NULL, NULL, NULL);
-// 			new_vardef = TBmakeParams(new_vardef, NULL);
-// 		
-// 			// add it to the start of the list
-// 			node* temp = INFO_VARDEFSCOPE(arg_info);
-// 			while(PARAMS_NEXT(temp)) {
-// 				printf("PARAMS %s\n", VARDEF_NAME(PARAMS_PARAM(temp)));
-// 				temp = PARAMS_NEXT(temp);
-// 			}
-// 			PARAMS_NEXT(temp) = new_vardef;
-// 			// Traverse new vardef to add it to the symboltable
-// 			TRAVdo(new_vardef, arg_info);
-// 		}
-// 	}
-	else {
-		// Used for traversing to outer ST/scopes
-		int distance = 0;
-		node* varDefSTE = findInAnyScope(INFO_CURSCOPE(arg_info), ID_NAME(arg_node), &distance, STE_vardef);
-		if(varDefSTE == NULL) {
-				CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
-		} else {
-			if(distance > 0) {
-				DBUG_PRINT("SA", ("Defined in outer scope, creating a local STE."));
-				// Defined in a outer scope, create new STE in current scope
-				node* localSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, ID_NAME(arg_node), STE_varusage, SYMBOLTABLEENTRY_TYPE(varDefSTE));
-				// And link to the original declaration
-				SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(varDefSTE);
-				// Set the correct distance and offset
-				SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
-				SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
-				if (SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE)) {
-					SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(localSTE) = STRcpy(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE));
-				}
 
-				varDefSTE = localSTE;
-			}
-			// Make sure we can reference the STE
-			ID_DECL(arg_node) = varDefSTE;
-		}
+    // Used for traversing to outer ST/scopes
+    int distance = 0;
+    node* varDefSTE = findInAnyScope(INFO_CURSCOPE(arg_info), ID_NAME(arg_node), &distance, STE_vardef);
+
+    if(varDefSTE == NULL) {
+        CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+    } else {
+        if(distance > 0) {
+            DBUG_PRINT("SA", ("Defined in outer scope, creating a local STE."));
+            // Defined in a outer scope, create new STE in current scope
+            node* localSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, ID_NAME(arg_node), STE_varusage, SYMBOLTABLEENTRY_TYPE(varDefSTE));
+            // And link to the original declaration
+            SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(varDefSTE);
+            // Set the correct distance and offset
+            SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
+            SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
+            SYMBOLTABLEENTRY_LOCATION(localSTE) = SYMBOLTABLEENTRY_LOCATION(varDefSTE);
+
+            varDefSTE = localSTE;
+        }
+        // Make sure we can reference the STE
+        ID_DECL(arg_node) = varDefSTE;
     }
 
     DBUG_RETURN(arg_node);
@@ -355,14 +278,14 @@ node *SAfuncall(node *arg_node, info *arg_info) {
 
         TRAVopt(FUNCALL_EXPRS(arg_node), arg_info);
 
-        DBUG_PRINT("SA", ("Performing param-count check..."));
+        DBUG_PRINT("SA", ("Performing param and expression count check..."));
         int exprCount = 0;
         node *exprs = FUNCALL_EXPRS(arg_node);
         while (exprs) {
             exprCount++;
             exprs = EXPRS_NEXT(exprs);
         }
-        DBUG_PRINT("SA", ("Parameters counted."));
+        DBUG_PRINT("SA", ("Expressions counted, counting parameters."));
         node *funHeader = FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(funDefSTE));
         int paramCount = 0;
         node *params = FUNHEADER_PARAMS(funHeader);
@@ -370,7 +293,7 @@ node *SAfuncall(node *arg_node, info *arg_info) {
             paramCount++;
             params = PARAMS_NEXT(params);
         }
-        DBUG_PRINT("SA", ("The function as [%d] params and there are [%d] expressions.", paramCount, exprCount));
+        DBUG_PRINT("SA", ("The function has [%d] params and there are [%d] expressions.", paramCount, exprCount));
         if (paramCount != exprCount) {
             CTIerror("The number of parameters [%d] as used at line [%d] and column [%d] do not match the number of parameters [%d] to the function [%s] as defined at line [%d].", exprCount, NODE_LINE(arg_node), NODE_COL(arg_node), paramCount, name, NODE_LINE(funHeader));
         }
@@ -393,17 +316,9 @@ node *SAparams(node *arg_node, info *arg_info) {
 
 node *SAvardecs(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAvardecs");
-    
+
     TRAVopt(VARDECS_NEXT(arg_node), arg_info);
     TRAVdo(VARDECS_VARDEC(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAtypecast(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAtypecast");
-
-    TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -415,35 +330,6 @@ node *SAassign(node *arg_node, info *arg_info) {
     TRAVopt(ASSIGN_EXPR(arg_node), arg_info);
     DBUG_PRINT("SA", ("Processing the LH-side"));
     TRAVdo(ASSIGN_LET(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAif(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAif");
-
-    TRAVdo(IF_CONDITION(arg_node), arg_info);
-
-    TRAVopt(IF_IFBLOCK(arg_node), arg_info);
-    TRAVopt(IF_ELSEBLOCK(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAwhile(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAwhile");
-
-    TRAVdo(WHILE_CONDITION(arg_node), arg_info);
-    TRAVopt(WHILE_BLOCK(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAdo(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAdo");
-
-    TRAVopt(DO_BLOCK(arg_node), arg_info);
-    TRAVdo(DO_CONDITION(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -492,110 +378,11 @@ node *SAfor(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *SAreturn(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAreturn");
-
-    TRAVopt(RETURN_EXPR(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
 node *SAexprs(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAexprs");
 
     TRAVopt(EXPRS_NEXT(arg_node), arg_info);
     TRAVdo(EXPRS_EXPR(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAternop(node *arg_node, info *arg_info) {
-   DBUG_ENTER("SAternop");
-
-   TRAVdo(TERNOP_CONDITION(arg_node), arg_info);
-   TRAVdo(TERNOP_THEN(arg_node), arg_info);
-   TRAVdo(TERNOP_ELSE(arg_node), arg_info);
-
-   DBUG_RETURN(arg_node);
-}
-
-node *SAbinop(node *arg_node, info *arg_info) {
-   DBUG_ENTER("SAbinop");
-
-   TRAVdo(BINOP_LEFT(arg_node), arg_info);
-   TRAVdo(BINOP_RIGHT(arg_node), arg_info);
-
-   DBUG_RETURN(arg_node);
-}
-
-node *SAunop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAunop");
-
-    TRAVdo(UNOP_EXPR(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAintconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAintconst");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAfloatconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAfloatconst");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAboolconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAboolconst");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAsymboltableentry(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAsymboltableentry");
-	
-    DBUG_RETURN(arg_node);
-}
-
-node *SAerror(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAerror");
-	// todo remove
-    DBUG_RETURN(arg_node);
-}
-
-node *SAlocalfundefs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("CAlocalfundefs");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAarrayassign(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAarrayassign");
-	// TODO remove
-    DBUG_RETURN(arg_node);
-}
-
-node *SAarray(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAarray");
-	// TODO remove
-    DBUG_RETURN(arg_node);
-}
-
-node *SAids(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAids");
-	
-	DBUG_PRINT("SA", ("Going to next ID"));
-    TRAVopt(IDS_NEXT(arg_node), arg_info);
-    TRAVdo(IDS_ID(arg_node), arg_info);
-	
-    DBUG_RETURN(arg_node);
-}
-
-node *SAarrexprs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAarrexprs");
 
     DBUG_RETURN(arg_node);
 }
@@ -625,4 +412,3 @@ node *SAdoScopeAnalysis( node *syntaxtree) {
 
     DBUG_RETURN(syntaxtree);
 }
-
