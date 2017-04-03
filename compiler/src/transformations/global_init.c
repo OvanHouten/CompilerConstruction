@@ -15,7 +15,6 @@
 #include "str.h"
 #include "ctinfo.h"
 #include "myglobals.h"
-
 #include "list_utils.h"
 #include "scope_utils.h"
 
