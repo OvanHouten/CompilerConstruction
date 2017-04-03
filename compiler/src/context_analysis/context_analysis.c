@@ -78,18 +78,6 @@ node *SAprogram(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *SAsymboltable(node *arg_node, info *arg_info) {
-	DBUG_ENTER("SASymbolTable");
-
-	DBUG_RETURN(arg_node);
-}
-
-node *SAnop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAnop");
-
-    DBUG_RETURN(arg_node);
-}
-
 node *SAdeclarations(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAdeclarations");
 
@@ -106,9 +94,11 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
             CTIerror("Function [%s] at line %d, column %d has already been declared at line %d, column %d.", name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
         } else {
             funDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), funDef, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
-            SYMBOLTABLEENTRY_GLOBALFUN(funDefSTE) = TRUE;
             if (FUNDEF_EXTERN(funDef)) {
                 SYMBOLTABLEENTRY_OFFSET(funDefSTE) = INFO_EXTERNALFUNS(arg_info)++;
+                SYMBOLTABLEENTRY_LOCATION(funDefSTE) = LOC_extern;
+            } else {
+                SYMBOLTABLEENTRY_LOCATION(funDefSTE) = LOC_global;
             }
 
         }
@@ -156,24 +146,13 @@ node *SAfundef(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *SAfunheader(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAfunheader");
-
-    DBUG_PRINT("SA", ("Registering the parameters."));
-    TRAVopt(FUNHEADER_PARAMS(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
 node *SAfunbody(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAfunbody");
-		
+
     DBUG_PRINT("SA", ("Processing the VarDecs"));
     TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
     DBUG_PRINT("SA", ("Processing the LocalFunDefs."));
-    if (FUNBODY_LOCALFUNDEFS(arg_node)) {
-        TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
-    }
+    TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
     DBUG_PRINT("SA", ("Processing the Statements."));
     TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
     DBUG_PRINT("SA", ("Function has been processed."));
@@ -202,13 +181,11 @@ node *SAvardef(node *arg_node, info *arg_info) {
         varDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, name, STE_vardef, VARDEF_TYPE(arg_node));
         if (VARDEF_EXTERN(arg_node)) {
             SYMBOLTABLEENTRY_OFFSET(varDefSTE) = INFO_EXTERNALVARS(arg_info)++;
-            if (SYMBOLTABLE_PARENT(INFO_CURSCOPE(arg_info)) == NULL) {
-                SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE) = STRcpy("e");
-            }
+            SYMBOLTABLEENTRY_LOCATION(varDefSTE) = LOC_extern;
         } else {
             SYMBOLTABLEENTRY_OFFSET(varDefSTE) = SYMBOLTABLE_VARIABLES(INFO_CURSCOPE(arg_info))++;
             if (SYMBOLTABLE_PARENT(INFO_CURSCOPE(arg_info)) == NULL) {
-                SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE) = STRcpy("g");
+                SYMBOLTABLEENTRY_LOCATION(varDefSTE) = LOC_global;
             }
         }
         // And register a reference to the declaration node
@@ -241,9 +218,7 @@ node *SAid(node * arg_node, info * arg_info) {
             // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
             SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
-            if (SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE)) {
-                SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(localSTE) = STRcpy(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(varDefSTE));
-            }
+            SYMBOLTABLEENTRY_LOCATION(localSTE) = SYMBOLTABLEENTRY_LOCATION(varDefSTE);
 
             varDefSTE = localSTE;
         }
@@ -269,7 +244,7 @@ node *SAfuncall(node *arg_node, info *arg_info) {
             // Defined in a outer scope, create new STE in current scope
             node* localSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, name, STE_fundef, SYMBOLTABLEENTRY_TYPE(funDefSTE));
             SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(funDefSTE);
-            SYMBOLTABLEENTRY_GLOBALFUN(localSTE) = SYMBOLTABLEENTRY_GLOBALFUN(funDefSTE);
+            SYMBOLTABLEENTRY_LOCATION(localSTE) = SYMBOLTABLEENTRY_LOCATION(funDefSTE);
             // Set the correct distance and offset
             SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(funDefSTE);
             SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
@@ -280,14 +255,14 @@ node *SAfuncall(node *arg_node, info *arg_info) {
 
         TRAVopt(FUNCALL_EXPRS(arg_node), arg_info);
 
-        DBUG_PRINT("SA", ("Performing param-count check..."));
+        DBUG_PRINT("SA", ("Performing param and expression count check..."));
         int exprCount = 0;
         node *exprs = FUNCALL_EXPRS(arg_node);
         while (exprs) {
             exprCount++;
             exprs = EXPRS_NEXT(exprs);
         }
-        DBUG_PRINT("SA", ("Parameters counted."));
+        DBUG_PRINT("SA", ("Expressions counted, counting parameters."));
         node *funHeader = FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(funDefSTE));
         int paramCount = 0;
         node *params = FUNHEADER_PARAMS(funHeader);
@@ -318,17 +293,9 @@ node *SAparams(node *arg_node, info *arg_info) {
 
 node *SAvardecs(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAvardecs");
-    
+
     TRAVopt(VARDECS_NEXT(arg_node), arg_info);
     TRAVdo(VARDECS_VARDEC(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAtypecast(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAtypecast");
-
-    TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -340,41 +307,6 @@ node *SAassign(node *arg_node, info *arg_info) {
     TRAVopt(ASSIGN_EXPR(arg_node), arg_info);
     DBUG_PRINT("SA", ("Processing the LH-side"));
     TRAVdo(ASSIGN_LET(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAshortcut(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAshortcut");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAif(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAif");
-
-    TRAVdo(IF_CONDITION(arg_node), arg_info);
-
-    TRAVopt(IF_IFBLOCK(arg_node), arg_info);
-    TRAVopt(IF_ELSEBLOCK(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAwhile(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAwhile");
-
-    TRAVdo(WHILE_CONDITION(arg_node), arg_info);
-    TRAVopt(WHILE_BLOCK(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAdo(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAdo");
-
-    TRAVopt(DO_BLOCK(arg_node), arg_info);
-    TRAVdo(DO_CONDITION(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
@@ -423,76 +355,11 @@ node *SAfor(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *SAreturn(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAreturn");
-
-    TRAVopt(RETURN_EXPR(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
 node *SAexprs(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAexprs");
 
     TRAVopt(EXPRS_NEXT(arg_node), arg_info);
     TRAVdo(EXPRS_EXPR(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAternop(node *arg_node, info *arg_info) {
-   DBUG_ENTER("SAternop");
-
-   TRAVdo(TERNOP_CONDITION(arg_node), arg_info);
-   TRAVdo(TERNOP_THEN(arg_node), arg_info);
-   TRAVdo(TERNOP_ELSE(arg_node), arg_info);
-
-   DBUG_RETURN(arg_node);
-}
-
-node *SAbinop(node *arg_node, info *arg_info) {
-   DBUG_ENTER("SAbinop");
-
-   TRAVdo(BINOP_LEFT(arg_node), arg_info);
-   TRAVdo(BINOP_RIGHT(arg_node), arg_info);
-
-   DBUG_RETURN(arg_node);
-}
-
-node *SAunop(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAunop");
-
-    TRAVdo(UNOP_EXPR(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAintconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAintconst");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAfloatconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAfloatconst");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAboolconst(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAboolconst");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAsymboltableentry(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAsymboltableentry");
-	
-    DBUG_RETURN(arg_node);
-}
-
-node *SAerror(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAerror");
 
     DBUG_RETURN(arg_node);
 }
@@ -521,32 +388,8 @@ node *SAlocalfundefs(node *arg_node, info *arg_info) {
     // Continue to register
     TRAVopt(LOCALFUNDEFS_NEXT(arg_node), arg_info);
 
-    // Now process the body of the function or the whole vardef
+    // Now process the body of the function
     TRAVdo(LOCALFUNDEFS_LOCALFUNDEF(arg_node), arg_info);
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAarrayassign(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAarrayassign");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAarray(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAarray");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAids(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAids");
-
-    DBUG_RETURN(arg_node);
-}
-
-node *SAarrexprs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAarrexprs");
 
     DBUG_RETURN(arg_node);
 }
@@ -576,4 +419,3 @@ node *SAdoScopeAnalysis( node *syntaxtree) {
 
     DBUG_RETURN(syntaxtree);
 }
-

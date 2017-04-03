@@ -18,11 +18,11 @@
     <type name="Float" ctype="float" init="0.0" copy="literal" />
     <type name="BinOp" ctype="binop" init="BO_unknown" copy="literal" />
     <type name="UnOp" ctype="unop" init="UO_unknown" copy="literal" />
-    <type name="ShortOp" ctype="sop" init="SO_unknown" copy="literal" />
+    <type name="CompOp" ctype="cop" init="CO_unknown" copy="literal" />
     <type name="Type" ctype="type" init="TY_unknown" copy="literal" />
     <type name="EntryType" ctype="ste_type" init="STE_vardef" copy="literal" />
+    <type name="Location" ctype="location" init="LOC_local" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
-    <type name="Void" ctype="void*" init="NULL" copy="lookup" /> <!-- Not sure this is how we want it, but for now it works. -->
     <type name="CompilerPhase" ctype="compiler_phase_t" init="PH_initial" copy="literal" />
   </attributetypes>
 
@@ -46,7 +46,24 @@
       <traversal id="FREE" name="Free Syntax Tree" default="user" include="free_node.h" />
       <traversal id="CHK" name="Check Syntax Tree" default="user" include="check.h" />
 
-      <traversal id="SA" name="Context Analysis" default="user" include="context_analysis.h" />
+      <traversal id="SA" name="Context Analysis" default="sons" include="context_analysis.h" >
+        <travuser>
+          <node name="Program" />
+          <node name="Declarations" />
+          <node name="LocalFunDefs" />
+          <node name="FunDef" />
+          <node name="FunBody" />
+          <node name="VarDef" />
+          <node name="Id" />
+          <node name="Funcall" />
+          <node name="Assign" />
+          <node name="For" />
+          <node name="Statements" /> <!-- Only needed because we need to traverse in a different order then the framework uses as default -->
+          <node name="Exprs" />      <!-- Only needed because we need to traverse in a different order then the framework uses as default -->
+          <node name="VarDecs" />    <!-- Only needed because we need to traverse in a different order then the framework uses as default -->
+          <node name="Params" />     <!-- Only needed because we need to traverse in a different order then the framework uses as default -->
+        </travuser>
+      </traversal>
 
        <traversal id="TC" name="Type Check" default="sons" include="type_check.h">
         <travuser>
@@ -131,7 +148,7 @@
             <node name="While" />
             <node name="Do" />
             <node name="Assign" />
-            <node name="Shortcut" />
+            <node name="CompOp" />
             <node name="Id" />
             <node name="UnOp" />
             <node name="Typecast" />
@@ -160,7 +177,7 @@
   	<nodeset name="Statement">
       <target>
         <node name="Assign" />
-        <node name="Shortcut" />
+        <node name="CompOp" />
         <node name="Funcall"/>
         <node name="If" />
         <node name="While" />
@@ -344,23 +361,11 @@
                 </targets>
             </type>
         </attribute>
-        <attribute name="AssemblerPostfix">
+        <attribute name="Location">
             <description>Postfix for store and load instructions</description>
-            <type name="String">
+            <type name="Location">
                 <targets>
                     <target mandatory="no">
-                        <phases>
-                            <phase from="Context Analysis"/>
-                        </phases>
-                    </target>
-                </targets>
-            </type>
-        </attribute>
-        <attribute name="GlobalFun">
-            <description>Indicates (for functions) if they are defined at the global level</description>
-            <type name="Bool">
-                <targets>
-                    <target mandatory="yes">
                         <phases>
                             <phase from="Context Analysis"/>
                         </phases>
@@ -919,8 +924,8 @@
 <!--
  Node IncDec:
 -->
-     <node name="Shortcut">
-      <description>Represents shortcut assign inc/dec statement</description>
+     <node name="CompOp">
+      <description>Represents compound assign inc/dec statement</description>
       <sons>
         <son name="Id">
           <description>Represents the variable to be increased/decreased</description>
@@ -948,7 +953,7 @@
       <attributes>
         <attribute name="Op">
           <description>Represents the operation</description>
-          <type name="ShortOp">
+          <type name="CompOp">
             <targets>
               <target mandatory="yes">
                 <phases>

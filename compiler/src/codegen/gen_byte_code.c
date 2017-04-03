@@ -13,8 +13,6 @@
 // Used for grouping the pseudo codes at the bottom of the assembly program
 typedef enum { PP_global, PP_vardef, PP_fundef, PP_none} pseudo_phase;
 
-#define STR(n) ((n) == NULL ? "" : n)
-
 // DO NOT CHANGE THIS NAME TO 'CONSTANTS' OR 'CONSTANT'!!
 // Apparently the framework already has a struct with that name. Using one of those
 // names leads to very strange behavior and memory (de)allocation errors!
@@ -93,6 +91,20 @@ void printParamTypes(node *params) {
     }
 }
 
+char *encodeLocation(location loc) {
+    switch (loc) {
+        case LOC_extern:
+            return "e";
+            break;
+        case LOC_global:
+            return "g";
+            break;
+        default:
+            return "";
+            break;
+    }
+}
+
 char *encodeType(type ypeToEncode, int lineNr) {
     char *typeId = "<BOGUS-T>";
     switch (ypeToEncode) {
@@ -161,14 +173,14 @@ char *encodeOperator(binop op, int lineNr) {
     return operator;
 }
 
-char *encodeShortcut(sop op, int lineNr) {
-    if (op == SO_inc) {
+char *encodeCompOp(cop op, int lineNr) {
+    if (op == CO_inc) {
         return "inc";
-    } else if (op == SO_dec) {
+    } else if (op == CO_dec) {
         return "dec";
     } else {
-        CTIerror("A unknown shortcut instruction was introduced for line %d.", lineNr);
-        return "<BOGUS-S>";
+        CTIerror("A unknown compound operation instruction was introduced for line %d.", lineNr);
+        return "<BOGUS-C>";
     }
 }
 
@@ -352,7 +364,7 @@ node *GBCreturn(node *arg_node, info *arg_info) {
 node *GBCfuncall(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCfuncall");
 
-    if (SYMBOLTABLEENTRY_GLOBALFUN(FUNCALL_DECL(arg_node))) {
+    if (SYMBOLTABLEENTRY_LOCATION(FUNCALL_DECL(arg_node)) != LOC_local) {
         fprintf(outfile, "    isrg\t\t\t; %s\n", SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
     } else if (SYMBOLTABLEENTRY_DISTANCE(FUNCALL_DECL(arg_node)) == 0) {
         fprintf(outfile, "    isrl\t\t\t; %s\n", SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
@@ -365,7 +377,7 @@ node *GBCfuncall(node *arg_node, info *arg_info) {
     int expressionCount = 0;
     prepareExpressions(FUNCALL_EXPRS(arg_node), arg_info, &expressionCount);
 
-    if (FUNDEF_EXTERN(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))) {
+    if (SYMBOLTABLEENTRY_LOCATION(FUNCALL_DECL(arg_node)) == LOC_extern) {
         fprintf(outfile, "    jsre %d\t\t\t; %s()\n", SYMBOLTABLEENTRY_OFFSET(FUNCALL_DECL(arg_node)), SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
     } else {
         fprintf(outfile, "    jsr %d %s\n", expressionCount, SYMBOLTABLEENTRY_NAME(FUNDEF_DECL(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))));
@@ -479,8 +491,8 @@ node *GBCassign(node *arg_node, info *arg_info) {
     int distance = SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry);
     int offset = SYMBOLTABLEENTRY_OFFSET(symbolTableEntry);
 
-    if (distance == 0 || SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
-        fprintf(outfile, "    %sstore%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
+    if (distance == 0 || SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef)) != LOC_local) {
+        fprintf(outfile, "    %sstore%s %d\n", dataType, encodeLocation(SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef))), offset);
     } else {
         fprintf(outfile, "    %sstoren %d %d\n", dataType, distance, offset);
     }
@@ -488,24 +500,24 @@ node *GBCassign(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *GBCshortcut(node *arg_node, info *arg_info) {
-    DBUG_ENTER("GBCshortcut");
+node *GBCcompop(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBCcompop");
 
-    if (INTCONST_VALUE(SHORTCUT_CONST(arg_node)) == 1) {
-        fprintf(outfile, "    i%s_1 %d\t\t\t; optimized\n", encodeShortcut(SHORTCUT_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(SHORTCUT_ID(arg_node))));
+    if (INTCONST_VALUE(COMPOP_CONST(arg_node)) == 1) {
+        fprintf(outfile, "    i%s_1 %d\t\t\t; optimized\n", encodeCompOp(COMPOP_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(COMPOP_ID(arg_node))));
     } else {
         constantPool *constant = INFO_CONSTANTS(arg_info);
         while (constant != NULL) {
-            if (constant->type == TY_int && constant->intVal == INTCONST_VALUE(SHORTCUT_CONST(arg_node))) {
+            if (constant->type == TY_int && constant->intVal == INTCONST_VALUE(COMPOP_CONST(arg_node))) {
                 break;
             }
             constant = constant->next;
         }
         if (constant == NULL) {
             constant = registerNewConstant(arg_info, TY_int);
-            constant->intVal = INTCONST_VALUE(SHORTCUT_CONST(arg_node));
+            constant->intVal = INTCONST_VALUE(COMPOP_CONST(arg_node));
         }
-        fprintf(outfile, "    i%s %d %d\t\t\t; optimized\n", encodeShortcut(SHORTCUT_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(SHORTCUT_ID(arg_node))), constant->offset);
+        fprintf(outfile, "    i%s %d %d\t\t\t; optimized\n", encodeCompOp(COMPOP_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(COMPOP_ID(arg_node))), constant->offset);
     }
 
     DBUG_RETURN(arg_node);
@@ -528,8 +540,8 @@ node *GBCid(node *arg_node, info *arg_info) {
         } else {
             fprintf(outfile, "    %sload %d\n", dataType, offset);
         }
-    } else if (SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef)) != NULL) {
-        fprintf(outfile, "    %sload%s %d\n", dataType, STR(SYMBOLTABLEENTRY_ASSEMBLERPOSTFIX(VARDEF_DECL(varDef))), offset);
+    } else if (SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef)) != LOC_local) {
+        fprintf(outfile, "    %sload%s %d\n", dataType, encodeLocation(SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef))), offset);
     } else {
         fprintf(outfile, "    %sloadn %d %d\n", dataType, distance, offset);
     }
