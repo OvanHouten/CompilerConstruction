@@ -534,7 +534,7 @@
 	        </targets>
           </type>
         </attribute>
-        <attribute name="Decl">
+        <attribute name="STE">
             <description>Link to its STE</description>
             <type name="Link">
                 <targets>
@@ -680,7 +680,7 @@
             </targets>
           </type>
         </attribute>
-        <attribute name="Decl">
+        <attribute name="STE">
             <description>Link to its STE</description>
             <type name="Link">
                 <targets>
@@ -831,7 +831,7 @@
             </targets>
           </type>
         </attribute>
-        <attribute name="Decl">
+        <attribute name="STE">
             <description>Reference back to the FunDef node</description>
             <type name="Link"/>
             <targets>
@@ -1371,7 +1371,7 @@
             </targets>
           </type>
         </attribute>
-        <attribute name="Decl">
+        <attribute name="STE">
           <description>Link to its STE</description>
           <type name="Link">
             <targets>

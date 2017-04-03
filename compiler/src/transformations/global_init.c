@@ -85,10 +85,10 @@ node *GIprogram(node *arg_node, info *arg_info) {
                 node *symbolTableEntry = registerWithinCurrentScope(initSymbolTable, varDef, VARDEF_NAME(varDef), STE_varusage, VARDEF_TYPE(varDef));
                 SYMBOLTABLEENTRY_DEFNODE(symbolTableEntry) = varDef;
                 // Now make sure we can reference the ST entry from the variable
-                ID_DECL(id) = symbolTableEntry;
+                ID_STE(id) = symbolTableEntry;
                 // By design the global variables will be at distance 1 from the calling '__init' function.
                 SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry) = 1;
-                SYMBOLTABLEENTRY_OFFSET(symbolTableEntry) = SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(varDef));
+                SYMBOLTABLEENTRY_OFFSET(symbolTableEntry) = SYMBOLTABLEENTRY_OFFSET(VARDEF_STE(varDef));
             }
         }
         declarations = DECLARATIONS_NEXT(declarations);
@@ -100,7 +100,7 @@ node *GIprogram(node *arg_node, info *arg_info) {
         node *initMethod = TBmakeFundef( FALSE, TRUE, TBmakeFunheader(TY_void, STRcpy("__init"), NULL), funBody, initSymbolTable);
         // And register it in the ST
         node *initSTE = registerWithinCurrentScope(PROGRAM_SYMBOLTABLE(arg_node), initMethod, "__init", STE_fundef, TY_void);
-        FUNDEF_DECL(initMethod) = initSTE;
+        FUNDEF_STE(initMethod) = initSTE;
         SYMBOLTABLEENTRY_DEFNODE(initSTE) = initMethod;
         // And add the new function to the declarations section
         PROGRAM_DECLARATIONS(arg_node) = TBmakeDeclarations(initMethod, PROGRAM_DECLARATIONS(arg_node));

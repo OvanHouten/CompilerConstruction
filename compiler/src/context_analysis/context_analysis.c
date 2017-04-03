@@ -103,7 +103,7 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
 
         }
         // Make sure we have a reference at hand to the STE
-        FUNDEF_DECL(funDef) = funDefSTE;
+        FUNDEF_STE(funDef) = funDefSTE;
         SYMBOLTABLEENTRY_DEFNODE(funDefSTE) = funDef;
         DBUG_PRINT("SA", ("Registered function [%s] at offset [%d].", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
     }
@@ -207,7 +207,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
         SYMBOLTABLEENTRY_DEFNODE(varDefSTE) = arg_node;
 	}
     // Make sure we have a reference at hand to the STE
-    VARDEF_DECL(arg_node) = varDefSTE;
+    VARDEF_STE(arg_node) = varDefSTE;
 
     DBUG_PRINT("SA", ("Registered variable [%s] at offset [%d].", VARDEF_NAME(arg_node), SYMBOLTABLEENTRY_OFFSET(varDefSTE)));
 
@@ -238,7 +238,7 @@ node *SAid(node * arg_node, info * arg_info) {
             varDefSTE = localSTE;
         }
         // Make sure we can reference the STE
-        ID_DECL(arg_node) = varDefSTE;
+        ID_STE(arg_node) = varDefSTE;
     }
 
     DBUG_RETURN(arg_node);
@@ -266,7 +266,7 @@ node *SAfuncall(node *arg_node, info *arg_info) {
 
             funDefSTE = localSTE;
         }
-        FUNCALL_DECL(arg_node) = funDefSTE;
+        FUNCALL_STE(arg_node) = funDefSTE;
 
         TRAVopt(FUNCALL_EXPRS(arg_node), arg_info);
 
@@ -351,7 +351,7 @@ node *SAfor(node *arg_node, info *arg_info) {
 
         // Register the variable, now all occurrences of our vardef name will get a STE entry to us
         node *forVarEntry = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), varDef, name, STE_vardef, TY_int);
-        VARDEF_DECL(varDef) = forVarEntry;
+        VARDEF_STE(varDef) = forVarEntry;
         SYMBOLTABLEENTRY_DEFNODE(forVarEntry) = varDef;
         SYMBOLTABLEENTRY_OFFSET(forVarEntry) = SYMBOLTABLE_VARIABLES(INFO_CURSCOPE(arg_info))++;
         // Process the block
@@ -396,7 +396,7 @@ node *SAlocalfundefs(node *arg_node, info *arg_info) {
         funDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), funDef, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
     }
     // Make sure we have a reference at hand to the STE
-    FUNDEF_DECL(funDef) = funDefSTE;
+    FUNDEF_STE(funDef) = funDefSTE;
     SYMBOLTABLEENTRY_DEFNODE(funDefSTE) = funDef;
     DBUG_PRINT("SA", ("Registering function [%s] at offset [%d].", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
 

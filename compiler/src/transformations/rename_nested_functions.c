@@ -57,21 +57,21 @@ node *RNFfundef(node *arg_node, info *arg_info) {
     DBUG_PRINT("RNF", ("Processing function '%s' from line %d", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)), NODE_LINE(arg_node)));
     char *currentOuterName = INFO_OUTERFUNCTIONNAME(arg_info);
     if (currentOuterName) {
-        DBUG_PRINT("RNF", ("Pre-pending '%s' for functions inside '%s'", currentOuterName, SYMBOLTABLEENTRY_NAME(FUNDEF_DECL(arg_node))));
-        char *functionName = SYMBOLTABLEENTRY_NAME(FUNDEF_DECL(arg_node));
-        SYMBOLTABLEENTRY_NAME(FUNDEF_DECL(arg_node)) = STRcatn(3, currentOuterName, "_", functionName);
-        DBUG_PRINT("RNF", ("Renamed to '%s'\t\t\t%p", SYMBOLTABLEENTRY_NAME(FUNDEF_DECL(arg_node)), FUNDEF_DECL(arg_node)));
+        DBUG_PRINT("RNF", ("Pre-pending '%s' for functions inside '%s'", currentOuterName, SYMBOLTABLEENTRY_NAME(FUNDEF_STE(arg_node))));
+        char *functionName = SYMBOLTABLEENTRY_NAME(FUNDEF_STE(arg_node));
+        SYMBOLTABLEENTRY_NAME(FUNDEF_STE(arg_node)) = STRcatn(3, currentOuterName, "_", functionName);
+        DBUG_PRINT("RNF", ("Renamed to '%s'\t\t\t%p", SYMBOLTABLEENTRY_NAME(FUNDEF_STE(arg_node)), FUNDEF_STE(arg_node)));
     }
     // Skip the __init function
-    if (FUNDEF_DECL(arg_node)) {
-        INFO_OUTERFUNCTIONNAME(arg_info) = SYMBOLTABLEENTRY_NAME(FUNDEF_DECL(arg_node));
+    if (FUNDEF_STE(arg_node)) {
+        INFO_OUTERFUNCTIONNAME(arg_info) = SYMBOLTABLEENTRY_NAME(FUNDEF_STE(arg_node));
     } else {
         CTIwarn("Possible duplicate functions will fail inside '%s'.", FUNHEADER_NAME(FUNDEF_FUNHEADER(arg_node)));
     }
 
     TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
-    DBUG_PRINT("RNF", ("Renaming is done for '%s'", SYMBOLTABLEENTRY_NAME(FUNDEF_DECL(arg_node))));
+    DBUG_PRINT("RNF", ("Renaming is done for '%s'", SYMBOLTABLEENTRY_NAME(FUNDEF_STE(arg_node))));
     INFO_OUTERFUNCTIONNAME(arg_info) = currentOuterName;
 
     DBUG_RETURN(arg_node);
