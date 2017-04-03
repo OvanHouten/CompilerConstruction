@@ -188,9 +188,11 @@ node *SAvardef(node *arg_node, info *arg_info) {
             CTIerror("Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
                     name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
         } else {
+            // Declared at outer scope, register at local scope.
             varDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, name, STE_varusage, VARDEF_TYPE(arg_node));
         }
 	} else {
+	    // Never seen this variable, register it
         varDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, name, STE_vardef, VARDEF_TYPE(arg_node));
         if (VARDEF_EXTERN(arg_node)) {
             SYMBOLTABLEENTRY_OFFSET(varDefSTE) = INFO_EXTERNALVARS(arg_info)++;
@@ -283,7 +285,7 @@ node *SAfuncall(node *arg_node, info *arg_info) {
             paramCount++;
             params = PARAMS_NEXT(params);
         }
-        DBUG_PRINT("SA", ("The function as [%d] params and there are [%d] expressions.", paramCount, exprCount));
+        DBUG_PRINT("SA", ("The function has [%d] params and there are [%d] expressions.", paramCount, exprCount));
         if (paramCount != exprCount) {
             CTIerror("The number of parameters [%d] as used at line [%d] and column [%d] do not match the number of parameters [%d] to the function [%s] as defined at line [%d].", exprCount, NODE_LINE(arg_node), NODE_COL(arg_node), paramCount, name, NODE_LINE(funHeader));
         }
