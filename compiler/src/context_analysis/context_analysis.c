@@ -149,12 +149,25 @@ node *SAfundef(node *arg_node, info *arg_info) {
 node *SAfunbody(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAfunbody");
 
-    DBUG_PRINT("SA", ("Processing the VarDecs"));
-    TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
+    // First register all the local functions
     DBUG_PRINT("SA", ("Processing the LocalFunDefs."));
     TRAVopt(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
+
+    DBUG_PRINT("SA", ("Processing the VarDecs"));
+    TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
+
+    // Now process the body of the local functions
+    if (FUNBODY_LOCALFUNDEFS(arg_node)) {
+        node *localFunDefs = FUNBODY_LOCALFUNDEFS(arg_node);
+        while (localFunDefs) {
+            TRAVdo(LOCALFUNDEFS_LOCALFUNDEF(localFunDefs), arg_info);
+            localFunDefs = LOCALFUNDEFS_NEXT(localFunDefs);
+        }
+    }
+
     DBUG_PRINT("SA", ("Processing the Statements."));
     TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
+
     DBUG_PRINT("SA", ("Function has been processed."));
 
     DBUG_RETURN(arg_node);
@@ -387,9 +400,6 @@ node *SAlocalfundefs(node *arg_node, info *arg_info) {
 
     // Continue to register
     TRAVopt(LOCALFUNDEFS_NEXT(arg_node), arg_info);
-
-    // Now process the body of the function
-    TRAVdo(LOCALFUNDEFS_LOCALFUNDEF(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
