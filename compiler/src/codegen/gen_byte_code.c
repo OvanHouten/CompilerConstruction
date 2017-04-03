@@ -252,7 +252,7 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
 
     TRAVopt(SYMBOLTABLEENTRY_NEXT(arg_node), arg_info);
 
-    node *declaration = SYMBOLTABLEENTRY_DECL(arg_node);
+    node *declaration = SYMBOLTABLEENTRY_DEFNODE(arg_node);
     switch (NODE_TYPE(declaration)) {
         case N_vardef :
             switch (INFO_PSEUDOPHASE(arg_info)) {
@@ -380,10 +380,10 @@ node *GBCfuncall(node *arg_node, info *arg_info) {
     if (SYMBOLTABLEENTRY_LOCATION(FUNCALL_DECL(arg_node)) == LOC_extern) {
         fprintf(outfile, "    jsre %d\t\t\t; %s()\n", SYMBOLTABLEENTRY_OFFSET(FUNCALL_DECL(arg_node)), SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
     } else {
-        fprintf(outfile, "    jsr %d %s\n", expressionCount, SYMBOLTABLEENTRY_NAME(FUNDEF_DECL(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))));
+        fprintf(outfile, "    jsr %d %s\n", expressionCount, SYMBOLTABLEENTRY_NAME(FUNDEF_DECL(SYMBOLTABLEENTRY_DEFNODE(FUNCALL_DECL(arg_node)))));
     }
-    if (FUNCALL_PROCEDURECALL(arg_node) && FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))) != TY_void) {
-        fprintf(outfile, "    %spop\n", encodeType(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))), NODE_LINE(arg_node)));
+    if (FUNCALL_PROCEDURECALL(arg_node) && FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DEFNODE(FUNCALL_DECL(arg_node)))) != TY_void) {
+        fprintf(outfile, "    %spop\n", encodeType(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DEFNODE(FUNCALL_DECL(arg_node)))), NODE_LINE(arg_node)));
     }
 
     DBUG_RETURN(arg_node);
@@ -485,7 +485,7 @@ node *GBCassign(node *arg_node, info *arg_info) {
     TRAVdo(ASSIGN_EXPR(arg_node), arg_info);
 
     node *symbolTableEntry = ID_DECL(ASSIGN_LET(arg_node));
-    node *varDef = SYMBOLTABLEENTRY_DECL(symbolTableEntry);
+    node *varDef = SYMBOLTABLEENTRY_DEFNODE(symbolTableEntry);
 
     char* dataType = encodeType(SYMBOLTABLEENTRY_TYPE(symbolTableEntry), NODE_LINE(arg_node));
     int distance = SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry);
@@ -527,7 +527,7 @@ node *GBCid(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCid");
 
     node *symbolTableEntry = ID_DECL(arg_node);
-    node *varDef = SYMBOLTABLEENTRY_DECL(symbolTableEntry);
+    node *varDef = SYMBOLTABLEENTRY_DEFNODE(symbolTableEntry);
 
     char* dataType = encodeType(SYMBOLTABLEENTRY_TYPE(symbolTableEntry), NODE_LINE(arg_node));
     int distance = SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry);
