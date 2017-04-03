@@ -27,9 +27,6 @@ struct INFO {
 	node* curScope;
 	int externalFuns;
 	int externalVars;
-	bool sizeIds;
-	bool externArray;
-	node* vardefScope;
 };
 
 /*
@@ -38,9 +35,6 @@ struct INFO {
 #define INFO_CURSCOPE(n)      ((n)->curScope)
 #define INFO_EXTERNALFUNS(n)  ((n)->externalFuns)
 #define INFO_EXTERNALVARS(n)  ((n)->externalVars)
-#define INFO_SIZEIDS(n)       ((n)->sizeIds)
-#define INFO_EXTERNARRAY(n)   ((n)->externArray)
-#define INFO_VARDEFSCOPE(n)   ((n)->vardefScope)
 
 /*
  * INFO functions
@@ -54,9 +48,6 @@ static info *MakeInfo(void) {
 	INFO_CURSCOPE(result) = NULL;
 	INFO_EXTERNALFUNS(result) = 0;
 	INFO_EXTERNALVARS(result) = 0;
-	INFO_SIZEIDS(result) = FALSE;
-	INFO_EXTERNARRAY(result) = FALSE;
-	INFO_VARDEFSCOPE(result) = NULL;
 
 	DBUG_RETURN( result);
 }
@@ -78,7 +69,6 @@ node *SAprogram(node *arg_node, info *arg_info) {
 
 	// Start new scope, change curscope, prevscope stays NULL;
 	INFO_CURSCOPE(arg_info) = PROGRAM_SYMBOLTABLE(arg_node);
-	INFO_VARDEFSCOPE(arg_info) = PROGRAM_DECLARATIONS(arg_node);
 	
     TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
     
@@ -141,10 +131,6 @@ node *SAfundef(node *arg_node, info *arg_info) {
 		FUNDEF_SYMBOLTABLE(arg_node) = newScope;
 		INFO_CURSCOPE(arg_info) = newScope;
 		
-		// Vardefscope for arrays
-		node* previousVardefScope = INFO_VARDEFSCOPE(arg_info);
-		INFO_VARDEFSCOPE(arg_info) = FUNHEADER_PARAMS(FUNDEF_FUNHEADER(arg_node));
-
 		// Register the parameters
         TRAVdo(FUNDEF_FUNHEADER(arg_node), arg_info);
         // And process the body
@@ -152,9 +138,8 @@ node *SAfundef(node *arg_node, info *arg_info) {
 		
         DBUG_PRINT("SA", ("Closing the scope."));
 
-        // Return to previous scope and previous vardefscope
+        // Return to previous scope
 		INFO_CURSCOPE(arg_info) = previousScope;
-		INFO_VARDEFSCOPE(arg_info) = previousVardefScope;
     }
 	DBUG_PRINT("SA", ("Function definition is processed."));
 	
@@ -164,27 +149,7 @@ node *SAfundef(node *arg_node, info *arg_info) {
 node *SAvardef(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAvardef");
 	
-	// When ids-node is used, traverse those.
-	if(VARDEF_SIZEIDS(arg_node)) {
-		DBUG_PRINT("SA", ("Registering array param/globaldec [%s].", VARDEF_NAME(arg_node)));
-		
-		// Keep track if it is an extrernal function
-		INFO_SIZEIDS(arg_info) = TRUE;
-		INFO_EXTERNARRAY(arg_info) = VARDEF_EXTERN(arg_node);
-		
-		TRAVdo(VARDEF_SIZEIDS(arg_node), arg_info);
-		
-		INFO_EXTERNARRAY(arg_info) = FALSE;
-		INFO_SIZEIDS(arg_info) = FALSE;
-	}
-	// Else traverse the exprs node.
-	else if(VARDEF_SIZEEXPRS(arg_node)) {
-		DBUG_PRINT("SA", ("Registering array globaldef/vardef[%s].", VARDEF_NAME(arg_node)));
-		TRAVdo(VARDEF_SIZEEXPRS(arg_node), arg_info);
-	}
-	else {
-    	DBUG_PRINT("SA", ("Registering variable [%s].", VARDEF_NAME(arg_node)));
-    }
+    DBUG_PRINT("SA", ("Registering variable [%s].", VARDEF_NAME(arg_node)));
     
     // First we process the expression, if any
     TRAVopt(VARDEF_EXPR(arg_node), arg_info);
