@@ -227,8 +227,8 @@ node *PRTvardef(node * arg_node, info * arg_info) {
     if (VARDEF_EXPORT(arg_node)) {
         printf("export ");
     }
-    if (VARDEF_DECL(arg_node)) {
-        printf("%s %s", typeToString(VARDEF_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(VARDEF_DECL(arg_node)));
+    if (VARDEF_STE(arg_node)) {
+        printf("%s %s", typeToString(VARDEF_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(VARDEF_STE(arg_node)));
     } else {
         // Parameters for external functions don't have an entry in the SymbolTable!
         printf("%s %s", typeToString(VARDEF_TYPE(arg_node)), VARDEF_NAME(arg_node));
@@ -407,9 +407,9 @@ node *PRTfor (node * arg_node, info * arg_info)
           printf("int ");
       }
       if (!myglobal.print_var_details) {
-          printf("%s", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))));
+          printf("%s", SYMBOLTABLEENTRY_NAME(VARDEF_STE(FOR_VARDEF(arg_node))));
       } else {
-          printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_DISTANCE(VARDEF_DECL(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(FOR_VARDEF(arg_node))));
+          printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(VARDEF_STE(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_DISTANCE(VARDEF_STE(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_OFFSET(VARDEF_STE(FOR_VARDEF(arg_node))));
       }
       if (VARDEF_EXPR(FOR_VARDEF(arg_node))) {
           printf(" = ");
@@ -549,9 +549,9 @@ node *PRTid(node * arg_node, info * arg_info) {
 
 	INDENT(arg_info);
 	if (!myglobal.print_var_details) {
-	    printf("%s", SYMBOLTABLEENTRY_NAME(ID_DECL(arg_node)));
+	    printf("%s", SYMBOLTABLEENTRY_NAME(ID_STE(arg_node)));
 	} else {
-	    printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(ID_DECL(arg_node)), SYMBOLTABLEENTRY_DISTANCE(ID_DECL(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(arg_node)));
+	    printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(ID_STE(arg_node)), SYMBOLTABLEENTRY_DISTANCE(ID_STE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_STE(arg_node)));
 	}
 
 	DBUG_RETURN(arg_node);

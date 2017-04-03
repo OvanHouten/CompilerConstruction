@@ -89,8 +89,8 @@ node* FWTfor(node* arg_node, info* arg_info) {
     node *symbolTable = FUNDEF_SYMBOLTABLE(INFO_FUNDEF(arg_info));
 
     // Get the name of the loop variable and create a variable for it (needed later)
-    node *loopVar = TBmakeId(STRcpy(SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node)))));
-    ID_DECL(loopVar) = VARDEF_DECL(FOR_VARDEF(arg_node));
+    node *loopVar = TBmakeId(STRcpy(SYMBOLTABLEENTRY_NAME(VARDEF_STE(FOR_VARDEF(arg_node)))));
+    ID_STE(loopVar) = VARDEF_STE(FOR_VARDEF(arg_node));
     NODE_LINE(loopVar) = NODE_LINE(FOR_VARDEF(arg_node));
     NODE_COL(loopVar) = NODE_COL(FOR_VARDEF(arg_node));
 
@@ -109,17 +109,17 @@ node* FWTfor(node* arg_node, info* arg_info) {
     node* finishVarDef = TBmakeVardef(FALSE, FALSE, STRcpy(ID_NAME(finishVar)), TY_int, NULL, NULL, NULL);
 
     // And store them in the SymbolTable and
-    VARDEF_DECL(stepVarDef) = registerWithinCurrentScope(symbolTable, stepVarDef, ID_NAME(stepVar), STE_vardef, TY_int);
-    SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(stepVarDef)) = SYMBOLTABLE_VARIABLES(symbolTable)++;
-    SYMBOLTABLEENTRY_DEFNODE(VARDEF_DECL(stepVarDef)) = stepVarDef;
+    VARDEF_STE(stepVarDef) = registerWithinCurrentScope(symbolTable, stepVarDef, ID_NAME(stepVar), STE_vardef, TY_int);
+    SYMBOLTABLEENTRY_OFFSET(VARDEF_STE(stepVarDef)) = SYMBOLTABLE_VARIABLES(symbolTable)++;
+    SYMBOLTABLEENTRY_DEFNODE(VARDEF_STE(stepVarDef)) = stepVarDef;
     // Link from the variable to the VarDef
-    ID_DECL(stepVar) = VARDEF_DECL(stepVarDef);
+    ID_STE(stepVar) = VARDEF_STE(stepVarDef);
 
-    VARDEF_DECL(finishVarDef) = registerWithinCurrentScope(symbolTable, finishVarDef, ID_NAME(finishVar), STE_vardef, TY_int);
-    SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(finishVarDef)) = SYMBOLTABLE_VARIABLES(symbolTable)++;
-    SYMBOLTABLEENTRY_DEFNODE(VARDEF_DECL(finishVarDef)) = finishVarDef;
+    VARDEF_STE(finishVarDef) = registerWithinCurrentScope(symbolTable, finishVarDef, ID_NAME(finishVar), STE_vardef, TY_int);
+    SYMBOLTABLEENTRY_OFFSET(VARDEF_STE(finishVarDef)) = SYMBOLTABLE_VARIABLES(symbolTable)++;
+    SYMBOLTABLEENTRY_DEFNODE(VARDEF_STE(finishVarDef)) = finishVarDef;
     // Link from the variable to the VarDef
-    ID_DECL(finishVar) = VARDEF_DECL(finishVarDef);
+    ID_STE(finishVar) = VARDEF_STE(finishVarDef);
 
     // Add them to the declarations list
     FUNBODY_VARDECS(funBody) = TBmakeVardecs(stepVarDef, FUNBODY_VARDECS(funBody));

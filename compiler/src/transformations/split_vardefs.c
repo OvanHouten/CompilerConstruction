@@ -92,7 +92,7 @@ node *SVvardecs(node *arg_node, info *arg_info) {
         node *expr = VARDEF_EXPR(varDef);
         VARDEF_EXPR(varDef) = NULL;
         node* id = TBmakeId(STRcpy(VARDEF_NAME(varDef)));
-        ID_DECL(id) = VARDEF_DECL(varDef);
+        ID_STE(id) = VARDEF_STE(varDef);
         NODE_LINE(id) = NODE_LINE(varDef);
         NODE_COL(id) = NODE_COL(varDef);
 
@@ -123,7 +123,7 @@ node *SVstatements(node *arg_node, info *arg_info) {
 
         // Create a copy for the var-loop variable
         node *id = TBmakeId(STRcpy(VARDEF_NAME(varDef)));
-        ID_DECL(id) = VARDEF_DECL(varDef);
+        ID_STE(id) = VARDEF_STE(varDef);
         NODE_LINE(id) = NODE_LINE(varDef);
         NODE_COL(id) = NODE_COL(varDef);
 

@@ -37,10 +37,10 @@ type determineType(node *expr) {
     DBUG_PRINT("UTIL", ("Determining type for [%d]", NODE_TYPE(expr)));
     switch (NODE_TYPE(expr)) {
         case N_funcall :
-            exprType = SYMBOLTABLEENTRY_TYPE(FUNCALL_DECL(expr));
+            exprType = SYMBOLTABLEENTRY_TYPE(FUNCALL_STE(expr));
             break;
         case N_id :
-            exprType = SYMBOLTABLEENTRY_TYPE(ID_DECL(expr));
+            exprType = SYMBOLTABLEENTRY_TYPE(ID_STE(expr));
             break;
         case N_ternop :
             exprType = TERNOP_TYPE(expr);

@@ -258,7 +258,7 @@ node *TCfuncall(node *arg_node, info *arg_info) {
     TRAVopt(FUNCALL_EXPRS(arg_node), arg_info);
 
     if (FUNCALL_EXPRS(arg_node)) {
-        node *params = FUNHEADER_PARAMS(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DEFNODE(FUNCALL_DECL(arg_node))));
+        node *params = FUNHEADER_PARAMS(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DEFNODE(FUNCALL_STE(arg_node))));
         node *exprs = FUNCALL_EXPRS(arg_node);
         while (exprs) {
             type expectedType = determineType(PARAMS_PARAM(params));

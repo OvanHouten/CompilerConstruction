@@ -214,7 +214,7 @@ node *OPbinop(node *arg_node, info *arg_info) {
 }
 
 bool areSameVars(node *left, node *right) {
-    return ID_DECL(left) == ID_DECL(right);
+    return ID_STE(left) == ID_STE(right);
 }
 node *OPassign(node *arg_node, info *arg_info) {
     DBUG_ENTER("OPassign");
