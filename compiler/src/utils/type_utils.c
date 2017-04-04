@@ -34,7 +34,7 @@ type determineType(node *expr) {
     DBUG_ENTER("determineType");
 
     type exprType = TY_unknown;
-    DBUG_PRINT("UTIL", ("Determining type for [%d]", NODE_TYPE(expr)));
+    DBUG_PRINT("UTIL", ("Determining type for %d.", NODE_TYPE(expr)));
     switch (NODE_TYPE(expr)) {
         case N_funcall :
             exprType = SYMBOLTABLEENTRY_TYPE(FUNCALL_STE(expr));
@@ -70,10 +70,10 @@ type determineType(node *expr) {
             exprType = TY_bool;
             break;
         default :
-            DBUG_PRINT("TC", ("Unhandled epxression with type [%d] from line [%d]", NODE_TYPE(expr), NODE_LINE(expr)));
+            DBUG_PRINT("TC", ("Unhandled expression with type %d from line %d.", NODE_TYPE(expr), NODE_LINE(expr)));
             break;
     }
-    DBUG_PRINT("UTIL", ("Type [%d]", exprType));
+    DBUG_PRINT("UTIL", ("Type %d.", exprType));
 
     DBUG_RETURN(exprType);
 }

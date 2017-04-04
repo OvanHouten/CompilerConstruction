@@ -71,7 +71,7 @@ node *TCassign(node *arg_node, info *arg_info) {
     type leftResultType = determineType(ASSIGN_LET(arg_node));
 
     if (leftResultType != rightResultType) {
-        CTIerror("The type at the left hand side [%s] and the right hand side [%s] don't match at line [%d] and column [%d].", typeToString(leftResultType), typeToString(rightResultType), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The type at the left hand side '%s' and the right hand side '%s' don't match at line %d and column %d.", typeToString(leftResultType), typeToString(rightResultType), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
     // Make sure that the for loop variable is read-only
     void **varName = LUTsearchInLutS(INFO_LOOPVARS(arg_info), ID_NAME(ASSIGN_LET(arg_node)));
@@ -95,7 +95,7 @@ node *TCvardef(node *arg_node, info *arg_info) {
         type leftResultType = determineType(arg_node);
 
         if (leftResultType != rightResultType) {
-            CTIerror("The type at the left hand side [%s] and the right hand side [%s] don't match at line [%d] and column [%d].", typeToString(leftResultType), typeToString(rightResultType), NODE_LINE(arg_node), NODE_COL(arg_node));
+            CTIerror("The type at the left hand side '%s' and the right hand side '%s' don't match at line %d and column %d.", typeToString(leftResultType), typeToString(rightResultType), NODE_LINE(arg_node), NODE_COL(arg_node));
         }
     }
 
@@ -117,7 +117,7 @@ node *TCtypecast(node *arg_node, info *arg_info) {
         case TY_bool:
             break;
         default :
-            CTIerror("The type of the expression [%s] can not be casted into [%d] at line [%d] and column [%d].", typeToString(exprType), TYPECAST_TYPE(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+            CTIerror("The type of the expression '%s' can not be casted into '%s' at line %d and column %d.", typeToString(exprType), typeToString(TYPECAST_TYPE(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     DBUG_PRINT("TC", ("Typecast <<"));
@@ -139,7 +139,7 @@ node *TCunop(node *arg_node, info *arg_info) {
                 case UO_neg :
                     break;
                 default:
-                    CTIerror("Invalid unary operator [%d] for expression type [%d] at line [%d] and column [%d].", UNOP_OP(arg_node), exprType, NODE_LINE(arg_node), NODE_COL(arg_node));
+                    CTIerror("Invalid unary operator %d for expression type %d at line %d and column %d.", UNOP_OP(arg_node), exprType, NODE_LINE(arg_node), NODE_COL(arg_node));
             }
             break;
         case TY_bool:
@@ -147,14 +147,14 @@ node *TCunop(node *arg_node, info *arg_info) {
                 case UO_not :
                     break;
                 default:
-                    CTIerror("Invalid unary operator [%d] for expression type [%d] at line [%d] and column [%d].", UNOP_OP(arg_node), exprType, NODE_LINE(arg_node), NODE_COL(arg_node));
+                    CTIerror("Invalid unary operator %d for expression type %d at line %d and column %d.", UNOP_OP(arg_node), exprType, NODE_LINE(arg_node), NODE_COL(arg_node));
             }
             break;
             break;
         case TY_void:
             break;
         default :
-            CTIerror("Untyped expression for binary operator [%d] at line [%d] and column [%d].", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+            CTIerror("Untyped expression for binary operator %d at line %d and column %d.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
     UNOP_TYPE(arg_node) = exprType;
 
@@ -174,7 +174,7 @@ node *TCbinop(node *arg_node, info *arg_info) {
     type rightResultType = determineType(BINOP_RIGHT(arg_node));
 
     if (leftResultType != rightResultType) {
-        CTIerror("The type at the left hand side [%s] and the right hand side [%s] don't match at line [%d] and column [%d].", typeToString(leftResultType), typeToString(rightResultType), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The type at the left hand side '%s' and the right hand side '%s' don't match at line %d and column %d.", typeToString(leftResultType), typeToString(rightResultType), NODE_LINE(arg_node), NODE_COL(arg_node));
     } else {
         switch (leftResultType) {
             case TY_int :
@@ -198,11 +198,11 @@ node *TCbinop(node *arg_node, info *arg_info) {
                         if (leftResultType == TY_int) {
                             BINOP_TYPE(arg_node) = leftResultType;
                         } else {
-                            CTIerror("Invalid binary operator [%d] at line [%d] and column [%d].", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+                            CTIerror("Invalid binary operator %d at line %d and column %d.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
                         }
                         break;
                     default:
-                        CTIerror("Invalid binary operator [%d] at line [%d] and column [%d].", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+                        CTIerror("Invalid binary operator %d at line %d and column %d.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
                 }
                 break;
             case TY_bool :
@@ -216,14 +216,14 @@ node *TCbinop(node *arg_node, info *arg_info) {
                         BINOP_TYPE(arg_node) = TY_bool;
                         break;
                     default:
-                        CTIerror("Invalid binary operator [%d] at line [%d] and column [%d].", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+                        CTIerror("Invalid binary operator %d at line %d and column %d.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
                 }
                 break;
             case TY_void :
-                CTIerror("A binary operator [%d] at line [%d] and column [%d] returns a void!.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+                CTIerror("A binary operator %d at line %d and column %d returns a void!.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
                 break;
             default :
-                CTIerror("Untyped expression for binary operator [%d] at line [%d] and column [%d].", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+                CTIerror("Untyped expression for binary operator %d at line %d and column %d.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
         }
     }
 
@@ -257,7 +257,7 @@ node *TCfundef(node *arg_node, info *arg_info) {
 node *TCfuncall(node *arg_node, info *arg_info) {
     DBUG_ENTER("TCfuncall");
 
-    DBUG_PRINT("TC", ("Funcall >> [%d]", NODE_LINE(arg_node)));
+    DBUG_PRINT("TC", ("Funcall >>"));
     TRAVopt(FUNCALL_EXPRS(arg_node), arg_info);
 
     if (FUNCALL_EXPRS(arg_node)) {
@@ -267,14 +267,14 @@ node *TCfuncall(node *arg_node, info *arg_info) {
             type expectedType = determineType(PARAMS_PARAM(params));
             type actualType = determineType(EXPRS_EXPR(exprs));
             if (actualType != expectedType) {
-                CTIerror("The actual type [%s] and the expected parameter type [%s] don't match at line [%d] and column [%d].", typeToString(actualType), typeToString(expectedType), NODE_LINE(arg_node), NODE_COL(arg_node));
+                CTIerror("The actual type '%s' and the expected parameter type '%s don't match at line %d and column %d.", typeToString(actualType), typeToString(expectedType), NODE_LINE(arg_node), NODE_COL(arg_node));
             }
             params = PARAMS_NEXT(params);
             exprs = EXPRS_NEXT(exprs);
         }
     }
 
-    DBUG_PRINT("TC", ("Funcall << [%d]", NODE_LINE(arg_node)));
+    DBUG_PRINT("TC", ("Funcall <<"));
     DBUG_RETURN(arg_node);
 }
 
@@ -287,11 +287,11 @@ node *TCreturn(node *arg_node, info *arg_info) {
 
         type returnType = determineType(RETURN_EXPR(arg_node));
         if (returnType != FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info))) {
-            CTIerror("The type of the expression [%s] and the return type [%s] for the function don't match at line [%d] and column [%d].", typeToString(returnType), typeToString(FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info))), NODE_LINE(arg_node), NODE_COL(arg_node));
+            CTIerror("The type of the expression '%s' and the return type '%s' for the function don't match at line %d and column %d.", typeToString(returnType), typeToString(FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info))), NODE_LINE(arg_node), NODE_COL(arg_node));
         }
     } else {
         if (FUNHEADER_RETURNTYPE(INFO_FUNHEADER(arg_info)) != TY_void) {
-            CTIerror("A void returning function can not return anything, at line [%d] and column [%d].", NODE_LINE(arg_node), NODE_COL(arg_node));
+            CTIerror("A void returning function can not return anything, at line %d and column %d.", NODE_LINE(arg_node), NODE_COL(arg_node));
         }
     }
 
@@ -304,7 +304,7 @@ node *TCdo(node *arg_node, info *arg_info) {
 
     TRAVdo(DO_CONDITION(arg_node), arg_info);
     if (determineType(DO_CONDITION(arg_node)) != TY_bool) {
-        CTIerror("The expression for a do-loop must be evaluate to boolean and not to [%s] at line [%d] and column [%d].", typeToString(determineType(DO_CONDITION(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The expression for a do-loop must be evaluate to boolean and not to '%s' at line %d and column %d.", typeToString(determineType(DO_CONDITION(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     TRAVopt(DO_BLOCK(arg_node), arg_info);
@@ -319,7 +319,7 @@ node *TCwhile(node *arg_node, info *arg_info) {
 
     TRAVdo(WHILE_CONDITION(arg_node), arg_info);
     if (determineType(WHILE_CONDITION(arg_node)) != TY_bool) {
-        CTIerror("The expression for a while-loop must be evaluate to boolean and not to [%s] at line [%d] and column [%d].", typeToString(determineType(WHILE_CONDITION(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The expression for a while-loop must be evaluate to boolean and not to '%s' at line %d and column %d.", typeToString(determineType(WHILE_CONDITION(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     DBUG_RETURN(arg_node);
@@ -331,11 +331,11 @@ node *TCfor(node *arg_node, info *arg_info) {
     TRAVdo(FOR_VARDEF(arg_node), arg_info);
     TRAVdo(FOR_FINISH(arg_node), arg_info);
     if (determineType(FOR_FINISH(arg_node)) != TY_int) {
-        CTIerror("The finish expression for a for-loop must be evaluate to 'int' and not to [%s] at line [%d] and column [%d].", typeToString(determineType(FOR_FINISH(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The finish expression for a for-loop must be evaluate to 'int' and not to '%s' at line %d and column %d.", typeToString(determineType(FOR_FINISH(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
     TRAVopt(FOR_STEP(arg_node), arg_info);
     if (determineType(FOR_STEP(arg_node)) != TY_int) {
-        CTIerror("The step expression for a for-loop must be evaluate to 'int' and not to [%s] at line [%d] and column [%d].", typeToString(determineType(FOR_STEP(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The step expression for a for-loop must be evaluate to 'int' and not to '%s' at line %d and column %d.", typeToString(determineType(FOR_STEP(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     LUTinsertIntoLutS(INFO_LOOPVARS(arg_info), VARDEF_NAME(FOR_VARDEF(arg_node)), VARDEF_NAME(FOR_VARDEF(arg_node)));
