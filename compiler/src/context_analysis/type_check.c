@@ -63,7 +63,7 @@ static info *FreeInfo( info *info)
 node *TCassign(node *arg_node, info *arg_info) {
     DBUG_ENTER("TCassign");
 
-    DBUG_PRINT("TC", ("Assign %s >>", ID_NAME(ASSIGN_LET(arg_node))));
+    DBUG_PRINT("TC", ("Assign '%s'", ID_NAME(ASSIGN_LET(arg_node))));
 
     TRAVdo(ASSIGN_EXPR(arg_node), arg_info);
 
@@ -79,14 +79,13 @@ node *TCassign(node *arg_node, info *arg_info) {
         CTIerror("The loop variable '%s' can't be changed at line %d.", ID_NAME(ASSIGN_LET(arg_node)), NODE_LINE(arg_node));
     }
 
-    DBUG_PRINT("TC", ("Assign <<"));
     DBUG_RETURN(arg_node);
 }
 
 node *TCvardef(node *arg_node, info *arg_info) {
     DBUG_ENTER("TCvarded");
 
-    DBUG_PRINT("TC", ("VarDef >>"));
+    DBUG_PRINT("TC", ("VarDef"));
 
     TRAVopt(VARDEF_EXPR(arg_node), arg_info);
 
@@ -99,14 +98,13 @@ node *TCvardef(node *arg_node, info *arg_info) {
         }
     }
 
-    DBUG_PRINT("TC", ("VarDef <<"));
     DBUG_RETURN(arg_node);
 }
 
 node *TCtypecast(node *arg_node, info *arg_info) {
     DBUG_ENTER("TCtypecast");
 
-    DBUG_PRINT("TC", ("Typecast >>"));
+    DBUG_PRINT("TC", ("Typecast"));
 
     TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
 
@@ -120,14 +118,13 @@ node *TCtypecast(node *arg_node, info *arg_info) {
             CTIerror("The type of the expression '%s' can not be casted into '%s' at line %d and column %d.", typeToString(exprType), typeToString(TYPECAST_TYPE(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
-    DBUG_PRINT("TC", ("Typecast <<"));
     DBUG_RETURN(arg_node);
 }
 
 node *TCunop(node *arg_node, info *arg_info) {
     DBUG_ENTER("TCunop");
 
-    DBUG_PRINT("TC", ("UnOp >>"));
+    DBUG_PRINT("TC", ("UnOp"));
 
     TRAVdo(UNOP_EXPR(arg_node), arg_info);
 
@@ -158,14 +155,13 @@ node *TCunop(node *arg_node, info *arg_info) {
     }
     UNOP_TYPE(arg_node) = exprType;
 
-    DBUG_PRINT("TC", ("UnOp <<"));
     DBUG_RETURN(arg_node);
 }
 
 node *TCbinop(node *arg_node, info *arg_info) {
     DBUG_ENTER("TCbinop");
 
-    DBUG_PRINT("TC", ("BinOp >>"));
+    DBUG_PRINT("TC", ("BinOp"));
 
     TRAVdo(BINOP_LEFT(arg_node), arg_info);
     TRAVdo(BINOP_RIGHT(arg_node), arg_info);
@@ -227,14 +223,13 @@ node *TCbinop(node *arg_node, info *arg_info) {
         }
     }
 
-    DBUG_PRINT("TC", ("BinOp <<"));
     DBUG_RETURN(arg_node);
 }
 
 node *TCfundef(node *arg_node, info *arg_info) {
     DBUG_ENTER("TCfundef");
 
-    DBUG_PRINT("TC", ("Fundef >>"));
+    DBUG_PRINT("TC", ("Fundef"));
     node *outerFunHeader = INFO_FUNHEADER(arg_info);
     INFO_FUNHEADER(arg_info) = FUNDEF_FUNHEADER(arg_node);
 
@@ -249,7 +244,6 @@ node *TCfundef(node *arg_node, info *arg_info) {
     TRAVopt(FUNDEF_FUNBODY(arg_node), arg_info);
 
     INFO_FUNHEADER(arg_info) = outerFunHeader;
-    DBUG_PRINT("TC", ("Fundef <<"));
 
     DBUG_RETURN(arg_node);
 }
@@ -257,7 +251,7 @@ node *TCfundef(node *arg_node, info *arg_info) {
 node *TCfuncall(node *arg_node, info *arg_info) {
     DBUG_ENTER("TCfuncall");
 
-    DBUG_PRINT("TC", ("Funcall >>"));
+    DBUG_PRINT("TC", ("Funcall"));
     TRAVopt(FUNCALL_EXPRS(arg_node), arg_info);
 
     if (FUNCALL_EXPRS(arg_node)) {
@@ -274,14 +268,13 @@ node *TCfuncall(node *arg_node, info *arg_info) {
         }
     }
 
-    DBUG_PRINT("TC", ("Funcall <<"));
     DBUG_RETURN(arg_node);
 }
 
 node *TCreturn(node *arg_node, info *arg_info) {
     DBUG_ENTER("TCreturn");
 
-    DBUG_PRINT("TC", ("Return >>"));
+    DBUG_PRINT("TC", ("Return"));
     if (RETURN_EXPR(arg_node)) {
         TRAVopt(RETURN_EXPR(arg_node), arg_info);
 
@@ -295,7 +288,6 @@ node *TCreturn(node *arg_node, info *arg_info) {
         }
     }
 
-    DBUG_PRINT("TC", ("Return <<"));
     DBUG_RETURN(arg_node);
 }
 
