@@ -23,6 +23,7 @@ struct INFO {
 	node* dimDecls;
 	node* externScope;
 	node* funheaderParams;
+	int funcall;
 };
 
 /*
@@ -174,6 +175,7 @@ node* PPAvardef(node* arg_node, info* arg_info) {
 node* PPAid(node* arg_node, info* arg_info) {
 	DBUG_ENTER("PPAid");
 	
+	// extern array declaration transformation
 	if(INFO_DIMSIDS(arg_info)) {
 		// We dont want any duplicate declarations eg arr[n] and arr2[n, m]
 		node* temp = INFO_EXTERNSCOPE(arg_info);
@@ -190,9 +192,8 @@ node* PPAid(node* arg_node, info* arg_info) {
 		node* new_node = TBmakeVardef(TRUE, FALSE, STRcpy(ID_NAME(arg_node)), TY_int, NULL, NULL, NULL, NULL);
 		INFO_DIMDECLS(arg_info) = TBmakeDeclarations(new_node, INFO_DIMDECLS(arg_info));
 	}
-	else if(INFO_FUNHEADERPARAMS(arg_info)) {
-		DBUG_PRINT("PPA", ("PARAMTEST!"));
-		
+	// Funheader array parameter transformation
+	else if(INFO_FUNHEADERPARAMS(arg_info)) {		
 		node* new_node = TBmakeVardef(FALSE, FALSE, STRcpy(ID_NAME(arg_node)), TY_int, NULL, NULL, NULL, NULL);
 		INFO_DIMDECLS(arg_info) = TBmakeParams(new_node, INFO_DIMDECLS(arg_info));
 	}

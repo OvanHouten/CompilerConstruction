@@ -17,6 +17,7 @@
 #include "globals.h"
 #include "scope_utils.h"
 #include "string.h"
+#include "list_utils.h"
 
 #include "context_analysis.h"
 
@@ -27,6 +28,9 @@ struct INFO {
 	node* curScope;
 	int externalFuns;
 	int externalVars;
+	int funcall;
+	node* curExprs;
+	node* dimslist;
 };
 
 /*
@@ -35,6 +39,9 @@ struct INFO {
 #define INFO_CURSCOPE(n)      ((n)->curScope)
 #define INFO_EXTERNALFUNS(n)  ((n)->externalFuns)
 #define INFO_EXTERNALVARS(n)  ((n)->externalVars)
+#define INFO_FUNCALL(n)       ((n)->funcall)
+#define INFO_CUREXPRS(n)      ((n)->curExprs)
+#define INFO_DIMSLIST(n)       ((n)->dimslist)
 
 /*
  * INFO functions
@@ -48,6 +55,9 @@ static info *MakeInfo(void) {
 	INFO_CURSCOPE(result) = NULL;
 	INFO_EXTERNALFUNS(result) = 0;
 	INFO_EXTERNALVARS(result) = 0;
+	INFO_FUNCALL(result) = 0;
+	INFO_CUREXPRS(result) = NULL;
+	INFO_DIMSLIST(result) = NULL;
 
 	DBUG_RETURN( result);
 }
@@ -214,6 +224,18 @@ node *SAid(node * arg_node, info * arg_info) {
         // Make sure we can reference the STE
         ID_DECL(arg_node) = varDefSTE;
     }
+    if(VARDEF_SIZEIDS(SYMBOLTABLEENTRY_DECL(ID_DECL(arg_node)))) {
+    	node* vardef = SYMBOLTABLEENTRY_DECL(ID_DECL(arg_node));
+    	DBUG_PRINT("SA", ("ARRAY NAME = %s", VARDEF_NAME(vardef)));
+    	
+    	node* new_exprs_list = NULL;
+    	node* ids = VARDEF_SIZEIDS(vardef);
+    	while(ids) {
+    		INFO_DIMSLIST(arg_info) = TBmakeExprs(TBmakeId(STRcpy(ID_NAME(IDS_ID(ids))), NULL), INFO_DIMSLIST(arg_info));
+    		DBUG_PRINT("SA", ("ID NAME = %s", ID_NAME(IDS_ID(ids))));
+    		ids = IDS_NEXT(ids);
+    	}
+    }
 
     DBUG_RETURN(arg_node);
 }
@@ -240,8 +262,10 @@ node *SAfuncall(node *arg_node, info *arg_info) {
             funDefSTE = localSTE;
         }
         FUNCALL_DECL(arg_node) = funDefSTE;
-
+		
+		INFO_FUNCALL(arg_info)++;
         TRAVopt(FUNCALL_EXPRS(arg_node), arg_info);
+        INFO_FUNCALL(arg_info)--;
 
         DBUG_PRINT("SA", ("Performing param and expression count check..."));
         int exprCount = 0;
@@ -344,12 +368,30 @@ node *SAfor(node *arg_node, info *arg_info) {
 }
 
 node *SAexprs(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAexprs");
+	DBUG_ENTER("SAexprs");
 
-    TRAVopt(EXPRS_NEXT(arg_node), arg_info);
-    TRAVdo(EXPRS_EXPR(arg_node), arg_info);
+	TRAVopt(EXPRS_NEXT(arg_node), arg_info);
+	if(INFO_FUNCALL(arg_info)) {
+		DBUG_PRINT("SA", ("FUNCALL = %d", INFO_FUNCALL(arg_info)));
+		TRAVdo(EXPRS_EXPR(arg_node), arg_info);
+		INFO_DIMSLIST(arg_info) = reverseExprsList(INFO_DIMSLIST(arg_info), NULL);
+		
+		node* temp = EXPRS_NEXT(arg_node);
+		EXPRS_NEXT(arg_node) = INFO_DIMSLIST(arg_info);
+		
+		node* temp2 = arg_node;
+		while(EXPRS_NEXT(temp2)) {
+			temp2 = EXPRS_NEXT(temp2);
+		}
+		EXPRS_NEXT(temp2) = temp;
+		
+		INFO_DIMSLIST(arg_info) = NULL;
+	}
+	else {
+		TRAVdo(EXPRS_EXPR(arg_node), arg_info);
+	}
 
-    DBUG_RETURN(arg_node);
+	DBUG_RETURN(arg_node);
 }
 
 node *SAstatements(node *arg_node, info *arg_info) {

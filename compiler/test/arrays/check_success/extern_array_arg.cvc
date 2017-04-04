@@ -1,4 +1,4 @@
-extern int[n] arr;
+extern int[p, q] arr;
 extern int[n, m] arr2;
 
 void foo(int[n, m] a) {}

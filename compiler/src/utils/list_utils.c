@@ -81,3 +81,19 @@ node* reverseDeclarationsList(node *rest, node *reversed) {
 
 	return reverseDeclarationsList(rest, current);
 }
+
+/*
+ * Reverses an Exprs list.
+ */
+node* reverseExprsList(node *rest, node *reversed) {
+	node *current;
+	
+	if(rest == NULL)
+		return reversed;
+		
+	current = rest;
+	rest = EXPRS_NEXT(rest);
+	EXPRS_NEXT(current) = reversed;
+
+	return reverseExprsList(rest, current);
+}
