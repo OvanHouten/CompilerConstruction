@@ -35,9 +35,9 @@ SUBPHASE(ppa, "Array Pre Processor", PPAdoPreProcessorArray, ALWAYS, ca)
 
 SUBPHASE(sa, "Scope Analysis", SAdoScopeAnalysis, ALWAYS, ca)
 
-SUBPHASE(tc, "Type Check", TCdoTypeCheck, NEVER, ca)
+SUBPHASE(tc, "Type Check", TCdoTypeCheck, ALWAYS, ca)
 
-SUBPHASE(rc, "Return Check", RCdoReturnCheck, ALWAYS, ca)
+SUBPHASE(rc, "Return Check", RCdoReturnCheck, NEVER, ca)
 
 ENDPHASE(ca)
 

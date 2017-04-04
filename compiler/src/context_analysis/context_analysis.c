@@ -29,7 +29,6 @@ struct INFO {
 	int externalFuns;
 	int externalVars;
 	int funcall;
-	node* curExprs;
 	node* dimslist;
 };
 
@@ -40,7 +39,6 @@ struct INFO {
 #define INFO_EXTERNALFUNS(n)  ((n)->externalFuns)
 #define INFO_EXTERNALVARS(n)  ((n)->externalVars)
 #define INFO_FUNCALL(n)       ((n)->funcall)
-#define INFO_CUREXPRS(n)      ((n)->curExprs)
 #define INFO_DIMSLIST(n)       ((n)->dimslist)
 
 /*
@@ -56,7 +54,6 @@ static info *MakeInfo(void) {
 	INFO_EXTERNALFUNS(result) = 0;
 	INFO_EXTERNALVARS(result) = 0;
 	INFO_FUNCALL(result) = 0;
-	INFO_CUREXPRS(result) = NULL;
 	INFO_DIMSLIST(result) = NULL;
 
 	DBUG_RETURN( result);
@@ -225,14 +222,35 @@ node *SAid(node * arg_node, info * arg_info) {
         ID_DECL(arg_node) = varDefSTE;
     }
     if(VARDEF_SIZEIDS(SYMBOLTABLEENTRY_DECL(ID_DECL(arg_node)))) {
+    	node* new_id;
     	node* vardef = SYMBOLTABLEENTRY_DECL(ID_DECL(arg_node));
     	DBUG_PRINT("SA", ("ARRAY NAME = %s", VARDEF_NAME(vardef)));
     	
-    	node* new_exprs_list = NULL;
     	node* ids = VARDEF_SIZEIDS(vardef);
     	while(ids) {
-    		INFO_DIMSLIST(arg_info) = TBmakeExprs(TBmakeId(STRcpy(ID_NAME(IDS_ID(ids))), NULL), INFO_DIMSLIST(arg_info));
-    		DBUG_PRINT("SA", ("ID NAME = %s", ID_NAME(IDS_ID(ids))));
+    		new_id = TBmakeId(STRcpy(ID_NAME(IDS_ID(ids))), NULL);
+    		
+			distance = 0;
+			varDefSTE = findInAnyScope(INFO_CURSCOPE(arg_info), ID_NAME(new_id), &distance, STE_vardef);
+
+			if(distance > 0) {
+				DBUG_PRINT("SA", ("Defined in outer scope, creating a local STE."));
+				// Defined in a outer scope, create new STE in current scope
+				node* localSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), new_id, ID_NAME(new_id), STE_varusage, TY_int);
+				// And link to the original declaration
+				SYMBOLTABLEENTRY_DECL(localSTE) = SYMBOLTABLEENTRY_DECL(varDefSTE);
+				// Set the correct distance and offset
+				SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
+				SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
+				SYMBOLTABLEENTRY_LOCATION(localSTE) = SYMBOLTABLEENTRY_LOCATION(varDefSTE);
+				
+				varDefSTE = localSTE;
+			}
+			// Make sure we can reference the STE
+			ID_DECL(new_id) = varDefSTE;
+
+    		INFO_DIMSLIST(arg_info) = TBmakeExprs(new_id, INFO_DIMSLIST(arg_info));
+    		DBUG_PRINT("SA", ("ID NAME = %s", ID_NAME(new_id)));
     		ids = IDS_NEXT(ids);
     	}
     }
