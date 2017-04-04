@@ -382,12 +382,12 @@ node *SAlocalfundefs(node *arg_node, info *arg_info) {
     node *funDef = LOCALFUNDEFS_LOCALFUNDEF(arg_node);
     node *funHeader = FUNDEF_FUNHEADER(funDef);
     char *name = FUNHEADER_NAME(funHeader);
-    DBUG_PRINT("SA", ("Registering local function [%s].", name));
+    DBUG_PRINT("SA", ("Registering local function '%s'.", name));
 
     // Make sure it does not exist within the current scope
     node* funDefSTE = findWithinScope(INFO_CURSCOPE(arg_info), name, STE_fundef);
     if(funDefSTE) {
-        CTIerror("Function [%s] at line %d, column %d has already been declared at line %d, column %d.",
+        CTIerror("Function '%s' at line %d, column %d has already been declared at line %d, column %d.",
                 name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
     } else {
         funDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), funDef, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
@@ -395,7 +395,7 @@ node *SAlocalfundefs(node *arg_node, info *arg_info) {
     // Make sure we have a reference at hand to the STE
     FUNDEF_STE(funDef) = funDefSTE;
     SYMBOLTABLEENTRY_DEFNODE(funDefSTE) = funDef;
-    DBUG_PRINT("SA", ("Registering function [%s] at offset [%d].", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
+    DBUG_PRINT("SA", ("Registering function '%s' at offset [%d].", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
 
     // Continue to register
     TRAVopt(LOCALFUNDEFS_NEXT(arg_node), arg_info);
