@@ -68,7 +68,7 @@ node *GIprogram(node *arg_node, info *arg_info) {
     while (declarations) {
         if (NODE_TYPE(DECLARATIONS_DECLARATION(declarations)) == N_vardef) {
             node *varDef = DECLARATIONS_DECLARATION(declarations);
-            DBUG_PRINT("GI", ("Found [%s]", VARDEF_NAME(varDef)));
+            DBUG_PRINT("GI", ("Found '%s'", VARDEF_NAME(varDef)));
             if (VARDEF_EXPR(varDef)) {
                 DBUG_PRINT("GI", ("Creating assignment."));
                 // Pull out the expression

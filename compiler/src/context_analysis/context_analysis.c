@@ -86,12 +86,12 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
         node *funDef = DECLARATIONS_DECLARATION(arg_node);
         node *funHeader = FUNDEF_FUNHEADER(funDef);
         char *name = FUNHEADER_NAME(funHeader);
-        DBUG_PRINT("SA", ("Registering function [%s].", name));
+        DBUG_PRINT("SA", ("Registering function '%s'.", name));
 
         // Make sure it does not exist within the current scope
         node* funDefSTE = findWithinScope(INFO_CURSCOPE(arg_info), name, STE_fundef);
         if(funDefSTE) {        	
-            CTIerror("Function [%s] at line %d, column %d has already been declared at line %d, column %d.", name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
+            CTIerror("Function '%s' at line %d, column %d has already been declared at line %d, column %d.", name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
         } else {
             funDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), funDef, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
             if (FUNDEF_EXTERN(funDef)) {
@@ -105,7 +105,7 @@ node *SAdeclarations(node *arg_node, info *arg_info) {
         // Make sure we have a reference at hand to the STE
         FUNDEF_STE(funDef) = funDefSTE;
         SYMBOLTABLEENTRY_DEFNODE(funDefSTE) = funDef;
-        DBUG_PRINT("SA", ("Registered function [%s] at offset [%d].", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
+        DBUG_PRINT("SA", ("Registered function '%s' at offset %d.", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
     }
 
     // Continue to register
@@ -176,7 +176,7 @@ node *SAfunbody(node *arg_node, info *arg_info) {
 node *SAvardef(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAvardef");
 
-    DBUG_PRINT("SA", ("Registering variable [%s].", VARDEF_NAME(arg_node)));
+    DBUG_PRINT("SA", ("Registering variable %s'.", VARDEF_NAME(arg_node)));
     // First we process the expression, if any
     TRAVopt(VARDEF_EXPR(arg_node), arg_info);
 
@@ -185,7 +185,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
     node* varDefSTE = findWithinScope(INFO_CURSCOPE(arg_info), name, STE_vardef);
     if(varDefSTE) {
         if (SYMBOLTABLEENTRY_DISTANCE(varDefSTE) == 0) {
-            CTIerror("Variable [%s] at line %d, column %d has already been declared at line %d, column %d.",
+            CTIerror("Variable '%s' at line %d, column %d has already been declared at line %d, column %d.",
                     name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(varDefSTE), NODE_COL(varDefSTE));
         } else {
             // Declared at outer scope, register at local scope.
@@ -209,7 +209,7 @@ node *SAvardef(node *arg_node, info *arg_info) {
     // Make sure we have a reference at hand to the STE
     VARDEF_STE(arg_node) = varDefSTE;
 
-    DBUG_PRINT("SA", ("Registered variable [%s] at offset [%d].", VARDEF_NAME(arg_node), SYMBOLTABLEENTRY_OFFSET(varDefSTE)));
+    DBUG_PRINT("SA", ("Registered variable '%s' at offset %d.", VARDEF_NAME(arg_node), SYMBOLTABLEENTRY_OFFSET(varDefSTE)));
 
     DBUG_RETURN(arg_node);
 }
@@ -222,7 +222,7 @@ node *SAid(node * arg_node, info * arg_info) {
     node* varDefSTE = findInAnyScope(INFO_CURSCOPE(arg_info), ID_NAME(arg_node), &distance, STE_vardef);
 
     if(varDefSTE == NULL) {
-        CTIerror("Variable [%s] which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("Variable '%s' which is used at line %d, column %d is not declared.", ID_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
     } else {
         if(distance > 0) {
             DBUG_PRINT("SA", ("Defined in outer scope, creating a local STE."));
@@ -249,7 +249,7 @@ node *SAfuncall(node *arg_node, info *arg_info) {
 
     DBUG_PRINT("SA", ("Processing a FunCall"));
     char *name = FUNCALL_NAME(arg_node);
-    DBUG_PRINT("SA", ("Trying to find the declaration of function [%s].", name));
+    DBUG_PRINT("SA", ("Trying to find the declaration of function '%s'.", name));
     int distance = 0;
     node *funDefSTE = findInAnyScope(INFO_CURSCOPE(arg_info), name, &distance, STE_fundef);
     if (funDefSTE) {
@@ -285,12 +285,12 @@ node *SAfuncall(node *arg_node, info *arg_info) {
             paramCount++;
             params = PARAMS_NEXT(params);
         }
-        DBUG_PRINT("SA", ("The function has [%d] params and there are [%d] expressions.", paramCount, exprCount));
+        DBUG_PRINT("SA", ("The function has %d params and there are %d expressions.", paramCount, exprCount));
         if (paramCount != exprCount) {
-            CTIerror("The number of parameters [%d] as used at line [%d] and column [%d] do not match the number of parameters [%d] to the function [%s] as defined at line [%d].", exprCount, NODE_LINE(arg_node), NODE_COL(arg_node), paramCount, name, NODE_LINE(funHeader));
+            CTIerror("The number of parameters %d as used at line %d and column %d do not match the number of parameters %d to the function '%s' as defined at line %d.", exprCount, NODE_LINE(arg_node), NODE_COL(arg_node), paramCount, name, NODE_LINE(funHeader));
         }
     } else {
-        CTIerror("Function [%s] at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("Function '%s' at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
     }
     DBUG_PRINT("SA", ("FunCall is processed."));
 
@@ -335,36 +335,33 @@ node *SAfor(node *arg_node, info *arg_info) {
     TRAVdo(FOR_FINISH(arg_node), arg_info);
     TRAVopt(FOR_STEP(arg_node), arg_info);
 
-    // Only go through the trouble if it is really useful
-    if (FOR_BLOCK(arg_node)) {
-        DBUG_PRINT("SA", ("Looking for existing name."));
-        char *name = VARDEF_NAME(varDef);
-        node *existingVarDef = findWithinScope(INFO_CURSCOPE(arg_info), name, STE_vardef);
+    DBUG_PRINT("SA", ("Looking for existing name."));
+    char *name = VARDEF_NAME(varDef);
+    node *existingVarDef = findWithinScope(INFO_CURSCOPE(arg_info), name, STE_vardef);
 
-        char *originalName = NULL;
-        if (existingVarDef) {
-            DBUG_PRINT("SA", ("Hiding the existing name in the symboltable for now."));
-            // Remember the name and remove it (by giving it a different name) from the ST
-            originalName = SYMBOLTABLEENTRY_NAME(existingVarDef);
-            SYMBOLTABLEENTRY_NAME(existingVarDef) = "";
-        }
+    char *originalName = NULL;
+    if (existingVarDef) {
+        DBUG_PRINT("SA", ("Hiding the existing name in the symboltable for now."));
+        // Remember the name and remove it (by giving it a different name) from the ST
+        originalName = SYMBOLTABLEENTRY_NAME(existingVarDef);
+        SYMBOLTABLEENTRY_NAME(existingVarDef) = "";
+    }
 
-        // Register the variable, now all occurrences of our vardef name will get a STE entry to us
-        node *forVarEntry = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), varDef, name, STE_vardef, TY_int);
-        VARDEF_STE(varDef) = forVarEntry;
-        SYMBOLTABLEENTRY_DEFNODE(forVarEntry) = varDef;
-        SYMBOLTABLEENTRY_OFFSET(forVarEntry) = SYMBOLTABLE_VARIABLES(INFO_CURSCOPE(arg_info))++;
-        // Process the block
-        DBUG_PRINT("SA", ("Processing the block."));
-        FOR_BLOCK(arg_node) = TRAVdo(FOR_BLOCK(arg_node), arg_info);
+    // Register the variable, now all occurrences of our vardef name will get a STE entry to us
+    node *forVarEntry = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), varDef, name, STE_vardef, TY_int);
+    VARDEF_STE(varDef) = forVarEntry;
+    SYMBOLTABLEENTRY_DEFNODE(forVarEntry) = varDef;
+    SYMBOLTABLEENTRY_OFFSET(forVarEntry) = SYMBOLTABLE_VARIABLES(INFO_CURSCOPE(arg_info))++;
+    // Process the block
+    DBUG_PRINT("SA", ("Processing the block."));
+    FOR_BLOCK(arg_node) = TRAVopt(FOR_BLOCK(arg_node), arg_info);
 
-        // And now replace our name with the generated one and restore the original
-        if (existingVarDef) {
-            DBUG_PRINT("SA", ("Restoring the original name and generating a unique name."));
-            SYMBOLTABLEENTRY_NAME(existingVarDef) = originalName;
-            // If the name exists within the current scope generate a new unique name.
-            SYMBOLTABLEENTRY_NAME(forVarEntry) = createUniqueNameForSymbolTable(INFO_CURSCOPE(arg_info), name, STE_vardef);
-        }
+    // And now replace our name with the generated one and restore the original
+    if (existingVarDef) {
+        DBUG_PRINT("SA", ("Restoring the original name and generating a unique name."));
+        SYMBOLTABLEENTRY_NAME(existingVarDef) = originalName;
+        // If the name exists within the current scope generate a new unique name.
+        SYMBOLTABLEENTRY_NAME(forVarEntry) = createUniqueNameForSymbolTable(INFO_CURSCOPE(arg_info), name, STE_vardef);
     }
 
     DBUG_RETURN(arg_node);

@@ -1,0 +1,7 @@
+void thisIsNotAllowed() {
+    for (int i = 0, 10) {
+        for (int j = 11, 20) {
+            i = j;
+        }
+    }
+}

@@ -120,7 +120,7 @@ char *encodeType(type ypeToEncode, int lineNr) {
         case TY_void:
             break;
         case TY_unknown :
-            CTIerror("Type check failed earlier, type information is missing for an instruction on line [%d], can't generate byte code.", lineNr);
+            CTIerror("Type check failed earlier, type information is missing for an instruction on line %d, can't generate byte code.", lineNr);
     }
     return typeId;
 }
@@ -168,7 +168,7 @@ char *encodeOperator(binop op, int lineNr) {
              operator = "add";
              break;
          default:
-             fprintf(outfile, "; Unknown operator used on line [%d].", lineNr);
+             fprintf(outfile, "; Unknown operator used on line %d.", lineNr);
     }
     return operator;
 }
