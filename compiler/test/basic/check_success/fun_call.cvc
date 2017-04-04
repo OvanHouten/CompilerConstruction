@@ -1,9 +1,9 @@
 int test() {
 	int x = test2();
-	return x;
+	return 1;
 }
 
 int test2() {
 	int x = test();
-	return x;
+	return 1;
 }

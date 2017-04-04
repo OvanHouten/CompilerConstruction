@@ -1,0 +1,6 @@
+//Global dec
+extern int testVar1; // In SYMBOL table
+extern float testVar2; // In SYMBOL table
+extern bool testVar3; // In SYMBOL table
+
+int testVar1;

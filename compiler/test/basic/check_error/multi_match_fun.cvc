@@ -1,0 +1,5 @@
+extern test(int i);
+
+int test() {
+		return 1;
+}

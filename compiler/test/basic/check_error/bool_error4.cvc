@@ -1,3 +1,4 @@
 export int main() {
 	bool test = !1;
+	return 1;
 }

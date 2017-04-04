@@ -1,5 +1,5 @@
 export int main() {
-	for(int test = 1.0, 1.0, 1.0) {
+	for(int test = 1.0, 1,1) {
 
 	}
 	return 1;
