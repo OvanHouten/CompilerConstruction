@@ -307,36 +307,33 @@ node *SAfor(node *arg_node, info *arg_info) {
     TRAVdo(FOR_FINISH(arg_node), arg_info);
     TRAVopt(FOR_STEP(arg_node), arg_info);
 
-    // Only go through the trouble if it is really useful
-    if (FOR_BLOCK(arg_node)) {
-        DBUG_PRINT("SA", ("Looking for existing name."));
-        char *name = VARDEF_NAME(varDef);
-        node *existingVarDef = findWithinScope(INFO_CURSCOPE(arg_info), name, STE_vardef);
+    DBUG_PRINT("SA", ("Looking for existing name."));
+    char *name = VARDEF_NAME(varDef);
+    node *existingVarDef = findWithinScope(INFO_CURSCOPE(arg_info), name, STE_vardef);
 
-        char *originalName = NULL;
-        if (existingVarDef) {
-            DBUG_PRINT("SA", ("Hiding the existing name in the symboltable for now."));
-            // Remember the name and remove it (by giving it a different name) from the ST
-            originalName = SYMBOLTABLEENTRY_NAME(existingVarDef);
-            SYMBOLTABLEENTRY_NAME(existingVarDef) = "";
-        }
+    char *originalName = NULL;
+    if (existingVarDef) {
+        DBUG_PRINT("SA", ("Hiding the existing name in the symboltable for now."));
+        // Remember the name and remove it (by giving it a different name) from the ST
+        originalName = SYMBOLTABLEENTRY_NAME(existingVarDef);
+        SYMBOLTABLEENTRY_NAME(existingVarDef) = "";
+    }
 
-        // Register the variable, now all occurrences of our vardef name will get a STE entry to us
-        node *forVarEntry = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), varDef, name, STE_vardef, TY_int);
-        VARDEF_STE(varDef) = forVarEntry;
-        SYMBOLTABLEENTRY_DEFNODE(forVarEntry) = varDef;
-        SYMBOLTABLEENTRY_OFFSET(forVarEntry) = SYMBOLTABLE_VARIABLES(INFO_CURSCOPE(arg_info))++;
-        // Process the block
-        DBUG_PRINT("SA", ("Processing the block."));
-        FOR_BLOCK(arg_node) = TRAVdo(FOR_BLOCK(arg_node), arg_info);
+    // Register the variable, now all occurrences of our vardef name will get a STE entry to us
+    node *forVarEntry = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), varDef, name, STE_vardef, TY_int);
+    VARDEF_STE(varDef) = forVarEntry;
+    SYMBOLTABLEENTRY_DEFNODE(forVarEntry) = varDef;
+    SYMBOLTABLEENTRY_OFFSET(forVarEntry) = SYMBOLTABLE_VARIABLES(INFO_CURSCOPE(arg_info))++;
+    // Process the block
+    DBUG_PRINT("SA", ("Processing the block."));
+    FOR_BLOCK(arg_node) = TRAVopt(FOR_BLOCK(arg_node), arg_info);
 
-        // And now replace our name with the generated one and restore the original
-        if (existingVarDef) {
-            DBUG_PRINT("SA", ("Restoring the original name and generating a unique name."));
-            SYMBOLTABLEENTRY_NAME(existingVarDef) = originalName;
-            // If the name exists within the current scope generate a new unique name.
-            SYMBOLTABLEENTRY_NAME(forVarEntry) = createUniqueNameForSymbolTable(INFO_CURSCOPE(arg_info), name, STE_vardef);
-        }
+    // And now replace our name with the generated one and restore the original
+    if (existingVarDef) {
+        DBUG_PRINT("SA", ("Restoring the original name and generating a unique name."));
+        SYMBOLTABLEENTRY_NAME(existingVarDef) = originalName;
+        // If the name exists within the current scope generate a new unique name.
+        SYMBOLTABLEENTRY_NAME(forVarEntry) = createUniqueNameForSymbolTable(INFO_CURSCOPE(arg_info), name, STE_vardef);
     }
 
     DBUG_RETURN(arg_node);

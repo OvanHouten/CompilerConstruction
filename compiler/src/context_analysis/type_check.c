@@ -15,6 +15,7 @@
 #include "ctinfo.h"
 #include "type_utils.h"
 #include "str.h"
+#include "lookup_table.h"
 
 #include "type_check.h"
 #include "type_utils.h"
@@ -24,14 +25,14 @@
  */
 struct INFO {
   node *funHeader;
-  char *forLoopVar;
+  lut_t *loopVars;
 };
 
 /*
  * INFO macros
  */
-#define INFO_FUNHEADER(n)       ((n)->funHeader)
-#define INFO_FORLOOPVAR(n)      ((n)->forLoopVar)
+#define INFO_FUNHEADER(n)     ((n)->funHeader)
+#define INFO_LOOPVARS(n)      ((n)->loopVars)
 
 /*
  * INFO functions
@@ -44,7 +45,7 @@ static info *MakeInfo(void)
 
   result = (info *)MEMmalloc(sizeof(info));
   INFO_FUNHEADER(result) = NULL;
-  INFO_FORLOOPVAR(result) = NULL;
+  INFO_LOOPVARS(result) = LUTgenerateLut();
 
   DBUG_RETURN( result);
 }
@@ -53,6 +54,7 @@ static info *FreeInfo( info *info)
 {
   DBUG_ENTER ("FreeInfo");
 
+  INFO_LOOPVARS(info) = LUTremoveLut(INFO_LOOPVARS(info));
   info = MEMfree( info);
 
   DBUG_RETURN( info);
@@ -72,7 +74,8 @@ node *TCassign(node *arg_node, info *arg_info) {
         CTIerror("The type at the left hand side [%s] and the right hand side [%s] don't match at line [%d] and column [%d].", typeToString(leftResultType), typeToString(rightResultType), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
     // Make sure that the for loop variable is read-only
-    if (STReq(ID_NAME(ASSIGN_LET(arg_node)), INFO_FORLOOPVAR(arg_info))) {
+    void **varName = LUTsearchInLutS(INFO_LOOPVARS(arg_info), ID_NAME(ASSIGN_LET(arg_node)));
+    if (varName != NULL && (*varName) != NULL) {
         CTIerror("The loop variable '%s' can't be changed at line %d.", ID_NAME(ASSIGN_LET(arg_node)), NODE_LINE(arg_node));
     }
 
@@ -335,13 +338,12 @@ node *TCfor(node *arg_node, info *arg_info) {
         CTIerror("The step expression for a for-loop must be evaluate to 'int' and not to [%s] at line [%d] and column [%d].", typeToString(determineType(FOR_STEP(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
-    // Prepare for loop variable read-only check
-    char *outerLoopVar = INFO_FORLOOPVAR(arg_info);
-    INFO_FORLOOPVAR(arg_info) = VARDEF_NAME(FOR_VARDEF(arg_node));
+    LUTinsertIntoLutS(INFO_LOOPVARS(arg_info), VARDEF_NAME(FOR_VARDEF(arg_node)), VARDEF_NAME(FOR_VARDEF(arg_node)));
 
     TRAVopt(FOR_BLOCK(arg_node), arg_info);
 
-    INFO_FORLOOPVAR(arg_info) = outerLoopVar;
+    void *dummy = NULL;
+    LUTupdateLutS(INFO_LOOPVARS(arg_info), VARDEF_NAME(FOR_VARDEF(arg_node)), NULL, &dummy);
 
     DBUG_RETURN(arg_node);
 }

@@ -89,10 +89,13 @@ node* FWTfor(node* arg_node, info* arg_info) {
     node *symbolTable = FUNDEF_SYMBOLTABLE(INFO_FUNDEF(arg_info));
 
     // Get the name of the loop variable and create a variable for it (needed later)
-    node *loopVar = TBmakeId(STRcpy(SYMBOLTABLEENTRY_NAME(VARDEF_STE(FOR_VARDEF(arg_node)))));
-    ID_STE(loopVar) = VARDEF_STE(FOR_VARDEF(arg_node));
-    NODE_LINE(loopVar) = NODE_LINE(FOR_VARDEF(arg_node));
-    NODE_COL(loopVar) = NODE_COL(FOR_VARDEF(arg_node));
+    node *varDef = COPYdoCopy(FOR_VARDEF(arg_node));
+    node *varDefSTE = VARDEF_STE(varDef);
+    char * varDefSTEName = SYMBOLTABLEENTRY_NAME(varDefSTE);
+    node *loopVar = TBmakeId(STRcpy(varDefSTEName));
+    ID_STE(loopVar) = VARDEF_STE(varDef);
+    NODE_LINE(loopVar) = NODE_LINE(varDef);
+    NODE_COL(loopVar) = NODE_COL(varDef);
 
     // We are only allowed to determine the step and finish values once, so we need some
     // unique variable names to store their values.
@@ -126,16 +129,16 @@ node* FWTfor(node* arg_node, info* arg_info) {
     FUNBODY_VARDECS(funBody) = TBmakeVardecs(finishVarDef, FUNBODY_VARDECS(funBody));
 
     // Add assignment statements in front of the while loop
-    node *stepVarAssign = TBmakeAssign(COPYdoCopy(stepVar), FOR_STEP(arg_node));
-    node *finishVarAssign = TBmakeAssign(COPYdoCopy(finishVar), FOR_FINISH(arg_node));
+    node *stepVarAssign = TBmakeAssign(COPYdoCopy(stepVar), COPYdoCopy(FOR_STEP(arg_node)));
+    node *finishVarAssign = TBmakeAssign(COPYdoCopy(finishVar), COPYdoCopy(FOR_FINISH(arg_node)));
 
     STATEMENTS_NEXT(INFO_CURRENTSTATEMENT(arg_info)) = TBmakeStatements(stepVarAssign, STATEMENTS_NEXT(INFO_CURRENTSTATEMENT(arg_info)));
     STATEMENTS_NEXT(INFO_CURRENTSTATEMENT(arg_info)) = TBmakeStatements(finishVarAssign, STATEMENTS_NEXT(INFO_CURRENTSTATEMENT(arg_info)));
 
-  	// Depending on the sign of the step value the condition must be different
-	// step > 0 ? loop-var < finish : loop-var > finish
-	node* positiveStepCondition = TBmakeBinop(BO_lt, COPYdoCopy(loopVar), COPYdoCopy(finishVar));
-	BINOP_TYPE(positiveStepCondition) = TY_bool;
+    // Depending on the sign of the step value the condition must be different
+    // step > 0 ? loop-var < finish : loop-var > finish
+    node* positiveStepCondition = TBmakeBinop(BO_lt, COPYdoCopy(loopVar), COPYdoCopy(finishVar));
+    BINOP_TYPE(positiveStepCondition) = TY_bool;
 
     node* negativeStepCondition = TBmakeBinop(BO_gt, COPYdoCopy(loopVar), COPYdoCopy(finishVar));
     BINOP_TYPE(negativeStepCondition) = TY_bool;
@@ -148,25 +151,22 @@ node* FWTfor(node* arg_node, info* arg_info) {
     node *whileCondition = TBmakeTernop(stepSelection, positiveStepCondition, negativeStepCondition);
     TERNOP_TYPE(whileCondition) = TY_bool;
 
-	// Create Increment statement node for the end of the codeblock
+    // Create Increment statement node for the end of the codeblock
     node* addInstruction = TBmakeBinop(BO_add, COPYdoCopy(loopVar), COPYdoCopy(stepVar));
     BINOP_TYPE(addInstruction) = TY_int;
     node* nextStep = TBmakeAssign(COPYdoCopy(loopVar), addInstruction);
 
-	// Add increment statement at the end of the codeblock
-	node* whileLoop = TBmakeWhile(whileCondition, TBmakeStatements(nextStep, FOR_BLOCK(arg_node)));
+    // Add increment statement at the end of the codeblock
+    node* whileLoop = TBmakeWhile(whileCondition, TBmakeStatements(nextStep, FOR_BLOCK(arg_node)));
 
-	// Free old For node
-	FOR_VARDEF(arg_node) = NULL;
-    FOR_STEP(arg_node) = NULL;
-    FOR_FINISH(arg_node) = NULL;
-	FOR_BLOCK(arg_node) = NULL;
-	arg_node = FREEfor(arg_node, arg_info);
+    // Free old For node
+    FOR_BLOCK(arg_node) = NULL;
+    arg_node = FREEfor(arg_node, arg_info);
 
-	STATEMENTS_STATEMENT(INFO_CURRENTSTATEMENT(arg_info)) = whileLoop;
+    STATEMENTS_STATEMENT(INFO_CURRENTSTATEMENT(arg_info)) = whileLoop;
     arg_node = whileLoop;
-	
-	TRAVdo(WHILE_BLOCK(arg_node), arg_info);
+
+    WHILE_BLOCK(arg_node) = TRAVopt(WHILE_BLOCK(arg_node), arg_info);
 	
     DBUG_RETURN(arg_node);
 }
