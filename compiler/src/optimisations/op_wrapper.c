@@ -246,38 +246,6 @@ node *OPassign(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
-node *OPstatements(node *arg_node, info *arg_info) {
-    DBUG_ENTER("OPstatements");
-
-    STATEMENTS_NEXT(arg_node) = TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
-    STATEMENTS_STATEMENT(arg_node) = TRAVopt(STATEMENTS_STATEMENT(arg_node), arg_info);
-
-    if (NODE_TYPE(STATEMENTS_STATEMENT(arg_node)) == N_if) {
-        node *reducedIf = TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
-        // If the if statement is reduced we either get a list of statements back or a single statement.
-        // If we get a single statement it will replace the current if-else statement.
-        // If we get a list of statements they will be inserted in the current surrounding statements.
-        if (NODE_TYPE(reducedIf) == N_statements) {
-            // Replace the original if-else statement with a NOP statement
-            // This relieves us from a whole bunch of tricky list handling code :-)
-            STATEMENTS_STATEMENT(arg_node) = TBmakeNop();
-
-            DBUG_PRINT("OP", ("Inserting remaining code into the surrounding code"));
-            node *firstStatement = reducedIf;
-            while (STATEMENTS_NEXT(firstStatement)) {
-                firstStatement = STATEMENTS_NEXT(firstStatement);
-            }
-
-            STATEMENTS_NEXT(firstStatement) = STATEMENTS_NEXT(arg_node);
-            STATEMENTS_NEXT(arg_node) = reducedIf;
-        } else {
-            STATEMENTS_STATEMENT(arg_node) = reducedIf;
-        }
-    }
-
-    DBUG_RETURN(arg_node);
-}
-
 node *OPif(node *arg_node, info *arg_info) {
     DBUG_ENTER("OPif");
 
