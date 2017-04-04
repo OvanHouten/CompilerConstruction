@@ -1,0 +1,26 @@
+extern void printInt(int integer);
+extern void printFloat(float var);
+extern void printNewlines(int num);
+
+export int main() {
+    float b = 2.3;
+    float c;
+    float d;
+    int e;
+    float f;
+    printFloat(b);
+    printNewlines(1);
+    c = b + 4.2;
+    printFloat(c);
+    printNewlines(1);
+    d = 5.2 * 6.2;
+    printFloat(d);
+    printNewlines(1);
+    e = 17 % 8;
+    printInt(e);
+    printNewlines(1);
+    f = c + d - (float) e * b;
+    printFloat(f);
+    printNewlines(2);
+    return 0;
+}

@@ -1,0 +1,6 @@
+void test() {
+    int x;
+    int z;
+    x = 3;
+    z = x;
+}

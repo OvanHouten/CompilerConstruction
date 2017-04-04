@@ -1,0 +1,4 @@
+extern int main() {
+	int x = x;
+	return 1;
+}

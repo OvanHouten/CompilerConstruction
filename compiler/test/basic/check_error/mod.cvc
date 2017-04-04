@@ -1,3 +1,4 @@
 export int main() {
 	int test = 1 % 2.0;
+	return 1;
 }

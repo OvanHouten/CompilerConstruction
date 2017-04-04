@@ -1,0 +1,6 @@
+int i = 33;
+export int main() {
+    int a = i;
+    float i = 1.0;
+    return 1;
+}

@@ -2,6 +2,6 @@ int test = 1;
 
 export int main() {
 	float test = 5.0;
-	return 0;
+	return 1;
 }
 

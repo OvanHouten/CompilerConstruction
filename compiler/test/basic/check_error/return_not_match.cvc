@@ -1,3 +1,4 @@
 int maina() {
 	float test = maina();
+	return 1;
 }

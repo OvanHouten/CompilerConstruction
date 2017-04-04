@@ -1,0 +1,48 @@
+/**/
+extern void printInt(int val);
+extern void printNewlines(int num);
+
+int counter = 0;
+
+bool t() {
+    counter = counter + 1;
+    return true;
+}
+
+bool f() {
+    counter = counter + 1;
+    return false;
+}
+
+void printResult(bool r) {
+    printInt((int)r);
+    printNewlines(1);
+}
+
+export int main() {
+
+    bool t1 = f() && t(); //1
+    bool t2 = t() && f(); //3
+    bool t3 = t() && t(); //5
+    bool t4 = f() && f(); //6
+
+    bool t5 = f() || t(); //8
+    bool t6 = t() || f(); //9
+    bool t7 = t() || t(); //10
+    bool t8 = f() || f(); //12
+
+    printInt(counter); //12
+    printNewlines(1);
+
+    printResult(t1); //f
+    printResult(t2); //f
+    printResult(t3); //t
+    printResult(t4); //f
+
+    printResult(t5); //t
+    printResult(t6); //t
+    printResult(t7); //t
+    printResult(t8); //f
+
+    return 0;
+}
