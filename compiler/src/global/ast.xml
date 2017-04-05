@@ -49,7 +49,6 @@
       <traversal id="SA" name="Context Analysis" default="sons" include="context_analysis.h" >
         <travuser>
           <node name="Program" />
-          <node name="Declarations" />
           <node name="FunDef" />
           <node name="VarDef" />
           <node name="Id" />

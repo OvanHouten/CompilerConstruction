@@ -65,54 +65,65 @@ static info *FreeInfo( info *info)
 // Traversal code starts here
 // =============================================
 
+void registerFunDef(node *funDef, info *arg_info) {
+    node *funHeader = FUNDEF_FUNHEADER(funDef);
+    char *name = FUNHEADER_NAME(funHeader);
+    DBUG_PRINT("SA", ("Registering function '%s'.", name));
+
+    // Make sure it does not exist within the current scope
+    node* funDefSTE = findWithinScope(INFO_CURSCOPE(arg_info), name, STE_fundef);
+    if(funDefSTE) {
+        CTIerror("Function '%s' at line %d, column %d has already been declared at line %d, column %d.", name, NODE_LINE(funDef), NODE_COL(funDef), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
+    } else {
+        funDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), funDef, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
+        if (FUNDEF_EXTERN(funDef)) {
+            SYMBOLTABLEENTRY_OFFSET(funDefSTE) = INFO_EXTERNALFUNS(arg_info)++;
+            SYMBOLTABLEENTRY_LOCATION(funDefSTE) = LOC_extern;
+        } else {
+            SYMBOLTABLEENTRY_LOCATION(funDefSTE) = LOC_global;
+        }
+
+    }
+    // Make sure we have a reference at hand to the STE
+    FUNDEF_STE(funDef) = funDefSTE;
+    SYMBOLTABLEENTRY_DEFNODE(funDefSTE) = funDef;
+    DBUG_PRINT("SA", ("Registered function '%s' at offset %d.", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
+}
+
 node *SAprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAprogram");
 
 	// Start new scope, change curscope, prevscope stays NULL;
 	INFO_CURSCOPE(arg_info) = PROGRAM_SYMBOLTABLE(arg_node);
 	
-    TRAVopt(PROGRAM_DECLARATIONS(arg_node), arg_info);
-    
-    PROGRAM_SYMBOLTABLE(arg_node) = INFO_CURSCOPE(arg_info);
+	// Register the functions
+	node *declaration = PROGRAM_DECLARATIONS(arg_node);
+	while (declaration) {
+	    if (NODE_TYPE(DECLARATIONS_DECLARATION(declaration)) == N_fundef) {
+	        registerFunDef(DECLARATIONS_DECLARATION(declaration), arg_info);
+	    }
+	    declaration = DECLARATIONS_NEXT(declaration);
+	}
 
-    DBUG_RETURN(arg_node);
-}
-
-node *SAdeclarations(node *arg_node, info *arg_info) {
-    DBUG_ENTER("SAdeclarations");
-
-    // Just register the name of the function or variable
-    if (NODE_TYPE(DECLARATIONS_DECLARATION(arg_node)) == N_fundef) {
-        node *funDef = DECLARATIONS_DECLARATION(arg_node);
-        node *funHeader = FUNDEF_FUNHEADER(funDef);
-        char *name = FUNHEADER_NAME(funHeader);
-        DBUG_PRINT("SA", ("Registering function '%s'.", name));
-
-        // Make sure it does not exist within the current scope
-        node* funDefSTE = findWithinScope(INFO_CURSCOPE(arg_info), name, STE_fundef);
-        if(funDefSTE) {        	
-            CTIerror("Function '%s' at line %d, column %d has already been declared at line %d, column %d.", name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
-        } else {
-            funDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), funDef, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
-            if (FUNDEF_EXTERN(funDef)) {
-                SYMBOLTABLEENTRY_OFFSET(funDefSTE) = INFO_EXTERNALFUNS(arg_info)++;
-                SYMBOLTABLEENTRY_LOCATION(funDefSTE) = LOC_extern;
-            } else {
-                SYMBOLTABLEENTRY_LOCATION(funDefSTE) = LOC_global;
-            }
-
+	// Now register the variables
+    declaration = PROGRAM_DECLARATIONS(arg_node);
+    while (declaration) {
+        if (NODE_TYPE(DECLARATIONS_DECLARATION(declaration)) == N_vardef) {
+            TRAVdo(DECLARATIONS_DECLARATION(declaration), arg_info);
         }
-        // Make sure we have a reference at hand to the STE
-        FUNDEF_STE(funDef) = funDefSTE;
-        SYMBOLTABLEENTRY_DEFNODE(funDefSTE) = funDef;
-        DBUG_PRINT("SA", ("Registered function '%s' at offset %d.", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
+        declaration = DECLARATIONS_NEXT(declaration);
+    }
+    
+    // Now process the function bodies
+    declaration = PROGRAM_DECLARATIONS(arg_node);
+    while (declaration) {
+        if (NODE_TYPE(DECLARATIONS_DECLARATION(declaration)) == N_fundef) {
+            TRAVopt(DECLARATIONS_DECLARATION(declaration), arg_info);
+        }
+        declaration = DECLARATIONS_NEXT(declaration);
     }
 
-    // Continue to register
-    TRAVopt(DECLARATIONS_NEXT(arg_node), arg_info);
-
-    // Now process the body of the function or the whole vardef
-    TRAVdo(DECLARATIONS_DECLARATION(arg_node), arg_info);
+    PROGRAM_SYMBOLTABLE(arg_node) = INFO_CURSCOPE(arg_info);
 
     DBUG_RETURN(arg_node);
 }
