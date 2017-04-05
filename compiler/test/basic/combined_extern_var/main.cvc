@@ -1,9 +1,12 @@
 extern void printInt(int val);
 extern void printNewlines(int num);
+extern int getval();
 
 extern int foo;
 
 export int main() {
     printInt(foo);
+    printNewlines(1);
+    printInt(getval());
     return 0;
 }

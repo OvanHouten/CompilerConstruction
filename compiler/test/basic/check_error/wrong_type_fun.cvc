@@ -1,0 +1,6 @@
+extern void test2(int i);
+
+int test() {
+	test2(true);
+	return 1;
+}

@@ -1,0 +1,28 @@
+extern void printInt(int val);
+extern void printNewlines(int num);
+
+int x = 0;
+export int main() {
+	for( int x = test(), test1(), test2()) {
+
+	}
+
+	printInt(x);
+	printNewlines(1);
+	return 0;
+}
+
+int test() {
+   	x = x + 1;
+	return 0;
+}
+
+int test1() {
+   	x = x + 1;
+	return 10;
+}
+
+int test2() {
+   	x = x + 1;
+	return 2;
+}

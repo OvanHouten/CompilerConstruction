@@ -1,0 +1,13 @@
+extern void printInt(int integer);
+extern void printFloat(float var);
+extern void printNewlines(int num);
+
+export int main() {
+    float b = a();
+    printInt((int)b);
+    return 0;
+}
+
+float a() {
+	return 1.0;
+}

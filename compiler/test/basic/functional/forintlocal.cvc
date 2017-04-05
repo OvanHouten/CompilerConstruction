@@ -1,0 +1,15 @@
+extern void printInt(int val);
+extern void printNewlines(int num);
+
+int x = 1;
+export int main() {
+	int y = 0;
+	for( int x = x - 1, x * 10, x + 1) {
+		y = y + 1;
+	}
+
+	printInt(y);
+	printNewlines(1);
+	return 0;
+}
+

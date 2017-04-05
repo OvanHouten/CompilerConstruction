@@ -1,5 +1,5 @@
-extern test(int i);
+extern void test(int i);
 
-int test() {
+export int test() {
 		return 1;
 }
