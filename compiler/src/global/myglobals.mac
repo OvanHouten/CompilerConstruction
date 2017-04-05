@@ -18,12 +18,12 @@
  */
 
 // The directory where the pre-processor will look for header files.
-GLOBAL( char*, includedir, NULL)
-// The pre-processor can be switched on and off. By default it is switched off.
-GLOBAL( bool, preprocessor_enabled, FALSE)
+GLOBAL( char*, includedir, ".")
+// The hidden file created by the pre-processor is removed by default. 
+GLOBAL( bool, remove_preprocessor_file, TRUE)
 // Printing of the symbol tables can be switched on and off. By default it is switched on
 GLOBAL( bool, print_st, TRUE)
-// Printing of the symbol tables can be switched on and off. By default it is switched off
+// Printing of the variable details can be switched on and off. By default it is switched off
 GLOBAL( bool, print_var_details, FALSE)
 // Printing of the full (hidden) symbol tables can be switched on and off. By default it is switched off
 GLOBAL( bool, full_st_print, FALSE)

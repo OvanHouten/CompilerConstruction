@@ -49,6 +49,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "scanparse.h"
 #include "dbug.h"
@@ -69,35 +70,60 @@ FILE *yyin;
  */
 extern node *YYparseTree();
 
+// File used to store the result from the preprocessor
+char *preProcessedFileName;
+
+// Finds the last occurrence of a separator character in a string.
+// If it is not found the original string is returned.
+char *findLast(char *text, char sep) {
+    char *lastOccurence = text;
+    char *occurence = strchr(text, sep);
+    while (occurence) {
+        lastOccurence = occurence;
+        occurence = strchr(occurence + 1, sep);
+    }
+    return lastOccurence;
+}
+
+char *createHiddenFileName(char *fileName) {
+    char *tempFileName = MEMmalloc(STRlen(fileName) + 2);
+    strcpy(tempFileName, fileName);
+    // Assume we are runnning on a unix like file system!
+    char *lastSlash = findLast(tempFileName, '/');
+    // Move everything from the last occurrence until the end one position to the right
+    // e.g. make room for the 'hidden' file indicator.
+    memmove((lastSlash + 1), lastSlash, strlen(lastSlash) + 1);
+    // Place the 'hidden' file indicator
+    if (lastSlash != tempFileName) {
+        lastSlash++;
+    }
+    *lastSlash = '.';
+    return tempFileName;
+}
+
 node *SPdoScanParse( node *syntax_tree)
 {
   node *result = NULL;
-  char *filename;
   
   DBUG_ENTER("SPdoScanParse");
 
   DBUG_ASSERT( syntax_tree == NULL, 
                "SPdoScanParse() called with existing syntax tree.");
   
-  if (global.cpp) {
-    filename = STRcatn( 3,
-                        ".",
-                        global.infile,
-                        ".cpp");
-  }
-  else {
-    filename = STRcpy( global.infile);
-  }
-  
-  yyin = fopen( filename, "r");
+  yyin = fopen(preProcessedFileName, "r");
   
   if (yyin == NULL) {
-    CTIabort( "Cannot open file '%s'.", filename);
+    CTIabort( "Cannot open file '%s'.", preProcessedFileName);
   }
 
-  MEMfree( filename);
-  
   result = YYparseTree();
+
+
+  if (myglobal.remove_preprocessor_file) {
+      remove(preProcessedFileName);
+  }
+
+  preProcessedFileName = MEMfree(preProcessedFileName);
 
   DBUG_RETURN( result);
 }
@@ -110,35 +136,22 @@ node *SPdoRunPreProcessor( node *syntax_tree)
   
   DBUG_ENTER("SPdoRunPreProcessor");
 
-  if (myglobal.preprocessor_enabled) {
-      DBUG_PRINT("SP", ("Enabling then pre-processor."));
-      if (myglobal.includedir) {
-          printf("Using '%s' as include folder.\n", myglobal.includedir);
-          setenv("C_INCLUDE_PATH", myglobal.includedir, 1);
-      }
+  DBUG_PRINT("SP", ("Enabling then pre-processor."));
+  if (myglobal.includedir) {
+      printf("Using '%s' as include folder.\n", myglobal.includedir);
+      setenv("C_INCLUDE_PATH", myglobal.includedir, 1);
+  }
 
-      if (getenv("C_INCLUDE_PATH") == NULL) {
-          CTIabort("The 'civic.h' system header file can't be found. Please specify the correct location with the '-I' option or make sure the environment variable C_INCLUDE_PATH is set correctly!");
-      }
+  // Mac OS-X does not like (e.g. supports) the 'popen' function properly so we create a 'hidden' version of the file.
+  preProcessedFileName = createHiddenFileName(global.infile);
+  cppcallstr = STRcatn( 4, "gcc -E -x c ", global.infile, " > ", preProcessedFileName);
 
-      cppcallstr = STRcatn( 5,
-                            "gcc -E -x c ",
-                            global.infile,
-                            " > .",
-                            global.infile,
-                            ".cpp");
+  err = system( cppcallstr);
 
-      err = system( cppcallstr);
+  cppcallstr = MEMfree( cppcallstr);
 
-      cppcallstr = MEMfree( cppcallstr);
-
-      if ( err) {
-        CTIabort( "Unable to run C preprocessor, did you use the '-I' switch correctly?");
-      }
-
-      global.cpp = TRUE;
-  } else {
-      DBUG_PRINT("SP", ("Pre-processor is disabled."));
+  if (err) {
+    CTIabort( "Unable to run C preprocessor, did you use the '-I' switch correctly?");
   }
   
   DBUG_RETURN( syntax_tree);

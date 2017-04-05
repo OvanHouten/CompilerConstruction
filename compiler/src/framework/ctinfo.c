@@ -303,7 +303,10 @@ void PrintMessage( const char *header, const char *format, va_list arg_p)
 }
 
 
-/** <!--********************************************************************-->
+// Temporary file used by the compiler that need to be cleaned.
+extern char *preProcessedFileName;
+
+/******************************************************************************
  *
  * @fn static void CleanUp()
  *
@@ -311,12 +314,16 @@ void PrintMessage( const char *header, const char *format, va_list arg_p)
  *           
  *
  ******************************************************************************/
-
 static
 void CleanUp()
 {
   DBUG_ENTER("CleanUp");
   
+  if (preProcessedFileName) {
+      remove(preProcessedFileName);
+      MEMfree(preProcessedFileName);
+  }
+
   DBUG_VOID_RETURN;
 }
 

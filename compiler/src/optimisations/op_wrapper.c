@@ -16,6 +16,8 @@
 #include "myglobals.h"
 #include "copy.h"
 #include "free_node.h"
+#include "free.h"
+#include "type_utils.h"
 
 #include "op_wrapper.h"
 
@@ -299,6 +301,21 @@ node *OPternop(node *arg_node, info *arg_info) {
         arg_node = remaining;
 
         INFO_KEEPOPTIMIZING(arg_info) = TRUE;
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *OPtypecast(node *arg_node, info *arg_info) {
+    DBUG_ENTER("OPtypecast");
+
+    TYPECAST_EXPR(arg_node) = TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
+
+    // Make sure the cast is really needed.
+    if (determineType(TYPECAST_EXPR(arg_node)) == TYPECAST_TYPE(arg_node)) {
+        node *expr = COPYdoCopy(TYPECAST_EXPR(arg_node));
+        FREEdoFreeNode(arg_node);
+        arg_node = expr;
     }
 
     DBUG_RETURN(arg_node);

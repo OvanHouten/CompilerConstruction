@@ -1,0 +1,7 @@
+#include "civic.h"
+
+void foo(int[n, -m] b) {}
+
+export int main() {
+    return 0;
+}

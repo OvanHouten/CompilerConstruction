@@ -78,6 +78,7 @@
           <node name="Do" />
           <node name="While" />
           <node name="For" />
+          <node name="If" />
         </travuser>
       </traversal>
 
@@ -130,6 +131,7 @@
           <node name="Assign" />
           <node name="If" />
           <node name="TernOp" />
+          <node name="Typecast" />
         </travuser>
       </traversal>
 

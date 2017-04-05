@@ -221,6 +221,29 @@ constantPool *registerNewConstant(info *arg_info, type type) {
     DBUG_RETURN(constant);
 }
 
+constantPool *findIntConstant(node *arg_node, info *arg_info) {
+    constantPool *constant = INFO_CONSTANTS(arg_info);
+    while (constant != NULL) {
+        if (constant->type
+                == TY_int&& constant->intVal == INTCONST_VALUE(arg_node)) {
+            break;
+        }
+        constant = constant->next;
+    }
+    return constant;
+}
+
+constantPool *findFloatConstant(node *arg_node, info *arg_info) {
+    constantPool *constant = INFO_CONSTANTS(arg_info);
+    while (constant != NULL) {
+        if (constant->type == TY_float && constant->floatVal == FLOATCONST_VALUE(arg_node)) {
+            break;
+        }
+        constant = constant->next;
+    }
+    return constant;
+}
+
 node *GBCprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCprogram");
 
@@ -506,13 +529,7 @@ node *GBCcompop(node *arg_node, info *arg_info) {
     if (INTCONST_VALUE(COMPOP_CONST(arg_node)) == 1) {
         fprintf(outfile, "    i%s_1 %d\t\t\t; optimized\n", encodeCompOp(COMPOP_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_STE(COMPOP_ID(arg_node))));
     } else {
-        constantPool *constant = INFO_CONSTANTS(arg_info);
-        while (constant != NULL) {
-            if (constant->type == TY_int && constant->intVal == INTCONST_VALUE(COMPOP_CONST(arg_node))) {
-                break;
-            }
-            constant = constant->next;
-        }
+        constantPool *constant = findIntConstant(COMPOP_CONST(arg_node), arg_info);
         if (constant == NULL) {
             constant = registerNewConstant(arg_info, TY_int);
             constant->intVal = INTCONST_VALUE(COMPOP_CONST(arg_node));
@@ -563,7 +580,7 @@ node *GBCtypecast(node *arg_node, info *arg_info) {
 
     TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
     if (determineType(TYPECAST_EXPR(arg_node)) == TY_bool || TYPECAST_TYPE(arg_node) == TY_bool) {
-        fprintf(outfile, "; Typecast with boolean is not yet supported.\n");
+        CTIerror("A Typecast with boolean should have been transformed into a ternary operation by a previous compiler phase.\n");
     } else {
         fprintf(outfile, "    %s2%s\n", encodeType(determineType(TYPECAST_EXPR(arg_node)), NODE_LINE(arg_node)), encodeType(TYPECAST_TYPE(arg_node), NODE_LINE(arg_node)));
     }
@@ -593,13 +610,7 @@ node *GBCintconst(node *arg_node, info *arg_info) {
             fprintf(outfile, "    iloadc_%d\n", INTCONST_VALUE(arg_node));
             break;
         default: {
-            constantPool *constant = INFO_CONSTANTS(arg_info);
-            while (constant != NULL) {
-                if (constant->type == TY_int && constant->intVal == INTCONST_VALUE(arg_node)) {
-                    break;
-                }
-                constant = constant->next;
-            }
+            constantPool* constant = findIntConstant(arg_node, arg_info);
             if (constant == NULL) {
                 constant = registerNewConstant(arg_info, TY_int);
                 constant->intVal = INTCONST_VALUE(arg_node);
@@ -620,13 +631,7 @@ node *GBCfloatconst(node *arg_node, info *arg_info) {
     } else if (FLOATCONST_VALUE(arg_node) == 1.0) {
         fprintf(outfile, "    floadc_1\n");
     } else {
-        constantPool *constant = INFO_CONSTANTS(arg_info);
-        while (constant != NULL) {
-            if (constant->type == TY_float && constant->floatVal == FLOATCONST_VALUE(arg_node)) {
-                break;
-            }
-            constant = constant->next;
-        }
+        constantPool *constant = findFloatConstant(arg_node, arg_info);
         if (constant == NULL) {
             constant = registerNewConstant(arg_info, TY_float);
             constant->floatVal = FLOATCONST_VALUE(arg_node);
