@@ -25,8 +25,11 @@ void PrintGeneralInfo(void)
   printf( "\n\nGENERAL OPTIONS:\n\n"
           
           "    <filename>      Name of program file to compile.\n\n"
-          "    -ep             Enable pre-processor.\n\n"
-          "    -I <dirame>     Name of the directory containing the CiviC system header files. Use in conjunstion with the '-ep' flag.\n\n"
+          "    -epp            Enable pre-processor.\n\n"
+          "    -kppf           Keep the pre-processed file. (The pre-processor uses a hidden file for storing its output.\n"
+          "                    This file is removed by default, but this flag can be used to disable this removal.)\n\n"
+          "    -I <dirame>     Name of the directory containing the CiviC system header files. Use in conjunction with the '-epp' flag.\n"
+          "                    The compiler uses the environment variable 'C_INCLUDE_PATH' or '.' if it is not set.\n\n"
           "    -o <filename>   Name of output file.\n\n"
           "    -v <n>          Verbosity level (default: %d).\n\n"
           "    -eap            Enable printing of the AST in C-style.\n\n"
@@ -40,6 +43,7 @@ void PrintGeneralInfo(void)
           "                    SA   - prints debug information of scope analysis.\n"
           "                    SV   - prints debug information of Split VarDef transformation.\n"
           "                    GI   - prints debug information of Global Init transformation.\n"
+          "                    OP   - prints debug information of optimisations.\n"
           "                    UTIL - prints debug information of miscellaneous utils.\n"
           "                    FREE - prints debug information of tree destructors.\n",
           global.verbosity);

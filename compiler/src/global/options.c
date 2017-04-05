@@ -18,7 +18,9 @@ void OPTcheckOptions( int argc, char **argv)
 
   ARGS_FLAG( "h", USGprintUsage(); exit(0););
 
-  ARGS_FLAG( "ep", myglobal.preprocessor_enabled = TRUE);
+  ARGS_FLAG( "epp", myglobal.preprocessor_enabled = TRUE);
+
+  ARGS_FLAG( "kppf", myglobal.remove_preprocessor_file = FALSE);
 
   ARGS_OPTION( "I", myglobal.includedir = STRcpy( ARG));
 
