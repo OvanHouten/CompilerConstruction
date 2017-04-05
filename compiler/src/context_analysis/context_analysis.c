@@ -229,12 +229,12 @@ node *SAid(node * arg_node, info * arg_info) {
     	node* ids = VARDEF_SIZEIDS(vardef);
     	while(ids) {
     		new_id = TBmakeId(STRcpy(ID_NAME(IDS_ID(ids))), NULL);
-    		
+    		DBUG_PRINT("SA", ("ID NAME = %s", ID_NAME(new_id)));
+
 			distance = 0;
 			varDefSTE = findInAnyScope(INFO_CURSCOPE(arg_info), ID_NAME(new_id), &distance, STE_vardef);
 
 			if(distance > 0) {
-				DBUG_PRINT("SA", ("Defined in outer scope, creating a local STE."));
 				// Defined in a outer scope, create new STE in current scope
 				node* localSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), new_id, ID_NAME(new_id), STE_varusage, TY_int);
 				// And link to the original declaration
@@ -248,9 +248,7 @@ node *SAid(node * arg_node, info * arg_info) {
 			}
 			// Make sure we can reference the STE
 			ID_DECL(new_id) = varDefSTE;
-
     		INFO_DIMSLIST(arg_info) = TBmakeExprs(new_id, INFO_DIMSLIST(arg_info));
-    		DBUG_PRINT("SA", ("ID NAME = %s", ID_NAME(new_id)));
     		ids = IDS_NEXT(ids);
     	}
     }
@@ -392,18 +390,21 @@ node *SAexprs(node *arg_node, info *arg_info) {
 	if(INFO_FUNCALL(arg_info)) {
 		DBUG_PRINT("SA", ("FUNCALL = %d", INFO_FUNCALL(arg_info)));
 		TRAVdo(EXPRS_EXPR(arg_node), arg_info);
-		INFO_DIMSLIST(arg_info) = reverseExprsList(INFO_DIMSLIST(arg_info), NULL);
 		
-		node* temp = EXPRS_NEXT(arg_node);
-		EXPRS_NEXT(arg_node) = INFO_DIMSLIST(arg_info);
+		if(INFO_DIMSLIST(arg_info)) {
+			INFO_DIMSLIST(arg_info) = reverseExprsList(INFO_DIMSLIST(arg_info), NULL);
 		
-		node* temp2 = arg_node;
-		while(EXPRS_NEXT(temp2)) {
-			temp2 = EXPRS_NEXT(temp2);
+			node* temp = EXPRS_NEXT(arg_node);
+			EXPRS_NEXT(arg_node) = INFO_DIMSLIST(arg_info);
+		
+			node* temp2 = arg_node;
+			while(EXPRS_NEXT(temp2)) {
+				temp2 = EXPRS_NEXT(temp2);
+			}
+			EXPRS_NEXT(temp2) = temp;
+		
+			INFO_DIMSLIST(arg_info) = NULL;
 		}
-		EXPRS_NEXT(temp2) = temp;
-		
-		INFO_DIMSLIST(arg_info) = NULL;
 	}
 	else {
 		TRAVdo(EXPRS_EXPR(arg_node), arg_info);

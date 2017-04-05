@@ -37,13 +37,13 @@ SUBPHASE(sa, "Scope Analysis", SAdoScopeAnalysis, ALWAYS, ca)
 
 SUBPHASE(tc, "Type Check", TCdoTypeCheck, ALWAYS, ca)
 
-SUBPHASE(rc, "Return Check", RCdoReturnCheck, NEVER, ca)
+SUBPHASE(rc, "Return Check", RCdoReturnCheck, ALWAYS, ca)
 
 ENDPHASE(ca)
 
 /******************************************************************************/
 
-PHASE(tf, "Transformations", NEVER)
+PHASE(tf, "Transformations", ALWAYS)
 
 SUBPHASE(sv, "Split VarDefs", SVdoSplitVarDefs, ALWAYS, tf)
 
@@ -57,7 +57,7 @@ ENDPHASE(tf)
 
 /******************************************************************************/
 
-PHASE(mop, "Optimisations", NEVER)
+PHASE(mop, "Optimisations", ALWAYS)
 
 SUBPHASE(op, "Optimisations", OPdoOptimisations, ALWAYS, mop)
 
