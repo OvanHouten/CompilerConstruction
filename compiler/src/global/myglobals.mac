@@ -19,8 +19,6 @@
 
 // The directory where the pre-processor will look for header files.
 GLOBAL( char*, includedir, ".")
-// The pre-processor can be switched on and off. By default it is switched off.
-GLOBAL( bool, preprocessor_enabled, FALSE)
 // The hidden file created by the pre-processor is removed by default. 
 GLOBAL( bool, remove_preprocessor_file, TRUE)
 // Printing of the symbol tables can be switched on and off. By default it is switched on

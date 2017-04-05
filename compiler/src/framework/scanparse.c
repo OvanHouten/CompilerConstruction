@@ -71,7 +71,7 @@ FILE *yyin;
 extern node *YYparseTree();
 
 // File used to store the result from the preprocessor
-char *tempFileName;
+char *preProcessedFileName;
 
 // Finds the last occurrence of a separator character in a string.
 // If it is not found the original string is returned.
@@ -85,14 +85,14 @@ char *findLast(char *text, char sep) {
     return lastOccurence;
 }
 
-char *createTempFileName(char *fileName) {
+char *createHiddenFileName(char *fileName) {
     char *tempFileName = MEMmalloc(STRlen(fileName) + 2);
     strcpy(tempFileName, fileName);
     // Assume we are runnning on a unix like file system!
     char *lastSlash = findLast(tempFileName, '/');
     // Move everything from the last occurrence until the end one position to the right
-    // e.g. make room for the 'hidden' file indicator
-    memmove((lastSlash + 1), lastSlash, strlen(lastSlash));
+    // e.g. make room for the 'hidden' file indicator.
+    memmove((lastSlash + 1), lastSlash, strlen(lastSlash) + 1);
     // Place the 'hidden' file indicator
     if (lastSlash != tempFileName) {
         lastSlash++;
@@ -104,34 +104,26 @@ char *createTempFileName(char *fileName) {
 node *SPdoScanParse( node *syntax_tree)
 {
   node *result = NULL;
-  char *filename;
   
   DBUG_ENTER("SPdoScanParse");
 
   DBUG_ASSERT( syntax_tree == NULL, 
                "SPdoScanParse() called with existing syntax tree.");
   
-  if (myglobal.preprocessor_enabled) {
-    filename = tempFileName;
-  }
-  else {
-    filename = STRcpy( global.infile);
-  }
-  
-  yyin = fopen( filename, "r");
+  yyin = fopen(preProcessedFileName, "r");
   
   if (yyin == NULL) {
-    CTIabort( "Cannot open file '%s'.", filename);
+    CTIabort( "Cannot open file '%s'.", preProcessedFileName);
   }
 
   result = YYparseTree();
 
 
-  if (myglobal.preprocessor_enabled && myglobal.remove_preprocessor_file) {
-      remove(tempFileName);
+  if (myglobal.remove_preprocessor_file) {
+      remove(preProcessedFileName);
   }
 
-  MEMfree(filename);
+  MEMfree(preProcessedFileName);
 
   DBUG_RETURN( result);
 }
@@ -144,27 +136,22 @@ node *SPdoRunPreProcessor( node *syntax_tree)
   
   DBUG_ENTER("SPdoRunPreProcessor");
 
-  if (myglobal.preprocessor_enabled) {
-      DBUG_PRINT("SP", ("Enabling then pre-processor."));
-      if (myglobal.includedir) {
-          printf("Using '%s' as include folder.\n", myglobal.includedir);
-          setenv("C_INCLUDE_PATH", myglobal.includedir, 1);
-      }
+  DBUG_PRINT("SP", ("Enabling then pre-processor."));
+  if (myglobal.includedir) {
+      printf("Using '%s' as include folder.\n", myglobal.includedir);
+      setenv("C_INCLUDE_PATH", myglobal.includedir, 1);
+  }
 
-      // Mac OS-X does not like (e.g. supports) the 'popen' function properly so we create a 'hidden' version of the file.
-      tempFileName = createTempFileName(global.infile);
-      cppcallstr = STRcatn( 4, "gcc -E -x c ", global.infile, " > ", tempFileName);
+  // Mac OS-X does not like (e.g. supports) the 'popen' function properly so we create a 'hidden' version of the file.
+  preProcessedFileName = createHiddenFileName(global.infile);
+  cppcallstr = STRcatn( 4, "gcc -E -x c ", global.infile, " > ", preProcessedFileName);
 
-      err = system( cppcallstr);
+  err = system( cppcallstr);
 
-      cppcallstr = MEMfree( cppcallstr);
+  cppcallstr = MEMfree( cppcallstr);
 
-      if (err) {
-        CTIabort( "Unable to run C preprocessor, did you use the '-I' switch correctly?");
-      }
-
-  } else {
-      DBUG_PRINT("SP", ("Pre-processor is disabled."));
+  if (err) {
+    CTIabort( "Unable to run C preprocessor, did you use the '-I' switch correctly?");
   }
   
   DBUG_RETURN( syntax_tree);

@@ -25,10 +25,9 @@ void PrintGeneralInfo(void)
   printf( "\n\nGENERAL OPTIONS:\n\n"
           
           "    <filename>      Name of program file to compile.\n\n"
-          "    -epp            Enable pre-processor.\n\n"
           "    -kppf           Keep the pre-processed file. (The pre-processor uses a hidden file for storing its output.\n"
           "                    This file is removed by default, but this flag can be used to disable this removal.)\n\n"
-          "    -I <dirame>     Name of the directory containing the CiviC system header files. Use in conjunction with the '-epp' flag.\n"
+          "    -I <dirame>     Name of the directory containing the CiviC system header files.\n"
           "                    The compiler uses the environment variable 'C_INCLUDE_PATH' or '.' if it is not set.\n\n"
           "    -o <filename>   Name of output file.\n\n"
           "    -v <n>          Verbosity level (default: %d).\n\n"
