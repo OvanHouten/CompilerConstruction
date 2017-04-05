@@ -77,3 +77,66 @@ type determineType(node *expr) {
 
     DBUG_RETURN(exprType);
 }
+
+char *binopToString(binop op) {
+    char* opAsText;
+    switch(op) {
+    case BO_lt:
+        opAsText = "<";
+        break;
+    case BO_le:
+        opAsText = "<=";
+        break;
+    case BO_eq:
+        opAsText = "==";
+        break;
+    case BO_ne:
+        opAsText = "!=";
+        break;
+    case BO_ge:
+        opAsText = ">=";
+        break;
+    case BO_gt:
+        opAsText = ">";
+        break;
+    case BO_mul:
+        opAsText = "*";
+        break;
+    case BO_div:
+        opAsText = "/";
+        break;
+    case BO_add:
+        opAsText = "+";
+        break;
+    case BO_sub:
+        opAsText = "-";
+        break;
+    case BO_mod:
+        opAsText = "%";
+        break;
+    case BO_and:
+        opAsText = "&&";
+        break;
+    case BO_or:
+        opAsText = "||";
+        break;
+    default:
+        opAsText = "<<UNKNOWN>>";
+    }
+    return opAsText;
+}
+
+char *unopToString(unop op) {
+    char *opAsText;
+    switch (op) {
+      case UO_neg:
+        opAsText = "-";
+        break;
+      case UO_not:
+        opAsText = "!";
+        break;
+      case UO_unknown:
+        DBUG_ASSERT( 0, "unknown unop detected!");
+    }
+    return opAsText;
+}

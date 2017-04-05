@@ -142,7 +142,7 @@ node *OPbinop(node *arg_node, info *arg_info) {
                 folded = TBmakeBoolconst(TY_bool, INTCONST_VALUE(BINOP_LEFT(arg_node)) > INTCONST_VALUE(BINOP_RIGHT(arg_node)));
                 break;
             default:
-                DBUG_PRINT("OP", ("Unable to fold int binop %d.", BINOP_OP(arg_node)));
+                DBUG_PRINT("OP", ("Unable to fold int binop '%s'.", binopToString(BINOP_OP(arg_node))));
         }
     } else if (NODE_TYPE(BINOP_LEFT(arg_node)) == N_floatconst && NODE_TYPE(BINOP_RIGHT(arg_node)) == N_floatconst) {
         DBUG_PRINT("OP", ("Potential float binop for folding."));
@@ -180,7 +180,7 @@ node *OPbinop(node *arg_node, info *arg_info) {
                 folded = TBmakeBoolconst(TY_bool, FLOATCONST_VALUE(BINOP_LEFT(arg_node)) > FLOATCONST_VALUE(BINOP_RIGHT(arg_node)));
                 break;
             default:
-                DBUG_PRINT("OP", ("Unable to fold float binop %d.", BINOP_OP(arg_node)));
+                DBUG_PRINT("OP", ("Unable to fold float binop '%s'.", binopToString(BINOP_OP(arg_node))));
         }
     } else if (NODE_TYPE(BINOP_LEFT(arg_node)) == N_boolconst && NODE_TYPE(BINOP_RIGHT(arg_node)) == N_boolconst) {
         DBUG_PRINT("OP", ("Potential bool binop for folding."));
@@ -200,7 +200,7 @@ node *OPbinop(node *arg_node, info *arg_info) {
                 folded = TBmakeBoolconst(TY_bool, BOOLCONST_VALUE(BINOP_LEFT(arg_node)) != BOOLCONST_VALUE(BINOP_RIGHT(arg_node)));
                 break;
             default:
-                DBUG_PRINT("OP", ("Unable to fold bool binop %d.", BINOP_OP(arg_node)));
+                DBUG_PRINT("OP", ("Unable to fold bool binop '%s'.", binopToString(BINOP_OP(arg_node))));
         }
     }
     if (folded) {

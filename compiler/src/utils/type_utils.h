@@ -14,5 +14,7 @@
 
 extern char *typeToString(type typeInfo);
 extern type determineType(node *expr);
+extern char *binopToString(binop op);
+extern char *unopToString(unop op);
 
 #endif /* SRC_UTILS_TYPE_UTILS_H_ */
