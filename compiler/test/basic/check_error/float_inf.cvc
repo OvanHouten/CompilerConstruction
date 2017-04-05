@@ -1,0 +1,12 @@
+extern void printFloat(float f);
+extern void printNewlines(int l);
+
+float i = 41893697223693842345345334345654645344534534535345345345960.0;
+
+export int main()
+{
+    printFloat(i);
+    printNewlines(1);
+    return 0;
+}
+

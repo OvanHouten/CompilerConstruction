@@ -471,51 +471,7 @@ node *PRTbinop (node * arg_node, info * arg_info) {
 	printf("(");
 	TRAVdo(BINOP_LEFT(arg_node), arg_info);
 
-	char* op;
-	switch(BINOP_OP(arg_node)) {
-	case BO_lt:
-		op = "<";
-		break;
-	case BO_le:
-		op = "<=";
-		break;
-	case BO_eq:
-		op = "==";
-		break;
-	case BO_ne:
-		op = "!=";
-		break;
-	case BO_ge:
-		op = ">=";
-		break;
-	case BO_gt:
-		op = ">";
-		break;
-	case BO_mul:
-		op = "*";
-		break;
-	case BO_div:
-		op = "/";
-		break;
-	case BO_add:
-		op = "+";
-		break;
-	case BO_sub:
-		op = "-";
-		break;
-	case BO_mod:
-		op = "%";
-		break;
-	case BO_and:
-		op = "&&";
-		break;
-	case BO_or:
-		op = "||";
-		break;
-	default:
-		op = "<<UNKNOWN>>";
-	}
-	printf(" %s ", op);
+	printf(" %s ", binopToString(BINOP_OP(arg_node)));
 
 	TRAVdo(BINOP_RIGHT(arg_node), arg_info);
 	printf(")");
@@ -525,22 +481,9 @@ node *PRTbinop (node * arg_node, info * arg_info) {
 
 node * PRTunop (node * arg_node, info * arg_info)
 {
-  char *tmp;
-
   DBUG_ENTER ("PRTunop");
 
-  switch (UNOP_OP( arg_node)) {
-    case UO_neg:
-      tmp = "-";
-      break;
-    case UO_not:
-      tmp = "!";
-      break;
-    case UO_unknown:
-      DBUG_ASSERT( 0, "unknown unop detected!");
-  }
-
-  printf( "%s(", tmp);
+  printf( "%s(", unopToString(UNOP_OP( arg_node)));
   UNOP_EXPR( arg_node) = TRAVdo( UNOP_EXPR( arg_node), arg_info);
   printf( ")");
 

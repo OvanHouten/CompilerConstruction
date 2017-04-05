@@ -1,0 +1,57 @@
+extern void printInt(int val);
+extern void printNewlines(int num);
+
+export int main() {
+	if(true)
+		if(true)
+			if(true)
+				printInt(1);
+			else 
+				printInt(2);
+		else 
+			printInt(3);
+	else 
+		printInt(4);
+
+	if(true)
+		if(true)
+			if(false)
+				printInt(1);
+			else 
+				printInt(2);
+		else 
+			printInt(3);
+	else 
+		printInt(4);
+
+
+	if(true)
+		if(false)
+			if(true)
+				printInt(1);
+			else 
+				printInt(2);
+		else 
+			printInt(3);
+	else 
+		printInt(4);
+
+
+	if(false)
+		if(true)
+			if(true)
+				printInt(1);
+			else 
+				printInt(2);
+		else 
+			printInt(3);
+	else 
+		printInt(4);
+
+
+	printNewlines(1);			
+				
+	return 0;
+}
+
+

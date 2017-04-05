@@ -1,1 +1,4 @@
 export int foo = 222;
+export int getval() {
+    return 4;
+}

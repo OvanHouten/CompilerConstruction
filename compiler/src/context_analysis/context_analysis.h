@@ -11,7 +11,6 @@
 #include "types.h"
 
 extern node *SAprogram(node *arg_node, info *arg_info);
-extern node *SAdeclarations(node *arg_node, info *arg_info);
 extern node *SAlocalfundefs(node *arg_node, info *arg_info);
 extern node *SAfundef(node *arg_node, info *arg_info);
 extern node *SAfunbody(node *arg_node, info *arg_info);

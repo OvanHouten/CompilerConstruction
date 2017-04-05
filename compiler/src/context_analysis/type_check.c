@@ -138,7 +138,7 @@ node *TCunop(node *arg_node, info *arg_info) {
                 case UO_neg :
                     break;
                 default:
-                    CTIerror("Invalid unary operator %d for expression type %d at line %d and column %d.", UNOP_OP(arg_node), exprType, NODE_LINE(arg_node), NODE_COL(arg_node));
+                    CTIerror("Invalid unary operator '%s' for expression type '%s' at line %d and column %d.", unopToString(UNOP_OP(arg_node)), typeToString(exprType), NODE_LINE(arg_node), NODE_COL(arg_node));
             }
             break;
         case TY_bool:
@@ -146,14 +146,14 @@ node *TCunop(node *arg_node, info *arg_info) {
                 case UO_not :
                     break;
                 default:
-                    CTIerror("Invalid unary operator %d for expression type %d at line %d and column %d.", UNOP_OP(arg_node), exprType, NODE_LINE(arg_node), NODE_COL(arg_node));
+                    CTIerror("Invalid unary operator '%s' for expression type '%s' at line %d and column %d.", unopToString(UNOP_OP(arg_node)), typeToString(exprType), NODE_LINE(arg_node), NODE_COL(arg_node));
             }
             break;
             break;
         case TY_void:
             break;
         default :
-            CTIerror("Untyped expression for binary operator %d at line %d and column %d.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+            CTIerror("Untyped expression for binary operator '%s' at line %d and column %d.", binopToString(BINOP_OP(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
     UNOP_TYPE(arg_node) = exprType;
 
@@ -196,11 +196,11 @@ node *TCbinop(node *arg_node, info *arg_info) {
                         if (leftResultType == TY_int) {
                             BINOP_TYPE(arg_node) = leftResultType;
                         } else {
-                            CTIerror("Invalid binary operator %d at line %d and column %d.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+                            CTIerror("Invalid binary operator '%s' at line %d and column %d.", binopToString(BINOP_OP(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
                         }
                         break;
                     default:
-                        CTIerror("Invalid binary operator %d at line %d and column %d.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+                        CTIerror("Invalid binary operator '%s' at line %d and column %d.", binopToString(BINOP_OP(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
                 }
                 break;
             case TY_bool :
@@ -214,14 +214,14 @@ node *TCbinop(node *arg_node, info *arg_info) {
                         BINOP_TYPE(arg_node) = TY_bool;
                         break;
                     default:
-                        CTIerror("Invalid binary operator %d at line %d and column %d.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+                        CTIerror("Invalid binary operator '%s' at line %d and column %d.", binopToString(BINOP_OP(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
                 }
                 break;
             case TY_void :
-                CTIerror("A binary operator %d at line %d and column %d returns a void!.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+                CTIerror("A binary operator '%s' at line %d and column %d returns a void!.", binopToString(BINOP_OP(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
                 break;
             default :
-                CTIerror("Untyped expression for binary operator %d at line %d and column %d.", BINOP_OP(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
+                CTIerror("Untyped expression for binary operator '%s' at line %d and column %d.", binopToString(BINOP_OP(arg_node)), NODE_LINE(arg_node), NODE_COL(arg_node));
         }
     }
 

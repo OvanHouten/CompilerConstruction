@@ -4,34 +4,19 @@ extern int asd;
 
 export int x = 1;
 int y = 2;
-int y2;
 int y3 = 1;
-
 
 extern int main2();
 
 int main() {
-	int z;	
-	int x = 1;
-	float b = 1.0;
-
-	z = 4;
-	foo();
-	if(x == (int)b) {
-		foo2(x,x,x);
-	}
-
-	for(int x = 1, 10) {
-		do {
-			z = main();
-		} while(1.0 == (float)true);
-	}
-
-	foo2_1();
+	y2 = 1;
 	return 1;
 }
 
+int y2;
 
 export void foo2_1() {
+	int z = 1;	
 	x = y + 1;
+	y2 = x + z;
 }

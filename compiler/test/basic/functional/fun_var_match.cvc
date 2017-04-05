@@ -1,0 +1,19 @@
+extern void printInt(int val);
+extern void printNewlines(int num);
+
+int test() {
+	return 5;
+}
+
+int main = test();
+int test = 5;
+
+export int main() {
+	printInt(main);
+	printInt(test);
+
+	printNewlines(1);
+	return 0;
+}
+
+
