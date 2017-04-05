@@ -123,7 +123,7 @@ node *SPdoScanParse( node *syntax_tree)
       remove(preProcessedFileName);
   }
 
-  MEMfree(preProcessedFileName);
+  preProcessedFileName = MEMfree(preProcessedFileName);
 
   DBUG_RETURN( result);
 }
