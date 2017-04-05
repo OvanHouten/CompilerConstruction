@@ -343,9 +343,9 @@ node *SAfor(node *arg_node, info *arg_info) {
     if (existingVarDef) {
         DBUG_PRINT("SA", ("Restoring the original name and generating a unique name."));
         SYMBOLTABLEENTRY_NAME(existingVarDef) = originalName;
-        // If the name exists within the current scope generate a new unique name.
-        SYMBOLTABLEENTRY_NAME(forVarEntry) = createUniqueNameForSymbolTable(INFO_CURSCOPE(arg_info), name, STE_vardef);
     }
+    // If the name exists within the current scope generate a new unique name.
+    SYMBOLTABLEENTRY_NAME(forVarEntry) = createUniqueNameForSymbolTable(INFO_CURSCOPE(arg_info), name, STE_vardef);
 
     DBUG_RETURN(arg_node);
 }
