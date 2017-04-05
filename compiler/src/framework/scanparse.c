@@ -138,7 +138,7 @@ node *SPdoRunPreProcessor( node *syntax_tree)
 
   DBUG_PRINT("SP", ("Enabling then pre-processor."));
   if (myglobal.includedir) {
-      printf("Using '%s' as include folder.\n", myglobal.includedir);
+      DBUG_PRINT("SP", ("Using '%s' as include folder.\n", myglobal.includedir));
       setenv("C_INCLUDE_PATH", myglobal.includedir, 1);
   }
 
