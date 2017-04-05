@@ -90,6 +90,7 @@
 #include "str.h"
 #include "memory.h"
 #include "globals.h"
+#include "myglobals.h"
 
 #include "ctinfo.h"
 
@@ -303,7 +304,10 @@ void PrintMessage( const char *header, const char *format, va_list arg_p)
 }
 
 
-/** <!--********************************************************************-->
+// Temporary file used by the compiler that need to be cleaned.
+extern char *preProcessedFileName;
+
+/******************************************************************************
  *
  * @fn static void CleanUp()
  *
@@ -311,12 +315,16 @@ void PrintMessage( const char *header, const char *format, va_list arg_p)
  *           
  *
  ******************************************************************************/
-
 static
 void CleanUp()
 {
   DBUG_ENTER("CleanUp");
   
+  if (preProcessedFileName && myglobal.remove_preprocessor_file) {
+      remove(preProcessedFileName);
+      MEMfree(preProcessedFileName);
+  }
+
   DBUG_VOID_RETURN;
 }
 

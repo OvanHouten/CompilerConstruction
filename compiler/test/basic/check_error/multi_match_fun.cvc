@@ -1,0 +1,5 @@
+extern void test(int i);
+
+export int test() {
+		return 1;
+}

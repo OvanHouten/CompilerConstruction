@@ -13,9 +13,9 @@
 extern node *OPunop(node *arg_node, info *arg_info);
 extern node *OPbinop(node *arg_node, info *arg_info);
 extern node *OPassign(node *arg_node, info *arg_info);
-extern node *OPstatements(node *arg_node, info *arg_info);
 extern node *OPif(node *arg_node, info *arg_info);
 extern node *OPternop(node *arg_node, info *arg_info);
+extern node *OPtypecast(node *arg_node, info *arg_info);
 
 extern node *OPdoOptimisations(node *syntaxtree);
 

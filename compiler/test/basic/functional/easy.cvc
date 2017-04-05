@@ -1,0 +1,69 @@
+/**/
+extern void printInt(int val);
+extern void printNewlines(int num);
+extern void printSpaces(int num);
+
+int getFour() {
+	return 4;
+}
+
+float getTen() {
+	return (float)(getFour() + 6);
+}
+
+int getVal(int test) {
+	if(test == 0)
+		return 0;
+
+	return 1 + getVal(test - 1);
+}
+
+int printLine() {
+	printNewlines(1);
+	return 1;
+}
+
+int test = 10;
+export int main() {
+	int test = test * 6;
+	int test2 = 10;
+	test = test + 1;
+	test = test + getFour();
+
+	for(int i = 0, 10) {
+		test = test + 1;
+	}
+
+	for(int i = 10, 5, - (test2 - 9)) {
+		test = test + 1;
+	}
+
+	while(test2 != 0) {
+		test2 = test2 - 1;
+		test = test + 1;
+	}
+
+	do {
+		test2 = test2 + 1;
+		test = test + 1;
+	} while(test2 < 10);
+
+	test = test + (int)getTen();
+
+	test = getVal(10) + test;
+
+	if(test == 110) {
+		test = test + 10;
+	}
+
+	if(test < 120) {
+		test = 0;
+	} else {
+		test = test + 10; //130	
+	}
+
+	printInt(test);	
+	printLine();
+	
+	return 0;
+}

@@ -120,7 +120,7 @@ char *encodeType(type ypeToEncode, int lineNr) {
         case TY_void:
             break;
         case TY_unknown :
-            CTIerror("Type check failed earlier, type information is missing for an instruction on line [%d], can't generate byte code.", lineNr);
+            CTIerror("Type check failed earlier, type information is missing for an instruction on line %d, can't generate byte code.", lineNr);
     }
     return typeId;
 }
@@ -168,7 +168,7 @@ char *encodeOperator(binop op, int lineNr) {
              operator = "add";
              break;
          default:
-             fprintf(outfile, "; Unknown operator used on line [%d].", lineNr);
+             fprintf(outfile, "; Unknown operator used on line %d.", lineNr);
     }
     return operator;
 }
@@ -221,6 +221,29 @@ constantPool *registerNewConstant(info *arg_info, type type) {
     DBUG_RETURN(constant);
 }
 
+constantPool *findIntConstant(node *arg_node, info *arg_info) {
+    constantPool *constant = INFO_CONSTANTS(arg_info);
+    while (constant != NULL) {
+        if (constant->type
+                == TY_int&& constant->intVal == INTCONST_VALUE(arg_node)) {
+            break;
+        }
+        constant = constant->next;
+    }
+    return constant;
+}
+
+constantPool *findFloatConstant(node *arg_node, info *arg_info) {
+    constantPool *constant = INFO_CONSTANTS(arg_info);
+    while (constant != NULL) {
+        if (constant->type == TY_float && constant->floatVal == FLOATCONST_VALUE(arg_node)) {
+            break;
+        }
+        constant = constant->next;
+    }
+    return constant;
+}
+
 node *GBCprogram(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCprogram");
 
@@ -252,7 +275,7 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
 
     TRAVopt(SYMBOLTABLEENTRY_NEXT(arg_node), arg_info);
 
-    node *declaration = SYMBOLTABLEENTRY_DECL(arg_node);
+    node *declaration = SYMBOLTABLEENTRY_DEFNODE(arg_node);
     switch (NODE_TYPE(declaration)) {
         case N_vardef :
             switch (INFO_PSEUDOPHASE(arg_info)) {
@@ -265,7 +288,7 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
                     if (VARDEF_EXTERN(declaration)) {
                         fprintf(outfile, ".importvar \"%s\" %s\n", VARDEF_NAME(declaration), typeToString(VARDEF_TYPE(declaration)));
                     } else if (VARDEF_EXPORT(declaration)) {
-                        fprintf(outfile, ".exportvar \"%s\" %d\n", VARDEF_NAME(declaration), SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(declaration)));
+                        fprintf(outfile, ".exportvar \"%s\" %d\n", VARDEF_NAME(declaration), SYMBOLTABLEENTRY_OFFSET(VARDEF_STE(declaration)));
                     }
                     break;
                 default :
@@ -361,13 +384,13 @@ node *GBCfuncall(node *arg_node, info *arg_info) {
     int expressionCount = 0;
     prepareExpressions(FUNCALL_EXPRS(arg_node), arg_info, &expressionCount);
 
-    if (FUNDEF_EXTERN(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))) {
-        fprintf(outfile, "    jsre %d\n", SYMBOLTABLEENTRY_OFFSET(FUNCALL_DECL(arg_node)));
+    if (FUNDEF_EXTERN(SYMBOLTABLEENTRY_DEFNODE(FUNCALL_STE(arg_node)))) {
+        fprintf(outfile, "    jsre %d\n", SYMBOLTABLEENTRY_OFFSET(FUNCALL_STE(arg_node)));
     } else {
-        fprintf(outfile, "    jsr %d %s\n", expressionCount, SYMBOLTABLEENTRY_NAME(FUNCALL_DECL(arg_node)));
+        fprintf(outfile, "    jsr %d %s\n", expressionCount, SYMBOLTABLEENTRY_NAME(FUNCALL_STE(arg_node)));
     }
-    if (FUNCALL_PROCEDURECALL(arg_node) && FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))) != TY_void) {
-        fprintf(outfile, "    %spop\n", encodeType(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DECL(FUNCALL_DECL(arg_node)))), NODE_LINE(arg_node)));
+    if (FUNCALL_PROCEDURECALL(arg_node) && FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DEFNODE(FUNCALL_STE(arg_node)))) != TY_void) {
+        fprintf(outfile, "    %spop\n", encodeType(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(SYMBOLTABLEENTRY_DEFNODE(FUNCALL_STE(arg_node)))), NODE_LINE(arg_node)));
     }
 
     DBUG_RETURN(arg_node);
@@ -468,15 +491,15 @@ node *GBCassign(node *arg_node, info *arg_info) {
 
     TRAVdo(ASSIGN_EXPR(arg_node), arg_info);
 
-    node *symbolTableEntry = ID_DECL(ASSIGN_LET(arg_node));
-    node *varDef = SYMBOLTABLEENTRY_DECL(symbolTableEntry);
+    node *symbolTableEntry = ID_STE(ASSIGN_LET(arg_node));
+    node *varDef = SYMBOLTABLEENTRY_DEFNODE(symbolTableEntry);
 
     char* dataType = encodeType(SYMBOLTABLEENTRY_TYPE(symbolTableEntry), NODE_LINE(arg_node));
     int distance = SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry);
     int offset = SYMBOLTABLEENTRY_OFFSET(symbolTableEntry);
 
-    if (distance == 0 || SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef)) != LOC_local) {
-        fprintf(outfile, "    %sstore%s %d\n", dataType, encodeLocation(SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef))), offset);
+    if (distance == 0 || SYMBOLTABLEENTRY_LOCATION(VARDEF_STE(varDef)) != LOC_local) {
+        fprintf(outfile, "    %sstore%s %d\n", dataType, encodeLocation(SYMBOLTABLEENTRY_LOCATION(VARDEF_STE(varDef))), offset);
     } else {
         fprintf(outfile, "; Assigning to relative free variables is not yet supported.\n");
     }
@@ -488,20 +511,14 @@ node *GBCcompop(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCcompop");
 
     if (INTCONST_VALUE(COMPOP_CONST(arg_node)) == 1) {
-        fprintf(outfile, "    i%s_1 %d\t\t\t; optimized\n", encodeCompOp(COMPOP_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(COMPOP_ID(arg_node))));
+        fprintf(outfile, "    i%s_1 %d\t\t\t; optimized\n", encodeCompOp(COMPOP_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_STE(COMPOP_ID(arg_node))));
     } else {
-        constantPool *constant = INFO_CONSTANTS(arg_info);
-        while (constant != NULL) {
-            if (constant->type == TY_int && constant->intVal == INTCONST_VALUE(COMPOP_CONST(arg_node))) {
-                break;
-            }
-            constant = constant->next;
-        }
+        constantPool *constant = findIntConstant(COMPOP_CONST(arg_node), arg_info);
         if (constant == NULL) {
             constant = registerNewConstant(arg_info, TY_int);
             constant->intVal = INTCONST_VALUE(COMPOP_CONST(arg_node));
         }
-        fprintf(outfile, "    i%s %d %d\t\t\t; optimized\n", encodeCompOp(COMPOP_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(COMPOP_ID(arg_node))), constant->offset);
+        fprintf(outfile, "    i%s %d %d\t\t\t; optimized\n", encodeCompOp(COMPOP_OP(arg_node), NODE_LINE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_STE(COMPOP_ID(arg_node))), constant->offset);
     }
 
     DBUG_RETURN(arg_node);
@@ -510,8 +527,8 @@ node *GBCcompop(node *arg_node, info *arg_info) {
 node *GBCid(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCid");
 
-    node *symbolTableEntry = ID_DECL(arg_node);
-    node *varDef = SYMBOLTABLEENTRY_DECL(symbolTableEntry);
+    node *symbolTableEntry = ID_STE(arg_node);
+    node *varDef = SYMBOLTABLEENTRY_DEFNODE(symbolTableEntry);
 
     char* dataType = encodeType(SYMBOLTABLEENTRY_TYPE(symbolTableEntry), NODE_LINE(arg_node));
     int distance = SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry);
@@ -524,8 +541,8 @@ node *GBCid(node *arg_node, info *arg_info) {
         } else {
             fprintf(outfile, "    %sload %d\n", dataType, offset);
         }
-    } else if (SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef)) != LOC_local) {
-        fprintf(outfile, "    %sload%s %d\n", dataType, encodeLocation(SYMBOLTABLEENTRY_LOCATION(VARDEF_DECL(varDef))), offset);
+    } else if (SYMBOLTABLEENTRY_LOCATION(VARDEF_STE(varDef)) != LOC_local) {
+        fprintf(outfile, "    %sload%s %d\n", dataType, encodeLocation(SYMBOLTABLEENTRY_LOCATION(VARDEF_STE(varDef))), offset);
     } else {
         fprintf(outfile, "; Using relative free variables is not yet supported.\n");
     }
@@ -547,7 +564,7 @@ node *GBCtypecast(node *arg_node, info *arg_info) {
 
     TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
     if (determineType(TYPECAST_EXPR(arg_node)) == TY_bool || TYPECAST_TYPE(arg_node) == TY_bool) {
-        fprintf(outfile, "; Typecast with boolean is not yet supported.\n");
+        CTIerror("A Typecast with boolean should have been transformed into a ternary operation by a previous compiler phase.\n");
     } else {
         fprintf(outfile, "    %s2%s\n", encodeType(determineType(TYPECAST_EXPR(arg_node)), NODE_LINE(arg_node)), encodeType(TYPECAST_TYPE(arg_node), NODE_LINE(arg_node)));
     }
@@ -577,13 +594,7 @@ node *GBCintconst(node *arg_node, info *arg_info) {
             fprintf(outfile, "    iloadc_%d\n", INTCONST_VALUE(arg_node));
             break;
         default: {
-            constantPool *constant = INFO_CONSTANTS(arg_info);
-            while (constant != NULL) {
-                if (constant->type == TY_int && constant->intVal == INTCONST_VALUE(arg_node)) {
-                    break;
-                }
-                constant = constant->next;
-            }
+            constantPool* constant = findIntConstant(arg_node, arg_info);
             if (constant == NULL) {
                 constant = registerNewConstant(arg_info, TY_int);
                 constant->intVal = INTCONST_VALUE(arg_node);
@@ -604,13 +615,7 @@ node *GBCfloatconst(node *arg_node, info *arg_info) {
     } else if (FLOATCONST_VALUE(arg_node) == 1.0) {
         fprintf(outfile, "    floadc_1\n");
     } else {
-        constantPool *constant = INFO_CONSTANTS(arg_info);
-        while (constant != NULL) {
-            if (constant->type == TY_float && constant->floatVal == FLOATCONST_VALUE(arg_node)) {
-                break;
-            }
-            constant = constant->next;
-        }
+        constantPool *constant = findFloatConstant(arg_node, arg_info);
         if (constant == NULL) {
             constant = registerNewConstant(arg_info, TY_float);
             constant->floatVal = FLOATCONST_VALUE(arg_node);

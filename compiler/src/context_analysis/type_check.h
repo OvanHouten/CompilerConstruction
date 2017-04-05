@@ -21,6 +21,7 @@ extern node *TCreturn(node *arg_node, info *arg_info);
 extern node *TCdo(node *arg_node, info *arg_info);
 extern node *TCwhile(node *arg_node, info *arg_info);
 extern node *TCfor(node *arg_node, info *arg_info);
+extern node *TCif(node *arg_node, info *arg_info);
 
 extern node *TCdoTypeCheck(node *syntaxtree);
 

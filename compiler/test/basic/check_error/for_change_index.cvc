@@ -1,0 +1,14 @@
+int test() {
+    int j;
+    int a;
+	
+    for(int j = 1, 10) 
+    {
+		a = j;
+	}
+    for(int i = 1, 10) {
+		i = 1;
+	}
+
+	return 1;
+}

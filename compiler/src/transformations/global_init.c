@@ -15,9 +15,10 @@
 #include "str.h"
 #include "ctinfo.h"
 #include "myglobals.h"
+#include "list_utils.h"
+#include "scope_utils.h"
 
 #include "global_init.h"
-#include "list_utils.h"
 
 /*
  * INFO structure
@@ -67,7 +68,7 @@ node *GIprogram(node *arg_node, info *arg_info) {
     while (declarations) {
         if (NODE_TYPE(DECLARATIONS_DECLARATION(declarations)) == N_vardef) {
             node *varDef = DECLARATIONS_DECLARATION(declarations);
-            DBUG_PRINT("GI", ("Found [%s]", VARDEF_NAME(varDef)));
+            DBUG_PRINT("GI", ("Found '%s'", VARDEF_NAME(varDef)));
             if (VARDEF_EXPR(varDef)) {
                 DBUG_PRINT("GI", ("Creating assignment."));
                 // Pull out the expression
@@ -79,34 +80,30 @@ node *GIprogram(node *arg_node, info *arg_info) {
                 NODE_COL(id) = NODE_COL(varDef);
                 // And create a list of assignment statements
                 appendToStatements(funBody, TBmakeStatements(TBmakeAssign(id, expr), NULL));
-                // And add it to the symboltable
-                node *symbolTableEntry = TBmakeSymboltableentry(NULL);
-                ID_DECL(id) = symbolTableEntry;
-                SYMBOLTABLEENTRY_ENTRYTYPE(symbolTableEntry) = STE_varusage;
-                SYMBOLTABLEENTRY_TYPE(symbolTableEntry) = VARDEF_TYPE(varDef);
-                SYMBOLTABLEENTRY_NAME(symbolTableEntry) = STRcpy(VARDEF_NAME(varDef));
-                SYMBOLTABLEENTRY_DECL(symbolTableEntry) = varDef;
 
+                // And add it to the symboltable
+                node *symbolTableEntry = registerWithinCurrentScope(initSymbolTable, varDef, VARDEF_NAME(varDef), STE_varusage, VARDEF_TYPE(varDef));
+                SYMBOLTABLEENTRY_DEFNODE(symbolTableEntry) = varDef;
+                // Now make sure we can reference the ST entry from the variable
+                ID_STE(id) = symbolTableEntry;
                 // By design the global variables will be at distance 1 from the calling '__init' function.
                 SYMBOLTABLEENTRY_DISTANCE(symbolTableEntry) = 1;
-                SYMBOLTABLEENTRY_OFFSET(symbolTableEntry) = SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(varDef));
-                appendToSymbolTableEntries(initSymbolTable, symbolTableEntry);
+                SYMBOLTABLEENTRY_OFFSET(symbolTableEntry) = SYMBOLTABLEENTRY_OFFSET(VARDEF_STE(varDef));
             }
         }
         declarations = DECLARATIONS_NEXT(declarations);
     }
 
-    // If we have assignments create the spacial 'init' method.
+    // If we have assignments create the special 'init' method.
     if (FUNBODY_STATEMENTS(funBody)) {
         DBUG_PRINT("GI", ("Creating '__init' function for globladefs."));
         node *initMethod = TBmakeFundef( FALSE, TRUE, TBmakeFunheader(TY_void, STRcpy("__init"), NULL), funBody, initSymbolTable);
+        // And register it in the ST
+        node *initSTE = registerWithinCurrentScope(PROGRAM_SYMBOLTABLE(arg_node), initMethod, "__init", STE_fundef, TY_void);
+        FUNDEF_STE(initMethod) = initSTE;
+        SYMBOLTABLEENTRY_DEFNODE(initSTE) = initMethod;
+        // And add the new function to the declarations section
         PROGRAM_DECLARATIONS(arg_node) = TBmakeDeclarations(initMethod, PROGRAM_DECLARATIONS(arg_node));
-        node *symbolTable = PROGRAM_SYMBOLTABLE(arg_node);
-        SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable) = TBmakeSymboltableentry(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable));
-        SYMBOLTABLEENTRY_ENTRYTYPE(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = STE_fundef;
-        SYMBOLTABLEENTRY_DECL(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = initMethod;
-        SYMBOLTABLEENTRY_NAME(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = STRcpy("__init");
-        SYMBOLTABLEENTRY_TYPE(SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable)) = TY_void;
     } else {
         // Cleanup
         initSymbolTable = MEMfree(initSymbolTable);

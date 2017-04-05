@@ -84,15 +84,16 @@ node *SVvardecs(node *arg_node, info *arg_info) {
     DBUG_PRINT("SV", ("Next..."));
     TRAVopt(VARDECS_NEXT(arg_node), arg_info);
 
-    DBUG_PRINT("SV", ("Checking [%s]", VARDEF_NAME(VARDECS_VARDEC(arg_node))));
+    DBUG_PRINT("SV", ("Checking '%s'", VARDEF_NAME(VARDECS_VARDEC(arg_node))));
     node *varDef = VARDECS_VARDEC(arg_node);
     if (VARDEF_EXPR(varDef)) {
-        DBUG_PRINT("SV", ("Splitting [%s] from line [%d]", VARDEF_NAME(varDef), NODE_LINE(arg_node)));
+        DBUG_PRINT("SV", ("Splitting '%s' from line %d.", VARDEF_NAME(varDef), NODE_LINE(arg_node)));
         // Remove the expression from the vardef
         node *expr = VARDEF_EXPR(varDef);
         VARDEF_EXPR(varDef) = NULL;
-        node* id = TBmakeId(STRcpy(VARDEF_NAME(varDef)), NULL); // TODO array
-        ID_DECL(id) = VARDEF_DECL(varDef);
+
+        node* id = TBmakeId(STRcpy(VARDEF_NAME(varDef)), NULL); //TODO array
+        ID_STE(id) = COPYdoCopy(VARDEF_STE(varDef));
         NODE_LINE(id) = NODE_LINE(varDef);
         NODE_COL(id) = NODE_COL(varDef);
 
@@ -115,7 +116,7 @@ node *SVstatements(node *arg_node, info *arg_info) {
         node *forNode = STATEMENTS_STATEMENT(arg_node);
         node *varDef = FOR_VARDEF(forNode);
 
-        DBUG_PRINT("SV", ("Splitting [%s] from line [%d]", VARDEF_NAME(varDef), NODE_LINE(forNode)));
+        DBUG_PRINT("SV", ("Splitting '%s' from line %d.", VARDEF_NAME(varDef), NODE_LINE(forNode)));
         // Remove the expression from the vardef
         node *expr = VARDEF_EXPR(varDef);
         VARDEF_EXPR(varDef)  = NULL;
@@ -123,7 +124,7 @@ node *SVstatements(node *arg_node, info *arg_info) {
 
         // Create a copy for the var-loop variable
         node *id = TBmakeId(STRcpy(VARDEF_NAME(varDef)), NULL); //TODO array
-        ID_DECL(id) = VARDEF_DECL(varDef);
+        ID_STE(id) = COPYdoCopy(VARDEF_STE(varDef));
         NODE_LINE(id) = NODE_LINE(varDef);
         NODE_COL(id) = NODE_COL(varDef);
 

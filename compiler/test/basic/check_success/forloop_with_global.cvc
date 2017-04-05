@@ -1,9 +1,9 @@
-int i = 33;
+int external = 33;
 export int main() {
-    int a = i;
+    int i = external;
     for (int i = i, 99, 33) {
         for (int j = i, 1000, i) {
-            i = j;
+            external = j;
         }
     }
     return 66;

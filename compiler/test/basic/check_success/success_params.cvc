@@ -1,0 +1,8 @@
+export int main() {
+
+	return 1;
+}
+
+void test(int x, int t) {
+	
+}

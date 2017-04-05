@@ -16,6 +16,8 @@
 #include "myglobals.h"
 #include "copy.h"
 #include "free_node.h"
+#include "free.h"
+#include "type_utils.h"
 
 #include "op_wrapper.h"
 
@@ -140,7 +142,7 @@ node *OPbinop(node *arg_node, info *arg_info) {
                 folded = TBmakeBoolconst(TY_bool, INTCONST_VALUE(BINOP_LEFT(arg_node)) > INTCONST_VALUE(BINOP_RIGHT(arg_node)));
                 break;
             default:
-                DBUG_PRINT("OP", ("Unable to fold int binop [%d].", BINOP_OP(arg_node)));
+                DBUG_PRINT("OP", ("Unable to fold int binop '%s'.", binopToString(BINOP_OP(arg_node))));
         }
     } else if (NODE_TYPE(BINOP_LEFT(arg_node)) == N_floatconst && NODE_TYPE(BINOP_RIGHT(arg_node)) == N_floatconst) {
         DBUG_PRINT("OP", ("Potential float binop for folding."));
@@ -178,7 +180,7 @@ node *OPbinop(node *arg_node, info *arg_info) {
                 folded = TBmakeBoolconst(TY_bool, FLOATCONST_VALUE(BINOP_LEFT(arg_node)) > FLOATCONST_VALUE(BINOP_RIGHT(arg_node)));
                 break;
             default:
-                DBUG_PRINT("OP", ("Unable to fold float binop [%d].", BINOP_OP(arg_node)));
+                DBUG_PRINT("OP", ("Unable to fold float binop '%s'.", binopToString(BINOP_OP(arg_node))));
         }
     } else if (NODE_TYPE(BINOP_LEFT(arg_node)) == N_boolconst && NODE_TYPE(BINOP_RIGHT(arg_node)) == N_boolconst) {
         DBUG_PRINT("OP", ("Potential bool binop for folding."));
@@ -198,7 +200,7 @@ node *OPbinop(node *arg_node, info *arg_info) {
                 folded = TBmakeBoolconst(TY_bool, BOOLCONST_VALUE(BINOP_LEFT(arg_node)) != BOOLCONST_VALUE(BINOP_RIGHT(arg_node)));
                 break;
             default:
-                DBUG_PRINT("OP", ("Unable to fold bool binop [%d].", BINOP_OP(arg_node)));
+                DBUG_PRINT("OP", ("Unable to fold bool binop '%s'.", binopToString(BINOP_OP(arg_node))));
         }
     }
     if (folded) {
@@ -214,7 +216,7 @@ node *OPbinop(node *arg_node, info *arg_info) {
 }
 
 bool areSameVars(node *left, node *right) {
-    return ID_DECL(left) == ID_DECL(right);
+    return ID_STE(left) == ID_STE(right);
 }
 node *OPassign(node *arg_node, info *arg_info) {
     DBUG_ENTER("OPassign");
@@ -241,38 +243,6 @@ node *OPassign(node *arg_node, info *arg_info) {
         arg_node = FREEassign(arg_node, arg_info);
         arg_node = compoundOp;
         INFO_KEEPOPTIMIZING(arg_info) = TRUE;
-    }
-
-    DBUG_RETURN(arg_node);
-}
-
-node *OPstatements(node *arg_node, info *arg_info) {
-    DBUG_ENTER("OPstatements");
-
-    STATEMENTS_NEXT(arg_node) = TRAVopt(STATEMENTS_NEXT(arg_node), arg_info);
-    STATEMENTS_STATEMENT(arg_node) = TRAVopt(STATEMENTS_STATEMENT(arg_node), arg_info);
-
-    if (NODE_TYPE(STATEMENTS_STATEMENT(arg_node)) == N_if) {
-        node *reducedIf = TRAVdo(STATEMENTS_STATEMENT(arg_node), arg_info);
-        // If the if statement is reduced we either get a list of statements back or a single statement.
-        // If we get a single statement it will replace the current if-else statement.
-        // If we get a list of statements they will be inserted in the current surrounding statements.
-        if (NODE_TYPE(reducedIf) == N_statements) {
-            // Replace the original if-else statement with a NOP statement
-            // This relieves us from a whole bunch of tricky list handling code :-)
-            STATEMENTS_STATEMENT(arg_node) = TBmakeNop();
-
-            DBUG_PRINT("OP", ("Inserting remaining code into the surrounding code"));
-            node *firstStatement = reducedIf;
-            while (STATEMENTS_NEXT(firstStatement)) {
-                firstStatement = STATEMENTS_NEXT(firstStatement);
-            }
-
-            STATEMENTS_NEXT(firstStatement) = STATEMENTS_NEXT(arg_node);
-            STATEMENTS_NEXT(arg_node) = reducedIf;
-        } else {
-            STATEMENTS_STATEMENT(arg_node) = reducedIf;
-        }
     }
 
     DBUG_RETURN(arg_node);
@@ -331,6 +301,21 @@ node *OPternop(node *arg_node, info *arg_info) {
         arg_node = remaining;
 
         INFO_KEEPOPTIMIZING(arg_info) = TRUE;
+    }
+
+    DBUG_RETURN(arg_node);
+}
+
+node *OPtypecast(node *arg_node, info *arg_info) {
+    DBUG_ENTER("OPtypecast");
+
+    TYPECAST_EXPR(arg_node) = TRAVdo(TYPECAST_EXPR(arg_node), arg_info);
+
+    // Make sure the cast is really needed.
+    if (determineType(TYPECAST_EXPR(arg_node)) == TYPECAST_TYPE(arg_node)) {
+        node *expr = COPYdoCopy(TYPECAST_EXPR(arg_node));
+        FREEdoFreeNode(arg_node);
+        arg_node = expr;
     }
 
     DBUG_RETURN(arg_node);

@@ -1,0 +1,17 @@
+extern void printInt(int val);
+extern void printNewlines(int num);
+
+int x = 5;
+int y = 5;
+export int main() {
+	int x = 1;
+	printInt(x); printNewlines(1); //1
+	printInt(y); printNewlines(1); //5
+	test(2);
+	return 0;
+}
+
+void test(int y) {
+	printInt(x); printNewlines(1); //5
+	printInt(y);		       //2
+}

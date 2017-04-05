@@ -44,23 +44,14 @@ float *strToFloat(char * s) {
     // Lets convert it into a long
     double value = 0;
     sscanf(s, "%lf", &value);
-    // and check if it is a legal integer value
+    // and check if it is a legal float value
     if (value >= -FLT_MAX && value <= FLT_MAX) {
-        // Now convert the float value back to a string
-        char* asString = malloc(20);
-        int nrOfDigits = strlen(strstr(s, ".")) - 1;
-        sprintf(asString, "%.*f", nrOfDigits,value);
-        // And make sure it is equal to the original string
-        if (strcmp(s, asString) == 0) {
-            free(asString);
-            // Now allocate space for the actual value
-            float* floatNumber = malloc(sizeof(float));
-            *floatNumber = (float)value;
-            DBUG_RETURN(floatNumber);
-        } else {
-            // Not the same
-            free(asString);
-        }
+        // Now allocate space for the actual value
+        float* floatNumber = malloc(sizeof(float));
+        *floatNumber = (float)value;
+        DBUG_RETURN(floatNumber);
+    } else {
+        DBUG_PRINT("UTIL", ("%lf > %lf > %lf", -FLT_MAX, value, FLT_MAX));
     }
     DBUG_RETURN(NULL);
 }

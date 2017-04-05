@@ -118,6 +118,9 @@ devel:
 
 make_devel: makefiles civicc.go 
 
+test: civicc.go
+	@test/test.sh
+
 makefiles: $(SOURCE_MAKEFILES)
 
 src/%/Makefile: Makefile.Source

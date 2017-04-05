@@ -59,7 +59,6 @@
       <traversal id="SA" name="Context Analysis" default="sons" include="context_analysis.h" >
         <travuser>
           <node name="Program" />
-          <node name="Declarations" />
           <node name="FunDef" />
           <node name="VarDef" />
           <node name="Id" />
@@ -86,6 +85,7 @@
           <node name="Do" />
           <node name="While" />
           <node name="For" />
+          <node name="If" />
         </travuser>
       </traversal>
 
@@ -130,9 +130,9 @@
           <node name="UnOp" />
           <node name="BinOp" />
           <node name="Assign" />
-          <node name="Statements" />
           <node name="If" />
           <node name="TernOp" />
+          <node name="Typecast" />
         </travuser>
       </traversal>
 
@@ -349,7 +349,7 @@
                 </targets>
             </type>
         </attribute>
-        <attribute name="Decl">
+        <attribute name="DefNode">
             <description>The original declaration node</description>
             <type name="Link">
                 <targets>
@@ -534,7 +534,7 @@
 	        </targets>
           </type>
         </attribute>
-        <attribute name="Decl">
+        <attribute name="STE">
             <description>Link to its STE</description>
             <type name="Link">
                 <targets>
@@ -691,7 +691,7 @@
             </targets>
           </type>
         </attribute>
-        <attribute name="Decl">
+        <attribute name="STE">
             <description>Link to its STE</description>
             <type name="Link">
                 <targets>
@@ -842,7 +842,7 @@
             </targets>
           </type>
         </attribute>
-        <attribute name="Decl">
+        <attribute name="STE">
             <description>Reference back to the FunDef node</description>
             <type name="Link"/>
             <targets>
@@ -1393,7 +1393,7 @@
             </targets>
           </type>
         </attribute>
-        <attribute name="Decl">
+        <attribute name="STE">
           <description>Link to its STE</description>
           <type name="Link">
             <targets>

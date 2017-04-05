@@ -124,7 +124,7 @@ node *PRTsymboltableentry (node * arg_node, info * arg_info) {
         if (SYMBOLTABLEENTRY_ENTRYTYPE(arg_node) == STE_fundef) {
             printf(" * %d  - %-7s %s()\n", SYMBOLTABLEENTRY_DISTANCE(arg_node), typeToString(SYMBOLTABLEENTRY_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(arg_node));
         } else {
-            if (!VARDEF_EXTERN(SYMBOLTABLEENTRY_DECL(arg_node))) {
+            if (!VARDEF_EXTERN(SYMBOLTABLEENTRY_DEFNODE(arg_node))) {
                 printf(" * %d %2d %-7s %s\n", SYMBOLTABLEENTRY_DISTANCE(arg_node), SYMBOLTABLEENTRY_OFFSET(arg_node), typeToString(SYMBOLTABLEENTRY_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(arg_node));
             }
         }
@@ -225,9 +225,8 @@ node *PRTvardef(node * arg_node, info * arg_info) {
     if (VARDEF_EXPORT(arg_node)) {
         printf("export ");
     }
-
-    if (VARDEF_DECL(arg_node)) {
-        printf("%s %s", typeToString(VARDEF_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(VARDEF_DECL(arg_node)));
+    if (VARDEF_STE(arg_node)) {
+        printf("%s %s", typeToString(VARDEF_TYPE(arg_node)), SYMBOLTABLEENTRY_NAME(VARDEF_STE(arg_node)));
     } else {
         // Parameters for external functions don't have an entry in the SymbolTable!
         printf("%s %s", typeToString(VARDEF_TYPE(arg_node)), VARDEF_NAME(arg_node));
@@ -408,6 +407,7 @@ node *PRTdo(node* arg_node, info* arg_info) {
 node *PRTfor(node* arg_node, info* arg_info) {
 	DBUG_ENTER("PRTfor");
 
+
 	INDENT(arg_info);
 	printf("for ( ");
 	if (FOR_VARDEF(arg_node)) {
@@ -415,14 +415,10 @@ node *PRTfor(node* arg_node, info* arg_info) {
 			printf("int ");
 		}
 		if (!myglobal.print_var_details) {
-			if(VARDEF_DECL(FOR_VARDEF(arg_node))) {
-				printf("%s", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))));
-			}
-			else { //TODO if "else" clause can be removed it is working properly
-				printf("%s", VARDEF_NAME(FOR_VARDEF(arg_node)));
-			}
-		} else {
-			printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(VARDEF_DECL(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_DISTANCE(VARDEF_DECL(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_OFFSET(VARDEF_DECL(FOR_VARDEF(arg_node))));
+			printf("%s", SYMBOLTABLEENTRY_NAME(VARDEF_STE(FOR_VARDEF(arg_node))));
+		}
+		else {
+			printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(VARDEF_STE(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_DISTANCE(VARDEF_STE(FOR_VARDEF(arg_node))), SYMBOLTABLEENTRY_OFFSET(VARDEF_STE(FOR_VARDEF(arg_node))));
 		}
 		if (VARDEF_EXPR(FOR_VARDEF(arg_node))) {
 			printf(" = ");
@@ -437,6 +433,8 @@ node *PRTfor(node* arg_node, info* arg_info) {
 	}
 	printf(" ) {\n");
 	INCREASE_INDENTATION(arg_info);
+
+	TRAVopt(FOR_BLOCK( arg_node), arg_info);
 
 	TRAVopt(FOR_BLOCK( arg_node), arg_info);
 	DECREASE_INDENTATION(arg_info);
@@ -479,51 +477,7 @@ node *PRTbinop (node * arg_node, info * arg_info) {
 	printf("(");
 	TRAVdo(BINOP_LEFT(arg_node), arg_info);
 
-	char* op;
-	switch(BINOP_OP(arg_node)) {
-	case BO_lt:
-		op = "<";
-		break;
-	case BO_le:
-		op = "<=";
-		break;
-	case BO_eq:
-		op = "==";
-		break;
-	case BO_ne:
-		op = "!=";
-		break;
-	case BO_ge:
-		op = ">=";
-		break;
-	case BO_gt:
-		op = ">";
-		break;
-	case BO_mul:
-		op = "*";
-		break;
-	case BO_div:
-		op = "/";
-		break;
-	case BO_add:
-		op = "+";
-		break;
-	case BO_sub:
-		op = "-";
-		break;
-	case BO_mod:
-		op = "%";
-		break;
-	case BO_and:
-		op = "&&";
-		break;
-	case BO_or:
-		op = "||";
-		break;
-	default:
-		op = "<<UNKNOWN>>";
-	}
-	printf(" %s ", op);
+	printf(" %s ", binopToString(BINOP_OP(arg_node)));
 
 	TRAVdo(BINOP_RIGHT(arg_node), arg_info);
 	printf(")");
@@ -531,24 +485,12 @@ node *PRTbinop (node * arg_node, info * arg_info) {
 	DBUG_RETURN(arg_node);
 }
 
-node *PRTunop(node* arg_node, info* arg_info) {
-	char *tmp;
-
+node* PRTunop (node * arg_node, info * arg_info)
+{
 	DBUG_ENTER ("PRTunop");
 
-	switch (UNOP_OP( arg_node)) {
-		case UO_neg:
-			tmp = "-";
-			break;
-		case UO_not:
-			tmp = "!";
-			break;
-		case UO_unknown:
-			DBUG_ASSERT( 0, "unknown unop detected!");
-	}
-
-	printf( "%s(", tmp);
-  UNOP_EXPR( arg_node) = TRAVdo( UNOP_EXPR( arg_node), arg_info);
+	printf( "%s(", unopToString(UNOP_OP( arg_node)));
+	UNOP_EXPR( arg_node) = TRAVdo( UNOP_EXPR( arg_node), arg_info);
 	printf( ")");
 
 	DBUG_RETURN(arg_node);
@@ -559,8 +501,8 @@ node *PRTid(node* arg_node, info* arg_info) {
 
 	INDENT(arg_info);
 	if (!myglobal.print_var_details) {
-	    if(ID_DECL(arg_node)) { //TODO if "else" clause can be removed it is working properly
-	    	printf("%s", SYMBOLTABLEENTRY_NAME(ID_DECL(arg_node)));
+	    if(ID_STE(arg_node)) { //TODO if "else" clause can be removed it is working properly
+	    	printf("%s", SYMBOLTABLEENTRY_NAME(ID_STE(arg_node)));
 	    }
 	    else {
 	    	printf("%s", ID_NAME(arg_node));
@@ -571,7 +513,7 @@ node *PRTid(node* arg_node, info* arg_info) {
 	    	printf("]");
 	    }
 	} else {
-	    printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(ID_DECL(arg_node)), SYMBOLTABLEENTRY_DISTANCE(ID_DECL(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_DECL(arg_node)));
+	    printf("%s /* %d %d */", SYMBOLTABLEENTRY_NAME(ID_STE(arg_node)), SYMBOLTABLEENTRY_DISTANCE(ID_STE(arg_node)), SYMBOLTABLEENTRY_OFFSET(ID_STE(arg_node)));
 	    if(ID_EXPRS(arg_node)) {
 	    	printf("[");
 	    	TRAVdo(ID_EXPRS(arg_node), arg_info);

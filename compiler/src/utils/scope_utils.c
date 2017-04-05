@@ -31,19 +31,19 @@ node* findWithinScope(node *symbolTable, char* name, ste_type type) {
 node* findInAnyScope(node* symbolTable, char *name, int* distance, ste_type type) {
     DBUG_ENTER("findInAnyScope");
 
-    DBUG_PRINT("SA", ("Trying to locate variable [%s] in the symbol table.", name));
+    DBUG_PRINT("SA", ("Trying to locate variable '%s' in the symbol table.", name));
     // Used for traversing to outer ST/scopes
     node* varDefSTE = SYMBOLTABLE_SYMBOLTABLEENTRY(symbolTable);
     while (varDefSTE || symbolTable) {
         if (varDefSTE) {
             if (SYMBOLTABLEENTRY_ENTRYTYPE(varDefSTE) == type && STReq(name, SYMBOLTABLEENTRY_NAME(varDefSTE))) {
-                DBUG_PRINT("SA", ("Found [%s] at distance [%d] offset [%d].", name, *distance, SYMBOLTABLEENTRY_OFFSET(varDefSTE)));
+                DBUG_PRINT("SA", ("Found '%s' at distance %d and offset %d.", name, *distance, SYMBOLTABLEENTRY_OFFSET(varDefSTE)));
                 break;
             }
             DBUG_PRINT("SA", ("Trying next entry."));
             varDefSTE = SYMBOLTABLEENTRY_NEXT(varDefSTE);
         } else {
-            DBUG_PRINT("SA", ("Trying outer scope for [%s].", name));
+            DBUG_PRINT("SA", ("Trying outer scope for '%s'.", name));
             (*distance)++;
             symbolTable = SYMBOLTABLE_PARENT(symbolTable);
             if (symbolTable) {
