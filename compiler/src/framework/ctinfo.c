@@ -90,6 +90,7 @@
 #include "str.h"
 #include "memory.h"
 #include "globals.h"
+#include "myglobals.h"
 
 #include "ctinfo.h"
 
@@ -319,7 +320,7 @@ void CleanUp()
 {
   DBUG_ENTER("CleanUp");
   
-  if (preProcessedFileName) {
+  if (preProcessedFileName && myglobal.remove_preprocessor_file) {
       remove(preProcessedFileName);
       MEMfree(preProcessedFileName);
   }
