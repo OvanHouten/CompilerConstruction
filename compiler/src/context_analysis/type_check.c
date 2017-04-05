@@ -87,7 +87,7 @@ node *TCvardef(node *arg_node, info *arg_info) {
 
     DBUG_PRINT("TC", ("VarDef"));
 
-    TRAVopt(VARDEF_EXPR(arg_node), arg_info);
+    VARDEF_EXPR(arg_node) = TRAVopt(VARDEF_EXPR(arg_node), arg_info);
 
     if (VARDEF_EXPR(arg_node)) {
         type rightResultType = determineType(VARDEF_EXPR(arg_node));
@@ -96,6 +96,8 @@ node *TCvardef(node *arg_node, info *arg_info) {
         if (leftResultType != rightResultType) {
             CTIerror("The type at the left hand side '%s' and the right hand side '%s' don't match at line %d and column %d.", typeToString(leftResultType), typeToString(rightResultType), NODE_LINE(arg_node), NODE_COL(arg_node));
         }
+    } else if (determineType(arg_node) == TY_void || determineType(arg_node) == TY_unknown) {
+        CTIerror("The type '%s' of variable '%s' must be one of the following 'int', 'float' or 'bool' at line %d and column %d.", typeToString(determineType(arg_node)), VARDEF_NAME(arg_node), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     DBUG_RETURN(arg_node);
