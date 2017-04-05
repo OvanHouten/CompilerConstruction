@@ -76,6 +76,7 @@
           <node name="Do" />
           <node name="While" />
           <node name="For" />
+          <node name="If" />
         </travuser>
       </traversal>
 

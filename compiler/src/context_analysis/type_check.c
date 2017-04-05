@@ -340,6 +340,19 @@ node *TCfor(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *TCif(node *arg_node, info *arg_info) {
+    DBUG_ENTER("TCif");
+
+    IF_CONDITION(arg_node) = TRAVdo(IF_CONDITION(arg_node), arg_info);
+    if (determineType(IF_CONDITION(arg_node)) != TY_bool) {
+        CTIerror("The condition for the if-statement must evaluate to 'bool' and not to '%s' on line %d and column %d.", typeToString(determineType(IF_CONDITION(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
+    }
+    IF_IFBLOCK(arg_node) = TRAVopt(IF_IFBLOCK(arg_node), arg_info);
+    IF_ELSEBLOCK(arg_node) = TRAVopt(IF_ELSEBLOCK(arg_node), arg_info);
+
+    DBUG_RETURN(arg_node);
+}
+
 node *TCdoTypeCheck(node *syntaxtree) {
     DBUG_ENTER("TCdoTypeCheck");
 
