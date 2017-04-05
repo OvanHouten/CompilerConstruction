@@ -123,6 +123,7 @@
           <node name="Assign" />
           <node name="If" />
           <node name="TernOp" />
+          <node name="Typecast" />
         </travuser>
       </traversal>
 
