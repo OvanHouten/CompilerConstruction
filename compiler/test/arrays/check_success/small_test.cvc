@@ -1,0 +1,10 @@
+void scan_matrix(float [m,n] a) {
+}
+
+export int main() {
+    int m = 3;
+    int n = 3;
+    float [m,n] M;
+    scan_matrix(M);
+    return 0;
+}

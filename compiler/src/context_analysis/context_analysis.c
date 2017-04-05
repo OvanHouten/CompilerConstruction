@@ -18,6 +18,7 @@
 #include "scope_utils.h"
 #include "string.h"
 #include "list_utils.h"
+#include "copy.h"
 
 #include "context_analysis.h"
 
@@ -231,10 +232,17 @@ node *SAid(node * arg_node, info * arg_info) {
         // Make sure we can reference the STE
         ID_STE(arg_node) = varDefSTE;
     }
+    if(VARDEF_SIZEEXPRS(SYMBOLTABLEENTRY_DEFNODE(ID_STE(arg_node)))) {
+    	node* vardef = SYMBOLTABLEENTRY_DEFNODE(ID_STE(arg_node));
+    	DBUG_PRINT("SA", ("ARRAY EXPRS NAME = %s", VARDEF_NAME(vardef)));
+    	
+    	//node* exprs = VARDEF_SIZEEXPRS(vardef);
+    	INFO_DIMSLIST(arg_info) = reverseExprsList(COPYdoCopy(VARDEF_SIZEEXPRS(vardef)), NULL);
+    }
     if(VARDEF_SIZEIDS(SYMBOLTABLEENTRY_DEFNODE(ID_STE(arg_node)))) {
     	node* new_id;
     	node* vardef = SYMBOLTABLEENTRY_DEFNODE(ID_STE(arg_node));
-    	DBUG_PRINT("SA", ("ARRAY NAME = %s", VARDEF_NAME(vardef)));
+    	DBUG_PRINT("SA", ("ARRAY IDS NAME = %s", VARDEF_NAME(vardef)));
     	
     	node* ids = VARDEF_SIZEIDS(vardef);
     	while(ids) {
