@@ -319,6 +319,15 @@ node *GBCdeclarations(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+node *GBClocalfundefs(node *arg_node, info *arg_info) {
+    DBUG_ENTER("GBClocalfundefs");
+
+    TRAVopt(LOCALFUNDEFS_NEXT(arg_node), arg_info);
+    TRAVdo(LOCALFUNDEFS_LOCALFUNDEF(arg_node), arg_info);
+
+    DBUG_RETURN(arg_node);
+}
+
 node *GBCstatements(node *arg_node, info *arg_info) {
     DBUG_ENTER("GBCstatements");
 

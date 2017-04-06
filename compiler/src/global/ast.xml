@@ -139,6 +139,7 @@
             <node name="Program" />
             <node name="SymbolTableEntry" />
             <node name="Declarations" />
+            <node name="LocalFunDefs"/>
             <node name="Statements" />
             <node name="FunDef" />
             <node name="Return" />

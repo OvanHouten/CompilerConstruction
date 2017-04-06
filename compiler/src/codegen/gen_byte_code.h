@@ -5,6 +5,7 @@
 extern node *GBCprogram(node *arg_node, info *arg_info);
 extern node *GBCsymboltableentry(node *arg_node, info *arg_info);
 extern node *GBCdeclarations(node *arg_node, info *arg_info);
+extern node *GBClocalfundefs(node *arg_node, info *arg_info);
 extern node *GBCstatements(node *arg_node, info *arg_info);
 extern node *GBCfundef(node *arg_node, info *arg_info);
 extern node *GBCreturn(node *arg_node, info *arg_info);
