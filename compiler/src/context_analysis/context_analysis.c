@@ -236,10 +236,35 @@ node *SAid(node * arg_node, info * arg_info) {
     	node* vardef = SYMBOLTABLEENTRY_DEFNODE(ID_STE(arg_node));
     	DBUG_PRINT("SA", ("ARRAY EXPRS NAME = %s", VARDEF_NAME(vardef)));
     	
-    	//node* exprs = VARDEF_SIZEEXPRS(vardef);
     	INFO_DIMSLIST(arg_info) = reverseExprsList(COPYdoCopy(VARDEF_SIZEEXPRS(vardef)), NULL);
+    	node* exprs = INFO_DIMSLIST(arg_info);
+    	
+    	while(exprs) {
+    		if(NODE_TYPE(EXPRS_EXPR(exprs)) == N_id) {
+				node* new_id = EXPRS_EXPR(exprs);
+				distance = 0;
+				varDefSTE = findInAnyScope(INFO_CURSCOPE(arg_info), ID_NAME(new_id), &distance, STE_vardef);
+
+				if(distance > 0) {
+					// Defined in a outer scope, create new STE in current scope
+					node* localSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), new_id, ID_NAME(new_id), STE_varusage, TY_int);
+					// And link to the original declaration
+					SYMBOLTABLEENTRY_DEFNODE(localSTE) = SYMBOLTABLEENTRY_DEFNODE(varDefSTE);
+					// Set the correct distance and offset
+					SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
+					SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
+					SYMBOLTABLEENTRY_LOCATION(localSTE) = SYMBOLTABLEENTRY_LOCATION(varDefSTE);
+				
+					varDefSTE = localSTE;
+				}
+				// Make sure we can reference the STE
+				ID_STE(new_id) = varDefSTE;
+				//INFO_DIMSLIST(arg_info) = TBmakeExprs(new_id, INFO_DIMSLIST(arg_info));
+			}
+			exprs = EXPRS_NEXT(exprs);
+    	}
     }
-    if(VARDEF_SIZEIDS(SYMBOLTABLEENTRY_DEFNODE(ID_STE(arg_node)))) {
+    else if(VARDEF_SIZEIDS(SYMBOLTABLEENTRY_DEFNODE(ID_STE(arg_node)))) {
     	node* new_id;
     	node* vardef = SYMBOLTABLEENTRY_DEFNODE(ID_STE(arg_node));
     	DBUG_PRINT("SA", ("ARRAY IDS NAME = %s", VARDEF_NAME(vardef)));
