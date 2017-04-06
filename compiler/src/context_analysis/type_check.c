@@ -298,7 +298,7 @@ node *TCdo(node *arg_node, info *arg_info) {
 
     TRAVdo(DO_CONDITION(arg_node), arg_info);
     if (determineType(DO_CONDITION(arg_node)) != TY_bool) {
-        CTIerror("The expression for a do-loop must be evaluate to boolean and not to '%s' at line %d and column %d.", typeToString(determineType(DO_CONDITION(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The expression for a do-loop must evaluate to boolean and not to '%s' at line %d and column %d.", typeToString(determineType(DO_CONDITION(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     TRAVopt(DO_BLOCK(arg_node), arg_info);
@@ -313,7 +313,7 @@ node *TCwhile(node *arg_node, info *arg_info) {
 
     TRAVdo(WHILE_CONDITION(arg_node), arg_info);
     if (determineType(WHILE_CONDITION(arg_node)) != TY_bool) {
-        CTIerror("The expression for a while-loop must be evaluate to boolean and not to '%s' at line %d and column %d.", typeToString(determineType(WHILE_CONDITION(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The expression for a while-loop must evaluate to boolean and not to '%s' at line %d and column %d.", typeToString(determineType(WHILE_CONDITION(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     DBUG_RETURN(arg_node);
@@ -325,11 +325,11 @@ node *TCfor(node *arg_node, info *arg_info) {
     TRAVdo(FOR_VARDEF(arg_node), arg_info);
     TRAVdo(FOR_FINISH(arg_node), arg_info);
     if (determineType(FOR_FINISH(arg_node)) != TY_int) {
-        CTIerror("The finish expression for a for-loop must be evaluate to 'int' and not to '%s' at line %d and column %d.", typeToString(determineType(FOR_FINISH(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The finish expression for a for-loop must evaluate to 'int' and not to '%s' at line %d and column %d.", typeToString(determineType(FOR_FINISH(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
     TRAVopt(FOR_STEP(arg_node), arg_info);
     if (determineType(FOR_STEP(arg_node)) != TY_int) {
-        CTIerror("The step expression for a for-loop must be evaluate to 'int' and not to '%s' at line %d and column %d.", typeToString(determineType(FOR_STEP(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
+        CTIerror("The step expression for a for-loop must evaluate to 'int' and not to '%s' at line %d and column %d.", typeToString(determineType(FOR_STEP(arg_node))), NODE_LINE(arg_node), NODE_COL(arg_node));
     }
 
     LUTinsertIntoLutS(INFO_LOOPVARS(arg_info), VARDEF_NAME(FOR_VARDEF(arg_node)), VARDEF_NAME(FOR_VARDEF(arg_node)));
