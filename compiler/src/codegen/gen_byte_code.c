@@ -276,28 +276,21 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
     TRAVopt(SYMBOLTABLEENTRY_NEXT(arg_node), arg_info);
 
     node *declaration = SYMBOLTABLEENTRY_DEFNODE(arg_node);
-    switch (NODE_TYPE(declaration)) {
-        case N_vardef :
-            switch (INFO_PSEUDOPHASE(arg_info)) {
-                case PP_global :
-                    if (!VARDEF_EXTERN(declaration)) {
-                        fprintf(outfile, ".global %s\n", typeToString(VARDEF_TYPE(declaration)));
-                    }
-                    break;
-                case PP_vardef :
-                    if (VARDEF_EXTERN(declaration)) {
-                        fprintf(outfile, ".importvar \"%s\" %s\n", VARDEF_NAME(declaration), typeToString(VARDEF_TYPE(declaration)));
-                    } else if (VARDEF_EXPORT(declaration)) {
-                        fprintf(outfile, ".exportvar \"%s\" %d\n", VARDEF_NAME(declaration), SYMBOLTABLEENTRY_OFFSET(VARDEF_STE(declaration)));
-                    }
-                    break;
-                default :
-                    // Just to get the compiler happy
-                    break;
+    switch (INFO_PSEUDOPHASE(arg_info)) {
+        case PP_global :
+            if (NODE_TYPE(declaration) == N_vardef && SYMBOLTABLEENTRY_LOCATION(arg_node) == LOC_global) {
+                fprintf(outfile, ".global %s\n", typeToString(VARDEF_TYPE(declaration)));
             }
             break;
-        case N_fundef :
-            if (INFO_PSEUDOPHASE(arg_info) == PP_fundef) {
+        case PP_vardef :
+            if (NODE_TYPE(declaration) == N_vardef && SYMBOLTABLEENTRY_LOCATION(arg_node) == LOC_extern) {
+                fprintf(outfile, ".importvar \"%s\" %s\n", VARDEF_NAME(declaration), typeToString(VARDEF_TYPE(declaration)));
+            } else if (NODE_TYPE(declaration) == N_vardef && SYMBOLTABLEENTRY_LOCATION(arg_node) == LOC_global && VARDEF_EXPORT(declaration)) {
+                fprintf(outfile, ".exportvar \"%s\" %d\n", VARDEF_NAME(declaration), SYMBOLTABLEENTRY_OFFSET(VARDEF_STE(declaration)));
+            }
+            break;
+        case PP_fundef :
+            if (NODE_TYPE(declaration) ==  N_fundef) {
                 if (FUNDEF_EXTERN(declaration)) {
                     fprintf(outfile, ".importfun \"%s\" %s", FUNHEADER_NAME(FUNDEF_FUNHEADER(declaration)), typeToString(FUNHEADER_RETURNTYPE(FUNDEF_FUNHEADER(declaration))));
                     printParamTypes(FUNHEADER_PARAMS(FUNDEF_FUNHEADER(declaration)));
@@ -309,8 +302,8 @@ node *GBCsymboltableentry(node *arg_node, info *arg_info) {
                 }
             }
             break;
-        default :
-            // Just to get the compiler happy
+        case PP_none :
+            // Just to keep the compiler happy
             break;
     }
 
