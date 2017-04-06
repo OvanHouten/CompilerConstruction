@@ -37,13 +37,13 @@ SUBPHASE(sa, "Scope Analysis", SAdoScopeAnalysis, ALWAYS, ca)
 
 SUBPHASE(tc, "Type Check", TCdoTypeCheck, ALWAYS, ca)
 
-SUBPHASE(rc, "Return Check", RCdoReturnCheck, NEVER, ca)
+SUBPHASE(rc, "Return Check", RCdoReturnCheck, ALWAYS, ca)
 
 ENDPHASE(ca)
 
 /******************************************************************************/
 
-PHASE(tf, "Transformations", NEVER)
+PHASE(tf, "Transformations", ALWAYS)
 
 SUBPHASE(sv, "Split VarDefs", SVdoSplitVarDefs, ALWAYS, tf)
 
@@ -67,7 +67,7 @@ ENDPHASE(mop)
 
 PHASE( cg, "Generating Code", ALWAYS)
 
-SUBPHASE( prt, "Generating byte code", GBCdoGenByteCode, NEVER, cg)      
+SUBPHASE( prt, "Generating byte code", GBCdoGenByteCode, ALWAYS, cg)      
 
 SUBPHASE( prt_ast, "Print ast", PRTdoPrint, ALWAYS, cg)      
 
