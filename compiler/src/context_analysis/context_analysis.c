@@ -391,6 +391,9 @@ node *SAexprs(node *arg_node, info *arg_info) {
 node *SAlocalfundefs(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAlocalfundefs");
 
+    // Continue to register
+    TRAVopt(LOCALFUNDEFS_NEXT(arg_node), arg_info);
+
     node *funDef = LOCALFUNDEFS_LOCALFUNDEF(arg_node);
     node *funHeader = FUNDEF_FUNHEADER(funDef);
     char *name = FUNHEADER_NAME(funHeader);
@@ -403,14 +406,11 @@ node *SAlocalfundefs(node *arg_node, info *arg_info) {
                 name, NODE_LINE(arg_node), NODE_COL(arg_node), NODE_LINE(funDefSTE), NODE_COL(funDefSTE));
     } else {
         funDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), funDef, name, STE_fundef, FUNHEADER_RETURNTYPE(funHeader));
+        // Make sure we have a reference at hand to the STE
+        FUNDEF_STE(funDef) = funDefSTE;
+        SYMBOLTABLEENTRY_DEFNODE(funDefSTE) = funDef;
+        DBUG_PRINT("SA", ("Registering function '%s' at offset [%d].", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
     }
-    // Make sure we have a reference at hand to the STE
-    FUNDEF_STE(funDef) = funDefSTE;
-    SYMBOLTABLEENTRY_DEFNODE(funDefSTE) = funDef;
-    DBUG_PRINT("SA", ("Registering function '%s' at offset [%d].", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
-
-    // Continue to register
-    TRAVopt(LOCALFUNDEFS_NEXT(arg_node), arg_info);
 
     DBUG_RETURN(arg_node);
 }
