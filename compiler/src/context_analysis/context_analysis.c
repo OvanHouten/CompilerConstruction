@@ -83,11 +83,29 @@ void registerFunDef(node *funDef, info *arg_info) {
             SYMBOLTABLEENTRY_LOCATION(funDefSTE) = LOC_global;
         }
 
+        // Make sure we have a reference at hand to the STE
+        FUNDEF_STE(funDef) = funDefSTE;
+        SYMBOLTABLEENTRY_DEFNODE(funDefSTE) = funDef;
+        DBUG_PRINT("SA", ("Registered function '%s' at offset %d.", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
     }
-    // Make sure we have a reference at hand to the STE
-    FUNDEF_STE(funDef) = funDefSTE;
-    SYMBOLTABLEENTRY_DEFNODE(funDefSTE) = funDef;
-    DBUG_PRINT("SA", ("Registered function '%s' at offset %d.", name, SYMBOLTABLEENTRY_OFFSET(funDefSTE)));
+}
+
+void registerFunDeclarations(node *declarations, info *arg_info) {
+    if (declarations != NULL) {
+        registerFunDeclarations(DECLARATIONS_NEXT(declarations), arg_info);
+        if (NODE_TYPE(DECLARATIONS_DECLARATION(declarations)) == N_fundef) {
+            registerFunDef(DECLARATIONS_DECLARATION(declarations), arg_info);
+        }
+    }
+}
+
+void registerDeclarations(node *declarations, info *arg_info, nodetype type) {
+    if (declarations != NULL) {
+        registerDeclarations(DECLARATIONS_NEXT(declarations), arg_info, type);
+        if (NODE_TYPE(DECLARATIONS_DECLARATION(declarations)) == type) {
+            TRAVdo(DECLARATIONS_DECLARATION(declarations), arg_info);
+        }
+    }
 }
 
 node *SAprogram(node *arg_node, info *arg_info) {
@@ -97,31 +115,13 @@ node *SAprogram(node *arg_node, info *arg_info) {
 	INFO_CURSCOPE(arg_info) = PROGRAM_SYMBOLTABLE(arg_node);
 	
 	// Register the functions
-	node *declaration = PROGRAM_DECLARATIONS(arg_node);
-	while (declaration) {
-	    if (NODE_TYPE(DECLARATIONS_DECLARATION(declaration)) == N_fundef) {
-	        registerFunDef(DECLARATIONS_DECLARATION(declaration), arg_info);
-	    }
-	    declaration = DECLARATIONS_NEXT(declaration);
-	}
+	registerFunDeclarations(PROGRAM_DECLARATIONS(arg_node), arg_info);
 
 	// Now register the variables
-    declaration = PROGRAM_DECLARATIONS(arg_node);
-    while (declaration) {
-        if (NODE_TYPE(DECLARATIONS_DECLARATION(declaration)) == N_vardef) {
-            TRAVdo(DECLARATIONS_DECLARATION(declaration), arg_info);
-        }
-        declaration = DECLARATIONS_NEXT(declaration);
-    }
+    registerDeclarations(PROGRAM_DECLARATIONS(arg_node), arg_info, N_vardef);
     
     // Now process the function bodies
-    declaration = PROGRAM_DECLARATIONS(arg_node);
-    while (declaration) {
-        if (NODE_TYPE(DECLARATIONS_DECLARATION(declaration)) == N_fundef) {
-            TRAVopt(DECLARATIONS_DECLARATION(declaration), arg_info);
-        }
-        declaration = DECLARATIONS_NEXT(declaration);
-    }
+    registerDeclarations(PROGRAM_DECLARATIONS(arg_node), arg_info, N_fundef);
 
     PROGRAM_SYMBOLTABLE(arg_node) = INFO_CURSCOPE(arg_info);
 
@@ -157,6 +157,13 @@ node *SAfundef(node *arg_node, info *arg_info) {
     DBUG_RETURN(arg_node);
 }
 
+void traverseInDeclaringOrder(node *localFunDefs, info *arg_info) {
+    if (localFunDefs != NULL) {
+        traverseInDeclaringOrder(LOCALFUNDEFS_NEXT(localFunDefs), arg_info);
+        TRAVdo(LOCALFUNDEFS_LOCALFUNDEF(localFunDefs), arg_info);
+    }
+}
+
 node *SAfunbody(node *arg_node, info *arg_info) {
     DBUG_ENTER("SAfunbody");
 
@@ -168,13 +175,7 @@ node *SAfunbody(node *arg_node, info *arg_info) {
     TRAVopt(FUNBODY_VARDECS(arg_node), arg_info);
 
     // Now process the body of the local functions
-    if (FUNBODY_LOCALFUNDEFS(arg_node)) {
-        node *localFunDefs = FUNBODY_LOCALFUNDEFS(arg_node);
-        while (localFunDefs) {
-            TRAVdo(LOCALFUNDEFS_LOCALFUNDEF(localFunDefs), arg_info);
-            localFunDefs = LOCALFUNDEFS_NEXT(localFunDefs);
-        }
-    }
+    traverseInDeclaringOrder(FUNBODY_LOCALFUNDEFS(arg_node), arg_info);
 
     DBUG_PRINT("SA", ("Processing the Statements."));
     TRAVopt(FUNBODY_STATEMENTS(arg_node), arg_info);
@@ -298,7 +299,7 @@ node *SAfuncall(node *arg_node, info *arg_info) {
         }
         DBUG_PRINT("SA", ("The function has %d params and there are %d expressions.", paramCount, exprCount));
         if (paramCount != exprCount) {
-            CTIerror("The number of parameters %d as used at line %d and column %d do not match the number of parameters %d to the function '%s' as defined at line %d.", exprCount, NODE_LINE(arg_node), NODE_COL(arg_node), paramCount, name, NODE_LINE(funHeader));
+            CTIerror("The number of expressions %d as used at line %d and column %d do not match the number of parameters %d to the function '%s' as defined at line %d.", exprCount, NODE_LINE(arg_node), NODE_COL(arg_node), paramCount, name, NODE_LINE(funHeader));
         }
     } else {
         CTIerror("Function '%s' at line %d, column %d has not yet been declared.", name, NODE_LINE(arg_node), NODE_COL(arg_node));
