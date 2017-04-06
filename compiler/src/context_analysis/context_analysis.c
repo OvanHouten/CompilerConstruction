@@ -182,6 +182,10 @@ node *SAvardef(node *arg_node, info *arg_info) {
         } else {
             // Declared at outer scope, register at local scope.
             varDefSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), arg_node, name, STE_varusage, VARDEF_TYPE(arg_node));
+			
+			// TODO NOT SURE IF THESE TRAVopts ARE NEEDED
+			//TRAVopt(VARDEF_SIZEIDS(arg_node), arg_info);
+        	TRAVopt(VARDEF_SIZEEXPRS(arg_node), arg_info);
         }
 	} else {
 	    // Never seen this variable, register it
@@ -195,6 +199,10 @@ node *SAvardef(node *arg_node, info *arg_info) {
                 SYMBOLTABLEENTRY_LOCATION(varDefSTE) = LOC_global;
             }
         }
+        
+        //TRAVopt(VARDEF_SIZEIDS(arg_node), arg_info);
+        TRAVopt(VARDEF_SIZEEXPRS(arg_node), arg_info);
+        
         // And register a reference to the declaration node
         SYMBOLTABLEENTRY_DEFNODE(varDefSTE) = arg_node;
 	}
@@ -236,33 +244,7 @@ node *SAid(node * arg_node, info * arg_info) {
     	node* vardef = SYMBOLTABLEENTRY_DEFNODE(ID_STE(arg_node));
     	DBUG_PRINT("SA", ("ARRAY EXPRS NAME = %s", VARDEF_NAME(vardef)));
     	
-    	INFO_DIMSLIST(arg_info) = reverseExprsList(COPYdoCopy(VARDEF_SIZEEXPRS(vardef)), NULL);
-    	node* exprs = INFO_DIMSLIST(arg_info);
-    	
-    	while(exprs) {
-    		if(NODE_TYPE(EXPRS_EXPR(exprs)) == N_id) {
-				node* new_id = EXPRS_EXPR(exprs);
-				distance = 0;
-				varDefSTE = findInAnyScope(INFO_CURSCOPE(arg_info), ID_NAME(new_id), &distance, STE_vardef);
-
-				if(distance > 0) {
-					// Defined in a outer scope, create new STE in current scope
-					node* localSTE = registerWithinCurrentScope(INFO_CURSCOPE(arg_info), new_id, ID_NAME(new_id), STE_varusage, TY_int);
-					// And link to the original declaration
-					SYMBOLTABLEENTRY_DEFNODE(localSTE) = SYMBOLTABLEENTRY_DEFNODE(varDefSTE);
-					// Set the correct distance and offset
-					SYMBOLTABLEENTRY_OFFSET(localSTE) = SYMBOLTABLEENTRY_OFFSET(varDefSTE);
-					SYMBOLTABLEENTRY_DISTANCE(localSTE) = distance;
-					SYMBOLTABLEENTRY_LOCATION(localSTE) = SYMBOLTABLEENTRY_LOCATION(varDefSTE);
-				
-					varDefSTE = localSTE;
-				}
-				// Make sure we can reference the STE
-				ID_STE(new_id) = varDefSTE;
-				//INFO_DIMSLIST(arg_info) = TBmakeExprs(new_id, INFO_DIMSLIST(arg_info));
-			}
-			exprs = EXPRS_NEXT(exprs);
-    	}
+    	INFO_DIMSLIST(arg_info) = reverseExprsList(COPYdoCopy(VARDEF_SIZEEXPRS(vardef)), NULL);    	
     }
     else if(VARDEF_SIZEIDS(SYMBOLTABLEENTRY_DEFNODE(ID_STE(arg_node)))) {
     	node* new_id;
