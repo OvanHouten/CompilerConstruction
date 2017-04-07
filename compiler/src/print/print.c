@@ -407,7 +407,6 @@ node *PRTdo(node* arg_node, info* arg_info) {
 node *PRTfor(node* arg_node, info* arg_info) {
 	DBUG_ENTER("PRTfor");
 
-
 	INDENT(arg_info);
 	printf("for ( ");
 	if (FOR_VARDEF(arg_node)) {
@@ -498,10 +497,10 @@ node* PRTunop (node * arg_node, info * arg_info)
 
 node *PRTid(node* arg_node, info* arg_info) {
 	DBUG_ENTER("PRTid");
-
+	
 	INDENT(arg_info);
 	if (!myglobal.print_var_details) {
-	    if(ID_STE(arg_node)) { //TODO if "else" clause can be removed it is working properly
+		if(ID_STE(arg_node)) { //TODO remove this check maybe
 	    	printf("%s", SYMBOLTABLEENTRY_NAME(ID_STE(arg_node)));
 	    }
 	    else {
@@ -520,7 +519,6 @@ node *PRTid(node* arg_node, info* arg_info) {
 	    	printf("]");
 	    }
 	}
-
 	DBUG_RETURN(arg_node);
 }
 

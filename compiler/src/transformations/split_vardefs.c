@@ -91,7 +91,6 @@ node *SVvardecs(node *arg_node, info *arg_info) {
         // Remove the expression from the vardef
         node *expr = VARDEF_EXPR(varDef);
         VARDEF_EXPR(varDef) = NULL;
-
         node* id = TBmakeId(STRcpy(VARDEF_NAME(varDef)), NULL); //TODO array
         ID_STE(id) = COPYdoCopy(VARDEF_STE(varDef));
         NODE_LINE(id) = NODE_LINE(varDef);

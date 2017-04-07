@@ -93,6 +93,7 @@ These are the optimizations the compiler supports:
 * Binary operators action on two constants are reduced to the deduced value.
 * Ternary operation are reduced to the remaining part when the condition is a boolean constant.
 * Incrementing and decrementing integer variables with constants are replaced with a compounr += or -= operation.
+* Added a no-operation (NOP) statement to the IR. This is helpfull for the if transformation. The NOP instruction replaces the if-statement and the remaining code block is inserted into the existing list of statements.
 
 === GENERATE BYTE CODE ===
 During the generation of the byte code (assemly) the most efficient opcode is used. This behaviour can not be disabled.
