@@ -1,6 +1,4 @@
-float[3] vec;
-
-void scan_matrix(float [m,n] a) {
+void scan_vec(float [m] a) {
 }
 
 int returnThree() {
@@ -8,9 +6,9 @@ int returnThree() {
 }
 
 export int main() {
-    int m = 3;
+    int m = returnThree();
     int n = 3;
-    float [returnThree(), n+m] M;
-    scan_matrix(M);
+    float [n+m] M;
+    scan_vec(M);
     return 0;
 }
