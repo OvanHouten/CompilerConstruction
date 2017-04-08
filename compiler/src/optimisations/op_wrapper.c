@@ -18,6 +18,7 @@
 #include "free_node.h"
 #include "free.h"
 #include "type_utils.h"
+#include "myglobals.h"
 
 #include "op_wrapper.h"
 
@@ -324,20 +325,25 @@ node *OPtypecast(node *arg_node, info *arg_info) {
 node *OPdoOptimisations(node *syntaxtree) {
     DBUG_ENTER("OPdoOptimisations");
 
-    info *arg_info = MakeInfo();
+    if (myglobal.optimise) {
+        info *arg_info = MakeInfo();
 
-    int maxOptimizationLoops = 10;
-    do {
-        INFO_KEEPOPTIMIZING(arg_info) = FALSE;
-        TRAVpush(TR_op);
+        int maxOptimizationLoops = 10;
+        do {
+            INFO_KEEPOPTIMIZING(arg_info) = FALSE;
+            TRAVpush(TR_op);
 
-        syntaxtree = TRAVdo(syntaxtree, arg_info);
+            syntaxtree = TRAVdo(syntaxtree, arg_info);
 
-        TRAVpop();
-        DBUG_PRINT("OP", ("Optimized code: %s", INFO_KEEPOPTIMIZING(arg_info) ? "TRUE" : "FALSE"));
-    } while (INFO_KEEPOPTIMIZING(arg_info) && maxOptimizationLoops-- > 0);
+            TRAVpop();
+            DBUG_PRINT("OP", ("Optimized code: %s", INFO_KEEPOPTIMIZING(arg_info) ? "TRUE" : "FALSE"));
+        } while (INFO_KEEPOPTIMIZING(arg_info) && maxOptimizationLoops-- > 0);
 
-    arg_info = FreeInfo(arg_info);
+        arg_info = FreeInfo(arg_info);
+    } else {
+        DBUG_PRINT("OP", ("Optimisation has been switched off."));
+    }
+
     DBUG_RETURN(syntaxtree);
 }
 
