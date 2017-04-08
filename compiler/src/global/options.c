@@ -24,6 +24,8 @@ void OPTcheckOptions( int argc, char **argv)
 
   ARGS_OPTION( "o", global.outfile = STRcpy( ARG));
 
+  ARGS_OPTION( "v", ARG_RANGE(global.verbosity, 0, 3));
+
   ARGS_FLAG( "noopt", myglobal.optimise = FALSE);
 
   ARGS_FLAG( "dstp", myglobal.print_st = FALSE);
