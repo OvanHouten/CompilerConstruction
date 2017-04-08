@@ -21,6 +21,8 @@
 GLOBAL( char*, includedir, ".")
 // The hidden file created by the pre-processor is removed by default. 
 GLOBAL( bool, remove_preprocessor_file, TRUE)
+// The code optimisations can be switched off. By default they are switched on.
+GLOBAL( bool, optimise, TRUE)
 // Printing of the symbol tables can be switched on and off. By default it is switched on
 GLOBAL( bool, print_st, TRUE)
 // Printing of the variable details can be switched on and off. By default it is switched off
