@@ -31,6 +31,7 @@ void PrintGeneralInfo(void)
           "                    The compiler uses the environment variable 'C_INCLUDE_PATH' or '.' if it is not set.\n\n"
           "    -o <filename>   Name of output file.\n\n"
           "    -noopt          Disable the optimisations.\n\n"
+          "    -v <n>          Verbosity level (default: %d).\n\n"
           "    -eap            Enable printing of the AST in C-style.\n\n"
           "    -dstp           Disable printing of the symbol table information.\n\n"
           "    -pvd            Prints variable details from the symbol table at variable usage.\n\n"
