@@ -185,7 +185,6 @@
         <node name="Do" />
         <node name="For" />
         <node name="Return" />
-        <node name="ArrayAssign" />
         <node name="Nop" />
       </target>
     </nodeset>
@@ -198,18 +197,10 @@
         <node name="Typecast" />
         <node name="Funcall" />
         <node name="Id" />
-        <node name="Array" />
         <node name="IntConst" />
         <node name="FloatConst" />
         <node name="BoolConst" />
       </target>
-    </nodeset>
-    
-	<nodeset name="ArrExpr">
-        <target>
-            <node name="ArrExprs" />
-            <node name="Exprs" />
-        </target>
     </nodeset>
     
   </nodesets>
@@ -606,28 +597,6 @@
           <targets>
             <target mandatory="no">
               <set name="Expr" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="ArraySize">
-          <description>Size of array, only valid for globaldefs</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Ids" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-        <son name="ArrExprs">
-          <description>Assignment of array expression, only valid for globaldefs</description>
-          <targets>
-            <target mandatory="no">
-              <node name="ArrExprs" />
               <phases>
                 <all />
               </phases>
@@ -1571,158 +1540,6 @@
       <attributes>
       </attributes>
 	</node>
-
-<!--
-  ===================== Extension 2 =====================
--->
-
-<!--
-  Node ArrayAssign:
--->
-    <node name="ArrayAssign">
-	  <description>Represents the assignment of an array</description>
-      <sons>
-        <son name="Id">
-          <description>Represents the name of the array</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Id">
-                <phases>
-                  <all />
-                </phases>
-              </node>
-            </target>
-          </targets>
-        </son>
-        <son name="ArraySize">
-          <description>Represents the size of the array, can be multidimensional</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Exprs">
-                <phases>
-                  <all />
-                </phases>
-              </node>
-            </target>
-          </targets>
-        </son>
-        <son name="Expr">
-          <description>Represents to be assigned expression</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="Expr" />
-              <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-      </attributes>
-	</node>
-    
-<!--
-  Node Array:
--->
-    <node name="Array">
-	  <description>Represents the assignment of an array</description>
-      <sons>
-        <son name="Id">
-          <description>Represents the name of the array</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Id">
-                <phases>
-                  <all />
-                </phases>
-              </node>
-            </target>
-          </targets>
-        </son>
-        <son name="Exprs">
-          <description>Represents the index of the array</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Exprs">
-                <phases>
-                  <all />
-                </phases>
-              </node>
-            </target>
-          </targets>
-        </son>
-      </sons>
-    </node>
-
-<!--
-  ===================== Extension 3 =====================
--->
-<!--
-  Node Ids:
--->
-    <node name="Ids">
-      <description>Represents (sequence of) identifiers</description>
-      <sons>
-        <son name="Id">
-          <description>First identifier in sequence</description>
-          <targets>
-            <target mandatory="yes">
-              <node name="Id" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="Next">
-          <description>Remaining identefiers in sequence</description>
-          <targets>
-            <target mandatory="no">
-              <node name="Ids" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-      </attributes>
-    </node>
-    
-<!--
-  Node ArrExprs:
--->
-    <node name="ArrExprs">
-      <description>Represents (sequence of) array expressions</description>
-      <sons>
-        <son name="ArrExpr">
-          <description>First array expression in sequence</description>
-          <targets>
-            <target mandatory="yes">
-              <set name="ArrExpr" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-        <son name="Next">
-          <description>Remaining array expressions in sequence</description>
-          <targets>
-            <target mandatory="no">
-              <node name="ArrExprs" />
-                <phases>
-                  <all />
-                </phases>
-             </target>
-          </targets>
-        </son>
-      </sons>
-      <attributes>
-      </attributes>
-    </node>
     
   </syntaxtree>
 

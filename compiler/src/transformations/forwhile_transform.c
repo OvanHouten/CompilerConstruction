@@ -108,8 +108,8 @@ node* FWTfor(node* arg_node, info* arg_info) {
     NODE_COL(finishVar) = NODE_COL(FOR_FINISH(arg_node));
 
     // Now we have the names we need to declare variables
-    node* stepVarDef = TBmakeVardef(FALSE, FALSE, STRcpy(ID_NAME(stepVar)), TY_int, NULL, NULL, NULL);
-    node* finishVarDef = TBmakeVardef(FALSE, FALSE, STRcpy(ID_NAME(finishVar)), TY_int, NULL, NULL, NULL);
+    node* stepVarDef = TBmakeVardef(FALSE, FALSE, STRcpy(ID_NAME(stepVar)), TY_int, NULL);
+    node* finishVarDef = TBmakeVardef(FALSE, FALSE, STRcpy(ID_NAME(finishVar)), TY_int, NULL);
 
     // And store them in the SymbolTable and
     VARDEF_STE(stepVarDef) = registerWithinCurrentScope(symbolTable, stepVarDef, ID_NAME(stepVar), STE_vardef, TY_int);
